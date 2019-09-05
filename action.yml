@@ -1,0 +1,9 @@
+name: 'Setup PHP environment'
+description: 'Setup a PHP environment with composer and add it to the PATH'
+author: 'shivammathur'
+inputs:
+  php-version:
+    description: 'PHP version to install.'
+runs:
+  using: 'node12'
+  main: 'lib/install.js'

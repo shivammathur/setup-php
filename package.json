@@ -24,8 +24,9 @@
   "dependencies": {
     "@actions/core": "^1.0.0",
     "@actions/tool-cache": "^1.0.0",
+    "axios": "^0.19.0",
     "fs": "0.0.1-security",
-    "https": "^1.0.0"
+    "typescript": "^3.5.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.13",
@@ -34,8 +35,7 @@
     "jest": "^24.8.0",
     "jest-circus": "^24.7.1",
     "prettier": "^1.17.1",
-    "ts-jest": "^24.0.2",
-    "typescript": "^3.5.1"
+    "ts-jest": "^24.0.2"
   },
   "husky": {
     "skipCI": true,

@@ -33,7 +33,7 @@ Add-Content C:\tools\php$version\php.ini "extension=C:\tools\php$version\ext\php
 Add-Content C:\tools\php$version\php.ini "date.timezone = 'UTC'"
 
 echo "Installing Composer"
-Install-Composer -Scope User
+Install-Composer -Scope System
 
 php -v
 composer -V

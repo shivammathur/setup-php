@@ -52,7 +52,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@master
     - name: Install PHP
-      uses: shivammathur/setup-php@develop
+      uses: shivammathur/setup-php@master
       with:
         php-version: ${{ matrix.php-versions }}
     - name: Check PHP Version

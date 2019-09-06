@@ -7,11 +7,11 @@
 This action sets up a php environment along with composer on multiple platforms for use in github actions.
 
 # PHP Version Support
-- '5.6'
-- '7.0'
-- '7.1'
-- '7.2'
-- '7.3'
+- 5.6
+- 7.0
+- 7.1
+- 7.2
+- 7.3
 
 # Operating Systems Support
 - Linux (ubuntu-latest)

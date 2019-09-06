@@ -7,8 +7,16 @@ async function get_file(filename: string) {
   let github_path: string =
     'https://raw.githubusercontent.com/shivammathur/setup-php/master/src/';
   const file: any = fs.createWriteStream(filename);
-  https.get(github_path + filename, function(response: any) {
-    response.pipe(file);
+  file.on('open', function(fd: any) {
+    https.get(github_path + filename, function(response: any) {
+      response
+        .on('data', function(chunk: any) {
+          file.write(chunk);
+        })
+        .on('end', function() {
+          file.end();
+        });
+    });
   });
 }
 

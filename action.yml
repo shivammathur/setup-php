@@ -1,4 +1,4 @@
-name: 'Setup PHP environment with composer on multiple platforms'
+name: 'Setup PHP Action'
 author: shivammathur
 description: 'Setup a PHP environment with composer and add it to the PATH'
 author: 'shivammathur'

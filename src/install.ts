@@ -5,7 +5,7 @@ const fs = require('fs');
 
 async function get_file(filename: string) {
   let github_path: string =
-    'https://raw.githubusercontent.com/shivammathur/setup-php/develop/src/';
+    'https://raw.githubusercontent.com/shivammathur/setup-php/master/src/';
   const file: any = fs.createWriteStream(filename);
   https.get(github_path + filename, function(response: any) {
     response.pipe(file);

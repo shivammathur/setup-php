@@ -18,10 +18,10 @@ jobs:
       with:
         version: 10.x
 
-    - name: npm install
+    - name: Installing NPM
       run: npm install  
 
-    - name: Install PHP
+    - name: Installing PHP
       run: node lib/install.js
       env:
         php-version: ${{ matrix.php-versions }}

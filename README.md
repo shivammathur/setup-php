@@ -4,9 +4,19 @@
   <a href="https://github.com/shivammathur/setup-php"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
 </p>
 
-This action sets up a php environment for use in actions by:
+This action sets up a php environment along with composer on multiple platforms for use in github actions.
 
-- optionally installing a version of PHP and adding to PATH. Along with php it also installs composer
+# PHP Version Support
+- '5.6'
+- '7.0'
+- '7.1'
+- '7.2'
+- '7.3'
+
+# Operating Systems Support
+- Linux (ubuntu-latest)
+- Windows (windows-latest)
+- MacOS (macOS-latest)
 
 # Usage
 

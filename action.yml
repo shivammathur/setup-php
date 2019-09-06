@@ -1,6 +1,9 @@
-name: 'Setup PHP environment'
+name: 'Setup PHP environment with composer on multiple platforms'
+author: shivammathur
 description: 'Setup a PHP environment with composer and add it to the PATH'
 author: 'shivammathur'
+  icon: 'activity'  
+  color: 'purple'
 inputs:
   php-version:
     description: 'PHP version to install.'

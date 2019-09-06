@@ -1,7 +1,7 @@
 name: 'Setup PHP Action'
 author: shivammathur
 description: 'Setup a PHP environment with composer and add it to the PATH'
-author: 'shivammathur'
+branding:
   icon: 'activity'  
   color: 'purple'
 inputs:

@@ -7,8 +7,10 @@ branding:
 inputs:
   php-version:
     description: 'PHP version to be installed.'
+    required: true
   extension-csv:
     description: '(Optional) Comma seperated list of PHP extensions to be installed.'
+    required: false
 runs:
   using: 'node12'
   main: 'lib/install.js'

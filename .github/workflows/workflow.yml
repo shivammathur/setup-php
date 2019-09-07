@@ -5,7 +5,7 @@ jobs:
     name: Run
     runs-on: ${{ matrix.operating-system }}
     strategy:
-      max-parallel: 15
+      max-parallel: 6
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macOS-latest]
         php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3']
@@ -25,3 +25,6 @@ jobs:
       run: node lib/install.js
       env:
         php-version: ${{ matrix.php-versions }}
+        extension-csv: "mbstring, curl, mysqli, json, xml, xdebug, pcov, phpdbg"
+    - name: Testing
+      run: php -m

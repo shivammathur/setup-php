@@ -6,7 +6,9 @@ branding:
   color: 'purple'
 inputs:
   php-version:
-    description: 'PHP version to install.'
+    description: 'PHP version to be installed.'
+  extension-csv:
+    description: '(Optional) Comma seperated list of PHP extensions to be installed.'
 runs:
   using: 'node12'
   main: 'lib/install.js'

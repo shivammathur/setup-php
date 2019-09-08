@@ -1,34 +1,36 @@
-# setup-php
+# Setup PHP in GitHub Actions
 
 <p align="left">
   <a href="https://github.com/shivammathur/setup-php"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
+  <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg"></a>
 </p>
 
-This action sets up a php environment along with composer and required PHP extensions on multiple platforms for use in github actions.
+[GitHub Action](https://github.com/features/actions) to install PHP with required extensions and composer. This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#usage) section to see how to use this.
 
-# PHP Version Support
+## PHP Versions Support
 - 5.6
 - 7.0
 - 7.1
 - 7.2
 - 7.3
 
-# Operating Systems Support
-- Linux (ubuntu-latest)
-- Windows (windows-latest)
-- MacOS (macOS-latest)
+## OS Support
+- Linux `ubuntu-latest`
+- Windows `windows-latest`
+- MacOS `macOS-latest`
 
-# PHP Extension Support
+## PHP Extension Support
 - On linux extensions which have the package in apt are installed.
 - On Windows and MacOS pecl extensions are installed.
 - Extensions which are installed along with PHP if specified are enabled.
 - Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interruped.
 
-# Usage
+## Usage
 
 See [action.yml](action.yml)
 
-Basic:
+### Basic
+
 ```yaml
 steps:
 - name: Checkout
@@ -46,7 +48,8 @@ steps:
   run: php -m
 ```
 
-Matrix Testing:
+### Matrix Testing
+
 ```yaml
 jobs:
   run:    
@@ -74,10 +77,23 @@ jobs:
 
 ```
 
-# License
+## License
 
 The scripts and documentation in this project are released under the [MIT License](LICENSE)
 
-# Contributions
+## Contributions
 
 Contributions are welcome!  See [Contributor's Guide](docs/contributors.md)
+
+## This action uses the following works
+
+- [powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager)
+- [Homebrew](https://brew.sh/)
+- [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php)
+- [exolnet/homebrew-deprecated](https://github.com/eXolnet/homebrew-deprecated)
+
+## Further Reading
+
+- [About GitHub Actions](https://github.com/features/actions)
+- [GitHub Actions Syntax](https://help.github.com/en/articles/workflow-syntax-for-github-actions)
+- [Other Awesome Actions](https://github.com/sdras/awesome-actions)

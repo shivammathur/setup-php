@@ -68,7 +68,7 @@ jobs:
     - name: Check PHP Version
       run: php -v
     - name: Check Composer Version
-      run: php -m
+      run: Composer -V
     - name: Check PHP Extensions
       run: php -m           
 

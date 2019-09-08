@@ -7,6 +7,7 @@ import * as fs from 'fs';
 /*
 Read the scripts
 */
+let os_version = process.platform;
 let darwin = fs.readFileSync(path.join(__dirname, '../src/darwin.sh'), 'utf8');
 let linux = fs.readFileSync(path.join(__dirname, '../src/linux.sh'), 'utf8');
 let windows = fs.readFileSync(
@@ -24,7 +25,7 @@ async function asyncForEach(array: any, callback: any) {
 }
 
 /*
-Enable functions which are installed but not enabled
+Enable extensions which are installed but not enabled
 */
 async function enableExtension(extension: string) {
   windows += `try {
@@ -38,10 +39,11 @@ async function enableExtension(extension: string) {
   echo $_
 }\n`;
 
-  let shell_code = `ext_dir=$(php -i | grep "extension_dir" | sed -e "s|.*=>\s*||")
+  let shell_code = `ext_dir=$(php-config --extension-dir)
 enabled=$(php -r "if (in_array('${extension}', get_loaded_extensions())) {echo 'yes';} else {echo 'no';}")
-if [ "$enabled" == 'no' ] && [ test -f "$ext_dir/${extension}.so" ]; then
-  echo "extension=${extension}.so" >> 'php -i | grep "Loaded Configuration" | sed -e "s|.*:\s*||"'
+if [ "$enabled" = "no" ] && [ -e "$ext_dir/${extension}.so" ]; then
+  echo "extension=${extension}.so" >> 'php -i | grep "Loaded Configuration" | sed -e "s|.*=>\s*||"'
+  echo "${extension} enabled"
 fi\n`;
   linux += shell_code;
   darwin += shell_code;
@@ -63,39 +65,46 @@ async function addExtension(extension_csv: string, version: string) {
   windows += '\n';
   darwin += '\n';
   await asyncForEach(extensions, async function(extension: string) {
+    // add script to enable extension is already installed along with php
     enableExtension(extension);
-    linux +=
-      'sudo apt install -y php' +
-      version +
-      '-' +
-      extension +
-      ' || echo "Couldn\'t find extension php' +
-      version +
-      '-' +
-      extension +
-      '"\n';
-    const http = new httpm.HttpClient('shivammathur/php-setup', [], {
-      allowRetries: true,
-      maxRetries: 2
-    });
-    const response: httpm.HttpClientResponse = await http.get(
-      'https://pecl.php.net/package/' + extension
-    );
-    if (response.message.statusCode == 200) {
-      windows +=
-        'try { Install-PhpExtension ' +
+
+    // else add script to attempt to install the extension
+    if (os_version == 'linux') {
+      linux +=
+        'sudo apt install -y php' +
+        version +
+        '-' +
         extension +
-        ' } catch [Exception] { echo $_; echo "Could not install extension: "' +
-        extension +
-        ' }\n';
-      darwin +=
-        'pecl install ' +
-        extension +
-        ' || echo "Couldn\'t find extension: ' +
+        ' || echo "Couldn\'t find extension php' +
+        version +
+        '-' +
         extension +
         '"\n';
     } else {
-      console.log('Cannot find pecl extension: ' + extension);
+      // check if pecl extension exists
+      const http = new httpm.HttpClient('shivammathur/php-setup', [], {
+        allowRetries: true,
+        maxRetries: 2
+      });
+      const response: httpm.HttpClientResponse = await http.get(
+        'https://pecl.php.net/package/' + extension
+      );
+      if (response.message.statusCode == 200) {
+        windows +=
+          'try { Install-PhpExtension ' +
+          extension +
+          ' } catch [Exception] { echo $_; echo "Could not install extension: "' +
+          extension +
+          ' }\n';
+        darwin +=
+          'pecl install ' +
+          extension +
+          ' || echo "Couldn\'t find extension: ' +
+          extension +
+          '"\n';
+      } else {
+        console.log('Cannot find pecl extension: ' + extension);
+      }
     }
   });
   linux += 'sudo apt autoremove -y';
@@ -117,7 +126,6 @@ async function createScript(filename: string, version: string) {
     if (error) {
       return console.log(error);
     }
-
     console.log('The file was saved!');
   });
 }
@@ -127,6 +135,7 @@ Run the script
 */
 async function run() {
   try {
+    // taking inputs
     let version = process.env['php-version'];
     if (!version) {
       version = core.getInput('php-version', {required: true});
@@ -142,7 +151,7 @@ async function run() {
       await addExtension(extension_csv, version);
     }
 
-    let os_version = process.platform;
+    // check the os version and run the respective script
     if (os_version == 'darwin') {
       await createScript('darwin.sh', version);
       await exec('sudo chmod a+x ' + version + 'darwin.sh');

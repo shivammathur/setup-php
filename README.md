@@ -15,19 +15,25 @@
 - 7.3
 
 ## OS Support
-- Linux `ubuntu-latest`
-- Windows `windows-latest`
-- MacOS `macOS-latest`
+
+|Virtual environment|matrix.operating-system|
+|--- |--- |
+|Windows Server 2019|`windows-latest` or `windows-2019`|
+|Windows Server 2016 R2|`windows-2016`|
+|Ubuntu 18.04|`ubuntu-latest` or `ubuntu-18.04`|
+|Ubuntu 16.04|`ubuntu-16.04`|
+|macOS X Mojave 10.14|`macOS-latest` or `macOS-10.14`|
+
 
 ## PHP Extension Support
-- On linux extensions which have the package in apt are installed.
-- On Windows and MacOS pecl extensions are installed.
+- On `ubuntu` extensions which have the package in apt are installed.
+- On `windows` and `macOS` PECL extensions are installed.
 - Extensions which are installed along with PHP if specified are enabled.
 - Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interruped.
 
 ## Usage
 
-See [action.yml](action.yml)
+See [action.yml](action.yml) for inputs this action supports.
 
 ### Basic
 

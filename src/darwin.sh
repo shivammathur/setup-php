@@ -1,12 +1,13 @@
 echo $1
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 brew unlink php
-brew tap exolnet/homebrew-deprecated
-brew tap homebrew/homebrew-php
-brew install php@$1
-brew link --force --overwrite php@$1
-curl -sS https://getcomposer.org/installer | php
-chmod +x composer.phar
-mv composer.phar /usr/local/bin/composer
+
+if [ $1 = '7.4' ]; then
+	chmod a+x ./src/7.4.sh
+	./src/7.4.sh;
+else	
+	brew tap exolnet/homebrew-deprecated
+	brew install php@$1 composer
+	brew link --force --overwrite php@$1
+fi
 php -v
-composer -V
+composer -V	

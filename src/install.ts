@@ -90,9 +90,15 @@ async function addExtension(extension_csv: string, version: string) {
         'https://pecl.php.net/package/' + extension
       );
       if (response.message.statusCode == 200) {
+        let extension_version = 'stable';
+        if (version == '7.4') {
+          extension_version = 'alpha';
+        }
         windows +=
           'try { Install-PhpExtension ' +
           extension +
+          ' -MinimumStability ' +
+          extension_version +
           ' } catch [Exception] { echo $_; echo "Could not install extension: "' +
           extension +
           ' }\n';

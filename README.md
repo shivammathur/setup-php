@@ -13,6 +13,9 @@
 - 7.1
 - 7.2
 - 7.3
+- 7.4 `7.4.0beta4` on `ubuntu`, and `7.4.0RC1` on `windows` and `macOS`
+
+**Note:** PHP 7.4 is currently in development, do not use in production.
 
 ## OS Support
 
@@ -97,6 +100,7 @@ Contributions are welcome!  See [Contributor's Guide](docs/contributors.md)
 - [Homebrew](https://brew.sh/)
 - [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php)
 - [exolnet/homebrew-deprecated](https://github.com/eXolnet/homebrew-deprecated)
+- [phpbrew](https://github.com/phpbrew/phpbrew)
 
 ## Further Reading
 

@@ -2,6 +2,10 @@ param (
     [Parameter(Mandatory=$true)][string]$version = "7.3"  
 )
 
+if($version -eq '7.4') {
+	$version = '7.4RC1'
+}
+
 echo "Installing NuGet"
 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
 if($version -lt '7.0') {
@@ -16,17 +20,20 @@ echo "Installing PhpManager"
 Install-Module -Name PhpManager -Force -Scope CurrentUser
 echo "Installing PHP"
 Uninstall-Php C:\tools\php
-Install-Php -Version $version -Architecture x86 -ThreadSafe $true -Path C:\tools\php$version -TimeZone UTC
+Install-Php -Version $version -Architecture x86 -ThreadSafe $true -Path C:\tools\php$version -TimeZone UTC -InitialPhpIni Production
 echo "Switch PHP"
 (Get-PhpSwitcher).targets
 Initialize-PhpSwitcher -Alias C:\tools\php -Scope CurrentUser -Force
 Add-PhpToSwitcher -Name $version -Path C:\tools\php$version -Force
 Switch-Php $version -Force
 echo "Housekeeping in PHP.ini, enabling openssl"
-Move-item -Path C:\tools\php$version\php.ini-production -Destination C:\tools\php$version\php.ini -Force
 Add-Content C:\tools\php$version\php.ini "date.timezone = 'UTC'"
 Set-PhpIniKey extension_dir C:\tools\php$version\ext
-Enable-PhpExtension openssl
+if($version -lt '7.4') {
+	Enable-PhpExtension openssl
+} else {
+	Add-Content C:\tools\php$version\php.ini "extension=php_openssl.dll"
+}
 echo "Installing Composer"
 Install-Composer -Scope System -Path C:\tools\php
 php -v

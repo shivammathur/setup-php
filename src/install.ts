@@ -90,9 +90,15 @@ async function addExtension(extension_csv: string, version: string) {
         'https://pecl.php.net/package/' + extension
       );
       if (response.message.statusCode == 200) {
+        let extension_version = 'stable';
+        if (version == '7.4') {
+          extension_version = 'alpha';
+        }
         windows +=
           'try { Install-PhpExtension ' +
           extension +
+          ' -MinimumStability ' +
+          extension_version +
           ' } catch [Exception] { echo $_; echo "Could not install extension: "' +
           extension +
           ' }\n';
@@ -141,6 +147,10 @@ async function run() {
       version = core.getInput('php-version', {required: true});
     }
     console.log('Input: ' + version);
+
+    if (version == '7.4') {
+      darwin = fs.readFileSync(path.join(__dirname, '../src/7.4.sh'), 'utf8');
+    }
 
     let extension_csv = process.env['extension-csv'];
     if (!extension_csv) {

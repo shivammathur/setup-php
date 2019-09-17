@@ -41,8 +41,8 @@ sudo mkdir -p /opt/phpbrew
 phpbrew init --root=/opt/phpbrew
 echo "[[ -e ~/.phpbrew/bashrc ]] && source ~/.phpbrew/bashrc" >> ~/.bashrc
 source ~/.bashrc
-phpbrew install -j 10 7.4.0RC1 +default +bz2="$(brew --prefix bzip2)" +zlib="$(brew --prefix zlib)" -openssl --  --with-libxml
-phpbrew switch php-7.4.0RC1 >> /dev/null
+phpbrew install -j 10 7.4.0RC2 +default +bz2="$(brew --prefix bzip2)" +zlib="$(brew --prefix zlib)" -openssl --  --with-libxml
+phpbrew switch php-7.4.0RC2 >> /dev/null
 sudo mkdir -p /usr/local/bin
-sudo ln -sf /Users/runner/.phpbrew/php/php-7.4.0RC1/bin/php /usr/local/bin/php
+sudo ln -sf /Users/runner/.phpbrew/php/php-7.4.0RC2/bin/php /usr/local/bin/php
 brew install composer

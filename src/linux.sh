@@ -17,6 +17,7 @@ if [ ! -e "/usr/bin/composer" ]; then
 	sudo curl -s https://getcomposer.org/installer | php;
 	sudo mv composer.phar /usr/local/bin/composer;
 fi
+composer global require hirak/prestissimo
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 sudo chmod 777 $ini_file
 php -v

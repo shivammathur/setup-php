@@ -11,6 +11,9 @@ inputs:
   extension-csv:
     description: '(Optional) Comma seperated list of PHP extensions to be installed.'
     required: false
+  ini-values-csv: 
+    description: '(Optional) Custom values you want to set in php.ini'
+    required: false
 runs:
   using: 'node12'
   main: 'lib/install.js'

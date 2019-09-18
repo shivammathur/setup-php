@@ -71,7 +71,7 @@ async function addExtension(extension_csv: string, version: string) {
     // else add script to attempt to install the extension
     if (os_version == 'linux') {
       linux +=
-        'sudo apt install -y php' +
+        'sudo DEBIAN_FRONTEND=noninteractive apt install -y php' +
         version +
         '-' +
         extension +
@@ -113,7 +113,25 @@ async function addExtension(extension_csv: string, version: string) {
       }
     }
   });
-  linux += 'sudo apt autoremove -y';
+  linux += 'sudo DEBIAN_FRONTEND=noninteractive apt autoremove -y';
+}
+
+/*
+Add script to set custom ini values
+*/
+async function addINIValues(ini_values_csv: string) {
+  let ini_values: any = ini_values_csv
+    .split(',')
+    .map(function(ini_value: string) {
+      return ini_value.trim();
+    });
+  await asyncForEach(ini_values, async function(ini_value: string) {
+    // add script to set ini value
+    linux += '\necho "' + ini_value + '" >> $ini_file';
+    darwin += '\necho "' + ini_value + '" >> $ini_file';
+    windows +=
+      '\nAdd-Content C:\\tools\\php$version\\php.ini "' + ini_value + '"';
+  });
 }
 
 /*
@@ -146,7 +164,7 @@ async function run() {
     if (!version) {
       version = core.getInput('php-version', {required: true});
     }
-    console.log('Input: ' + version);
+    console.log('Version: ' + version);
 
     if (version == '7.4') {
       darwin = fs.readFileSync(path.join(__dirname, '../src/7.4.sh'), 'utf8');
@@ -157,8 +175,17 @@ async function run() {
       extension_csv = core.getInput('extension-csv');
     }
     if (extension_csv) {
-      console.log('Input: ' + extension_csv);
+      console.log('Extensions: ' + extension_csv);
       await addExtension(extension_csv, version);
+    }
+
+    let ini_values_csv = process.env['ini-values-csv'];
+    if (!ini_values_csv) {
+      ini_values_csv = core.getInput('ini-values-csv');
+    }
+    if (ini_values_csv) {
+      console.log('INI Values: ' + ini_values_csv);
+      await addINIValues(ini_values_csv);
     }
 
     // check the os version and run the respective script

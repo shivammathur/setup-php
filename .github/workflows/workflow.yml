@@ -21,10 +21,21 @@ jobs:
     - name: Installing NPM
       run: npm install  
 
-    - name: Installing PHP
+    - name: Installing PHP with extensions and custom config
       run: node lib/install.js
       env:
         php-version: ${{ matrix.php-versions }}
-        extension-csv: "mbstring, curl, mysqli, json, xml, xdebug, pcov, phpdbg"
-    - name: Testing
-      run: php -v && composer -V && php -m
+        extension-csv: "mbstring, xdebug, pcov" #optional
+        ini-values-csv: "post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata" #optional
+
+    - name: Testing PHP version
+      run: php -v
+    - name: Testing Composer version
+      run: composer -V
+    - name: Testing Extensions
+      run: php -m
+    - name: Testing ini values
+      run: |
+        php -r "echo \"post_max_size: \" . ini_get('post_max_size') . \"\n\";"
+        php -r "echo \"short_open_tag: \" . ini_get('short_open_tag') . \"\n\";"
+        php -r "echo \"date.timezone: \" . ini_get('date.timezone') . \"\n\";"

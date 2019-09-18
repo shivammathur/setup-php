@@ -27,23 +27,27 @@ async function asyncForEach(array: any, callback: any) {
 /*
 Enable extensions which are installed but not enabled
 */
-async function enableExtension(extension: string) {
+function enableExtension(extension: string) {
   windows += `try {
+  $${extension}_found = 0
   $ext_dir = Get-PhpIniKey extension_dir
   $exist = Test-Path -Path $ext_dir\\php_${extension}.dll
   $enabled = php -r "if (in_array('${extension}', get_loaded_extensions())) {echo 'yes';} else {echo 'no';}"
   if($enabled -eq 'no' -and $exist) {
     Enable-PhpExtension ${extension} C:\\tools\\php$version
+    $${extension}_found = 1
   }
 } catch [Exception] {
   echo $_
 }\n`;
 
   let shell_code = `ext_dir=$(php-config --extension-dir)
+${extension}_found=0
 enabled=$(php -r "if (in_array('${extension}', get_loaded_extensions())) {echo 'yes';} else {echo 'no';}")
 if [ "$enabled" = "no" ] && [ -e "$ext_dir/${extension}.so" ]; then
   echo "extension=${extension}.so" >> 'php -i | grep "Loaded Configuration" | sed -e "s|.*=>\s*||"'
   echo "${extension} enabled"
+  ${extension}_found=1
 fi\n`;
   linux += shell_code;
   darwin += shell_code;
@@ -71,7 +75,9 @@ async function addExtension(extension_csv: string, version: string) {
     // else add script to attempt to install the extension
     if (os_version == 'linux') {
       linux +=
-        'sudo DEBIAN_FRONTEND=noninteractive apt install -y php' +
+        'if [ $' +
+        extension +
+        '_found -eq 0 ]; then sudo DEBIAN_FRONTEND=noninteractive apt install -y php' +
         version +
         '-' +
         extension +
@@ -79,7 +85,7 @@ async function addExtension(extension_csv: string, version: string) {
         version +
         '-' +
         extension +
-        '"\n';
+        '"; fi\n';
     } else {
       // check if pecl extension exists
       const http = new httpm.HttpClient('shivammathur/php-setup', [], {
@@ -95,19 +101,24 @@ async function addExtension(extension_csv: string, version: string) {
           extension_version = 'alpha';
         }
         windows +=
+          'if($' +
+          extension +
+          '_found -eq 0) { ' +
           'try { Install-PhpExtension ' +
           extension +
           ' -MinimumStability ' +
           extension_version +
           ' } catch [Exception] { echo $_; echo "Could not install extension: "' +
           extension +
-          ' }\n';
+          ' } }\n';
         darwin +=
-          'pecl install ' +
+          'if [ $' +
+          extension +
+          '_found -eq 0 ]; then pecl install ' +
           extension +
           ' || echo "Couldn\'t find extension: ' +
           extension +
-          '"\n';
+          '"; fi\n';
       } else {
         console.log('Cannot find pecl extension: ' + extension);
       }
@@ -150,7 +161,7 @@ async function createScript(filename: string, version: string) {
     if (error) {
       return console.log(error);
     }
-    console.log('The file was saved!');
+    console.log('The file was saved! \n' + script);
   });
 }
 

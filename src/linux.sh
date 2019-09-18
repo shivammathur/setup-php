@@ -20,5 +20,6 @@ fi
 composer global require hirak/prestissimo
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 sudo chmod 777 $ini_file
+sudo mkdir -p /run/php
 php -v
 composer -V

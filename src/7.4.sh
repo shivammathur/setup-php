@@ -45,4 +45,6 @@ phpbrew install -j 10 7.4.0RC2 +default +bz2="$(brew --prefix bzip2)" +zlib="$(b
 phpbrew switch php-7.4.0RC2 >> /dev/null
 sudo mkdir -p /usr/local/bin
 sudo ln -sf /Users/runner/.phpbrew/php/php-7.4.0RC2/bin/php /usr/local/bin/php
+ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
+sudo chmod 777 $ini_file
 brew install composer

@@ -5,7 +5,7 @@
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg"></a>
 </p>
 
-[GitHub Action](https://github.com/features/actions) to install PHP with required extensions and composer. This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#usage) section to see how to use this.
+[GitHub Action](https://github.com/features/actions) to install PHP with required extensions, php.ini configuration and composer. This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#usage) section to see how to use this.
 
 ## PHP Versions Support
 - 5.6
@@ -36,9 +36,15 @@
 
 ## Usage
 
-See [action.yml](action.yml) for inputs this action supports.
+Inputs supported by this GitHub Action.
 
-### Basic
+- php-version
+- extension-csv (optional)
+- ini-values-csv (optional)
+
+See [action.yml](action.yml) for more info
+
+### Basic Usage
 
 ```yaml
 steps:
@@ -48,7 +54,8 @@ steps:
   uses: shivammathur/setup-php@master
   with:
     php-version: 7.3
-    extension-csv: mbstring, xdebug
+    extension-csv: mbstring, xdebug #optional
+    ini-values-csv: "post_max_size=256M, short_open_tag=On" #optional
 - name: Check PHP Version
   run: php -v
 - name: Check Composer Version
@@ -76,7 +83,8 @@ jobs:
       uses: shivammathur/setup-php@master
       with:
         php-version: ${{ matrix.php-versions }}
-        extension-csv: mbstring, xdebug
+        extension-csv: mbstring, xdebug #optional
+        ini-values-csv: "post_max_size=256M, short_open_tag=On" #optional
     - name: Check PHP Version
       run: php -v
     - name: Check Composer Version

@@ -9,6 +9,7 @@ else
 fi
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 sudo chmod 777 $ini_file
+mkdir -p $(pecl config-get ext_dir)
 curl -sS https://getcomposer.org/installer | php
 chmod +x composer.phar
 mv composer.phar /usr/local/bin/composer

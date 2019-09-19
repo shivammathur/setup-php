@@ -114,7 +114,7 @@ async function addExtension(extension_csv: string, version: string) {
         darwin +=
           'if [ $' +
           extension +
-          '_found -eq 0 ]; then pecl install ' +
+          '_found -eq 0 ]; then sudo pecl install ' +
           extension +
           ' || echo "Couldn\'t find extension: ' +
           extension +

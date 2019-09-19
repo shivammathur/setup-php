@@ -161,7 +161,7 @@ async function createScript(filename: string, version: string) {
     if (error) {
       return console.log(error);
     }
-    console.log('The file was saved! \n' + script);
+    console.log('The file was saved!');
   });
 }
 

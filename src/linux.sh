@@ -3,12 +3,12 @@ if [ "$version" != "$1" ]; then
 	if [ ! -e "/usr/bin/php$1" ]; then
 		sudo DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/php -y
 		sudo DEBIAN_FRONTEND=noninteractive apt update -y		
-		sudo DEBIAN_FRONTEND=noninteractive apt install -y php$1 curl;
+		sudo DEBIAN_FRONTEND=noninteractive apt install -y php"$1" curl php"$1"-curl;
 		sudo DEBIAN_FRONTEND=noninteractive apt autoremove -y;		
 	fi
 	for tool in php phar phar.phar php-cgi php-config phpize; do
 		if [ -e "/usr/bin/$tool$1" ]; then
-			sudo update-alternatives --set $tool /usr/bin/$tool$1;
+			sudo update-alternatives --set $tool /usr/bin/"$tool$1";
 		fi
 	done
 fi	
@@ -19,7 +19,8 @@ if [ ! -e "/usr/bin/composer" ]; then
 fi
 composer global require hirak/prestissimo
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
-sudo chmod 777 $ini_file
+ext_dir=$(/usr/bin/php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
+sudo chmod 777 "$ini_file"
 sudo mkdir -p /run/php
 php -v
 composer -V

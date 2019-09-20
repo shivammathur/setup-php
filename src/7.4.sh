@@ -11,7 +11,6 @@ echo 'export PATH="/usr/local/opt/krb5/bin:$PATH"' >> ~/.bash_profile
 echo 'export PATH="/usr/local/opt/krb5/sbin:$PATH"' >> ~/.bash_profile
 echo 'export PATH="/usr/local/opt/icu4c/bin:$PATH"' >> ~/.bash_profile
 echo 'export PATH="/usr/local/opt/icu4c/sbin:$PATH"' >> ~/.bash_profile
-echo 'export PATH="/usr/local/opt/bzip2/bin:$PATH"' >> ~/.bash_profile
 echo 'export PATH="/usr/local/opt/bison/bin:$PATH"' >> ~/.bash_profile
 echo 'export PATH="/usr/local/opt/libxml2/bin:$PATH"' >> ~/.bash_profile
 echo 'export PATH="/Users/runner/.phpbrew/php/php-7.4.0RC1/bin:$PATH"' >> ~/.bash_profile
@@ -33,7 +32,7 @@ export READLINE_CFLAGS="-I/usr/local/opt/readline/include"
 export BZIP2_LIBS="-L/usr/local/opt/bzip2/lib"
 export BZIP2_CFLAGS="-I/usr/local/opt/bzip2/include"
 export PKG_CONFIG_PATH="/usr/local/opt/krb5/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/obzip2pt/libffi/lib/pkgconfig:/usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/readline/lib/pkgconfig:/usr/local/opt/libxml2/lib/pkgconfig:/usr/local/opt/krb5/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig:/usr/local/opt/libxml2/lib/pkgconfig"
-cd ~
+cd ~ || echo "could not move to ~"
 curl -L -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew
 chmod +x ./phpbrew
 sudo mv phpbrew /usr/local/bin/phpbrew
@@ -46,5 +45,6 @@ phpbrew switch php-7.4.0RC2 >> /dev/null
 sudo mkdir -p /usr/local/bin
 sudo ln -sf /Users/runner/.phpbrew/php/php-7.4.0RC2/bin/php /usr/local/bin/php
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
-sudo chmod 777 $ini_file
+ext_dir=$(/usr/bin/php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
+sudo chmod 777 "$ini_file"
 brew install composer

@@ -65,13 +65,13 @@ describe('Features tests', () => {
       'win32'
     );
     expect(win32).toContain(
-      'Add-Content C:\\tools\\php$version\\php.ini "post_max_size=256M"'
+      'Add-Content C:\\tools\\php\\php.ini "post_max_size=256M"'
     );
     expect(win32).toContain(
-      'Add-Content C:\\tools\\php$version\\php.ini "short_open_tag=On"'
+      'Add-Content C:\\tools\\php\\php.ini "short_open_tag=On"'
     );
     expect(win32).toContain(
-      'Add-Content C:\\tools\\php$version\\php.ini "date.timezone=Asia/Kolkata"'
+      'Add-Content C:\\tools\\php\\php.ini "date.timezone=Asia/Kolkata"'
     );
   });
 

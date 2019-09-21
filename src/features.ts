@@ -34,7 +34,7 @@ export async function enableExtensionWindows(extension: string) {
   $exist = Test-Path -Path $ext_dir\\php_${extension}.dll
   $enabled = php -r "if (in_array('${extension}', get_loaded_extensions())) {echo 'yes';} else {echo 'no';}"
   if($enabled -eq 'no' -and $exist) {
-    Enable-PhpExtension ${extension} C:\\tools\\php$version
+    Enable-PhpExtension ${extension} C:\\tools\\php
     $${extension}_found = 1
   }
 } catch [Exception] {
@@ -181,7 +181,7 @@ export async function addINIValuesWindows(
   await utils.asyncForEach(ini_values, async function(ini_value: string) {
     // add script to set ini value
     script +=
-      'Add-Content C:\\tools\\php$version\\php.ini "' + ini_value + '"\n';
+      'Add-Content C:\\tools\\php\\php.ini "' + ini_value + '"\n';
   });
   return script;
 }

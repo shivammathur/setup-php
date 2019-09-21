@@ -1,5 +1,5 @@
 brew fetch autoconf& brew fetch automake& brew fetch pcre& brew fetch libtool& brew fetch libpng& brew fetch webp& brew fetch jpeg& brew fetch freetype& brew fetch libxml2& brew fetch pkg-config& brew fetch krb5& brew fetch icu4c& brew fetch re2c& brew fetch bison& brew fetch libzip& brew fetch mcrypt& brew fetch zlib& brew fetch bzip2& brew fetch enchant
-brew install autoconf automake pcre libtool libpng webp jpeg freetype libxml2 pkg-config krb5 icu4c re2c bison libzip mcrypt zlib bzip2 enchant >> /dev/null
+brew install autoconf automake pcre libtool libpng webp jpeg freetype libxml2 pkg-config krb5 icu4c re2c bison libzip mcrypt zlib bzip2 enchant > /dev/null 2>&1
 brew link --force gettext
 brew link --force bison
 brew link --force openssl
@@ -14,7 +14,7 @@ echo 'export PATH="/usr/local/opt/icu4c/sbin:$PATH"' >> ~/.bash_profile
 echo 'export PATH="/usr/local/opt/bison/bin:$PATH"' >> ~/.bash_profile
 echo 'export PATH="/usr/local/opt/libxml2/bin:$PATH"' >> ~/.bash_profile
 echo 'export PATH="/Users/runner/.phpbrew/php/php-7.4.0RC1/bin:$PATH"' >> ~/.bash_profile
-source ~/.bash_profile >> /dev/null
+source ~/.bash_profile > /dev/null 2>&1
 export LIBXML_LIBS="-L/usr/local/opt/libxml2/lib"
 export LIBXML_CFLAGS="-I/usr/local/opt/libxml2/include"
 export ENCHANT_LIBS="-L/usr/local/opt/enchant/lib"
@@ -41,7 +41,7 @@ phpbrew init --root=/opt/phpbrew
 echo "[[ -e ~/.phpbrew/bashrc ]] && source ~/.phpbrew/bashrc" >> ~/.bashrc
 source ~/.bashrc
 phpbrew install -j 10 7.4.0RC2 +default +bz2="$(brew --prefix bzip2)" +zlib="$(brew --prefix zlib)" -openssl --  --with-libxml
-phpbrew switch php-7.4.0RC2 >> /dev/null
+phpbrew switch php-7.4.0RC2 > /dev/null 2>&1
 sudo mkdir -p /usr/local/bin
 sudo ln -sf /Users/runner/.phpbrew/php/php-7.4.0RC2/bin/php /usr/local/bin/php
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")

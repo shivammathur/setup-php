@@ -180,8 +180,7 @@ export async function addINIValuesWindows(
   let ini_values: Array<string> = await utils.INIArray(ini_values_csv);
   await utils.asyncForEach(ini_values, async function(ini_value: string) {
     // add script to set ini value
-    script +=
-      'Add-Content C:\\tools\\php\\php.ini "' + ini_value + '"\n';
+    script += 'Add-Content C:\\tools\\php\\php.ini "' + ini_value + '"\n';
   });
   return script;
 }

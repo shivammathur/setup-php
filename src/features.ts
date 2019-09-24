@@ -28,14 +28,10 @@ export async function addINIValues(ini_values_csv: string, os_version: string) {
  * @param extension
  */
 export async function enableExtensionWindows(extension: string) {
-  return `try {
-  $${extension}_found = 0
-  $ext_dir = Get-PhpIniKey extension_dir
+  return `try {  
   $exist = Test-Path -Path $ext_dir\\php_${extension}.dll
-  $enabled = php -r "if (in_array('${extension}', get_loaded_extensions())) {echo 'yes';} else {echo 'no';}"
-  if($enabled -eq 'no' -and $exist) {
-    Enable-PhpExtension ${extension} C:\\tools\\php
-    $${extension}_found = 1
+  if(!(php -m | findstr -i ${extension}) -and $exist) {
+    Enable-PhpExtension ${extension} C:\\tools\\php  
   }
 } catch [Exception] {
   echo $_
@@ -48,12 +44,9 @@ export async function enableExtensionWindows(extension: string) {
  * @param extension
  */
 export async function enableExtensionUnix(extension: string) {
-  return `${extension}_found=0
-enabled=$(php -r "if (in_array('${extension}', get_loaded_extensions())) {echo 'yes';} else {echo 'no';}")
-if [ "$enabled" = "no" ] && [ -e "$ext_dir/${extension}.so" ]; then
+  return `if [ ! "$(php -m | grep ${extension})" ] && [ -e "$ext_dir/${extension}.so" ]; then
   echo "extension=${extension}.so" >> 'php -i | grep "Loaded Configuration" | sed -e "s|.*=>\s*||"'
-  echo "${extension} enabled"
-  ${extension}_found=1
+  echo "${extension} enabled"  
 fi\n`;
 }
 
@@ -72,9 +65,9 @@ export async function addExtensionDarwin(
     script += await enableExtensionUnix(extension);
     if (await pecl.checkPECLExtension(extension)) {
       script +=
-        'if [ $' +
+        'if [ ! "$(php -m | grep ' +
         extension +
-        '_found -eq 0 ]; then sudo pecl install ' +
+        ')" ]; then sudo pecl install ' +
         extension +
         ' || echo "Couldn\'t find extension: ' +
         extension +
@@ -105,9 +98,9 @@ export async function addExtensionWindows(
     }
     if (await pecl.checkPECLExtension(extension)) {
       script +=
-        'if($' +
+        'if(!(php -m | findstr -i ' +
         extension +
-        '_found -eq 0) { ' +
+        ')) { ' +
         'try { Install-PhpExtension ' +
         extension +
         ' -MinimumStability ' +
@@ -136,9 +129,9 @@ export async function addExtensionLinux(
     // add script to enable extension is already installed along with php
     script += await enableExtensionUnix(extension);
     script +=
-      'if [ $' +
+      'if [ ! "$(php -m | grep ' +
       extension +
-      '_found -eq 0 ]; then sudo DEBIAN_FRONTEND=noninteractive apt install -y php' +
+      ')" ]; then sudo DEBIAN_FRONTEND=noninteractive apt install -y php' +
       version +
       '-' +
       extension +

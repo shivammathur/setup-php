@@ -112,7 +112,7 @@ The scripts and documentation in this project are released under the [MIT Licens
 
 ## :+1: Contributions
 
-Contributions are welcome! See [Contributor's Guide](docs/contributors.md).
+Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md).
 
 ## :sparkling_heart: Support this project
 

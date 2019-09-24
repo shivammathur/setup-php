@@ -23,8 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.0.0",
-    "@actions/tool-cache": "^1.0.0",
-    "codecov": "^3.6.0",
+    "@actions/tool-cache": "^1.0.0",    
     "fs": "0.0.1-security",
     "typed-rest-client": "^1.5.0"
   },

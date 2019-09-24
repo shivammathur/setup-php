@@ -36,5 +36,6 @@ if($version -lt '7.4') {
 
 echo "Installing Composer"
 Install-Composer -Scope System -Path C:\tools\php
+$ext_dir = Get-PhpIniKey extension_dir
 php -v
 composer -V

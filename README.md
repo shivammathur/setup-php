@@ -1,23 +1,35 @@
+<p align="center">
+  <a href="https://github.com/marketplace/actions/setup-php-action" target="_blank">
+    <img src="https://repository-images.githubusercontent.com/206578964/e0a18480-dc65-11e9-8dd3-b9ffbf5575fe" alt="Setup PHP in GitHub Actions" width="400">
+  </a>
+</p>
+
 # Setup PHP in GitHub Actions
 
 <p align="left">
   <a href="https://github.com/shivammathur/setup-php"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg"></a>
+  <a href="https://github.com/shivammathur/setup-php#php-versions-support"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a> 
+  <a href="https://www.patreon.com/shivammathur"><img alt="Support me on Patreon" src="https://shivammathur.com/badges/patreon.svg"></a>   <a href="https://www.paypal.me/shivammathur"><img alt="Support me on Paypal" src="https://shivammathur.com/badges/paypal.svg"></a>
+  <a href="https://www.codementor.io/shivammathur?utm_source=github&utm_medium=button&utm_term=shivammathur&utm_campaign=github"><img alt="Get Help on codementor" src="https://cdn.codementor.io/badges/get_help_github.svg"></a>  
 </p>
 
-[GitHub Action](https://github.com/features/actions) to install PHP with required extensions, php.ini configuration and composer. This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#usage) section to see how to use this.
+Setup PHP with required extensions, php.ini configuration and composer in [GitHub Actions](https://github.com/features/actions). This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#usage) section to see how to use this.
 
-## PHP Versions Support
-- 5.6
-- 7.0
-- 7.1
-- 7.2
-- 7.3
-- 7.4 `7.4.0beta4` on `ubuntu`, and `7.4.0RC2` on `windows` and `macOS`
+## :tada: PHP Supported Versions
 
-**Note:** PHP 7.4 is currently in development, do not use in production.
+|PHP Version|Stability|Release Support|
+|--- |--- |--- |
+|5.6|`Stable`|`End of life`|
+|7.0|`Stable`|`End of life`|
+|7.1|`Stable`|`Security fixes only`|
+|7.2|`Stable`|`Active`|
+|7.3|`Stable`|`Active`|
+|7.4|`Beta`/`RC`|`Active`|
 
-## OS Support
+**Note:** PHP 7.4 is currently in development, do not use in production/release branches.
+
+## :cloud: OS/Platform Support
 
 |Virtual environment|matrix.operating-system|
 |--- |--- |
@@ -28,13 +40,13 @@
 |macOS X Mojave 10.14|`macOS-latest` or `macOS-10.14`|
 
 
-## PHP Extension Support
+## :wrench: PHP Extension Support
 - On `ubuntu` extensions which have the package in apt are installed.
 - On `windows` and `macOS` PECL extensions are installed.
 - Extensions which are installed along with PHP if specified are enabled.
 - Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interruped.
 
-## Usage
+## :memo: Usage
 
 Inputs supported by this GitHub Action.
 
@@ -94,15 +106,20 @@ jobs:
 
 ```
 
-## License
+## :scroll: License
 
-The scripts and documentation in this project are released under the [MIT License](LICENSE)
+The scripts and documentation in this project are released under the [MIT License](LICENSE). This project has multiple [dependencies](https://github.com/shivammathur/setup-php/network/dependencies) and their licenses can be found in their respective repositories.
 
-## Contributions
+## :+1: Contributions
 
-Contributions are welcome!  See [Contributor's Guide](docs/contributors.md)
+Contributions are welcome! See [Contributor's Guide](docs/contributors.md).
 
-## This action uses the following works
+## :sparkling_heart: Support this project
+
+- Please star the project and share it among your developer friends.
+- Consider supporting on <a href="https://www.patreon.com/shivammathur"><img alt="Support me on Patreon" src="https://shivammathur.com/badges/patreon.svg"></a> and <a href="https://www.paypal.me/shivammathur"><img alt="Support me on Paypal" src="https://shivammathur.com/badges/paypal.svg"></a>.
+
+## :bookmark: This action uses the following works
 
 - [powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager)
 - [Homebrew](https://brew.sh/)
@@ -110,7 +127,7 @@ Contributions are welcome!  See [Contributor's Guide](docs/contributors.md)
 - [exolnet/homebrew-deprecated](https://github.com/eXolnet/homebrew-deprecated)
 - [phpbrew](https://github.com/phpbrew/phpbrew)
 
-## Further Reading
+## :bookmark_tabs: Further Reading
 
 - [About GitHub Actions](https://github.com/features/actions)
 - [GitHub Actions Syntax](https://help.github.com/en/articles/workflow-syntax-for-github-actions)

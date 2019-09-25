@@ -21,8 +21,8 @@ if [ ! -e "/usr/bin/composer" ]; then
 	sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 	RESULT=$?
 	rm composer-setup.php
-	exit $RESULT
+	echo $RESULT
 fi
-composer global require hirak/prestissimo
+sudo composer global require hirak/prestissimo
 php -v
 composer -V

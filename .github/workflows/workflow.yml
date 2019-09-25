@@ -2,8 +2,11 @@ name: Main workflow
 on:
   push:
     paths:
-    - '*'    
-    - '!*.md'
+    - '*.sh'
+    - '*.ps1'
+    - '*.yml'   
+    - '*.ts'
+    - '*.js'
 jobs:
   run:
     name: Run

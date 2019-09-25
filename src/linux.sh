@@ -18,16 +18,12 @@ if [ ! -e "/usr/bin/composer" ]; then
 	ACTUAL_SIGNATURE="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
 
 	if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]; then
-		>&2 echo 'ERROR: Invalid installer signature'
-		rm composer-setup.php
-		exit 1
+		>&2 echo 'ERROR: Invalid installer signature'		
+	else
+		COMPOSER_ALLOW_SUPERUSER=1
+		sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer	
 	fi
-
-	COMPOSER_ALLOW_SUPERUSER=1
-	sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-	RESULT=$?
-	rm composer-setup.php
-	exit $RESULT
+	rm composer-setup.php	
 fi
 
 composer global require hirak/prestissimo > /dev/null 2>&1

@@ -1,9 +1,5 @@
 name: Main workflow
-on:
-  push:
-    paths:
-    - '*'    
-    - '!*.md'
+on: [push]
 jobs:
   run:
     name: Run

@@ -10,6 +10,12 @@ jest.mock('../src/pecl', () => ({
   })
 }));
 
+jest.mock('@actions/core', () => ({
+  getInput: jest.fn().mockImplementation(key => {
+    return ['setup-php'].indexOf(key) !== -1 ? key : '';
+  })
+}));
+
 async function cleanup(path: string): Promise<void> {
   fs.unlink(path, error => {
     if (error) {
@@ -21,7 +27,10 @@ async function cleanup(path: string): Promise<void> {
 describe('Utils tests', () => {
   it('checking getInput', async () => {
     process.env['test'] = 'setup-php';
+    process.env['undefined'] = '';
     expect(await utils.getInput('test', false)).toBe('setup-php');
+    expect(await utils.getInput('undefined', false)).toBe('');
+    expect(await utils.getInput('setup-php', false)).toBe('setup-php');
     expect(await utils.getInput('DoesNotExist', false)).toBe('');
   });
 
@@ -51,10 +60,13 @@ describe('Utils tests', () => {
       path.join(__dirname, '../src/win32.ps1'),
       'utf8'
     );
-    expect(rc).toBe(await utils.readScript('darwin.sh', '7.4', 'darwin'));
-    expect(darwin).toBe(await utils.readScript('darwin.sh', '7.3', 'darwin'));
-    expect(linux).toBe(await utils.readScript('linux.sh', '7.3', 'linux'));
-    expect(win32).toBe(await utils.readScript('win32.ps1', '7.3', 'win32'));
+    expect(await utils.readScript('darwin.sh', '7.4', 'darwin')).toBe(rc);
+    expect(await utils.readScript('darwin.sh', '7.3', 'darwin')).toBe(darwin);
+    expect(await utils.readScript('linux.sh', '7.4', 'linux')).toBe(linux);
+    expect(await utils.readScript('win32.ps1', '7.3', 'win32')).toBe(win32);
+    expect(await utils.readScript('fedora.sh', '7.3', 'fedora')).toContain(
+      'Platform fedora is not supported'
+    );
   });
 
   it('checking writeScripts', async () => {
@@ -84,6 +96,37 @@ describe('Utils tests', () => {
       'b=2',
       'c=3'
     ]);
+  });
+
+  it('checking log', async () => {
+    let message: string = 'Test message';
+
+    let warning_log: string = await utils.log(message, 'win32', 'warning');
+    // expect(warning_log).toEqual(
+    //   "Write-Host '" + message + "' -ForegroundColor yellow"
+    // );
+    warning_log = await utils.log(message, 'linux', 'warning');
+    expect(warning_log).toEqual('echo -e "\\033[33;1m' + message + '\\033[0m"');
+    warning_log = await utils.log(message, 'darwin', 'warning');
+    expect(warning_log).toEqual('echo -e "\\033[33;1m' + message + '\\033[0m"');
+
+    let error_log: string = await utils.log(message, 'win32', 'error');
+    // expect(error_log).toEqual(
+    //   "Write-Host '" + message + "' -ForegroundColor red"
+    // );
+    error_log = await utils.log(message, 'linux', 'error');
+    expect(error_log).toEqual('echo -e "\\033[31;1m' + message + '\\033[0m"');
+    error_log = await utils.log(message, 'darwin', 'error');
+    expect(error_log).toEqual('echo -e "\\033[31;1m' + message + '\\033[0m"');
+
+    let success_log: string = await utils.log(message, 'win32', 'success');
+    // expect(success_log).toEqual(
+    //   "Write-Host '" + message + "' -ForegroundColor green"
+    // );
+    success_log = await utils.log(message, 'linux', 'success');
+    expect(success_log).toEqual('echo -e "\\033[32;1m' + message + '\\033[0m"');
+    success_log = await utils.log(message, 'darwin', 'success');
+    expect(success_log).toEqual('echo -e "\\033[32;1m' + message + '\\033[0m"');
   });
 
   it('checking checkPECLExtension', async () => {

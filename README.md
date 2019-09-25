@@ -46,6 +46,26 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 - Extensions which are installed along with PHP if specified are enabled.
 - Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interruped.
 
+## :signal_strength: Coverage support
+- Specify `coverage: xdebug` to use `Xdebug`.
+    - Runs on all [PHP versions supported](#tada-php-support)    
+```
+uses: shivammathur/setup-php@master
+with:
+  php-version: 7.3  
+  coverage: xdebug
+```
+- Specify `coverage: pcov` to use `PCOV`. `PCOV` is way faster than `Xdebug`
+    - For `pcov.directory` to be other than `src`, `lib` or, `app`, specify it using the `ini-values-csv` input.
+    - `PCOV` needs `PHPUnit >= 8.0` and `PHP >= 7.1`, `PHPUnit` needs `PHP >= 7.2`. So use `PHP >= 7.2` with `PCOV`
+```
+uses: shivammathur/setup-php@master
+with:
+  php-version: 7.3
+  ini-values-csv: 'pcov.directory=api' #optional, see above for usage.
+  coverage: pcov
+```
+
 ## :memo: Usage
 
 Inputs supported by this GitHub Action.
@@ -53,6 +73,7 @@ Inputs supported by this GitHub Action.
 - php-version
 - extension-csv (optional)
 - ini-values-csv (optional)
+- coverage (optional)
 
 See [action.yml](action.yml) for more info
 
@@ -68,6 +89,7 @@ steps:
     php-version: 7.3
     extension-csv: mbstring, xdebug #optional
     ini-values-csv: "post_max_size=256M, short_open_tag=On" #optional
+    coverage: xdebug #optional
 - name: Check PHP Version
   run: php -v
 - name: Check Composer Version
@@ -97,6 +119,7 @@ jobs:
         php-version: ${{ matrix.php-versions }}
         extension-csv: mbstring, xdebug #optional
         ini-values-csv: "post_max_size=256M, short_open_tag=On" #optional
+        coverage: xdebug #optional
     - name: Check PHP Version
       run: php -v
     - name: Check Composer Version

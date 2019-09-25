@@ -14,6 +14,9 @@ inputs:
   ini-values-csv: 
     description: '(Optional) Custom values you want to set in php.ini'
     required: false
+  coverage: 
+    description: '(Optional) Driver to calculate code coverage (Accepts: xdebug and pcov)'
+    required: false
 runs:
   using: 'node12'
   main: 'lib/install.js'

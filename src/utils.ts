@@ -89,3 +89,24 @@ export async function INIArray(ini_values_csv: string): Promise<Array<string>> {
     return ini_value.trim();
   });
 }
+
+export async function log(
+  message: string,
+  os_version: string,
+  log_type: string
+): Promise<string> {
+  if (os_version === 'win32') {
+    const color: any = {
+      error: 'red',
+      success: 'green',
+      warning: 'yellow'
+    };
+    return "Write-Host '" + message + "' -ForegroundColor " + color[log_type];
+  }
+  const color: any = {
+    error: '31',
+    success: '32',
+    warning: '33'
+  };
+  return 'echo -e "\\033[' + color[log_type] + ';1m' + message + '\\033[0m"';
+}

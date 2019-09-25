@@ -7,11 +7,13 @@ export async function getInput(
   mandatory: boolean
 ): Promise<string> {
   let input = process.env[name];
-  if (!input) {
-    input = core.getInput(name, {required: mandatory});
+  switch (input) {
+    case '':
+    case undefined:
+      return core.getInput(name, {required: mandatory});
+    default:
+      return input;
   }
-
-  return input;
 }
 
 /**
@@ -42,10 +44,31 @@ export async function readScript(
   version: string,
   os_version: string
 ): Promise<string> {
-  if (version === '7.4' && os_version === 'darwin') {
-    return fs.readFileSync(path.join(__dirname, '../src/7.4.sh'), 'utf8');
+  switch (os_version) {
+    case 'darwin':
+      switch (version) {
+        case '7.4':
+          return fs.readFileSync(path.join(__dirname, '../src/7.4.sh'), 'utf8');
+        case '7.3':
+        default:
+          return fs.readFileSync(
+            path.join(__dirname, '../src/' + filename),
+            'utf8'
+          );
+      }
+    case 'win32':
+    case 'linux':
+      return fs.readFileSync(
+        path.join(__dirname, '../src/' + filename),
+        'utf8'
+      );
+    default:
+      return await log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
   }
-  return fs.readFileSync(path.join(__dirname, '../src/' + filename), 'utf8');
 }
 
 /**
@@ -88,4 +111,32 @@ export async function INIArray(ini_values_csv: string): Promise<Array<string>> {
   return ini_values_csv.split(',').map(function(ini_value: string) {
     return ini_value.trim();
   });
+}
+
+export async function log(
+  message: string,
+  os_version: string,
+  log_type: string
+): Promise<string> {
+  switch (os_version) {
+    case 'win32':
+      const color: any = {
+        error: 'red',
+        success: 'green',
+        warning: 'yellow'
+      };
+      return "Write-Host '" + message + "' -ForegroundColor " + color[log_type];
+
+    case 'linux':
+    case 'darwin':
+    default:
+      const unix_color: any = {
+        error: '31',
+        success: '32',
+        warning: '33'
+      };
+      return (
+        'echo -e "\\033[' + unix_color[log_type] + ';1m' + message + '\\033[0m"'
+      );
+  }
 }

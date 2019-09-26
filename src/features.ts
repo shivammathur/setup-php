@@ -48,7 +48,7 @@ export async function enableExtensionWindows(extension: string) {
     `try {  
   $exist = Test-Path -Path $ext_dir\\php_${extension}.dll
   if(!(php -m | findstr -i ${extension}) -and $exist) {
-    Enable-PhpExtension ${extension} C:\\tools\\php\n` +
+    Add-Content C:\\tools\\php\\php.ini "extension=php_${extension}.dll"\n` +
     (await utils.log(extension + ' enabled', 'win32', 'success')) +
     `}
 } catch [Exception] {\n` +

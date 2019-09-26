@@ -1,50 +1,61 @@
-brew fetch autoconf& brew fetch automake& brew fetch pcre& brew fetch libtool& brew fetch libpng& brew fetch webp& brew fetch jpeg& brew fetch freetype& brew fetch libxml2& brew fetch pkg-config& brew fetch krb5& brew fetch icu4c& brew fetch re2c& brew fetch bison& brew fetch libzip& brew fetch mcrypt& brew fetch zlib& brew fetch bzip2& brew fetch enchant
-brew install autoconf automake pcre libtool libpng webp jpeg freetype libxml2 pkg-config krb5 icu4c re2c bison libzip mcrypt zlib bzip2 enchant > /dev/null 2>&1
-brew link --force gettext
-brew link --force bison
-brew link --force openssl
-brew link --force libxml2
-brew link --force bzip2
-echo 'export PATH="/usr/local/opt/bzip2/bin:$PATH"' >> ~/.bash_profile
-echo 'export PATH="/usr/local/opt/openssl/bin:$PATH"' >> ~/.bash_profile
-echo 'export PATH="/usr/local/opt/krb5/bin:$PATH"' >> ~/.bash_profile
-echo 'export PATH="/usr/local/opt/krb5/sbin:$PATH"' >> ~/.bash_profile
-echo 'export PATH="/usr/local/opt/icu4c/bin:$PATH"' >> ~/.bash_profile
-echo 'export PATH="/usr/local/opt/icu4c/sbin:$PATH"' >> ~/.bash_profile
-echo 'export PATH="/usr/local/opt/bison/bin:$PATH"' >> ~/.bash_profile
-echo 'export PATH="/usr/local/opt/libxml2/bin:$PATH"' >> ~/.bash_profile
-echo 'export PATH="/Users/runner/.phpbrew/php/php-7.4.0RC1/bin:$PATH"' >> ~/.bash_profile
-source ~/.bash_profile > /dev/null 2>&1
-export LIBXML_LIBS="-L/usr/local/opt/libxml2/lib"
-export LIBXML_CFLAGS="-I/usr/local/opt/libxml2/include"
-export ENCHANT_LIBS="-L/usr/local/opt/enchant/lib"
-export ENCHANT_CFLAGS="-I/usr/local/opt/enchant/include"
-export FFI_LIBS="-L/usr/local/opt/libffi/lib"
-export FFI_CFLAGS="-I/usr/local/opt/libffi/include"
-export ICU_LIBS="-L/usr/local/opt/icu4c/lib"
-export ICU_CFLAGS="-I/usr/local/opt/icu4c/include"
-export KERBEROS_LIBS="-L/usr/local/opt/krb5/lib"
-export KERBEROS_CFLAGS="-I/usr/local/opt/krb5/include"
-export OPENSSL_LIBS="-L/usr/local/opt/openssl/lib"
-export OPENSSL_CFLAGS="-I/usr/local/opt/openssl/include"
-export READLINE_LIBS="-L/usr/local/opt/readline/lib"
-export READLINE_CFLAGS="-I/usr/local/opt/readline/include"
-export BZIP2_LIBS="-L/usr/local/opt/bzip2/lib"
-export BZIP2_CFLAGS="-I/usr/local/opt/bzip2/include"
-export PKG_CONFIG_PATH="/usr/local/opt/krb5/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/obzip2pt/libffi/lib/pkgconfig:/usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/readline/lib/pkgconfig:/usr/local/opt/libxml2/lib/pkgconfig:/usr/local/opt/krb5/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/libffi/lib/pkgconfig:/usr/local/opt/libxml2/lib/pkgconfig"
+brew install pkg-config autoconf bison re2c openssl krb5 bzip2 enchant libffi libpng webp freetype intltool icu4c libiconv zlib t1lib gd libzip gmp tidyp libxml2 libxslt postgresql >/dev/null 2>&1
+brew link icu4c gettext --force >/dev/null 2>&1
+
+for package in gettext gmp bzip2 krb5 icu4c bison openssl libxml2 libffi libxslt libiconv pkgconfig enchant kerberos readline libedit freetype;
+do
+  caps_package=$(echo "$package" | tr '[:lower:]' '[:upper:]')
+  {
+  echo 'export PATH="/usr/local/opt/'"$package"'/bin:$PATH"'
+  echo 'export PKG_CONFIG_PATH="/usr/local/opt/'$package'/lib/pkgconfig:$PKG_CONFIG_PATH"'
+  echo 'export '"$caps_package"'_LIBS="-L/usr/local/opt/'$package'/lib"'
+  echo 'export '"$caps_package"'_CFLAGS="-I/usr/local/opt/'$package'/include"'
+  } >> ~/.bash_profile;
+done
+{
+echo 'export ICONV_LIBS="-L/usr/local/opt/libiconv/lib"'
+echo 'export ICONV_CFLAGS="-I/usr/local/opt/libiconv/include"'
+echo 'export LIBXML_LIBS="-L/usr/local/opt/libxml2/lib"'
+echo 'export LIBXML_CFLAGS="-I/usr/local/opt/libxml2/include"'
+echo 'export ICU_LIBS="-L/usr/local/opt/icu4c/lib"'
+echo 'export ICU_CFLAGS="-I/usr/local/opt/icu4c/include"'
+echo 'export OPENSSL_LIBS="-L/usr/local/Cellar/openssl/1.0.2s/lib -lcrypto"'
+echo 'export OPENSSL_CFLAGS="-I/usr/local/Cellar/openssl/1.0.2s/include"'
+echo 'export OPENSSL_ROOT_DIR="/usr/local/opt/openssl"'
+echo 'export OPENSSL_LIB_DIR="/usr/local/opt/openssl/lib"'
+echo 'export OPENSSL_INCLUDE_DIR="/usr/local/opt/openssl/include"'
+echo 'export PKG_CONFIG_PATH="/usr/local/Cellar/openssl/1.0.2s/lib/pkgconfig:$PKG_CONFIG_PATH"'
+echo 'export PKG_CONFIG="/usr/local/opt/pkgconfig/bin/pkg-config"'
+echo 'export EXTRA_LIBS="/usr/local/opt/readline/lib/libhistory.dylib
+/usr/local/opt/readline/lib/libreadline.dylib
+/usr/local/opt/openssl/lib/libssl.dylib
+/usr/local/opt/openssl/lib/libcrypto.dylib
+/usr/local/opt/icu4c/lib/libicudata.dylib
+/usr/local/opt/icu4c/lib/libicui18n.dylib
+/usr/local/opt/icu4c/lib/libicuio.dylib
+/usr/local/opt/icu4c/lib/libicutu.dylib
+/usr/local/opt/icu4c/lib/libicuuc.dylib"'
+} >> ~/.bash_profile
+config_file=$(pwd)/src/config.yaml
 cd ~ || echo "could not move to ~"
-curl -L -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew
+curl -L -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew >/dev/null 2>&1
 chmod +x ./phpbrew
 sudo mv phpbrew /usr/local/bin/phpbrew
 sudo mkdir -p /opt/phpbrew
-phpbrew init --root=/opt/phpbrew
-echo "[[ -e ~/.phpbrew/bashrc ]] && source ~/.phpbrew/bashrc" >> ~/.bashrc
-source ~/.bashrc
-phpbrew install -j 10 7.4.0RC2 +default +bz2="$(brew --prefix bzip2)" +zlib="$(brew --prefix zlib)" -openssl --  --with-libxml
-phpbrew switch php-7.4.0RC2 > /dev/null 2>&1
+sudo phpbrew init --root=/opt/phpbrew --config="$config_file" >/dev/null 2>&1
+sudo chmod -R 777 /opt/phpbrew
+export PHPBREW_ROOT=/opt/phpbrew
+export PHPBREW_HOME=/opt/phpbrew
+echo "[[ -e ~/.phpbrew/bash_profile ]] && source ~/.phpbrew/bash_profile" >> ~/.bash_profile
+source ~/.bash_profile >/dev/null 2>&1
+sudo mkdir -p /usr/local/lib
+phpbrew install -j 4 7.4.0RC2 +dev
+tail -40 /opt/phpbrew/build/php-7.4.0RC2/build.log
+phpbrew switch php-7.4.0RC2
+phpbrew ext install +dev >/dev/null 2>&1
 sudo mkdir -p /usr/local/bin
-sudo ln -sf /Users/runner/.phpbrew/php/php-7.4.0RC2/bin/php /usr/local/bin/php
+sudo ln -sf /opt/phpbrew/php/php-7.4.0RC2/bin/* /usr/local/bin/
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
-ext_dir=$(/usr/bin/php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
+pecl config-set php_ini $ini_file
+ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
 sudo chmod 777 "$ini_file"
 brew install composer

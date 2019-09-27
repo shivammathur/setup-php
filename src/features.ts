@@ -49,10 +49,16 @@ export async function enableExtensionWindows(extension: string) {
   $exist = Test-Path -Path $ext_dir\\php_${extension}.dll
   if(!(php -m | findstr -i ${extension}) -and $exist) {
     Add-Content C:\\tools\\php\\php.ini "extension=php_${extension}.dll"\n` +
-    (await utils.log(extension + ' enabled', 'win32', 'success')) +
-    `}
+    (await utils.log('Enabled ' + extension, 'win32', 'success')) +
+    ` } elseif(php -m | findstr -i ${extension}) {\n` +
+    (await utils.log(
+      'Extension ' + extension + ' was already enabled',
+      'win32',
+      'success'
+    )) +
+    ` }
 } catch [Exception] {\n` +
-    (await utils.log(extension + ' could not be installed', 'win32', 'error')) +
+    (await utils.log(extension + ' could not be enabled', 'win32', 'error')) +
     ` }\n`
   );
 }
@@ -61,12 +67,22 @@ export async function enableExtensionWindows(extension: string) {
  * Enable extensions which are installed but not enabled on unix
  *
  * @param extension
+ * @param os_version
  */
-export async function enableExtensionUnix(extension: string) {
+export async function enableExtensionUnix(
+  extension: string,
+  os_version: string
+) {
   return (
-    `if [ ! "$(php -m | grep ${extension})" ] && [ -e "$ext_dir/${extension}.so" ]; then
+    `if [ ! "$(php -m | grep -i ${extension})" ] && [ -e "$ext_dir/${extension}.so" ]; then
   echo "extension=${extension}.so" >> 'php -i | grep "Loaded Configuration" | sed -e "s|.*=>\s*||"'\n` +
-    (await utils.log(extension + ' enabled', 'unix', 'success')) +
+    (await utils.log('Enabled ' + extension, os_version, 'success')) +
+    `;\n elif [ "$(php -m | grep -i ${extension})" ]; then \n` +
+    (await utils.log(
+      'Extension ' + extension + ' was already enabled',
+      os_version,
+      'success'
+    )) +
     `; fi\n`
   );
 }
@@ -86,21 +102,27 @@ export async function addExtensionDarwin(
   await utils.asyncForEach(extensions, async function(extension: string) {
     extension = extension.toLowerCase();
     // add script to enable extension is already installed along with php
-    script += await enableExtensionUnix(extension);
+    script += await enableExtensionUnix(extension, 'darwin');
     switch (await pecl.checkPECLExtension(extension)) {
       case true:
-        extension =
+        let extension_version: string =
           version === '5.6' && extension === 'xdebug'
             ? 'xdebug-2.5.5'
             : extension;
         script +=
-          'if [ ! "$(php -m | grep ' +
+          'if [ ! "$(php -m | grep -i ' +
           extension +
           ')" ]; then sudo pecl install ' +
-          extension +
+          extension_version +
+          ' >/dev/null 2>&1 && ' +
+          (await utils.log(
+            'Installed and enabled ' + extension,
+            'darwin',
+            'success'
+          )) +
           ' || ' +
           (await utils.log(
-            "Couldn't install extension: " + extension,
+            'Could not install ' + extension + ' on PHP' + version,
             'darwin',
             'error'
           )) +
@@ -109,11 +131,15 @@ export async function addExtensionDarwin(
       case false:
       default:
         script +=
+          'if [ ! "$(php -m | grep -i ' +
+          extension +
+          ')" ]; then \n' +
           (await utils.log(
-            'Could not find extension: ' + extension,
+            'Could not find ' + extension + ' for PHP' + version + ' on PECL',
             'darwin',
             'error'
-          )) + '\n';
+          )) +
+          '; fi\n';
         break;
     }
   });
@@ -157,9 +183,15 @@ export async function addExtensionWindows(
           extension +
           ' -MinimumStability ' +
           extension_version +
+          '\n' +
+          (await utils.log(
+            'Installed and enabled ' + extension,
+            'win32',
+            'success'
+          )) +
           ' } catch [Exception] { ' +
           (await utils.log(
-            'Could not install extension: ' + extension,
+            'Could not install ' + extension + ' on PHP' + version,
             'win32',
             'error'
           )) +
@@ -168,11 +200,15 @@ export async function addExtensionWindows(
       case false:
       default:
         script +=
+          'if(!(php -m | findstr -i ' +
+          extension +
+          ')) { ' +
           (await utils.log(
-            'Could not find extension: ' + extension,
+            'Could not find ' + extension + ' for PHP' + version + ' on PECL',
             'win32',
             'error'
-          )) + '\n';
+          )) +
+          ' } \n';
         break;
     }
   });
@@ -194,17 +230,23 @@ export async function addExtensionLinux(
   await utils.asyncForEach(extensions, async function(extension: string) {
     extension = extension.toLowerCase();
     // add script to enable extension is already installed along with php
-    script += await enableExtensionUnix(extension);
+    script += await enableExtensionUnix(extension, 'linux');
     script +=
-      'if [ ! "$(php -m | grep ' +
+      'if [ ! "$(php -m | grep -i ' +
       extension +
       ')" ]; then sudo DEBIAN_FRONTEND=noninteractive apt install -y php' +
       version +
       '-' +
       extension +
+      ' >/dev/null 2>&1 && ' +
+      (await utils.log(
+        'Installed and enabled ' + extension,
+        'linux',
+        'success'
+      )) +
       ' || ' +
       (await utils.log(
-        "Couldn't find extension php" + version + '-' + extension,
+        'Could not find php' + version + '-' + extension + ' on APT repository',
         'linux',
         'error'
       )) +

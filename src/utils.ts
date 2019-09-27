@@ -121,6 +121,11 @@ export async function log(
   os_version: string,
   log_type: string
 ): Promise<string> {
+  const unix_color: any = {
+    error: '31',
+    success: '32',
+    warning: '33'
+  };
   switch (os_version) {
     case 'win32':
       const color: any = {
@@ -131,13 +136,11 @@ export async function log(
       return "Write-Host '" + message + "' -ForegroundColor " + color[log_type];
 
     case 'linux':
+      return (
+        'echo "\\033[' + unix_color[log_type] + ';1m' + message + '\\033[0m"'
+      );
     case 'darwin':
     default:
-      const unix_color: any = {
-        error: '31',
-        success: '32',
-        warning: '33'
-      };
       return (
         'echo -e "\\033[' + unix_color[log_type] + ';1m' + message + '\\033[0m"'
       );

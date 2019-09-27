@@ -29,7 +29,7 @@ describe('Features tests', () => {
     );
 
     win32 = await features.addExtension('does_not_exist', '7.2', 'win32');
-    expect(win32).toContain('Could not find extension: does_not_exist');
+    expect(win32).toContain('Could not find does_not_exist for PHP7.2 on PECL');
 
     win32 = await features.addExtension('xdebug', '7.2', 'fedora');
     expect(win32).toContain('Platform fedora is not supported');
@@ -65,7 +65,9 @@ describe('Features tests', () => {
     expect(darwin).toContain('sudo pecl install xdebug-2.5.5');
 
     darwin = await features.addExtension('does_not_exist', '7.2', 'darwin');
-    expect(darwin).toContain('Could not find extension: does_not_exist');
+    expect(darwin).toContain(
+      'Could not find does_not_exist for PHP7.2 on PECL'
+    );
 
     darwin = await features.addExtension('xdebug', '7.2', 'fedora');
     expect(darwin).toContain('Platform fedora is not supported');

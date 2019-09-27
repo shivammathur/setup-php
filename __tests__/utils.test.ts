@@ -106,7 +106,7 @@ describe('Utils tests', () => {
     //   "Write-Host '" + message + "' -ForegroundColor yellow"
     // );
     warning_log = await utils.log(message, 'linux', 'warning');
-    expect(warning_log).toEqual('echo -e "\\033[33;1m' + message + '\\033[0m"');
+    expect(warning_log).toEqual('echo "\\033[33;1m' + message + '\\033[0m"');
     warning_log = await utils.log(message, 'darwin', 'warning');
     expect(warning_log).toEqual('echo -e "\\033[33;1m' + message + '\\033[0m"');
 
@@ -115,7 +115,7 @@ describe('Utils tests', () => {
     //   "Write-Host '" + message + "' -ForegroundColor red"
     // );
     error_log = await utils.log(message, 'linux', 'error');
-    expect(error_log).toEqual('echo -e "\\033[31;1m' + message + '\\033[0m"');
+    expect(error_log).toEqual('echo "\\033[31;1m' + message + '\\033[0m"');
     error_log = await utils.log(message, 'darwin', 'error');
     expect(error_log).toEqual('echo -e "\\033[31;1m' + message + '\\033[0m"');
 
@@ -124,7 +124,7 @@ describe('Utils tests', () => {
     //   "Write-Host '" + message + "' -ForegroundColor green"
     // );
     success_log = await utils.log(message, 'linux', 'success');
-    expect(success_log).toEqual('echo -e "\\033[32;1m' + message + '\\033[0m"');
+    expect(success_log).toEqual('echo "\\033[32;1m' + message + '\\033[0m"');
     success_log = await utils.log(message, 'darwin', 'success');
     expect(success_log).toEqual('echo -e "\\033[32;1m' + message + '\\033[0m"');
   });

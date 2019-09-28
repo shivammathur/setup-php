@@ -35,7 +35,7 @@ echo 'export EXTRA_LIBS="/usr/local/opt/readline/lib/libhistory.dylib
 /usr/local/opt/icu4c/lib/libicutu.dylib
 /usr/local/opt/icu4c/lib/libicuuc.dylib"'
 } >> ~/.bash_profile
-config_file=$(pwd)/src/config.yaml
+config_file=$(pwd)/config.yaml
 cd ~ || echo "could not move to ~"
 curl -L -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew >/dev/null 2>&1
 chmod +x ./phpbrew

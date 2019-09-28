@@ -48,6 +48,9 @@ export async function readScript(
     case 'darwin':
       switch (version) {
         case '7.4':
+          fs.createReadStream(path.join(__dirname, '../src/config.yaml')).pipe(
+            fs.createWriteStream('config.yaml')
+          );
           return fs.readFileSync(path.join(__dirname, '../src/7.4.sh'), 'utf8');
         case '7.3':
         default:

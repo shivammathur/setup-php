@@ -49,7 +49,6 @@ echo "[[ -e ~/.phpbrew/bash_profile ]] && source ~/.phpbrew/bash_profile" >> ~/.
 source ~/.bash_profile >/dev/null 2>&1
 sudo mkdir -p /usr/local/lib
 phpbrew install -j 4 7.4.0RC2 +dev
-tail -40 /opt/phpbrew/build/php-7.4.0RC2/build.log
 phpbrew switch php-7.4.0RC2
 phpbrew ext install +dev >/dev/null 2>&1
 sudo mkdir -p /usr/local/bin

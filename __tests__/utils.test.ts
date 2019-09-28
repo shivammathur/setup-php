@@ -129,6 +129,16 @@ describe('Utils tests', () => {
     expect(success_log).toEqual('echo -e "\\033[32;1m' + message + '\\033[0m"');
   });
 
+  it('checking getExtensionPrefix', async () => {
+    expect(await utils.getExtensionPrefix('extensionDoesNotExist')).toEqual(
+      'extension'
+    );
+    expect(await utils.getExtensionPrefix('xsl')).toEqual('extension');
+    expect(await utils.getExtensionPrefix('xdebug')).toEqual('zend_extension');
+    expect(await utils.getExtensionPrefix('opcache')).toEqual('zend_extension');
+  });
+});
+describe('pecl tests', () => {
   it('checking checkPECLExtension', async () => {
     expect(await pecl.checkPECLExtension('extensionDoesNotExist')).toBe(false);
     expect(await pecl.checkPECLExtension('xdebug')).toBe(true);

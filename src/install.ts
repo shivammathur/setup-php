@@ -22,6 +22,7 @@ async function run() {
         version,
         os_version
       );
+
       darwin += await features.addExtension(extension_csv, version, os_version);
       darwin += await features.addINIValues(ini_values_csv, os_version);
       darwin += await features.addCoverage(coverage, version, os_version);

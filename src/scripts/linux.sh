@@ -4,6 +4,11 @@ if [ "$version" != "$1" ]; then
 		sudo DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/php -y >/dev/null 2>&1
 		sudo DEBIAN_FRONTEND=noninteractive apt update -y >/dev/null 2>&1
 		sudo DEBIAN_FRONTEND=noninteractive apt install -y php"$1" curl php"$1"-curl >/dev/null 2>&1
+		if [ "$1" != "7.4" ]; then
+		  sudo DEBIAN_FRONTEND=noninteractive apt install -y php"$1" curl php"$1"-curl >/dev/null 2>&1
+		else
+		  sudo DEBIAN_FRONTEND=noninteractive apt install -y php"$1" php"$1"-dev curl php"$1"-curl >/dev/null 2>&1
+		fi
 	fi
 	for tool in php phar phar.phar php-cgi php-config phpize; do
 		if [ -e "/usr/bin/$tool$1" ]; then

@@ -14,17 +14,17 @@ describe('Features tests', () => {
       '7.2',
       'win32'
     );
-    expect(win32).toContain(
-      'Install-PhpExtension xdebug -MinimumStability stable'
-    );
-    expect(win32).toContain(
-      'Install-PhpExtension pcov -MinimumStability stable'
-    );
+    expect(win32).toContain('Install-PhpExtension xdebug');
+    expect(win32).toContain('Install-PhpExtension pcov');
     win32 = await features.addExtension('xdebug, pcov', '7.4', 'win32');
+    const extension_url: string =
+      'https://xdebug.org/files/php_xdebug-2.8.0beta2-7.4-vc15.dll';
     expect(win32).toContain(
-      'Install-PhpExtension xdebug -Version 2.8 -MinimumStability beta'
+      'Invoke-WebRequest -Uri ' +
+        extension_url +
+        ' -OutFile C:\\tools\\php\\ext\\php_xdebug.dll'
     );
-    expect(win32).toContain('Install-PhpExtension pcov -MinimumStability beta');
+    expect(win32).toContain('Install-PhpExtension pcov');
 
     win32 = await features.addExtension('does_not_exist', '7.2', 'win32');
     expect(win32).toContain('Could not find does_not_exist for PHP7.2 on PECL');
@@ -45,6 +45,10 @@ describe('Features tests', () => {
     expect(linux).toContain(
       'sudo DEBIAN_FRONTEND=noninteractive apt install -y php7.2-pcov'
     );
+
+    linux = await features.addExtension('xdebug, pcov', '7.4', 'linux');
+    expect(linux).toContain('./xdebug.sh');
+    expect(linux).toContain('./pcov.sh');
 
     linux = await features.addExtension('xdebug', '7.2', 'fedora');
     expect(linux).toContain('Platform fedora is not supported');
@@ -67,6 +71,12 @@ describe('Features tests', () => {
 
     darwin = await features.addExtension('xdebug', '5.6', 'darwin');
     expect(darwin).toContain('sudo pecl install xdebug-2.5.5');
+
+    darwin = await features.addExtension('xdebug', '7.4', 'darwin');
+    expect(darwin).toContain('sh ./xdebug_darwin.sh');
+
+    darwin = await features.addExtension('pcov', '7.4', 'darwin');
+    expect(darwin).toContain('sh ./pcov.sh');
 
     darwin = await features.addExtension('xdebug', '7.2', 'darwin');
     expect(darwin).toContain('sudo pecl install xdebug');
@@ -136,25 +146,25 @@ describe('Features tests', () => {
 
   it('checking addCoverage on windows', async () => {
     let win32: string = await features.addCoverage('xdebug', '7.4', 'win32');
+    const extension_url: string =
+      'https://xdebug.org/files/php_xdebug-2.8.0beta2-7.4-vc15.dll';
     expect(win32).toContain(
-      'Install-PhpExtension xdebug -Version 2.8 -MinimumStability beta'
+      'Invoke-WebRequest -Uri ' +
+        extension_url +
+        ' -OutFile C:\\tools\\php\\ext\\php_xdebug.dll'
     );
 
     win32 = await features.addCoverage('xdebug', '7.3', 'win32');
-    expect(win32).toContain(
-      'Install-PhpExtension xdebug -MinimumStability stable'
-    );
+    expect(win32).toContain('Install-PhpExtension xdebug');
 
     win32 = await features.addCoverage('pcov', '7.4', 'win32');
-    expect(win32).toContain('Install-PhpExtension pcov -MinimumStability beta');
+    expect(win32).toContain('Install-PhpExtension pcov');
     expect(win32).toContain(
       'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug C:\\tools\\php'
     );
 
     win32 = await features.addCoverage('pcov', '7.3', 'win32');
-    expect(win32).toContain(
-      'Install-PhpExtension pcov -MinimumStability stable'
-    );
+    expect(win32).toContain('Install-PhpExtension pcov');
     expect(win32).toContain(
       'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug C:\\tools\\php'
     );
@@ -174,18 +184,11 @@ describe('Features tests', () => {
 
   it('checking addCoverage on linux', async () => {
     let linux: string = await features.addCoverage('xdebug', '7.4', 'linux');
-    expect(linux).toContain(
-      'sudo DEBIAN_FRONTEND=noninteractive apt install -y php7.4-xdebug'
-    );
+    expect(linux).toContain('./xdebug.sh');
 
     linux = await features.addCoverage('pcov', '7.4', 'linux');
-    expect(linux).toContain(
-      'sudo DEBIAN_FRONTEND=noninteractive apt install -y php7.4-pcov'
-    );
-    expect(linux).toContain(
-      "sudo phpdismod xdebug || echo 'xdebug not installed'"
-    );
-    expect(linux).toContain("sudo phpenmod pcov || echo 'pcov not installed'");
+    expect(linux).toContain('./pcov.sh');
+    expect(linux).toContain('sudo sed -i "/xdebug/d" $ini_file');
 
     linux = await features.addCoverage('', '7.4', 'linux');
     expect(linux).toEqual('');
@@ -193,13 +196,13 @@ describe('Features tests', () => {
 
   it('checking addCoverage on darwin', async () => {
     let darwin: string = await features.addCoverage('xdebug', '7.4', 'darwin');
-    expect(darwin).toContain('sudo pecl install xdebug');
+    expect(darwin).toContain('sh ./xdebug_darwin.sh');
 
     darwin = await features.addCoverage('xdebug', '5.6', 'darwin');
     expect(darwin).toContain('sudo pecl install xdebug-2.5.5');
 
     darwin = await features.addCoverage('pcov', '7.4', 'darwin');
-    expect(darwin).toContain('sudo pecl install pcov');
+    expect(darwin).toContain('sh ./pcov.sh');
     expect(darwin).toContain('sudo sed -i \'\' "/xdebug/d" $ini_file\n');
 
     darwin = await features.addCoverage('', '7.4', 'win32');

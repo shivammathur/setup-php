@@ -1,7 +1,7 @@
 brew install pkg-config autoconf bison re2c openssl krb5 bzip2 enchant libffi libpng webp freetype intltool icu4c libiconv zlib t1lib gd libzip gmp tidyp libxml2 libxslt postgresql >/dev/null 2>&1
 brew link icu4c gettext --force >/dev/null 2>&1
 
-for package in gettext gmp bzip2 krb5 icu4c bison openssl libxml2 libffi libxslt libiconv pkgconfig enchant kerberos readline libedit freetype;
+for package in gettext gmp bzip2 krb5 icu4c bison openssl libxml2 libffi libxslt libiconv pkgconfig enchant krb5 readline libedit freetype;
 do
   caps_package=$(echo "$package" | tr '[:lower:]' '[:upper:]')
   {

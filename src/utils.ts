@@ -146,3 +146,15 @@ export async function log(
       );
   }
 }
+
+export async function getExtensionPrefix(extension: string): Promise<string> {
+  let zend: Array<string> = ['xdebug', 'opcache'];
+  switch (zend.indexOf(extension)) {
+    case 0:
+    case 1:
+      return 'zend_extension';
+    case -1:
+    default:
+      return 'extension';
+  }
+}

@@ -48,7 +48,9 @@ export async function enableExtensionWindows(extension: string) {
     `try {  
   $exist = Test-Path -Path $ext_dir\\php_${extension}.dll
   if(!(php -m | findstr -i ${extension}) -and $exist) {
-    Add-Content C:\\tools\\php\\php.ini "extension=php_${extension}.dll"\n` +
+    Add-Content C:\\tools\\php\\php.ini "${await utils.getExtensionPrefix(
+      extension
+    )}=php_${extension}.dll"\n` +
     (await utils.log('Enabled ' + extension, 'win32', 'success')) +
     ` } elseif(php -m | findstr -i ${extension}) {\n` +
     (await utils.log(
@@ -74,8 +76,10 @@ export async function enableExtensionUnix(
   os_version: string
 ) {
   return (
-    `if [ ! "$(php -m | grep -i ${extension})" ] && [ -e "$ext_dir/${extension}.so" ]; then
-  echo "extension=${extension}.so" >> 'php -i | grep "Loaded Configuration" | sed -e "s|.*=>\s*||"'\n` +
+    `if [ ! "$(php -m | grep -i ${extension})" ] && [ -e "$ext_dir/php_${extension}.so" ]; then
+  echo "${await utils.getExtensionPrefix(
+    extension
+  )}=php_${extension}.so" >> 'php -i | grep "Loaded Configuration" | sed -e "s|.*=>\s*||"'\n` +
     (await utils.log('Enabled ' + extension, os_version, 'success')) +
     `;\n elif [ "$(php -m | grep -i ${extension})" ]; then \n` +
     (await utils.log(
@@ -105,16 +109,25 @@ export async function addExtensionDarwin(
     script += await enableExtensionUnix(extension, 'darwin');
     switch (await pecl.checkPECLExtension(extension)) {
       case true:
-        let extension_version: string =
-          version === '5.6' && extension === 'xdebug'
-            ? 'xdebug-2.5.5'
-            : extension;
+        let extension_version: string = extension;
+        switch (version + extension) {
+          case '5.6xdebug':
+            extension_version = 'xdebug-2.5.5';
+            break;
+          case '7.4xdebug':
+            extension_version = 'xdebug-2.8.0beta2';
+            break;
+          case '7.2xdebug':
+          default:
+            extension_version = extension;
+            break;
+        }
         script +=
           'if [ ! "$(php -m | grep -i ' +
           extension +
           ')" ]; then sudo pecl install ' +
           extension_version +
-          ' >/dev/null 2>&1 && ' +
+          '  >/dev/null 2>&1 && ' +
           (await utils.log(
             'Installed and enabled ' + extension,
             'darwin',
@@ -162,27 +175,37 @@ export async function addExtensionWindows(
     extension = extension.toLowerCase();
     // add script to enable extension is already installed along with php
     script += await enableExtensionWindows(extension);
-    let extension_version: string = '';
+    let extension_stability: string = '';
     switch (version) {
       case '7.4':
-        extension_version = 'alpha';
+        extension_stability = 'beta';
         break;
       case '7.2':
       default:
-        extension_version = 'stable';
+        extension_stability = 'stable';
         break;
     }
 
     switch (await pecl.checkPECLExtension(extension)) {
       case true:
+        let extension_version: string = extension;
+        switch (version + extension) {
+          case '7.4xdebug':
+            extension_version = 'xdebug -Version 2.8';
+            break;
+          case '7.2xdebug':
+          default:
+            extension_version = extension;
+            break;
+        }
         script +=
           'if(!(php -m | findstr -i ' +
           extension +
           ')) { ' +
           'try { Install-PhpExtension ' +
-          extension +
-          ' -MinimumStability ' +
           extension_version +
+          ' -MinimumStability ' +
+          extension_stability +
           '\n' +
           (await utils.log(
             'Installed and enabled ' + extension,
@@ -238,6 +261,8 @@ export async function addExtensionLinux(
       version +
       '-' +
       extension +
+      ' >/dev/null 2>&1 || sudo DEBIAN_FRONTEND=noninteractive apt install -y php-' +
+      extension +
       ' >/dev/null 2>&1 && ' +
       (await utils.log(
         'Installed and enabled ' + extension,
@@ -246,7 +271,13 @@ export async function addExtensionLinux(
       )) +
       ' || ' +
       (await utils.log(
-        'Could not find php' + version + '-' + extension + ' on APT repository',
+        'Could not find php-' +
+          extension +
+          ' or php' +
+          version +
+          '-' +
+          extension +
+          ' on APT repository',
         'linux',
         'error'
       )) +

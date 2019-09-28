@@ -22,11 +22,9 @@ describe('Features tests', () => {
     );
     win32 = await features.addExtension('xdebug, pcov', '7.4', 'win32');
     expect(win32).toContain(
-      'Install-PhpExtension xdebug -MinimumStability alpha'
+      'Install-PhpExtension xdebug -Version 2.8 -MinimumStability beta'
     );
-    expect(win32).toContain(
-      'Install-PhpExtension pcov -MinimumStability alpha'
-    );
+    expect(win32).toContain('Install-PhpExtension pcov -MinimumStability beta');
 
     win32 = await features.addExtension('does_not_exist', '7.2', 'win32');
     expect(win32).toContain('Could not find does_not_exist for PHP7.2 on PECL');
@@ -61,8 +59,17 @@ describe('Features tests', () => {
     expect(darwin).toContain('sudo pecl install xdebug');
     expect(darwin).toContain('sudo pecl install pcov');
 
+    darwin = await features.addExtension('pcov', '5.6', 'darwin');
+    expect(darwin).toContain('sudo pecl install pcov');
+
+    darwin = await features.addExtension('pcov', '7.2', 'darwin');
+    expect(darwin).toContain('sudo pecl install pcov');
+
     darwin = await features.addExtension('xdebug', '5.6', 'darwin');
     expect(darwin).toContain('sudo pecl install xdebug-2.5.5');
+
+    darwin = await features.addExtension('xdebug', '7.2', 'darwin');
+    expect(darwin).toContain('sudo pecl install xdebug');
 
     darwin = await features.addExtension('does_not_exist', '7.2', 'darwin');
     expect(darwin).toContain(
@@ -130,7 +137,7 @@ describe('Features tests', () => {
   it('checking addCoverage on windows', async () => {
     let win32: string = await features.addCoverage('xdebug', '7.4', 'win32');
     expect(win32).toContain(
-      'Install-PhpExtension xdebug -MinimumStability alpha'
+      'Install-PhpExtension xdebug -Version 2.8 -MinimumStability beta'
     );
 
     win32 = await features.addCoverage('xdebug', '7.3', 'win32');
@@ -139,9 +146,7 @@ describe('Features tests', () => {
     );
 
     win32 = await features.addCoverage('pcov', '7.4', 'win32');
-    expect(win32).toContain(
-      'Install-PhpExtension pcov -MinimumStability alpha'
-    );
+    expect(win32).toContain('Install-PhpExtension pcov -MinimumStability beta');
     expect(win32).toContain(
       'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug C:\\tools\\php'
     );

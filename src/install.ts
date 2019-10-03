@@ -27,7 +27,7 @@ async function run() {
       darwin += await features.addINIValues(ini_values_csv, os_version);
       darwin += await features.addCoverage(coverage, version, os_version);
       await utils.writeScript('darwin.sh', version, darwin);
-      await exec('sh -x ./' + version + 'darwin.sh ' + version);
+      await exec('sh ./' + version + 'darwin.sh ' + version);
     } else if (os_version == 'win32') {
       let windows: string = await utils.readScript(
         'win32.ps1',

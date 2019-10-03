@@ -33,6 +33,19 @@ export async function asyncForEach(
 }
 
 /**
+ * Copy config
+ *
+ * @param files
+ */
+export async function readFiles74(files: Array<string>) {
+  await asyncForEach(files, function(filename: string) {
+    fs.createReadStream(path.join(__dirname, '../src/' + filename)).pipe(
+      fs.createWriteStream(filename.split('/')[1], {mode: 0o755})
+    );
+  });
+}
+
+/**
  * Read the scripts
  *
  * @param filename
@@ -48,21 +61,40 @@ export async function readScript(
     case 'darwin':
       switch (version) {
         case '7.4':
-          fs.createReadStream(path.join(__dirname, '../src/config.yaml')).pipe(
-            fs.createWriteStream('config.yaml')
+          await readFiles74([
+            'configs/config.yaml',
+            'scripts/xdebug_darwin.sh',
+            'scripts/pcov.sh'
+          ]);
+          return fs.readFileSync(
+            path.join(__dirname, '../src/scripts/7.4.sh'),
+            'utf8'
           );
-          return fs.readFileSync(path.join(__dirname, '../src/7.4.sh'), 'utf8');
         case '7.3':
         default:
           return fs.readFileSync(
-            path.join(__dirname, '../src/' + filename),
+            path.join(__dirname, '../src/scripts/' + filename),
+            'utf8'
+          );
+      }
+    case 'linux':
+      switch (version) {
+        case '7.4':
+          await readFiles74(['scripts/xdebug.sh', 'scripts/pcov.sh']);
+          return fs.readFileSync(
+            path.join(__dirname, '../src/scripts/' + filename),
+            'utf8'
+          );
+        case '7.3':
+        default:
+          return fs.readFileSync(
+            path.join(__dirname, '../src/scripts/' + filename),
             'utf8'
           );
       }
     case 'win32':
-    case 'linux':
       return fs.readFileSync(
-        path.join(__dirname, '../src/' + filename),
+        path.join(__dirname, '../src/scripts/' + filename),
         'utf8'
       );
     default:
@@ -96,12 +128,18 @@ export async function writeScript(
 export async function extensionArray(
   extension_csv: string
 ): Promise<Array<string>> {
-  return extension_csv.split(',').map(function(extension: string) {
-    return extension
-      .trim()
-      .replace('php-', '')
-      .replace('php_', '');
-  });
+  switch (extension_csv) {
+    case '':
+    case ' ':
+      return [];
+    default:
+      return extension_csv.split(',').map(function(extension: string) {
+        return extension
+          .trim()
+          .replace('php-', '')
+          .replace('php_', '');
+      });
+  }
 }
 
 /**
@@ -111,9 +149,15 @@ export async function extensionArray(
  * @constructor
  */
 export async function INIArray(ini_values_csv: string): Promise<Array<string>> {
-  return ini_values_csv.split(',').map(function(ini_value: string) {
-    return ini_value.trim();
-  });
+  switch (ini_values_csv) {
+    case '':
+    case ' ':
+      return [];
+    default:
+      return ini_values_csv.split(',').map(function(ini_value: string) {
+        return ini_value.trim();
+      });
+  }
 }
 
 export async function log(
@@ -136,13 +180,10 @@ export async function log(
       return "Write-Host '" + message + "' -ForegroundColor " + color[log_type];
 
     case 'linux':
-      return (
-        'echo "\\033[' + unix_color[log_type] + ';1m' + message + '\\033[0m"'
-      );
     case 'darwin':
     default:
       return (
-        'echo -e "\\033[' + unix_color[log_type] + ';1m' + message + '\\033[0m"'
+        'echo "\\033[' + unix_color[log_type] + ';1m' + message + '\\033[0m"'
       );
   }
 }

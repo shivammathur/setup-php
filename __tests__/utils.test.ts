@@ -1,14 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as utils from '../src/utils';
-import * as pecl from '../src/pecl';
-
-let valid_extensions = ['xdebug', 'pcov'];
-jest.mock('../src/pecl', () => ({
-  checkPECLExtension: jest.fn().mockImplementation(extension => {
-    return valid_extensions.indexOf(extension) !== -1;
-  })
-}));
 
 jest.mock('@actions/core', () => ({
   getInput: jest.fn().mockImplementation(key => {
@@ -45,24 +37,25 @@ describe('Utils tests', () => {
 
   it('checking readScripts', async () => {
     let rc: string = fs.readFileSync(
-      path.join(__dirname, '../src/7.4.sh'),
+      path.join(__dirname, '../src/scripts/7.4.sh'),
       'utf8'
     );
     let darwin: string = fs.readFileSync(
-      path.join(__dirname, '../src/darwin.sh'),
+      path.join(__dirname, '../src/scripts/darwin.sh'),
       'utf8'
     );
     let linux: string = fs.readFileSync(
-      path.join(__dirname, '../src/linux.sh'),
+      path.join(__dirname, '../src/scripts/linux.sh'),
       'utf8'
     );
     let win32: string = fs.readFileSync(
-      path.join(__dirname, '../src/win32.ps1'),
+      path.join(__dirname, '../src/scripts/win32.ps1'),
       'utf8'
     );
     expect(await utils.readScript('darwin.sh', '7.4', 'darwin')).toBe(rc);
     expect(await utils.readScript('darwin.sh', '7.3', 'darwin')).toBe(darwin);
     expect(await utils.readScript('linux.sh', '7.4', 'linux')).toBe(linux);
+    expect(await utils.readScript('linux.sh', '7.3', 'linux')).toBe(linux);
     expect(await utils.readScript('win32.ps1', '7.3', 'win32')).toBe(win32);
     expect(await utils.readScript('fedora.sh', '7.3', 'fedora')).toContain(
       'Platform fedora is not supported'
@@ -88,6 +81,8 @@ describe('Utils tests', () => {
       'c',
       'd'
     ]);
+    expect(await utils.extensionArray('')).toEqual([]);
+    expect(await utils.extensionArray(' ')).toEqual([]);
   });
 
   it('checking INIArray', async () => {
@@ -96,6 +91,8 @@ describe('Utils tests', () => {
       'b=2',
       'c=3'
     ]);
+    expect(await utils.INIArray('')).toEqual([]);
+    expect(await utils.INIArray(' ')).toEqual([]);
   });
 
   it('checking log', async () => {
@@ -108,7 +105,7 @@ describe('Utils tests', () => {
     warning_log = await utils.log(message, 'linux', 'warning');
     expect(warning_log).toEqual('echo "\\033[33;1m' + message + '\\033[0m"');
     warning_log = await utils.log(message, 'darwin', 'warning');
-    expect(warning_log).toEqual('echo -e "\\033[33;1m' + message + '\\033[0m"');
+    expect(warning_log).toEqual('echo "\\033[33;1m' + message + '\\033[0m"');
 
     let error_log: string = await utils.log(message, 'win32', 'error');
     // expect(error_log).toEqual(
@@ -117,7 +114,7 @@ describe('Utils tests', () => {
     error_log = await utils.log(message, 'linux', 'error');
     expect(error_log).toEqual('echo "\\033[31;1m' + message + '\\033[0m"');
     error_log = await utils.log(message, 'darwin', 'error');
-    expect(error_log).toEqual('echo -e "\\033[31;1m' + message + '\\033[0m"');
+    expect(error_log).toEqual('echo "\\033[31;1m' + message + '\\033[0m"');
 
     let success_log: string = await utils.log(message, 'win32', 'success');
     // expect(success_log).toEqual(
@@ -126,7 +123,7 @@ describe('Utils tests', () => {
     success_log = await utils.log(message, 'linux', 'success');
     expect(success_log).toEqual('echo "\\033[32;1m' + message + '\\033[0m"');
     success_log = await utils.log(message, 'darwin', 'success');
-    expect(success_log).toEqual('echo -e "\\033[32;1m' + message + '\\033[0m"');
+    expect(success_log).toEqual('echo "\\033[32;1m' + message + '\\033[0m"');
   });
 
   it('checking getExtensionPrefix', async () => {
@@ -136,11 +133,5 @@ describe('Utils tests', () => {
     expect(await utils.getExtensionPrefix('xsl')).toEqual('extension');
     expect(await utils.getExtensionPrefix('xdebug')).toEqual('zend_extension');
     expect(await utils.getExtensionPrefix('opcache')).toEqual('zend_extension');
-  });
-});
-describe('pecl tests', () => {
-  it('checking checkPECLExtension', async () => {
-    expect(await pecl.checkPECLExtension('extensionDoesNotExist')).toBe(false);
-    expect(await pecl.checkPECLExtension('xdebug')).toBe(true);
   });
 });

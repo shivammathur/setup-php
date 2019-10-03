@@ -76,10 +76,10 @@ export async function enableExtensionUnix(
   os_version: string
 ) {
   return (
-    `if [ ! "$(php -m | grep -i ${extension})" ] && [ -e "$ext_dir/php_${extension}.so" ]; then
+    `if [ ! "$(php -m | grep -i ${extension})" ] && [ -e "$ext_dir/${extension}.so" ]; then
   echo "${await utils.getExtensionPrefix(
     extension
-  )}=php_${extension}.so" >> 'php -i | grep "Loaded Configuration" | sed -e "s|.*=>\s*||"'\n` +
+  )}=${extension}" >> 'php -i | grep "Loaded Configuration" | sed -e "s|.*=>\s*||"'\n` +
     (await utils.log('Enabled ' + extension, os_version, 'success')) +
     `;\n elif [ "$(php -m | grep -i ${extension})" ]; then \n` +
     (await utils.log(
@@ -109,25 +109,30 @@ export async function addExtensionDarwin(
     script += await enableExtensionUnix(extension, 'darwin');
     switch (await pecl.checkPECLExtension(extension)) {
       case true:
-        let extension_version: string = extension;
+        let install_command: string = '';
         switch (version + extension) {
-          case '5.6xdebug':
-            extension_version = 'xdebug-2.5.5';
-            break;
           case '7.4xdebug':
-            extension_version = 'xdebug-2.8.0beta2';
+            install_command =
+              'sh ./xdebug_darwin.sh >/dev/null 2>&1 && echo "zend_extension=xdebug.so" >> $ini_file';
             break;
-          case '7.2xdebug':
+          case '7.4pcov':
+            install_command =
+              'sh ./pcov.sh >/dev/null 2>&1 && echo "extension=pcov.so" >> $ini_file';
+            break;
+          case '5.6xdebug':
+            install_command = 'sudo pecl install xdebug-2.5.5 >/dev/null 2>&1';
+            break;
           default:
-            extension_version = extension;
+            install_command =
+              'sudo pecl install ' + extension + ' >/dev/null 2>&1';
             break;
         }
         script +=
           'if [ ! "$(php -m | grep -i ' +
           extension +
-          ')" ]; then sudo pecl install ' +
-          extension_version +
-          '  >/dev/null 2>&1 && ' +
+          ')" ]; then ' +
+          install_command +
+          ' && ' +
           (await utils.log(
             'Installed and enabled ' + extension,
             'darwin',
@@ -175,37 +180,31 @@ export async function addExtensionWindows(
     extension = extension.toLowerCase();
     // add script to enable extension is already installed along with php
     script += await enableExtensionWindows(extension);
-    let extension_stability: string = '';
-    switch (version) {
-      case '7.4':
-        extension_stability = 'beta';
-        break;
-      case '7.2':
-      default:
-        extension_stability = 'stable';
-        break;
-    }
 
     switch (await pecl.checkPECLExtension(extension)) {
       case true:
-        let extension_version: string = extension;
+        let install_command: string = '';
         switch (version + extension) {
           case '7.4xdebug':
-            extension_version = 'xdebug -Version 2.8';
+            const extension_url: string =
+              'https://xdebug.org/files/php_xdebug-2.8.0beta2-7.4-vc15.dll';
+            install_command =
+              'Invoke-WebRequest -Uri ' +
+              extension_url +
+              ' -OutFile C:\\tools\\php\\ext\\php_xdebug.dll\n';
+            install_command += 'Enable-PhpExtension xdebug';
             break;
           case '7.2xdebug':
           default:
-            extension_version = extension;
+            install_command = 'Install-PhpExtension ' + extension;
             break;
         }
         script +=
           'if(!(php -m | findstr -i ' +
           extension +
           ')) { ' +
-          'try { Install-PhpExtension ' +
-          extension_version +
-          ' -MinimumStability ' +
-          extension_stability +
+          'try { ' +
+          install_command +
           '\n' +
           (await utils.log(
             'Installed and enabled ' + extension,
@@ -254,16 +253,32 @@ export async function addExtensionLinux(
     extension = extension.toLowerCase();
     // add script to enable extension is already installed along with php
     script += await enableExtensionUnix(extension, 'linux');
+
+    let install_command: string = '';
+    switch (version + extension) {
+      case '7.4xdebug':
+        install_command =
+          './xdebug.sh >/dev/null 2>&1 && echo "zend_extension=xdebug.so" >> $ini_file';
+        break;
+      case '7.4pcov':
+        install_command =
+          './pcov.sh >/dev/null 2>&1 && echo "extension=pcov.so" >> $ini_file';
+        break;
+      default:
+        install_command =
+          'sudo DEBIAN_FRONTEND=noninteractive apt install -y php' +
+          version +
+          '-' +
+          extension +
+          ' >/dev/null 2>&1';
+        break;
+    }
     script +=
       'if [ ! "$(php -m | grep -i ' +
       extension +
-      ')" ]; then sudo DEBIAN_FRONTEND=noninteractive apt install -y php' +
-      version +
-      '-' +
-      extension +
-      ' >/dev/null 2>&1 || sudo DEBIAN_FRONTEND=noninteractive apt install -y php-' +
-      extension +
-      ' >/dev/null 2>&1 && ' +
+      ')" ]; then ' +
+      install_command +
+      ' && ' +
       (await utils.log(
         'Installed and enabled ' + extension,
         'linux',
@@ -271,13 +286,7 @@ export async function addExtensionLinux(
       )) +
       ' || ' +
       (await utils.log(
-        'Could not find php-' +
-          extension +
-          ' or php' +
-          version +
-          '-' +
-          extension +
-          ' on APT repository',
+        'Could not find php' + version + '-' + extension + ' on APT repository',
         'linux',
         'error'
       )) +
@@ -334,15 +343,13 @@ export async function addCoverage(
       // if version is 7.1 or newer
       switch (version) {
         default:
-          script += await addExtension(coverage, version, os_version);
+          script += await addExtension('pcov', version, os_version);
           script += await addINIValues('pcov.enabled=1', os_version);
 
           // add command to disable xdebug and enable pcov
           switch (os_version) {
             case 'linux':
-              script +=
-                "sudo phpdismod xdebug || echo 'xdebug not installed'\n";
-              script += "sudo phpenmod pcov || echo 'pcov not installed'\n";
+              script += 'sudo sed -i "/xdebug/d" $ini_file\n';
               break;
             case 'darwin':
               script += 'sudo sed -i \'\' "/xdebug/d" $ini_file\n';
@@ -373,7 +380,7 @@ export async function addCoverage(
       break;
     //xdebug
     case 'xdebug':
-      script += await addExtension(coverage, version, os_version);
+      script += await addExtension('xdebug', version, os_version);
       script += await utils.log(
         'Xdebug enabled as coverage driver',
         os_version,

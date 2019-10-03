@@ -129,6 +129,11 @@ jobs:
 
 ```
 
+### Examples
+
+- [Laravel](./example/laravel.yml)
+
+
 ## :scroll: License
 
 The scripts and documentation in this project are released under the [MIT License](LICENSE). This project has multiple [dependencies](https://github.com/shivammathur/setup-php/network/dependencies) and their licenses can be found in their respective repositories.

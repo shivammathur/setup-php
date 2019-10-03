@@ -1,7 +1,7 @@
-brew install pkg-config autoconf bison re2c openssl@1.1 krb5 bzip2 enchant libffi libpng webp freetype intltool icu4c libiconv zlib t1lib gd libzip gmp tidyp libxml2 libxslt postgresql curl mhash mcrypt >/dev/null 2>&1
-brew link icu4c gettext bzip2 --force >/dev/null 2>&1
+brew install pkg-config autoconf bison re2c openssl@1.1 krb5 enchant libffi freetype intltool icu4c libiconv t1lib gd libzip gmp tidyp libxml2 libxslt postgresql curl >/dev/null 2>&1
+brew link icu4c gettext --force >/dev/null 2>&1
 
-for package in gettext gmp zlib bzip2 krb5 icu4c bison openssl@1.1 libxml2 libffi libxslt libiconv pkgconfig enchant krb5 readline libedit freetype;
+for package in gettext gmp krb5 icu4c bison openssl@1.1 libxml2 libffi libxslt libiconv pkgconfig enchant krb5 readline libedit freetype;
 do
   caps_package=$(echo "$package" | tr '[:lower:]' '[:upper:]')
   {
@@ -48,9 +48,8 @@ export PHPBREW_HOME=/opt/phpbrew
 echo "[[ -e ~/.phpbrew/bashrc ]] && source ~/.phpbrew/bashrc" >> ~/.bashrc
 source ~/.bash_profile >/dev/null 2>&1
 source ~/.bashrc >/dev/null 2>&1
-phpbrew install -j 10 7.4.0RC3 +dev
+phpbrew install -j 6 7.4.0RC3 +dev >/dev/null 2>&1
 phpbrew switch 7.4.0RC3
-sudo mkdir -p /usr/local/bin
 sudo ln -sf /opt/phpbrew/php/php-7.4.0RC3/bin/* /usr/local/bin/
 sudo ln -sf /opt/phpbrew/php/php-7.4.0RC3/etc/php.ini /etc/php.ini
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")

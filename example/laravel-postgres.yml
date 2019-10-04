@@ -1,4 +1,4 @@
-name: Testing Laravel with MySQL
+name: Testing Laravel with PostgreSQL
 on: [push, pull_request]
 jobs:
   laravel:

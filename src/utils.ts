@@ -70,33 +70,22 @@ export async function readScript(
             path.join(__dirname, '../src/scripts/7.4.sh'),
             'utf8'
           );
-        case '7.3':
-        default:
-          return fs.readFileSync(
-            path.join(__dirname, '../src/scripts/' + filename),
-            'utf8'
-          );
       }
+      break;
     case 'linux':
       switch (version) {
         case '7.4':
           await readFiles74(['scripts/xdebug.sh', 'scripts/pcov.sh']);
-          return fs.readFileSync(
-            path.join(__dirname, '../src/scripts/' + filename),
-            'utf8'
-          );
-        case '7.3':
-        default:
-          return fs.readFileSync(
-            path.join(__dirname, '../src/scripts/' + filename),
-            'utf8'
-          );
+          break;
       }
+      break;
     case 'win32':
-      return fs.readFileSync(
-        path.join(__dirname, '../src/scripts/' + filename),
-        'utf8'
-      );
+      switch (version) {
+        case '7.4':
+          await readFiles74(['ext/php_pcov.dll']);
+          break;
+      }
+      break;
     default:
       return await log(
         'Platform ' + os_version + ' is not supported',
@@ -104,6 +93,11 @@ export async function readScript(
         'error'
       );
   }
+
+  return fs.readFileSync(
+    path.join(__dirname, '../src/scripts/' + filename),
+    'utf8'
+  );
 }
 
 /**
@@ -163,13 +157,22 @@ export async function INIArray(ini_values_csv: string): Promise<Array<string>> {
 export async function log(
   message: string,
   os_version: string,
-  log_type: string
+  log_type: string,
+  prefix = ''
 ): Promise<string> {
   const unix_color: any = {
     error: '31',
     success: '32',
     warning: '33'
   };
+  switch (prefix) {
+    case '':
+      prefix = prefix;
+      break;
+    default:
+      prefix = prefix + ': ';
+      break;
+  }
   switch (os_version) {
     case 'win32':
       const color: any = {
@@ -177,19 +180,30 @@ export async function log(
         success: 'green',
         warning: 'yellow'
       };
-      return "Write-Host '" + message + "' -ForegroundColor " + color[log_type];
+      return (
+        "Write-Host '" +
+        prefix +
+        message +
+        "' -ForegroundColor " +
+        color[log_type]
+      );
 
     case 'linux':
     case 'darwin':
     default:
       return (
-        'echo "\\033[' + unix_color[log_type] + ';1m' + message + '\\033[0m"'
+        'echo "\\033[' +
+        unix_color[log_type] +
+        ';1m' +
+        prefix +
+        message +
+        '\\033[0m"'
       );
   }
 }
 
 export async function getExtensionPrefix(extension: string): Promise<string> {
-  let zend: Array<string> = ['xdebug', 'opcache'];
+  let zend: Array<string> = ['xdebug', 'opcache', 'ioncube', 'eaccelerator'];
   switch (zend.indexOf(extension)) {
     case 0:
     case 1:

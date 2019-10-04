@@ -26,16 +26,18 @@ if($installed -ne $version) {
 }
 
 echo "Housekeeping in PHP.ini, enabling openssl"
+$ext_dir = "C:\tools\php\ext"
 Add-Content C:\tools\php\php.ini "date.timezone = 'UTC'"
-Set-PhpIniKey extension_dir C:\tools\php\ext
+Set-PhpIniKey extension_dir $ext_dir
+
 if($version -lt '7.4') {
   Enable-PhpExtension openssl
 } else {
   Add-Content C:\tools\php\php.ini "extension=php_openssl.dll"
+  Copy-Item "php_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
 }
 
 echo "Installing Composer"
 Install-Composer -Scope System -Path C:\tools\php
-$ext_dir = Get-PhpIniKey extension_dir
 php -v
 composer -V

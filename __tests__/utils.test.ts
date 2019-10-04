@@ -100,31 +100,53 @@ describe('Utils tests', () => {
     let message: string = 'Test message';
 
     let warning_log: string = await utils.log(message, 'win32', 'warning');
-    // expect(warning_log).toEqual(
-    //   "Write-Host '" + message + "' -ForegroundColor yellow"
-    // );
+    expect(warning_log).toEqual(
+      "Write-Host '" + message + "' -ForegroundColor yellow"
+    );
     warning_log = await utils.log(message, 'linux', 'warning');
     expect(warning_log).toEqual('echo "\\033[33;1m' + message + '\\033[0m"');
     warning_log = await utils.log(message, 'darwin', 'warning');
     expect(warning_log).toEqual('echo "\\033[33;1m' + message + '\\033[0m"');
 
     let error_log: string = await utils.log(message, 'win32', 'error');
-    // expect(error_log).toEqual(
-    //   "Write-Host '" + message + "' -ForegroundColor red"
-    // );
+    expect(error_log).toEqual(
+      "Write-Host '" + message + "' -ForegroundColor red"
+    );
     error_log = await utils.log(message, 'linux', 'error');
     expect(error_log).toEqual('echo "\\033[31;1m' + message + '\\033[0m"');
     error_log = await utils.log(message, 'darwin', 'error');
     expect(error_log).toEqual('echo "\\033[31;1m' + message + '\\033[0m"');
 
     let success_log: string = await utils.log(message, 'win32', 'success');
-    // expect(success_log).toEqual(
-    //   "Write-Host '" + message + "' -ForegroundColor green"
-    // );
+    expect(success_log).toEqual(
+      "Write-Host '" + message + "' -ForegroundColor green"
+    );
     success_log = await utils.log(message, 'linux', 'success');
     expect(success_log).toEqual('echo "\\033[32;1m' + message + '\\033[0m"');
     success_log = await utils.log(message, 'darwin', 'success');
     expect(success_log).toEqual('echo "\\033[32;1m' + message + '\\033[0m"');
+
+    success_log = await utils.log(message, 'win32', 'success', 'Test win');
+    expect(success_log).toEqual(
+      "Write-Host 'Test win: " + message + "' -ForegroundColor green"
+    );
+  });
+
+  it('checking log with prefix', async () => {
+    let message: string = 'Test message';
+    let prefix_log: string = await utils.log(
+      message,
+      'linux',
+      'success',
+      'Test Prefix'
+    );
+    expect(prefix_log).toEqual(
+      'echo "\\033[32;1mTest Prefix: ' + message + '\\033[0m"'
+    );
+    prefix_log = await utils.log(message, 'darwin', 'success', 'Test');
+    expect(prefix_log).toEqual(
+      'echo "\\033[32;1mTest: ' + message + '\\033[0m"'
+    );
   });
 
   it('checking getExtensionPrefix', async () => {

@@ -10,8 +10,8 @@
   <a href="https://github.com/shivammathur/setup-php"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg"></a>
   <a href="#tada-php-support"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a> 
-  <a href="https://www.patreon.com/shivammathur"><img alt="Support me on Patreon" src="https://shivammathur.com/badges/patreon.svg"></a>   <a href="https://www.paypal.me/shivammathur"><img alt="Support me on Paypal" src="https://shivammathur.com/badges/paypal.svg"></a>
-  <a href="https://www.codementor.io/shivammathur?utm_source=github&utm_medium=button&utm_term=shivammathur&utm_campaign=github"><img alt="Get Help on codementor" src="https://cdn.codementor.io/badges/get_help_github.svg"></a>  
+  <a href="https://www.patreon.com/shivammathur"><img alt="Support me on Patreon" src="https://shivammathur.com/badges/patreon.svg"></a>   <a href="https://www.paypal.me/shivammathur"><img alt="Support me on PayPal" src="https://shivammathur.com/badges/paypal.svg"></a>
+  <a href="https://www.codementor.io/shivammathur?utm_source=github&utm_medium=button&utm_term=shivammathur&utm_campaign=github"><img alt="Contact me on Codementor" src="https://cdn.codementor.io/badges/contact_me_github.svg"></a>  
 </p>
 
 Setup PHP with required extensions, php.ini configuration and composer in [GitHub Actions](https://github.com/features/actions). This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage) section to see how to use this.
@@ -44,7 +44,7 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 - On `ubuntu` extensions which have the package in apt are installed.
 - On `windows` and `macOS` PECL extensions are installed.
 - Extensions which are installed along with PHP if specified are enabled.
-- Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interruped.
+- Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
 
 ## :signal_strength: Coverage support
 - Specify `coverage: xdebug` to use `Xdebug`.
@@ -70,10 +70,10 @@ with:
 
 Inputs supported by this GitHub Action.
 
-- php-version
-- extension-csv (optional)
-- ini-values-csv (optional)
-- coverage (optional)
+- php-version `required`
+- extension-csv `optional`
+- ini-values-csv `optional`
+- coverage `optional`
 
 See [action.yml](action.yml) for more info
 
@@ -131,8 +131,13 @@ jobs:
 
 ### Examples
 
-- [Laravel](./example/laravel.yml)
+Examples for setting up this GitHub Action with different PHP Frameworks/Packages.
 
+**Note:** Make sure you add steps to run your tests after the setup steps given in these examples.
+
+- [Laravel with MySQL](./example/laravel-mysql.yml)
+- [Laravel with PostgreSQL](./example/laravel-postgres.yml)
+- [Slim Framework](./example/slim-framework.yml)
 
 ## :scroll: License
 

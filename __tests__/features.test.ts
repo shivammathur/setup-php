@@ -173,10 +173,10 @@ describe('Features tests', () => {
     expect(win32).toContain('');
 
     win32 = await features.addCoverage('pcov', '7.0', 'win32');
-    expect(win32).toContain('pcov requires php 7.1 or newer');
+    expect(win32).toContain('PCOV requires PHP 7.1 or newer');
 
     win32 = await features.addCoverage('pcov', '5.6', 'win32');
-    expect(win32).toContain('pcov requires php 7.1 or newer');
+    expect(win32).toContain('PCOV requires PHP 7.1 or newer');
 
     win32 = await features.addCoverage('', '7.4', 'win32');
     expect(win32).toEqual('');
@@ -189,6 +189,7 @@ describe('Features tests', () => {
     linux = await features.addCoverage('pcov', '7.4', 'linux');
     expect(linux).toContain('./pcov.sh');
     expect(linux).toContain('sudo sed -i "/xdebug/d" $ini_file');
+    expect(linux).toContain('sudo phpdismod xdebug');
 
     linux = await features.addCoverage('', '7.4', 'linux');
     expect(linux).toEqual('');
@@ -203,7 +204,6 @@ describe('Features tests', () => {
 
     darwin = await features.addCoverage('pcov', '7.4', 'darwin');
     expect(darwin).toContain('sh ./pcov.sh');
-    expect(darwin).toContain('sudo sed -i \'\' "/xdebug/d" $ini_file\n');
 
     darwin = await features.addCoverage('', '7.4', 'win32');
     expect(darwin).toEqual('');

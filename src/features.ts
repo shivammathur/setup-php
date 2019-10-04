@@ -4,20 +4,22 @@ import * as pecl from './pecl';
 export async function addExtension(
   extension_csv: string,
   version: string,
-  os_version: string
+  os_version: string,
+  log_prefix = 'Add Extension'
 ): Promise<string> {
   switch (os_version) {
     case 'win32':
-      return await addExtensionWindows(extension_csv, version);
+      return await addExtensionWindows(extension_csv, version, log_prefix);
     case 'darwin':
-      return await addExtensionDarwin(extension_csv, version);
+      return await addExtensionDarwin(extension_csv, version, log_prefix);
     case 'linux':
-      return await addExtensionLinux(extension_csv, version);
+      return await addExtensionLinux(extension_csv, version, log_prefix);
     default:
       return await utils.log(
         'Platform ' + os_version + ' is not supported',
         os_version,
-        'error'
+        'error',
+        log_prefix
       );
   }
 }
@@ -33,7 +35,8 @@ export async function addINIValues(ini_values_csv: string, os_version: string) {
       return await utils.log(
         'Platform ' + os_version + ' is not supported',
         os_version,
-        'error'
+        'error',
+        'Add Config'
       );
   }
 }
@@ -43,7 +46,10 @@ export async function addINIValues(ini_values_csv: string, os_version: string) {
  *
  * @param extension
  */
-export async function enableExtensionWindows(extension: string) {
+export async function enableExtensionWindows(
+  extension: string,
+  log_prefix: string
+) {
   return (
     `try {  
   $exist = Test-Path -Path $ext_dir\\php_${extension}.dll
@@ -51,16 +57,22 @@ export async function enableExtensionWindows(extension: string) {
     Add-Content C:\\tools\\php\\php.ini "${await utils.getExtensionPrefix(
       extension
     )}=php_${extension}.dll"\n` +
-    (await utils.log('Enabled ' + extension, 'win32', 'success')) +
+    (await utils.log('Enabled ' + extension, 'win32', 'success', log_prefix)) +
     ` } elseif(php -m | findstr -i ${extension}) {\n` +
     (await utils.log(
-      'Extension ' + extension + ' was already enabled',
+      extension + ' was already enabled',
       'win32',
-      'success'
+      'success',
+      log_prefix
     )) +
     ` }
 } catch [Exception] {\n` +
-    (await utils.log(extension + ' could not be enabled', 'win32', 'error')) +
+    (await utils.log(
+      extension + ' could not be enabled',
+      'win32',
+      'error',
+      log_prefix
+    )) +
     ` }\n`
   );
 }
@@ -73,19 +85,26 @@ export async function enableExtensionWindows(extension: string) {
  */
 export async function enableExtensionUnix(
   extension: string,
-  os_version: string
+  os_version: string,
+  log_prefix: string
 ) {
   return (
     `if [ ! "$(php -m | grep -i ${extension})" ] && [ -e "$ext_dir/${extension}.so" ]; then
   echo "${await utils.getExtensionPrefix(
     extension
   )}=${extension}" >> 'php -i | grep "Loaded Configuration" | sed -e "s|.*=>\s*||"'\n` +
-    (await utils.log('Enabled ' + extension, os_version, 'success')) +
+    (await utils.log(
+      'Enabled ' + extension,
+      os_version,
+      'success',
+      log_prefix
+    )) +
     `;\n elif [ "$(php -m | grep -i ${extension})" ]; then \n` +
     (await utils.log(
-      'Extension ' + extension + ' was already enabled',
+      extension + ' was already enabled',
       os_version,
-      'success'
+      'success',
+      log_prefix
     )) +
     `; fi\n`
   );
@@ -99,14 +118,15 @@ export async function enableExtensionUnix(
  */
 export async function addExtensionDarwin(
   extension_csv: string,
-  version: string
+  version: string,
+  log_prefix: string
 ): Promise<string> {
   let extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script: string = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     extension = extension.toLowerCase();
     // add script to enable extension is already installed along with php
-    script += await enableExtensionUnix(extension, 'darwin');
+    script += await enableExtensionUnix(extension, 'darwin', log_prefix);
     switch (await pecl.checkPECLExtension(extension)) {
       case true:
         let install_command: string = '';
@@ -136,13 +156,15 @@ export async function addExtensionDarwin(
           (await utils.log(
             'Installed and enabled ' + extension,
             'darwin',
-            'success'
+            'success',
+            log_prefix
           )) +
           ' || ' +
           (await utils.log(
             'Could not install ' + extension + ' on PHP' + version,
             'darwin',
-            'error'
+            'error',
+            log_prefix
           )) +
           '; fi\n';
         break;
@@ -155,7 +177,8 @@ export async function addExtensionDarwin(
           (await utils.log(
             'Could not find ' + extension + ' for PHP' + version + ' on PECL',
             'darwin',
-            'error'
+            'error',
+            log_prefix
           )) +
           '; fi\n';
         break;
@@ -172,14 +195,15 @@ export async function addExtensionDarwin(
  */
 export async function addExtensionWindows(
   extension_csv: string,
-  version: string
+  version: string,
+  log_prefix: string
 ): Promise<string> {
   let extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script: string = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     extension = extension.toLowerCase();
     // add script to enable extension is already installed along with php
-    script += await enableExtensionWindows(extension);
+    script += await enableExtensionWindows(extension, log_prefix);
 
     switch (await pecl.checkPECLExtension(extension)) {
       case true:
@@ -209,13 +233,15 @@ export async function addExtensionWindows(
           (await utils.log(
             'Installed and enabled ' + extension,
             'win32',
-            'success'
+            'success',
+            log_prefix
           )) +
           ' } catch [Exception] { ' +
           (await utils.log(
             'Could not install ' + extension + ' on PHP' + version,
             'win32',
-            'error'
+            'error',
+            log_prefix
           )) +
           ' } }\n';
         break;
@@ -228,7 +254,8 @@ export async function addExtensionWindows(
           (await utils.log(
             'Could not find ' + extension + ' for PHP' + version + ' on PECL',
             'win32',
-            'error'
+            'error',
+            log_prefix
           )) +
           ' } \n';
         break;
@@ -245,14 +272,15 @@ export async function addExtensionWindows(
  */
 export async function addExtensionLinux(
   extension_csv: string,
-  version: string
+  version: string,
+  log_prefix: string
 ): Promise<string> {
   let extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script: string = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     extension = extension.toLowerCase();
     // add script to enable extension is already installed along with php
-    script += await enableExtensionUnix(extension, 'linux');
+    script += await enableExtensionUnix(extension, 'linux', log_prefix);
 
     let install_command: string = '';
     switch (version + extension) {
@@ -282,13 +310,15 @@ export async function addExtensionLinux(
       (await utils.log(
         'Installed and enabled ' + extension,
         'linux',
-        'success'
+        'success',
+        log_prefix
       )) +
       ' || ' +
       (await utils.log(
         'Could not find php' + version + '-' + extension + ' on APT repository',
         'linux',
-        'error'
+        'error',
+        log_prefix
       )) +
       '; fi\n';
   });
@@ -343,12 +373,21 @@ export async function addCoverage(
       // if version is 7.1 or newer
       switch (version) {
         default:
-          script += await addExtension('pcov', version, os_version);
+          script += await addExtension(
+            'pcov',
+            version,
+            os_version,
+            'Set Coverage Driver'
+          );
           script += await addINIValues('pcov.enabled=1', os_version);
 
           // add command to disable xdebug and enable pcov
           switch (os_version) {
             case 'linux':
+              script +=
+                'if [ -e /etc/php/' +
+                version +
+                '/mods-available/xdebug.ini ]; then sudo phpdismod xdebug; fi\n';
               script += 'sudo sed -i "/xdebug/d" $ini_file\n';
               break;
             case 'darwin':
@@ -362,29 +401,37 @@ export async function addCoverage(
 
           // success
           script += await utils.log(
-            'pcov enabled as coverage driver',
+            'PCOV enabled as coverage driver',
             os_version,
-            'success'
+            'success',
+            'Set Coverage Driver'
           );
           // version is not supported
           break;
         case '5.6':
         case '7.0':
           script += await utils.log(
-            'pcov requires php 7.1 or newer',
+            'PCOV requires PHP 7.1 or newer',
             os_version,
-            'warning'
+            'warning',
+            'Set Coverage Driver'
           );
           break;
       }
       break;
     //xdebug
     case 'xdebug':
-      script += await addExtension('xdebug', version, os_version);
+      script += await addExtension(
+        'xdebug',
+        version,
+        os_version,
+        'Set Coverage Driver'
+      );
       script += await utils.log(
         'Xdebug enabled as coverage driver',
         os_version,
-        'success'
+        'success',
+        'Set Coverage Driver'
       );
       break;
     // unknown coverage driver

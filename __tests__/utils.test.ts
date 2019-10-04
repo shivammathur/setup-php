@@ -56,6 +56,7 @@ describe('Utils tests', () => {
     expect(await utils.readScript('darwin.sh', '7.3', 'darwin')).toBe(darwin);
     expect(await utils.readScript('linux.sh', '7.4', 'linux')).toBe(linux);
     expect(await utils.readScript('linux.sh', '7.3', 'linux')).toBe(linux);
+    expect(await utils.readScript('win32.ps1', '7.4', 'win32')).toBe(win32);
     expect(await utils.readScript('win32.ps1', '7.3', 'win32')).toBe(win32);
     expect(await utils.readScript('fedora.sh', '7.3', 'fedora')).toContain(
       'Platform fedora is not supported'

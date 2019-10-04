@@ -70,33 +70,22 @@ export async function readScript(
             path.join(__dirname, '../src/scripts/7.4.sh'),
             'utf8'
           );
-        case '7.3':
-        default:
-          return fs.readFileSync(
-            path.join(__dirname, '../src/scripts/' + filename),
-            'utf8'
-          );
       }
+      break;
     case 'linux':
       switch (version) {
         case '7.4':
           await readFiles74(['scripts/xdebug.sh', 'scripts/pcov.sh']);
-          return fs.readFileSync(
-            path.join(__dirname, '../src/scripts/' + filename),
-            'utf8'
-          );
-        case '7.3':
-        default:
-          return fs.readFileSync(
-            path.join(__dirname, '../src/scripts/' + filename),
-            'utf8'
-          );
+          break;
       }
+      break;
     case 'win32':
-      return fs.readFileSync(
-        path.join(__dirname, '../src/scripts/' + filename),
-        'utf8'
-      );
+      switch (version) {
+        case '7.4':
+          await readFiles74(['ext/php_pcov.dll']);
+          break;
+      }
+      break;
     default:
       return await log(
         'Platform ' + os_version + ' is not supported',
@@ -104,6 +93,11 @@ export async function readScript(
         'error'
       );
   }
+
+  return fs.readFileSync(
+    path.join(__dirname, '../src/scripts/' + filename),
+    'utf8'
+  );
 }
 
 /**
@@ -189,7 +183,7 @@ export async function log(
 }
 
 export async function getExtensionPrefix(extension: string): Promise<string> {
-  let zend: Array<string> = ['xdebug', 'opcache'];
+  let zend: Array<string> = ['xdebug', 'opcache', 'ioncube', 'eaccelerator'];
   switch (zend.indexOf(extension)) {
     case 0:
     case 1:

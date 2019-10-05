@@ -9,6 +9,11 @@ jobs:
       CACHE_DRIVER: redis
       QUEUE_CONNECTION: redis
       SESSION_DRIVER: redis
+      DB_CONNECTION: pgsql
+      DB_HOST: localhost
+      DB_PASSWORD: postgres
+      DB_USERNAME: postgres
+      DB_DATABASE: postgres
     services:
       postgres:
         image: postgres:10.8
@@ -50,5 +55,4 @@ jobs:
       - name: Run Migration
         run: php artisan migrate -v
         env:
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+          DB_PORT: ${{ job.services.postgres.ports[5432] }}

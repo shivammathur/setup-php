@@ -136,9 +136,9 @@ Examples for setting up this GitHub Action with different PHP Frameworks/Package
 
 **Note:** Make sure you add steps to run your tests after the setup steps given in these examples.
 
-- [Laravel with MySQL](./example/laravel-mysql.yml)
-- [Laravel with PostgreSQL](./example/laravel-postgres.yml)
-- [Slim Framework](./example/slim-framework.yml)
+- [Laravel with MySQL](./examples/laravel-mysql.yml)
+- [Laravel with PostgreSQL](./examples/laravel-postgres.yml)
+- [Slim Framework](./examples/slim-framework.yml)
 
 ## :scroll: License
 

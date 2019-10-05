@@ -48,23 +48,38 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 - Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
 
 ## :signal_strength: Coverage support
-- Specify `coverage: xdebug` to use `Xdebug`.
-    - Runs on all [PHP versions supported](#tada-php-support)    
+
+### Xdebug
+
+Specify `coverage: xdebug` to use `Xdebug`.
+Runs on all [PHP versions supported](#tada-php-support)    
 ```
 uses: shivammathur/setup-php@master
 with:
   php-version: 7.3  
   coverage: xdebug
 ```
-- Specify `coverage: pcov` to use `PCOV`. `PCOV` is way faster than `Xdebug`
-    - For `pcov.directory` to be other than `src`, `lib` or, `app`, specify it using the `ini-values-csv` input.
-    - `PCOV` needs `PHPUnit >= 8.0` and `PHP >= 7.1`, `PHPUnit` needs `PHP >= 7.2`. So use `PHP >= 7.2` with `PCOV`
+
+### PCOV
+
+Specify `coverage: pcov` to use `PCOV`. `PCOV` is way faster than `Xdebug`.
+For `pcov.directory` to be other than `src`, `lib` or, `app`, specify it using the `ini-values-csv` input.
+`PCOV` needs `PHPUnit >= 8.0` and `PHP >= 7.1`, `PHPUnit` needs `PHP >= 7.2`. So use `PHP >= 7.2` with `PCOV`
 ```
 uses: shivammathur/setup-php@master
 with:
   php-version: 7.3
   ini-values-csv: 'pcov.directory=api' #optional, see above for usage.
   coverage: pcov
+```
+
+### Disable coverage
+Specify `coverage: none` to disable both `Xdebug` and `PCOV`.
+```
+uses: shivammathur/setup-php@master
+with:
+  php-version: 7.3
+  coverage: none
 ```
 
 ## :memo: Usage

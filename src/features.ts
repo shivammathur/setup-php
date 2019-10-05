@@ -364,8 +364,7 @@ export async function addCoverage(
   version: string,
   os_version: string
 ): Promise<string> {
-  let script: string = '';
-  script += '\n';
+  let script: string = '\n';
   coverage = coverage.toLowerCase();
   // pcov
   switch (coverage) {
@@ -434,7 +433,38 @@ export async function addCoverage(
         'Set Coverage Driver'
       );
       break;
-    // unknown coverage driver
+    case 'none':
+      switch (os_version) {
+        case 'linux':
+          script +=
+            'if [ -e /etc/php/' +
+            version +
+            '/mods-available/xdebug.ini ]; then sudo phpdismod xdebug; fi\n';
+          script +=
+            'if [ -e /etc/php/' +
+            version +
+            '/mods-available/pcov.ini ]; then sudo phpdismod pcov; fi\n';
+          script += 'sudo sed -i "/xdebug/d" $ini_file\n';
+          script += 'sudo sed -i "/pcov/d" $ini_file\n';
+          break;
+        case 'darwin':
+          script += 'sudo sed -i \'\' "/xdebug/d" $ini_file\n';
+          script += 'sudo sed -i \'\' "/pcov/d" $ini_file\n';
+          break;
+        case 'win32':
+          script +=
+            'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug C:\\tools\\php }\n';
+          script +=
+            'if(php -m | findstr -i pcov) { Disable-PhpExtension pcov C:\\tools\\php }\n';
+          break;
+      }
+      script += await utils.log(
+        'Disabled Xdebug and PCOV',
+        os_version,
+        'success',
+        'Set Coverage Driver'
+      );
+      break;
     default:
       script = '';
   }

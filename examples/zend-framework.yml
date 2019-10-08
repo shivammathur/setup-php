@@ -1,4 +1,4 @@
-name: Testing Slim Framework
+name: Testing Zend Framework
 on: [push, pull_request]
 jobs:
   build:
@@ -15,10 +15,12 @@ jobs:
         uses: shivammathur/setup-php@master #https://github.com/shivammathur/setup-php
         with:
           php-version: ${{ matrix.php-versions }}
-          extension-csv: mbstring, simplexml, dom
+          extension-csv: mbstring, bcmath, curl, intl
           coverage: xdebug #optional
       - name: Install dependencies
-        run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+        run: |
+          composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+          composer require --dev phpunit/phpunit squizlabs/php_codesniffer zendframework/zend-test
       - name: Test with phpunit in windows
         if: matrix.operating-system == 'windows-latest'
         run: .\vendor\bin\phpunit --coverage-text

@@ -1,7 +1,9 @@
 import {exec} from '@actions/exec/lib/exec';
 import * as core from '@actions/core';
 import * as utils from './utils';
-import * as features from './features';
+import * as extensions from './extensions';
+import * as config from './config';
+import * as coverage from './coverage';
 
 /**
  * Run the script
@@ -12,7 +14,7 @@ async function run() {
     let version: string = await utils.getInput('php-version', true);
     let extension_csv: string = await utils.getInput('extension-csv', false);
     let ini_values_csv: string = await utils.getInput('ini-values-csv', false);
-    let coverage: string = await utils.getInput('coverage', false);
+    let coverage_driver: string = await utils.getInput('coverage', false);
 
     let os_version: string = process.platform;
     // check the os version and run the respective script
@@ -23,9 +25,17 @@ async function run() {
         os_version
       );
 
-      darwin += await features.addExtension(extension_csv, version, os_version);
-      darwin += await features.addINIValues(ini_values_csv, os_version);
-      darwin += await features.addCoverage(coverage, version, os_version);
+      darwin += await extensions.addExtension(
+        extension_csv,
+        version,
+        os_version
+      );
+      darwin += await config.addINIValues(ini_values_csv, os_version);
+      darwin += await coverage.addCoverage(
+        coverage_driver,
+        version,
+        os_version
+      );
       await utils.writeScript('darwin.sh', version, darwin);
       await exec('sh ./' + version + 'darwin.sh ' + version);
     } else if (os_version == 'win32') {
@@ -34,13 +44,17 @@ async function run() {
         version,
         os_version
       );
-      windows += await features.addExtension(
+      windows += await extensions.addExtension(
         extension_csv,
         version,
         os_version
       );
-      windows += await features.addINIValues(ini_values_csv, os_version);
-      windows += await features.addCoverage(coverage, version, os_version);
+      windows += await config.addINIValues(ini_values_csv, os_version);
+      windows += await coverage.addCoverage(
+        coverage_driver,
+        version,
+        os_version
+      );
       await utils.writeScript('win32.ps1', version, windows);
       await exec('powershell .\\' + version + 'win32.ps1 -version ' + version);
     } else if (os_version == 'linux') {
@@ -49,9 +63,13 @@ async function run() {
         version,
         os_version
       );
-      linux += await features.addExtension(extension_csv, version, os_version);
-      linux += await features.addINIValues(ini_values_csv, os_version);
-      linux += await features.addCoverage(coverage, version, os_version);
+      linux += await extensions.addExtension(
+        extension_csv,
+        version,
+        os_version
+      );
+      linux += await config.addINIValues(ini_values_csv, os_version);
+      linux += await coverage.addCoverage(coverage_driver, version, os_version);
       await utils.writeScript('linux.sh', version, linux);
       await exec('./' + version + 'linux.sh ' + version);
     }

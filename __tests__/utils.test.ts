@@ -82,6 +82,7 @@ describe('Utils tests', () => {
       'c',
       'd'
     ]);
+
     expect(await utils.extensionArray('')).toEqual([]);
     expect(await utils.extensionArray(' ')).toEqual([]);
   });

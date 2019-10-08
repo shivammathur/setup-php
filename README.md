@@ -15,7 +15,7 @@
   <a href="https://www.codementor.io/shivammathur?utm_source=github&utm_medium=button&utm_term=shivammathur&utm_campaign=github"><img alt="Contact me on Codementor" src="https://cdn.codementor.io/badges/contact_me_github.svg"></a>  
 </p>
 
-Setup PHP with required extensions, php.ini configuration and composer in [GitHub Actions](https://github.com/features/actions). This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage) section to see how to use this.
+Setup PHP with required extensions, php.ini configuration and composer in [GitHub Actions](https://github.com/features/actions). This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage) section and [examples](#examples) to see how to use this.
 
 ## :tada: PHP Support
 
@@ -26,7 +26,7 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 |7.1|`Stable`|`Security fixes only`|
 |7.2|`Stable`|`Active`|
 |7.3|`Stable`|`Active`|
-|7.4|`Beta`/`RC`|`Active`|
+|7.4|`RC3`|`Active`|
 
 **Note:** PHP 7.4 is currently in development, do not use in production/release branches.
 
@@ -40,7 +40,6 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 |Ubuntu 16.04|`ubuntu-16.04`|
 |macOS X Mojave 10.14|`macOS-latest` or `macOS-10.14`|
 
-
 ## :wrench: PHP Extension Support
 - On `ubuntu` extensions which have the package in apt are installed.
 - On `windows` and `macOS` PECL extensions are installed.
@@ -53,10 +52,11 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 
 Specify `coverage: xdebug` to use `Xdebug`.
 Runs on all [PHP versions supported](#tada-php-support)    
-```
+
+```yaml
 uses: shivammathur/setup-php@master
 with:
-  php-version: 7.3  
+  php-version: '7.3'  
   coverage: xdebug
 ```
 
@@ -65,20 +65,22 @@ with:
 Specify `coverage: pcov` to use `PCOV`. `PCOV` is way faster than `Xdebug`.
 For `pcov.directory` to be other than `src`, `lib` or, `app`, specify it using the `ini-values-csv` input.
 `PCOV` needs `PHPUnit >= 8.0` and `PHP >= 7.1`, `PHPUnit` needs `PHP >= 7.2`. So use `PHP >= 7.2` with `PCOV`
-```
+
+```yaml
 uses: shivammathur/setup-php@master
 with:
-  php-version: 7.3
-  ini-values-csv: 'pcov.directory=api' #optional, see above for usage.
+  php-version: '7.3'
+  ini-values-csv: pcov.directory=api #optional, see above for usage.
   coverage: pcov
 ```
 
 ### Disable coverage
 Specify `coverage: none` to disable both `Xdebug` and `PCOV`.
-```
+
+```yaml
 uses: shivammathur/setup-php@master
 with:
-  php-version: 7.3
+  php-version: '7.3'
   coverage: none
 ```
 
@@ -91,7 +93,7 @@ Inputs supported by this GitHub Action.
 - ini-values-csv `optional`
 - coverage `optional`
 
-See [action.yml](action.yml) for more info
+See [action.yml](action.yml) and usage below for more info.
 
 ### Basic Usage
 
@@ -102,9 +104,9 @@ steps:
 - name: Installing PHP
   uses: shivammathur/setup-php@master
   with:
-    php-version: 7.3
+    php-version: '7.3'
     extension-csv: mbstring, xdebug #optional
-    ini-values-csv: "post_max_size=256M, short_open_tag=On" #optional
+    ini-values-csv: post_max_size=256M, short_open_tag=On #optional
     coverage: xdebug #optional
 - name: Check PHP Version
   run: php -v
@@ -134,7 +136,7 @@ jobs:
       with:
         php-version: ${{ matrix.php-versions }}
         extension-csv: mbstring, xdebug #optional
-        ini-values-csv: "post_max_size=256M, short_open_tag=On" #optional
+        ini-values-csv: post_max_size=256M, short_open_tag=On #optional
         coverage: xdebug #optional
     - name: Check PHP Version
       run: php -v
@@ -149,11 +151,18 @@ jobs:
 
 Examples for setting up this GitHub Action with different PHP Frameworks/Packages.
 
-**Note:** Make sure you add steps to run your tests after the setup steps given in these examples.
-
-- [Laravel with MySQL](./examples/laravel-mysql.yml)
-- [Laravel with PostgreSQL](./examples/laravel-postgres.yml)
-- [Slim Framework](./examples/slim-framework.yml)
+|Framework/Package|Workflow|
+|--- |--- |
+|CodeIgniter|[codeigniter.yml](./examples/codeigniter.yml)|
+|Laravel `MySQL` `Redis`|[laravel-mysql.yml](./examples/laravel-mysql.yml)|
+|Laravel `PostgreSQL` `Redis`|[laravel-postgres.yml](./examples/laravel-postgres.yml)|
+|Laravel|[laravel.yml](./examples/laravel.yml)|
+|Slim Framework|[slim-framework.yml](./examples/slim-framework.yml)|
+|Symfony `MySQL`|[symfony-mysql.yml](./examples/symfony-mysql.yml)|
+|Symfony `PostgreSQL`|[symfony-postgres.yml](./examples/symfony-postgres.yml)|
+|Yii2 Starter Kit `MySQL`|[yii2-mysql.yml](./examples/yii2-mysql.yml)|
+|Yii2 Starter Kit `PostgreSQL`|[yii2-postgres.yml](./examples/yii2-postgres.yml)|
+|Zend Framework|[zend-framework.yml](./examples/zend-framework.yml)|
 
 ## :scroll: License
 

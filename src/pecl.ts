@@ -11,7 +11,7 @@ export async function checkPECLExtension(extension: string): Promise<boolean> {
     maxRetries: 2
   });
   const response: hc.HttpClientResponse = await http.get(
-    'https://pecl.php.net/package/' + extension
+    'https://pecl.php.net/json.php?package=' + extension
   );
   return response.message.statusCode === 200;
 }

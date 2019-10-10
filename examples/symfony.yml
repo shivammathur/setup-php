@@ -1,7 +1,7 @@
 name: Unit Testing Symfony
 on: [push, pull_request]
 jobs:
-  laravel:
+  symfony:
     name: Symfony (PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }})
     runs-on: ${{ matrix.operating-system }}
     strategy:
@@ -20,9 +20,7 @@ jobs:
           extension-csv: mbstring, xml, ctype, iconv
           coverage: xdebug #optional
       - name: Install Composer dependencies
-        run: |
-          composer require symfony/orm-pack
-          composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+        run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
       - name: Run Tests
         run: |
           composer require phpunit

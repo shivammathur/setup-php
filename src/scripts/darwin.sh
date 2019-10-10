@@ -1,5 +1,7 @@
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
-brew tap exolnet/homebrew-deprecated >/dev/null 2>&1
+if [ "$1" = "5.6" ] || [ "$1" = "7.0" ]; then
+  brew tap exolnet/homebrew-deprecated >/dev/null 2>&1
+fi
 brew install php@"$1" composer >/dev/null 2>&1
 brew link --force --overwrite php@"$1" >/dev/null 2>&1
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")

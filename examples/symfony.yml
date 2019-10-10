@@ -1,7 +1,8 @@
-name: Unit Testing Symfony
+# GitHub Action for Symfony
+name: Testing Symfony
 on: [push, pull_request]
 jobs:
-  laravel:
+  symfony:
     name: Symfony (PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }})
     runs-on: ${{ matrix.operating-system }}
     strategy:

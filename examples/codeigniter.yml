@@ -1,3 +1,4 @@
+# GitHub Action for CodeIgniter
 name: Testing CodeIgniter
 on: [push, pull_request]
 jobs:
@@ -19,9 +20,6 @@ jobs:
           coverage: xdebug #optional
       - name: Install dependencies
         run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
-      - name: Test with phpunit in windows
-        if: matrix.operating-system == 'windows-latest'
-        run: .\vendor\bin\phpunit --coverage-text
       - name: Test with phpunit
-        if: matrix.operating-system != 'windows-latest'
         run: vendor/bin/phpunit --coverage-text
+        shell: pwsh

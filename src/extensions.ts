@@ -75,7 +75,7 @@ export async function enableExtensionUnix(
     `if [ ! "$(php -m | grep -i ${extension})" ] && [ -e "$ext_dir/${extension}.so" ]; then
   echo "${await utils.getExtensionPrefix(
     extension
-  )}=${extension}" >> 'php -i | grep "Loaded Configuration" | sed -e "s|.*=>\s*||"'\n` +
+  )}=${extension}" >> $ini_file\n` +
     (await utils.log(
       'Enabled ' + extension,
       os_version,

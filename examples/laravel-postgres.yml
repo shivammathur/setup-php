@@ -1,3 +1,4 @@
+# GitHub Action for Laravel with PostgreSQL and Redis
 name: Testing Laravel with PostgreSQL
 on: [push, pull_request]
 jobs:

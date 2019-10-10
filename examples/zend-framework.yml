@@ -1,3 +1,4 @@
+# GitHub Action for Zend Framework
 name: Testing Zend Framework
 on: [push, pull_request]
 jobs:
@@ -21,9 +22,6 @@ jobs:
         run: |
           composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
           composer require --dev phpunit/phpunit squizlabs/php_codesniffer zendframework/zend-test
-      - name: Test with phpunit in windows
-        if: matrix.operating-system == 'windows-latest'
-        run: .\vendor\bin\phpunit --coverage-text
       - name: Test with phpunit
-        if: matrix.operating-system != 'windows-latest'
         run: vendor/bin/phpunit --coverage-text
+        shell: pwsh

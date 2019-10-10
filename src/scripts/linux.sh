@@ -3,7 +3,6 @@ if [ "$version" != "$1" ]; then
 	if [ ! -e "/usr/bin/php$1" ]; then
 		sudo DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/php -y >/dev/null 2>&1
 		sudo DEBIAN_FRONTEND=noninteractive apt update -y >/dev/null 2>&1
-		sudo DEBIAN_FRONTEND=noninteractive apt install -y php"$1" curl php"$1"-curl >/dev/null 2>&1
 		if [ "$1" != "7.4" ]; then
 		  sudo DEBIAN_FRONTEND=noninteractive apt install -y php"$1" curl php"$1"-curl >/dev/null 2>&1
 		else
@@ -12,21 +11,21 @@ if [ "$version" != "$1" ]; then
 	fi
 	for tool in php phar phar.phar php-cgi php-config phpize; do
 		if [ -e "/usr/bin/$tool$1" ]; then
-			sudo update-alternatives --set $tool /usr/bin/"$tool$1"
+			sudo update-alternatives --set $tool /usr/bin/"$tool$1" &
 		fi
 	done
 fi	
 
 if [ ! -e "/usr/bin/composer" ]; then
-	EXPECTED_SIGNATURE="$(curl -s https://composer.github.io/installer.sig)"
-	curl -s -L https://getcomposer.org/installer > composer-setup.php
-	ACTUAL_SIGNATURE="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
+	EXPECTED_SIGNATURE="$(curl -s https://composer.github.io/installer.sig)" &
+	curl -s -L https://getcomposer.org/installer > composer-setup.php &
+	ACTUAL_SIGNATURE="$(php -r "echo hash_file('sha384', 'composer-setup.php');")" &
 
 	if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]; then
 		>&2 echo 'ERROR: Invalid installer signature'		
 	else
 		COMPOSER_ALLOW_SUPERUSER=1
-		sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer	
+		sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 	fi
 	rm composer-setup.php	
 fi

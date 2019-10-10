@@ -1,24 +1,27 @@
 name: Main workflow
-on: [push]
+on: [push, pull_request]
 jobs:
   run:
     name: Run
     runs-on: ${{ matrix.operating-system }}
     strategy:
-      max-parallel: 8
+      fail-fast: false
+      max-parallel: 15
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macOS-latest]
         php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3']
     steps:
     - name: Checkout
       uses: actions/checkout@master
+      with:
+        fetch-depth: 1
 
-    - name: Set Node.js 10.x
+    - name: Setup Node.js 10.x
       uses: actions/setup-node@master
       with:
-        version: 10.x
+        node-version: 10.x
 
-    - name: Installing NPM
+    - name: Installing NPM packages
       run: npm install  
 
     - name: Run tests and send coverage

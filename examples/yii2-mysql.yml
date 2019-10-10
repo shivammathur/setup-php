@@ -1,7 +1,8 @@
+# GitHub Action for Yii Framework with MySQL
 name: Testing Yii2 with MySQL
 on: [push, pull_request]
 jobs:
-  laravel:
+  yii:
     name: Yii2 (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
     env:
@@ -31,7 +32,7 @@ jobs:
       - name: Set Node.js 10.x
         uses: actions/setup-node@master
         with:
-          version: 10.x
+          node-version: 10.x
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@master #https://github.com/shivammathur/setup-php
         with:

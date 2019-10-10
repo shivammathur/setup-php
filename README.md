@@ -7,15 +7,15 @@
 # Setup PHP in GitHub Actions
 
 <p align="left">
-  <a href="https://github.com/shivammathur/setup-php"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
-  <a href="https://codecov.io/gh/shivammathur/setup-php"><img alt="Codecov Code Coverage" src="https://codecov.io/gh/shivammathur/setup-php/branch/master/graph/badge.svg"></a>
-  <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg"></a>
-  <a href="#tada-php-support"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a> 
-  <a href="https://www.patreon.com/shivammathur"><img alt="Support me on Patreon" src="https://shivammathur.com/badges/patreon.svg"></a>   <a href="https://www.paypal.me/shivammathur"><img alt="Support me on PayPal" src="https://shivammathur.com/badges/paypal.svg"></a>
-  <a href="https://www.codementor.io/shivammathur?utm_source=github&utm_medium=button&utm_term=shivammathur&utm_campaign=github"><img alt="Contact me on Codementor" src="https://cdn.codementor.io/badges/contact_me_github.svg"></a>  
+  <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
+  <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://codecov.io/gh/shivammathur/setup-php/branch/master/graph/badge.svg"></a>
+  <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg"></a>
+  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a> 
+  <a href="https://www.patreon.com/shivammathur" title="Support Shivam Mathur on Patreon"><img alt="Support me on Patreon" src="https://shivammathur.com/badges/patreon.svg"></a>   <a href="https://www.paypal.me/shivammathur"><img alt="Support me on PayPal" src="https://shivammathur.com/badges/paypal.svg"></a>
+  <a href="https://www.codementor.io/shivammathur?utm_source=github&utm_medium=button&utm_term=shivammathur&utm_campaign=github" title="Contact Shivam Mathur on Codementor"><img alt="Contact me on Codementor" src="https://cdn.codementor.io/badges/contact_me_github.svg"></a>  
 </p>
 
-Setup PHP with required extensions, php.ini configuration and composer in [GitHub Actions](https://github.com/features/actions). This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage) section and [examples](#examples) to see how to use this.
+Setup PHP with required extensions, php.ini configuration and composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
 
 ## :tada: PHP Support
 
@@ -50,8 +50,8 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 
 ### Xdebug
 
-Specify `coverage: xdebug` to use `Xdebug`.
-Runs on all [PHP versions supported](#tada-php-support)    
+Specify `coverage: xdebug` to use `Xdebug`.  
+Runs on all [PHP versions supported](#tada-php-support "List of PHP versions supported on this GitHub Action")    
 
 ```yaml
 uses: shivammathur/setup-php@master
@@ -62,8 +62,9 @@ with:
 
 ### PCOV
 
-Specify `coverage: pcov` to use `PCOV`. `PCOV` is way faster than `Xdebug`.
-For `pcov.directory` to be other than `src`, `lib` or, `app`, specify it using the `ini-values-csv` input.
+Specify `coverage: pcov` to use `PCOV`.  
+It is much faster than `Xdebug`.  
+If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values-csv` input.  
 `PCOV` needs `PHPUnit >= 8.0` and `PHP >= 7.1`, `PHPUnit` needs `PHP >= 7.2`. So use `PHP >= 7.2` with `PCOV`
 
 ```yaml
@@ -75,7 +76,12 @@ with:
 ```
 
 ### Disable coverage
+
 Specify `coverage: none` to disable both `Xdebug` and `PCOV`.
+Consider disabling the coverage using this PHP action for these reasons.
+- You are not generating coverage reports while testing.
+- It will disable `Xdebug`, which will have a positive impact on PHP performance.
+- You are using `phpdbg`.
 
 ```yaml
 uses: shivammathur/setup-php@master
@@ -93,7 +99,7 @@ Inputs supported by this GitHub Action.
 - ini-values-csv `optional`
 - coverage `optional`
 
-See [action.yml](action.yml) and usage below for more info.
+See [action.yml](action.yml "Metadata for this GitHub Action") and usage below for more info.
 
 ### Basic Usage
 
@@ -151,26 +157,26 @@ jobs:
 
 Examples for setting up this GitHub Action with different PHP Frameworks/Packages.
 
-|Framework/Package|Workflow|
-|--- |--- |
-|CodeIgniter|[codeigniter.yml](./examples/codeigniter.yml)|
-|Laravel `MySQL` `Redis`|[laravel-mysql.yml](./examples/laravel-mysql.yml)|
-|Laravel `PostgreSQL` `Redis`|[laravel-postgres.yml](./examples/laravel-postgres.yml)|
-|Laravel|[laravel.yml](./examples/laravel.yml)|
-|Slim Framework|[slim-framework.yml](./examples/slim-framework.yml)|
-|Symfony `MySQL`|[symfony-mysql.yml](./examples/symfony-mysql.yml)|
-|Symfony `PostgreSQL`|[symfony-postgres.yml](./examples/symfony-postgres.yml)|
-|Yii2 Starter Kit `MySQL`|[yii2-mysql.yml](./examples/yii2-mysql.yml)|
-|Yii2 Starter Kit `PostgreSQL`|[yii2-postgres.yml](./examples/yii2-postgres.yml)|
-|Zend Framework|[zend-framework.yml](./examples/zend-framework.yml)|
+|Framework/Package|Runs on|Workflow|
+|--- |--- |--- |
+|CodeIgniter|`macOS`, `ubuntu` and `windows`|[codeigniter.yml](./examples/codeigniter.yml "GitHub Action for CodeIgniter")|
+|Laravel with `MySQL` and `Redis`|`ubuntu`|[laravel-mysql.yml](./examples/laravel-mysql.yml "GitHub Action for Laravel with MySQL and Redis")|
+|Laravel with `PostgreSQL` and `Redis`|`ubuntu`|[laravel-postgres.yml](./examples/laravel-postgres.yml "GitHub Action for Laravel with PostgreSQL and Redis")|
+|Laravel without services|`macOS`, `ubuntu` and `windows`|[laravel.yml](./examples/laravel.yml "GitHub Action for Laravel without services")|
+|Slim Framework|`macOS`, `ubuntu` and `windows`|[slim-framework.yml](./examples/slim-framework.yml "GitHub Action for Slim Framework")|
+|Symfony with `MySQL`|`ubuntu`|[symfony-mysql.yml](./examples/symfony-mysql.yml "GitHub Action for Symfony with MySQL")|
+|Symfony with `PostgreSQL`|`ubuntu`|[symfony-postgres.yml](./examples/symfony-postgres.yml "GitHub Action for Symfony with PostgreSQL")|
+|Yii2 Starter Kit with `MySQL`|`ubuntu`|[yii2-mysql.yml](./examples/yii2-mysql.yml "GitHub Action for Yii2 Starter Kit with MySQL")|
+|Yii2 Starter Kit with `PostgreSQL`|`ubuntu`|[yii2-postgres.yml](./examples/yii2-postgres.yml "GitHub Action for Yii2 Starter Kit with PostgreSQL")|
+|Zend Framework|`macOS`, `ubuntu` and `windows`|[zend-framework.yml](./examples/zend-framework.yml "GitHub Action for Zend Framework")|
 
 ## :scroll: License
 
-The scripts and documentation in this project are released under the [MIT License](LICENSE). This project has multiple [dependencies](https://github.com/shivammathur/setup-php/network/dependencies) and their licenses can be found in their respective repositories.
+The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). This project has multiple [dependencies](https://github.com/shivammathur/setup-php/network/dependencies "Dependencies for this PHP Action") and their licenses can be found in their respective repositories.
 
 ## :+1: Contributions
 
-Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md).
+Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "shivammathur/setup-php contribution guide").
 
 ## :sparkling_heart: Support this project
 
@@ -179,14 +185,14 @@ Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md).
 
 ## :bookmark: This action uses the following works
 
-- [powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager)
-- [Homebrew](https://brew.sh/)
-- [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php)
-- [exolnet/homebrew-deprecated](https://github.com/eXolnet/homebrew-deprecated)
-- [phpbrew](https://github.com/phpbrew/phpbrew)
+- [powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager "Package to handle PHP on windows")
+- [Homebrew](https://brew.sh/ "MacOS package manager")
+- [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Pre-compiled ubuntu packages")
+- [exolnet/homebrew-deprecated](https://github.com/eXolnet/homebrew-deprecated "Pre-compiled deprecated PHP for macOS")
+- [phpbrew](https://github.com/phpbrew/phpbrew "PHP packages manager")
 
 ## :bookmark_tabs: Further Reading
 
-- [About GitHub Actions](https://github.com/features/actions)
-- [GitHub Actions Syntax](https://help.github.com/en/articles/workflow-syntax-for-github-actions)
-- [Other Awesome Actions](https://github.com/sdras/awesome-actions)
+- [About GitHub Actions](https://github.com/features/actions "GitHub Actions")
+- [GitHub Actions Syntax](https://help.github.com/en/articles/workflow-syntax-for-github-actions "GitHub Actions Syntax")
+- [Other Awesome Actions](https://github.com/sdras/awesome-actions "List of Awesome GitHub Actions")

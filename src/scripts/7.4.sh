@@ -1,3 +1,4 @@
+version='7.4.0RC3'
 brew install pkg-config autoconf bison re2c openssl@1.1 krb5 enchant libffi freetype intltool icu4c libiconv t1lib gd libzip gmp tidyp libxml2 libxslt postgresql curl >/dev/null 2>&1
 brew link icu4c gettext --force >/dev/null 2>&1
 
@@ -48,12 +49,36 @@ export PHPBREW_HOME=/opt/phpbrew
 echo "[[ -e ~/.phpbrew/bashrc ]] && source ~/.phpbrew/bashrc" >> ~/.bashrc
 source ~/.bash_profile >/dev/null 2>&1
 source ~/.bashrc >/dev/null 2>&1
-phpbrew install -j 6 7.4.0RC3 +dev >/dev/null 2>&1
-phpbrew switch 7.4.0RC3
-sudo ln -sf /opt/phpbrew/php/php-7.4.0RC3/bin/* /usr/local/bin/
-sudo ln -sf /opt/phpbrew/php/php-7.4.0RC3/etc/php.ini /etc/php.ini
+phpbrew install -j 6 $version +dev >/dev/null 2>&1
+phpbrew switch $version
+sudo ln -sf /opt/phpbrew/php/php-$version/bin/* /usr/local/bin/
+sudo ln -sf /opt/phpbrew/php/php-$version/etc/php.ini /etc/php.ini
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /opt" | sed -e "s|.*=> s*||")
 pecl config-set php_ini "$ini_file"
 sudo chmod 777 "$ini_file"
 brew install composer
+
+add_extension()
+{
+  extension=$1
+  install_command=$2
+  prefix=$3
+  log_prefix=$4
+  if ! php -m | grep -i -q "$extension" && [ -e "$ext_dir/$extension.so" ]; then
+    echo "$prefix=$extension" >> "$ini_file" && echo "\033[32;1m$log_prefix: Enabled $extension\033[0m";
+  elif php -m | grep -i -q "$extension"; then
+    echo "\033[33;1m$log_prefix: $extension was already enabled\033[0m";
+  elif ! php -m | grep -i -q "$extension"; then
+    exists=$(curl -sL https://pecl.php.net/json.php?package="$extension" -w "%{http_code}" -o /dev/null)
+    if [ "$exists" = "200" ]; then
+      eval "$install_command" && \
+      echo "\033[32;1m$log_prefix: Installed and enabled $extension\033[0m" || \
+      echo "\033[31;1m$log_prefix: Could not install $extension on PHP$version\033[0m";
+    else
+      if ! php -m | grep -i -q "$extension"; then
+        echo "\033[31;1m$log_prefix: Could not find $extension for PHP$version on PECL\033[0m";
+      fi
+    fi
+  fi
+}

@@ -31,13 +31,8 @@ export async function addINIValues(ini_values_csv: string, os_version: string) {
 export async function addINIValuesUnix(
   ini_values_csv: string
 ): Promise<string> {
-  let script: string = '\n';
   let ini_values: Array<string> = await utils.INIArray(ini_values_csv);
-  await utils.asyncForEach(ini_values, async function(ini_value: string) {
-    // add script to set ini value
-    script += 'echo "' + ini_value + '" >> $ini_file\n';
-  });
-  return script;
+  return '\necho "' + ini_values.join('\n') + '" >> $ini_file\n';
 }
 
 /**
@@ -48,11 +43,8 @@ export async function addINIValuesUnix(
 export async function addINIValuesWindows(
   ini_values_csv: string
 ): Promise<string> {
-  let script: string = '\n';
   let ini_values: Array<string> = await utils.INIArray(ini_values_csv);
-  await utils.asyncForEach(ini_values, async function(ini_value: string) {
-    // add script to set ini value
-    script += 'Add-Content C:\\tools\\php\\php.ini "' + ini_value + '"\n';
-  });
-  return script;
+  return (
+    'Add-Content C:\\tools\\php\\php.ini "' + ini_values.join('\n') + '"\n'
+  );
 }

@@ -79,6 +79,4 @@ async function run() {
 }
 
 // call the run function
-run().then(function() {
-  console.log('done');
-});
+run();

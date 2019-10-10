@@ -1,5 +1,4 @@
 import * as utils from './utils';
-import * as pecl from './pecl';
 import * as extensions from './extensions';
 import * as config from './config';
 

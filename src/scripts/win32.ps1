@@ -41,3 +41,40 @@ Write-Host "Installing Composer" -ForegroundColor Blue
 Install-Composer -Scope System -Path C:\tools\php
 php -v
 composer -V
+
+Function Add-Extension($extension, $install_command, $prefix, $log_prefix)
+{
+  try {
+    $exist = Test-Path -Path C:\tools\php\ext\php_$extension.dll
+    if(!(php -m | findstr -i ${extension}) -and $exist) {
+      Add-Content C:\tools\php\php.ini "$prefix=php_$extension.dll"
+      Write-Host "$log_prefix`: Enabled $extension" -ForegroundColor green
+    } elseif(php -m | findstr -i $extension) {
+      Write-Host "$log_prefix`: $extension was already enabled" -ForegroundColor yellow
+    }
+  } catch [Exception] {
+    Write-Host "$log_prefix`: $extension could not be enabled" -ForegroundColor red
+  }
+
+  $status = 404
+  try  {
+    $status = (Invoke-WebRequest -Uri "https://pecl.php.net/json.php?package=$extension" -UseBasicParsing -DisableKeepAlive).StatusCode
+  } catch [Exception] {
+    $status = 500
+  }
+
+  if($status -eq 200) {
+    if(!(php -m | findstr -i $extension)) {
+      try {
+        Invoke-Expression $install_command
+        Write-Host "$log_prefix`: Installed and enabled $extension" -ForegroundColor green
+      } catch [Exception] {
+        Write-Host "$log_prefix`: Could not install $extension on PHP $version" -ForegroundColor red
+      }
+    }
+  } else {
+    if(!(php -m | findstr -i $extension)) {
+      Write-Host "$log_prefix`: Could not find $extension for PHP$version on PECL" -ForegroundColor red
+    }
+  }
+}

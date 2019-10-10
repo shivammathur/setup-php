@@ -167,7 +167,7 @@ export async function log(
   };
   switch (prefix) {
     case '':
-      prefix = prefix;
+      prefix = '';
       break;
     default:
       prefix = prefix + ': ';

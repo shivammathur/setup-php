@@ -18,14 +18,11 @@ if [ "$existing_version" != "$1" ]; then
 fi	
 
 if [ ! -e "/usr/bin/composer" ]; then
-	EXPECTED_SIGNATURE="$(curl -s https://composer.github.io/installer.sig)" &
-	curl -s -L https://getcomposer.org/installer > composer-setup.php &
-	ACTUAL_SIGNATURE="$(php -r "echo hash_file('sha384', 'composer-setup.php');")" &
-
-	if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]; then
+	curl -s -L https://getcomposer.org/installer > composer-setup.php
+	if [ "$(curl -s https://composer.github.io/installer.sig)" != "$(php -r "echo hash_file('sha384', 'composer-setup.php');")" ]; then
 		>&2 echo 'ERROR: Invalid installer signature'		
 	else
-		COMPOSER_ALLOW_SUPERUSER=1
+		export COMPOSER_ALLOW_SUPERUSER=1
 		sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 	fi
 	rm composer-setup.php	

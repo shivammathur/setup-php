@@ -2,6 +2,13 @@ import * as utils from './utils';
 import * as extensions from './extensions';
 import * as config from './config';
 
+/**
+ * Function to set coverage driver
+ *
+ * @param coverage_driver
+ * @param version
+ * @param os_version
+ */
 export async function addCoverage(
   coverage_driver: string,
   version: string,
@@ -20,6 +27,12 @@ export async function addCoverage(
   }
 }
 
+/**
+ * Function to setup Xdebug
+ *
+ * @param version
+ * @param os_version
+ */
 export async function addCoverageXdebug(version: string, os_version: string) {
   let script: string = '\n';
   script += await extensions.addExtension(
@@ -38,6 +51,12 @@ export async function addCoverageXdebug(version: string, os_version: string) {
   return script;
 }
 
+/**
+ * Function to setup PCOV
+ *
+ * @param version
+ * @param os_version
+ */
 export async function addCoveragePCOV(version: string, os_version: string) {
   let script: string = '\n';
   switch (version) {
@@ -93,6 +112,12 @@ export async function addCoveragePCOV(version: string, os_version: string) {
   return script;
 }
 
+/**
+ * Function to disable Xdebug and PCOV
+ *
+ * @param version
+ * @param os_version
+ */
 export async function disableCoverage(version: string, os_version: string) {
   let script: string = '\n';
   switch (os_version) {

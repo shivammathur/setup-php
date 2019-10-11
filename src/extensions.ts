@@ -1,5 +1,13 @@
 import * as utils from './utils';
 
+/**
+ * Install and enable extensions
+ *
+ * @param extension_csv
+ * @param version
+ * @param os_version
+ * @param log_prefix
+ */
 export async function addExtension(
   extension_csv: string,
   version: string,

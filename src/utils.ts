@@ -2,6 +2,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as core from '@actions/core';
 
+/**
+ * Function to get inputs from both with and env annotations.
+ *
+ * @param name
+ * @param mandatory
+ */
 export async function getInput(
   name: string,
   mandatory: boolean
@@ -117,6 +123,7 @@ export async function writeScript(
 
 /**
  * Function to break extension csv into an array
+ *
  * @param extension_csv
  */
 export async function extensionArray(
@@ -202,6 +209,11 @@ export async function log(
   }
 }
 
+/**
+ * Function to get prefix required to load an extension.
+ *
+ * @param extension
+ */
 export async function getExtensionPrefix(extension: string): Promise<string> {
   let zend: Array<string> = ['xdebug', 'opcache', 'ioncube', 'eaccelerator'];
   switch (zend.indexOf(extension)) {

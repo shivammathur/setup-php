@@ -45,6 +45,14 @@ describe('Extension tests', () => {
     expect(linux).toContain('./xdebug.sh');
     expect(linux).toContain('./pcov.sh');
 
+    linux = await extensions.addExtension('phalcon3, phalcon4', '7.2', 'linux');
+    expect(linux).toContain('./phalcon.sh master 7.2');
+    expect(linux).toContain('./phalcon.sh 4.0.x 7.2');
+
+    linux = await extensions.addExtension('phalcon3, phalcon4', '7.3', 'linux');
+    expect(linux).toContain('./phalcon.sh master 7.3');
+    expect(linux).toContain('./phalcon.sh 4.0.x 7.3');
+
     linux = await extensions.addExtension('xdebug', '7.2', 'fedora');
     expect(linux).toContain('Platform fedora is not supported');
   });

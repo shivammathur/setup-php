@@ -79,11 +79,14 @@ export async function readScript(
       }
       break;
     case 'linux':
+      let files: Array<string> = ['scripts/phalcon.sh'];
+      await readFiles74(['scripts/phalcon.sh']);
       switch (version) {
         case '7.4':
-          await readFiles74(['scripts/xdebug.sh', 'scripts/pcov.sh']);
+          files.concat(['scripts/xdebug.sh', 'scripts/pcov.sh']);
           break;
       }
+      await readFiles74(files);
       break;
     case 'win32':
       switch (version) {

@@ -64,8 +64,9 @@ with:
 
 Specify `coverage: pcov` to use `PCOV`.  
 It is much faster than `Xdebug`.  
+`PCOV` needs `PHP >= 7.1`  
 If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values-csv` input.  
-`PCOV` needs `PHPUnit >= 8.0` and `PHP >= 7.1`, `PHPUnit` needs `PHP >= 7.2`. So use `PHP >= 7.2` with `PCOV`
+
 
 ```yaml
 uses: shivammathur/setup-php@master
@@ -149,8 +150,7 @@ jobs:
     - name: Check Composer Version
       run: composer -V
     - name: Check PHP Extensions
-      run: php -m           
-
+      run: php -m
 ```
 
 ### Examples
@@ -166,6 +166,8 @@ Examples for setting up this GitHub Action with different PHP Frameworks/Package
 |Lumen with `MySQL` and `Redis`|`ubuntu`|[lumen-mysql.yml](./examples/lumen-mysql.yml "GitHub Action for Lumen with MySQL and Redis")|
 |Lumen with `PostgreSQL` and `Redis`|`ubuntu`|[lumen-postgres.yml](./examples/lumen-postgres.yml "GitHub Action for Lumen with PostgreSQL and Redis")|
 |Lumen without services|`macOS`, `ubuntu` and `windows`|[lumen.yml](./examples/lumen.yml "GitHub Action for Lumen without services")|
+|Phalcon with `MySQL`|`ubuntu`|[phalcon-mysql.yml](./examples/phalcon-mysql.yml "GitHub Action for Phalcon with MySQL")|
+|Phalcon with `PostgreSQL`|`ubuntu`|[phalcon-postgres.yml](./examples/phalcon-postgres.yml "GitHub Action for Phalcon with PostgreSQL")|
 |Slim Framework|`macOS`, `ubuntu` and `windows`|[slim-framework.yml](./examples/slim-framework.yml "GitHub Action for Slim Framework")|
 |Symfony with `MySQL`|`ubuntu`|[symfony-mysql.yml](./examples/symfony-mysql.yml "GitHub Action for Symfony with MySQL")|
 |Symfony with `PostgreSQL`|`ubuntu`|[symfony-postgres.yml](./examples/symfony-postgres.yml "GitHub Action for Symfony with PostgreSQL")|

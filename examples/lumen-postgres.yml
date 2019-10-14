@@ -1,0 +1,62 @@
+# GitHub Action for Lumen with PostgreSQL and Redis
+name: Testing Lumen with PostgreSQL
+on: [push, pull_request]
+jobs:
+  laravel:
+    name: Lumen (PHP ${{ matrix.php-versions }})
+    runs-on: ubuntu-latest
+    env:
+      BROADCAST_DRIVER: log
+      CACHE_DRIVER: redis
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
+      DB_CONNECTION: pgsql
+      DB_HOST: localhost
+      DB_PASSWORD: postgres
+      DB_USERNAME: postgres
+      DB_DATABASE: postgres
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432/tcp
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+      redis:
+        image: redis
+        ports:
+          - 6379/tcp
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        php-versions: ['7.2', '7.3']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Setup PHP, with composer and extensions
+        uses: shivammathur/setup-php@master #https://github.com/shivammathur/setup-php
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extension-csv: mbstring, dom, fileinfo, pgsql
+          coverage: xdebug #optional
+      - name: Install Composer dependencies
+        run: |
+          composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+          composer require predis/predis illuminate/redis
+      - name: Prepare the application
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - name: Register Redis as service provider
+        run: sed -i '$i\$app->register(Illuminate\\Redis\\RedisServiceProvider::class);' bootstrap/app.php
+      - name: Run Migration
+        run: php artisan migrate -v
+        env:
+          DB_PORT: ${{ job.services.postgres.ports[5432] }}
+      - name: Test with phpunit
+        run: vendor/bin/phpunit --coverage-text
+        env:
+          DB_PORT: ${{ job.services.postgres.ports[5432] }}

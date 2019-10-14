@@ -27,7 +27,7 @@ describe('Config tests', () => {
     let linux: string = await coverage.addCoverage('pcov', '7.4', 'linux');
     expect(linux).toContain('addExtension pcov');
     expect(linux).toContain('sudo sed -i "/xdebug/d" $ini_file');
-    expect(linux).toContain('sudo phpdismod xdebug');
+    expect(linux).toContain('sudo phpdismod -v 7.4 xdebug');
   });
 
   it('checking addCoverage with PCOV on darwin', async () => {
@@ -58,8 +58,8 @@ describe('Config tests', () => {
 
   it('checking disableCoverage on linux', async () => {
     let linux: string = await coverage.addCoverage('none', '7.4', 'linux');
-    expect(linux).toContain('sudo phpdismod xdebug');
-    expect(linux).toContain('sudo phpdismod pcov');
+    expect(linux).toContain('sudo phpdismod -v 7.4 xdebug');
+    expect(linux).toContain('sudo phpdismod -v 7.4 pcov');
     expect(linux).toContain('sudo sed -i "/xdebug/d" $ini_file');
     expect(linux).toContain('sudo sed -i "/pcov/d" $ini_file');
   });

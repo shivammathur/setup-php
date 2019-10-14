@@ -1,8 +1,14 @@
 import * as utils from './utils';
-import * as pecl from './pecl';
 import * as extensions from './extensions';
 import * as config from './config';
 
+/**
+ * Function to set coverage driver
+ *
+ * @param coverage_driver
+ * @param version
+ * @param os_version
+ */
 export async function addCoverage(
   coverage_driver: string,
   version: string,
@@ -21,6 +27,12 @@ export async function addCoverage(
   }
 }
 
+/**
+ * Function to setup Xdebug
+ *
+ * @param version
+ * @param os_version
+ */
 export async function addCoverageXdebug(version: string, os_version: string) {
   let script: string = '\n';
   script += await extensions.addExtension(
@@ -39,6 +51,12 @@ export async function addCoverageXdebug(version: string, os_version: string) {
   return script;
 }
 
+/**
+ * Function to setup PCOV
+ *
+ * @param version
+ * @param os_version
+ */
 export async function addCoveragePCOV(version: string, os_version: string) {
   let script: string = '\n';
   switch (version) {
@@ -57,7 +75,9 @@ export async function addCoveragePCOV(version: string, os_version: string) {
           script +=
             'if [ -e /etc/php/' +
             version +
-            '/mods-available/xdebug.ini ]; then sudo phpdismod xdebug; fi\n';
+            '/mods-available/xdebug.ini ]; then sudo phpdismod -v ' +
+            version +
+            ' xdebug; fi\n';
           script += 'sudo sed -i "/xdebug/d" $ini_file\n';
           break;
         case 'darwin':
@@ -92,6 +112,12 @@ export async function addCoveragePCOV(version: string, os_version: string) {
   return script;
 }
 
+/**
+ * Function to disable Xdebug and PCOV
+ *
+ * @param version
+ * @param os_version
+ */
 export async function disableCoverage(version: string, os_version: string) {
   let script: string = '\n';
   switch (os_version) {
@@ -99,11 +125,15 @@ export async function disableCoverage(version: string, os_version: string) {
       script +=
         'if [ -e /etc/php/' +
         version +
-        '/mods-available/xdebug.ini ]; then sudo phpdismod xdebug; fi\n';
+        '/mods-available/xdebug.ini ]; then sudo phpdismod -v ' +
+        version +
+        ' xdebug; fi\n';
       script +=
         'if [ -e /etc/php/' +
         version +
-        '/mods-available/pcov.ini ]; then sudo phpdismod pcov; fi\n';
+        '/mods-available/pcov.ini ]; then sudo phpdismod -v ' +
+        version +
+        ' pcov; fi\n';
       script += 'sudo sed -i "/xdebug/d" $ini_file\n';
       script += 'sudo sed -i "/pcov/d" $ini_file\n';
       break;

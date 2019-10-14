@@ -1,21 +1,21 @@
 name: 'Setup PHP Action'
 author: shivammathur
-description: 'Setup a PHP environment with composer and add it to the PATH'
+description: 'GitHub action to setup PHP with required extensions, php.ini configuration, code-coverage support and composer'
 branding:
   icon: 'activity'  
   color: 'purple'
 inputs:
   php-version:
-    description: 'PHP version to be installed.'
+    description: 'PHP version you want to install.'
     required: true
   extension-csv:
-    description: '(Optional) Comma seperated list of PHP extensions to be installed.'
+    description: '(Optional) PHP extensions you want to install.'
     required: false
   ini-values-csv: 
-    description: '(Optional) Custom values you want to set in php.ini'
+    description: '(Optional) Custom values you want to set in php.ini.'
     required: false
   coverage: 
-    description: '(Optional) Driver to calculate code coverage (Accepts: xdebug, pcov and none)'
+    description: '(Optional) Code coverage driver you want to install. (Accepts: xdebug, pcov and none)'
     required: false
 runs:
   using: 'node12'

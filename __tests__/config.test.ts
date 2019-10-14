@@ -7,13 +7,7 @@ describe('Config tests', () => {
       'win32'
     );
     expect(win32).toContain(
-      'Add-Content C:\\tools\\php\\php.ini "post_max_size=256M"'
-    );
-    expect(win32).toContain(
-      'Add-Content C:\\tools\\php\\php.ini "short_open_tag=On"'
-    );
-    expect(win32).toContain(
-      'Add-Content C:\\tools\\php\\php.ini "date.timezone=Asia/Kolkata"'
+      'Add-Content C:\\tools\\php\\php.ini "post_max_size=256M\nshort_open_tag=On\ndate.timezone=Asia/Kolkata"'
     );
 
     win32 = await config.addINIValues(
@@ -28,9 +22,9 @@ describe('Config tests', () => {
       'post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata',
       'linux'
     );
-    expect(linux).toContain('echo "post_max_size=256M" >> $ini_file');
-    expect(linux).toContain('echo "short_open_tag=On" >> $ini_file');
-    expect(linux).toContain('echo "date.timezone=Asia/Kolkata" >> $ini_file');
+    expect(linux).toContain(
+      'echo "post_max_size=256M\nshort_open_tag=On\ndate.timezone=Asia/Kolkata" >> $ini_file'
+    );
 
     linux = await config.addINIValues(
       'post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata',
@@ -44,9 +38,9 @@ describe('Config tests', () => {
       'post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata',
       'darwin'
     );
-    expect(darwin).toContain('echo "post_max_size=256M" >> $ini_file');
-    expect(darwin).toContain('echo "short_open_tag=On" >> $ini_file');
-    expect(darwin).toContain('echo "date.timezone=Asia/Kolkata" >> $ini_file');
+    expect(darwin).toContain(
+      'echo "post_max_size=256M\nshort_open_tag=On\ndate.timezone=Asia/Kolkata" >> $ini_file'
+    );
 
     darwin = await config.addINIValues(
       'post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata',

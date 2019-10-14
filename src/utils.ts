@@ -2,6 +2,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as core from '@actions/core';
 
+/**
+ * Function to get inputs from both with and env annotations.
+ *
+ * @param name
+ * @param mandatory
+ */
 export async function getInput(
   name: string,
   mandatory: boolean
@@ -73,11 +79,14 @@ export async function readScript(
       }
       break;
     case 'linux':
+      let files: Array<string> = ['scripts/phalcon.sh'];
+      await readFiles74(['scripts/phalcon.sh']);
       switch (version) {
         case '7.4':
-          await readFiles74(['scripts/xdebug.sh', 'scripts/pcov.sh']);
+          files.concat(['scripts/xdebug.sh', 'scripts/pcov.sh']);
           break;
       }
+      await readFiles74(files);
       break;
     case 'win32':
       switch (version) {
@@ -117,6 +126,7 @@ export async function writeScript(
 
 /**
  * Function to break extension csv into an array
+ *
  * @param extension_csv
  */
 export async function extensionArray(
@@ -167,7 +177,7 @@ export async function log(
   };
   switch (prefix) {
     case '':
-      prefix = prefix;
+      prefix = '';
       break;
     default:
       prefix = prefix + ': ';
@@ -202,6 +212,11 @@ export async function log(
   }
 }
 
+/**
+ * Function to get prefix required to load an extension.
+ *
+ * @param extension
+ */
 export async function getExtensionPrefix(extension: string): Promise<string> {
   let zend: Array<string> = ['xdebug', 'opcache', 'ioncube', 'eaccelerator'];
   switch (zend.indexOf(extension)) {

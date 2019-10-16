@@ -2,58 +2,69 @@ param (
     [Parameter(Mandatory=$true)][string]$version = "7.3"  
 )
 
+$tick = ([char]8730)
+$cross = ([char]10007)
+
+Function Step-Log($message) {
+  printf "\n\033[90;1m==> \033[0m\033[37;1m%s \033[0m" $message
+}
+
+Function Add-Log($mark, $subject, $message) {
+  $code = if($mark -eq $cross) {"31"} else {"32"}
+  printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m" $code $mark $subject $message
+}
+
 if($version -eq '7.4') {
 	$version = '7.4RC'
 }
 
-Write-Host "Installing PhpManager" -ForegroundColor Blue
+Step-Log "Setup PhpManager"
 Install-Module -Name PhpManager -Force -Scope CurrentUser
+printf "\n"
+Add-Log $tick "PhpManager" "Installed"
 
 $installed = $($(php -v)[0] -join '')[4..6] -join ''
+Step-Log "Setup PHP and Composer"
+$status = "Switched to PHP$version"
 if($installed -ne $version) {
   if($version -lt '7.0') {
-      Write-Host "Installing VcRedist"
     Install-Module -Name VcRedist -Force
   }
-  Write-Host "Installing PHP" -ForegroundColor Blue
   Uninstall-Php C:\tools\php
-  Install-Php -Version $version -Architecture x86 -ThreadSafe $true -InstallVC -Path C:\tools\php$version -TimeZone UTC -InitialPhpIni Production -Force
-  Write-Host "Switch PHP" -ForegroundColor Blue
+  Install-Php -Version $version -Architecture x86 -ThreadSafe $true -InstallVC -Path C:\tools\php$version -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
   (Get-PhpSwitcher).targets
   Initialize-PhpSwitcher -Alias C:\tools\php -Scope CurrentUser -Force
   Add-PhpToSwitcher -Name $version -Path C:\tools\php$version -Force
   Switch-Php $version -Force
+  $status = "Installed PHP$version"
 }
 
-Write-Host "Housekeeping in PHP.ini, enabling openssl" -ForegroundColor Blue
 $ext_dir = "C:\tools\php\ext"
 Add-Content C:\tools\php\php.ini "date.timezone = 'UTC'"
 Set-PhpIniKey extension_dir $ext_dir
-
 if($version -lt '7.4') {
   Enable-PhpExtension openssl
 } else {
   Add-Content C:\tools\php\php.ini "extension=php_openssl.dll"
   Copy-Item "php_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
 }
+Add-Log $tick "PHP" $status
 
-Write-Host "Installing Composer" -ForegroundColor Blue
 Install-Composer -Scope System -Path C:\tools\php
-php -v
-composer -V
+Add-Log $tick "Composer" "Installed"
 
-Function Add-Extension($extension, $install_command, $prefix, $log_prefix)
+Function Add-Extension($extension, $install_command, $prefix)
 {
   try {
     $exist = Test-Path -Path C:\tools\php\ext\php_$extension.dll
     if(!(php -m | findstr -i ${extension}) -and $exist) {
       Add-Content C:\tools\php\php.ini "$prefix=php_$extension.dll"
-      Write-Host "$log_prefix`: Enabled $extension" -ForegroundColor green
+      Add-Log $tick $extension "Enabled"
     } elseif(php -m | findstr -i $extension) {
-      Write-Host "$log_prefix`: $extension was already enabled" -ForegroundColor yellow
+      Add-Log $tick $extension "Enabled"
     }
   } catch [Exception] {
-    Write-Host "$log_prefix`: $extension could not be enabled" -ForegroundColor red
+    Add-Log $cross $extension "Could not enable"
   }
 
   $status = 404
@@ -67,14 +78,14 @@ Function Add-Extension($extension, $install_command, $prefix, $log_prefix)
     if(!(php -m | findstr -i $extension)) {
       try {
         Invoke-Expression $install_command
-        Write-Host "$log_prefix`: Installed and enabled $extension" -ForegroundColor green
+        Add-Log $tick $extension "Installed and enabled"
       } catch [Exception] {
-        Write-Host "$log_prefix`: Could not install $extension on PHP $version" -ForegroundColor red
+        Add-Log $cross $extension "Could not install on PHP$version"
       }
     }
   } else {
     if(!(php -m | findstr -i $extension)) {
-      Write-Host "$log_prefix`: Could not find $extension for PHP$version on PECL" -ForegroundColor red
+      Add-Log $cross $extension "Could not find $extension for PHP$version on PECL"
     }
   }
 }

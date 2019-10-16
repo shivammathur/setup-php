@@ -15,13 +15,15 @@ export async function addCoverage(
   os_version: string
 ): Promise<string> {
   coverage_driver.toLowerCase();
+  let script: string =
+    '\n' + (await utils.stepLog('Setup Coverage', os_version));
   switch (coverage_driver) {
     case 'pcov':
-      return addCoveragePCOV(version, os_version);
+      return script + (await addCoveragePCOV(version, os_version));
     case 'xdebug':
-      return addCoverageXdebug(version, os_version);
+      return script + (await addCoverageXdebug(version, os_version));
     case 'none':
-      return disableCoverage(version, os_version);
+      return script + (await disableCoverage(version, os_version));
     default:
       return '';
   }
@@ -34,21 +36,17 @@ export async function addCoverage(
  * @param os_version
  */
 export async function addCoverageXdebug(version: string, os_version: string) {
-  let script: string = '\n';
-  script += await extensions.addExtension(
-    'xdebug',
-    version,
-    os_version,
-    'Set Coverage Driver'
+  return (
+    (await extensions.addExtension('xdebug', version, os_version, true)) +
+    (await utils.suppressOutput(os_version)) +
+    '\n' +
+    (await utils.addLog(
+      '$tick',
+      'xdebug',
+      'Xdebug enabled as coverage driver',
+      os_version
+    ))
   );
-  script += await utils.log(
-    'Xdebug enabled as coverage driver',
-    os_version,
-    'success',
-    'Set Coverage Driver'
-  );
-
-  return script;
 }
 
 /**
@@ -61,13 +59,12 @@ export async function addCoveragePCOV(version: string, os_version: string) {
   let script: string = '\n';
   switch (version) {
     default:
-      script += await extensions.addExtension(
-        'pcov',
-        version,
-        os_version,
-        'Set Coverage Driver'
-      );
-      script += await config.addINIValues('pcov.enabled=1', os_version);
+      script +=
+        (await extensions.addExtension('pcov', version, os_version, true)) +
+        (await utils.suppressOutput(os_version)) +
+        '\n';
+      script +=
+        (await config.addINIValues('pcov.enabled=1', os_version, true)) + '\n';
 
       // add command to disable xdebug and enable pcov
       switch (os_version) {
@@ -90,21 +87,21 @@ export async function addCoveragePCOV(version: string, os_version: string) {
       }
 
       // success
-      script += await utils.log(
+      script += await utils.addLog(
+        '$tick',
+        'coverage: pcov',
         'PCOV enabled as coverage driver',
-        os_version,
-        'success',
-        'Set Coverage Driver'
+        os_version
       );
       // version is not supported
       break;
     case '5.6':
     case '7.0':
-      script += await utils.log(
-        'PCOV requires PHP 7.1 or newer',
-        os_version,
-        'warning',
-        'Set Coverage Driver'
+      script += await utils.addLog(
+        '$cross',
+        'pcov',
+        'PHP 7.1 or newer is required',
+        os_version
       );
       break;
   }
@@ -148,11 +145,11 @@ export async function disableCoverage(version: string, os_version: string) {
         'if(php -m | findstr -i pcov) { Disable-PhpExtension pcov C:\\tools\\php }\n';
       break;
   }
-  script += await utils.log(
+  script += await utils.addLog(
+    '$tick',
+    'none',
     'Disabled Xdebug and PCOV',
-    os_version,
-    'success',
-    'Set Coverage Driver'
+    os_version
   );
 
   return script;

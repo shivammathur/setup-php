@@ -12,21 +12,33 @@ export async function addExtension(
   extension_csv: string,
   version: string,
   os_version: string,
-  log_prefix = 'Add Extension'
+  no_step = false
 ): Promise<string> {
+  let script: string = '\n';
+  switch (no_step) {
+    case true:
+      script +=
+        (await utils.stepLog('Setup Extensions', os_version)) +
+        (await utils.suppressOutput(os_version));
+      break;
+    case false:
+    default:
+      script += await utils.stepLog('Setup Extensions', os_version);
+      break;
+  }
+
   switch (os_version) {
     case 'win32':
-      return await addExtensionWindows(extension_csv, version, log_prefix);
+      return script + (await addExtensionWindows(extension_csv, version));
     case 'darwin':
-      return await addExtensionDarwin(extension_csv, version, log_prefix);
+      return script + (await addExtensionDarwin(extension_csv, version));
     case 'linux':
-      return await addExtensionLinux(extension_csv, version, log_prefix);
+      return script + (await addExtensionLinux(extension_csv, version));
     default:
       return await utils.log(
         'Platform ' + os_version + ' is not supported',
         os_version,
-        'error',
-        log_prefix
+        'error'
       );
   }
 }
@@ -39,8 +51,7 @@ export async function addExtension(
  */
 export async function addExtensionDarwin(
   extension_csv: string,
-  version: string,
-  log_prefix: string
+  version: string
 ): Promise<string> {
   let extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script: string = '\n';
@@ -65,15 +76,12 @@ export async function addExtensionDarwin(
         break;
     }
     script +=
-      'add_extension ' +
+      '\nadd_extension ' +
       extension +
       ' "' +
       install_command +
       '" ' +
-      (await utils.getExtensionPrefix(extension)) +
-      ' "' +
-      log_prefix +
-      '"\n';
+      (await utils.getExtensionPrefix(extension));
   });
   return script;
 }
@@ -86,8 +94,7 @@ export async function addExtensionDarwin(
  */
 export async function addExtensionWindows(
   extension_csv: string,
-  version: string,
-  log_prefix: string
+  version: string
 ): Promise<string> {
   let extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script: string = '\n';
@@ -112,15 +119,12 @@ export async function addExtensionWindows(
         break;
     }
     script +=
-      'Add-Extension ' +
+      '\nAdd-Extension ' +
       extension +
       ' "' +
       install_command +
       '" ' +
-      (await utils.getExtensionPrefix(extension)) +
-      ' "' +
-      log_prefix +
-      '"\n';
+      (await utils.getExtensionPrefix(extension));
   });
   return script;
 }
@@ -133,8 +137,7 @@ export async function addExtensionWindows(
  */
 export async function addExtensionLinux(
   extension_csv: string,
-  version: string,
-  log_prefix: string
+  version: string
 ): Promise<string> {
   let extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script: string = '\n';
@@ -170,15 +173,12 @@ export async function addExtensionLinux(
         break;
     }
     script +=
-      'add_extension ' +
+      '\nadd_extension ' +
       extension +
       ' "' +
       install_command +
       '" ' +
-      (await utils.getExtensionPrefix(extension)) +
-      ' "' +
-      log_prefix +
-      '"\n';
+      (await utils.getExtensionPrefix(extension));
   });
   return script;
 }

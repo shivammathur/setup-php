@@ -1,5 +1,28 @@
+tick="✓"
+cross="✗"
+
+step_log() {
+  message=$1
+  printf "\n\033[90;1m==> \033[0m\033[37;1m%s\033[0m\n" "$message"
+}
+
+add_log() {
+  mark=$1
+  subject=$2
+  message=$3
+  if [ "$mark" = "$tick" ]; then
+    printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
+  else
+    printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
+  fi
+}
 version='7.4.0RC3'
-brew install pkg-config autoconf bison re2c openssl@1.1 krb5 enchant libffi freetype intltool icu4c libiconv t1lib gd libzip gmp tidyp libxml2 libxslt postgresql curl >/dev/null 2>&1
+step_log "Setup dependencies"
+for package in pkg-config autoconf bison re2c openssl@1.1 krb5 enchant libffi freetype intltool icu4c libiconv t1lib gd libzip gmp tidyp libxml2 libxslt postgresql curl;
+do
+  brew install "$package" >/dev/null 2>&1
+  add_log "$tick" "$package" "Installed"
+done
 brew link icu4c gettext --force >/dev/null 2>&1
 
 for package in gettext gmp krb5 icu4c bison openssl@1.1 libxml2 libffi libxslt libiconv pkgconfig enchant krb5 readline libedit freetype;
@@ -36,6 +59,8 @@ echo 'export EXTRA_LIBS="/usr/local/opt/readline/lib/libhistory.dylib
 /usr/local/opt/icu4c/lib/libicuuc.dylib"'
 } >> ~/.bash_profile
 config_file=$(pwd)/config.yaml
+
+step_log "Setup PHPBrew"
 curl -L -O https://github.com/phpbrew/phpbrew/raw/master/phpbrew >/dev/null 2>&1
 chmod +x ./phpbrew
 sudo mv phpbrew /usr/local/bin/phpbrew
@@ -47,37 +72,43 @@ sudo chmod -R 777 /opt/phpbrew
 export PHPBREW_ROOT=/opt/phpbrew
 export PHPBREW_HOME=/opt/phpbrew
 echo "[[ -e ~/.phpbrew/bashrc ]] && source ~/.phpbrew/bashrc" >> ~/.bashrc
+add_log "$tick" "PHPBrew" "Installed"
+
 source ~/.bash_profile >/dev/null 2>&1
 source ~/.bashrc >/dev/null 2>&1
+
+step_log "Setup PHP and Composer"
 phpbrew install -j 6 $version +dev >/dev/null 2>&1
 phpbrew switch $version
 sudo ln -sf /opt/phpbrew/php/php-$version/bin/* /usr/local/bin/
 sudo ln -sf /opt/phpbrew/php/php-$version/etc/php.ini /etc/php.ini
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /opt" | sed -e "s|.*=> s*||")
-pecl config-set php_ini "$ini_file"
+pecl config-set php_ini "$ini_file" >/dev/null 2>&1
 sudo chmod 777 "$ini_file"
-brew install composer
+brew install composer >/dev/null 2>&1
 
-add_extension()
-{
+add_log "$tick" "PHP" "Installed PHP$version"
+add_log "$tick" "Composer" "Installed"
+
+add_extension() {
   extension=$1
   install_command=$2
   prefix=$3
-  log_prefix=$4
   if ! php -m | grep -i -q "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    echo "$prefix=$extension" >> "$ini_file" && echo "\033[32;1m$log_prefix: Enabled $extension\033[0m";
+    echo "$prefix=$extension" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
   elif php -m | grep -i -q "$extension"; then
-    echo "\033[33;1m$log_prefix: $extension was already enabled\033[0m";
+    add_log "$tick" "$extension" "Enabled"
   elif ! php -m | grep -i -q "$extension"; then
     exists=$(curl -sL https://pecl.php.net/json.php?package="$extension" -w "%{http_code}" -o /dev/null)
     if [ "$exists" = "200" ]; then
-      eval "$install_command" && \
-      echo "\033[32;1m$log_prefix: Installed and enabled $extension\033[0m" || \
-      echo "\033[31;1m$log_prefix: Could not install $extension on PHP$version\033[0m";
+      (
+        eval "$install_command" && \
+        add_log "$tick" "$extension" "Installed and enabled"
+      ) || add_log "$cross" "$extension" "Could not install $extension on PHP$version"
     else
       if ! php -m | grep -i -q "$extension"; then
-        echo "\033[31;1m$log_prefix: Could not find $extension for PHP$version on PECL\033[0m";
+        add_log "$cross" "$extension" "Could not find $extension for PHP$version on PECL"
       fi
     fi
   fi

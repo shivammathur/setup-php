@@ -19,9 +19,14 @@ describe('Extension tests', () => {
     );
     expect(win32).toContain('Install-PhpExtension pcov');
 
-    win32 = await extensions.addExtension('does_not_exist', '7.2', 'win32');
+    win32 = await extensions.addExtension(
+      'does_not_exist',
+      '7.2',
+      'win32',
+      true
+    );
     expect(win32).toContain(
-      'Add-Extension does_not_exist "Install-PhpExtension does_not_exist" extension "Add Extension"'
+      'Add-Extension does_not_exist "Install-PhpExtension does_not_exist" extension'
     );
 
     win32 = await extensions.addExtension('xdebug', '7.2', 'fedora');
@@ -84,7 +89,12 @@ describe('Extension tests', () => {
     darwin = await extensions.addExtension('xdebug', '7.2', 'darwin');
     expect(darwin).toContain('sudo pecl install xdebug');
 
-    darwin = await extensions.addExtension('does_not_exist', '7.2', 'darwin');
+    darwin = await extensions.addExtension(
+      'does_not_exist',
+      '7.2',
+      'darwin',
+      false
+    );
     expect(darwin).toContain('add_extension does_not_exist');
 
     darwin = await extensions.addExtension('xdebug', '7.2', 'fedora');

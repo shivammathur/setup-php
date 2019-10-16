@@ -43,7 +43,7 @@ export async function asyncForEach(
  *
  * @param files
  */
-export async function readFiles74(files: Array<string>) {
+export async function moveFiles(files: Array<string>) {
   await asyncForEach(files, function(filename: string) {
     fs.createReadStream(path.join(__dirname, '../src/' + filename)).pipe(
       fs.createWriteStream(filename.split('/')[1], {mode: 0o755})
@@ -67,7 +67,7 @@ export async function readScript(
     case 'darwin':
       switch (version) {
         case '7.4':
-          await readFiles74([
+          await moveFiles([
             'configs/config.yaml',
             'scripts/xdebug_darwin.sh',
             'scripts/pcov.sh'
@@ -80,18 +80,17 @@ export async function readScript(
       break;
     case 'linux':
       let files: Array<string> = ['scripts/phalcon.sh'];
-      await readFiles74(['scripts/phalcon.sh']);
       switch (version) {
         case '7.4':
-          files.concat(['scripts/xdebug.sh', 'scripts/pcov.sh']);
+          files = files.concat(['scripts/xdebug.sh', 'scripts/pcov.sh']);
           break;
       }
-      await readFiles74(files);
+      await moveFiles(files);
       break;
     case 'win32':
       switch (version) {
         case '7.4':
-          await readFiles74(['ext/php_pcov.dll']);
+          await moveFiles(['ext/php_pcov.dll']);
           break;
       }
       break;
@@ -164,51 +163,87 @@ export async function INIArray(ini_values_csv: string): Promise<Array<string>> {
   }
 }
 
+/**
+ * Function to log a step
+ *
+ * @param message
+ * @param os_version
+ */
+export async function stepLog(
+  message: string,
+  os_version: string
+): Promise<string> {
+  switch (os_version) {
+    case 'win32':
+      return 'Step-Log "' + message + '"';
+    case 'linux':
+    case 'darwin':
+      return 'step_log "' + message + '"';
+    default:
+      return await log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
+  }
+}
+
+/**
+ * Function to log a result
+ * @param mark
+ * @param subject
+ * @param message
+ */
+export async function addLog(
+  mark: string,
+  subject: string,
+  message: string,
+  os_version: string
+): Promise<string> {
+  switch (os_version) {
+    case 'win32':
+      return 'Add-Log "' + mark + '" "' + subject + '" "' + message + '"';
+    case 'linux':
+    case 'darwin':
+      return 'add_log "' + mark + '" "' + subject + '" "' + message + '"';
+    default:
+      return await log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
+  }
+}
+
+/**
+ * Log to console
+ *
+ * @param message
+ * @param os_version
+ * @param log_type
+ * @param prefix
+ */
 export async function log(
   message: string,
   os_version: string,
-  log_type: string,
-  prefix = ''
+  log_type: string
 ): Promise<string> {
-  const unix_color: any = {
+  const color: any = {
     error: '31',
     success: '32',
     warning: '33'
   };
-  switch (prefix) {
-    case '':
-      prefix = '';
-      break;
-    default:
-      prefix = prefix + ': ';
-      break;
-  }
+
   switch (os_version) {
     case 'win32':
-      const color: any = {
-        error: 'red',
-        success: 'green',
-        warning: 'yellow'
-      };
       return (
-        "Write-Host '" +
-        prefix +
-        message +
-        "' -ForegroundColor " +
-        color[log_type]
+        'printf "\\033[' + color[log_type] + ';1m' + message + ' \\033[0m"'
       );
 
     case 'linux':
     case 'darwin':
     default:
-      return (
-        'echo "\\033[' +
-        unix_color[log_type] +
-        ';1m' +
-        prefix +
-        message +
-        '\\033[0m"'
-      );
+      return 'echo "\\033[' + color[log_type] + ';1m' + message + '\\033[0m"';
   }
 }
 
@@ -226,5 +261,26 @@ export async function getExtensionPrefix(extension: string): Promise<string> {
     case -1:
     default:
       return 'extension';
+  }
+}
+
+/**
+ * Function to get the suffix to suppress console output
+ *
+ * @param os_version
+ */
+export async function suppressOutput(os_version: string): Promise<string> {
+  switch (os_version) {
+    case 'win32':
+      return ' >$null 2>&1';
+    case 'linux':
+    case 'darwin':
+      return ' >/dev/null 2>&1';
+    default:
+      return await log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
   }
 }

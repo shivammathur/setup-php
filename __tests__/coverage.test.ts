@@ -17,10 +17,10 @@ describe('Config tests', () => {
     );
 
     win32 = await coverage.addCoverage('pcov', '7.0', 'win32');
-    expect(win32).toContain('PCOV requires PHP 7.1 or newer');
+    expect(win32).toContain('PHP 7.1 or newer is required');
 
     win32 = await coverage.addCoverage('pcov', '5.6', 'win32');
-    expect(win32).toContain('PCOV requires PHP 7.1 or newer');
+    expect(win32).toContain('PHP 7.1 or newer is required');
   });
 
   it('checking addCoverage with PCOV on linux', async () => {

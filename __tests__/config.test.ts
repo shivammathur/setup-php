@@ -20,7 +20,8 @@ describe('Config tests', () => {
   it('checking addINIValuesOnLinux', async () => {
     let linux: string = await config.addINIValues(
       'post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata',
-      'linux'
+      'linux',
+      true
     );
     expect(linux).toContain(
       'echo "post_max_size=256M\nshort_open_tag=On\ndate.timezone=Asia/Kolkata" >> $ini_file'

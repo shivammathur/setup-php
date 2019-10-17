@@ -6,19 +6,35 @@ import * as utils from './utils';
  * @param ini_values_csv
  * @param os_version
  */
-export async function addINIValues(ini_values_csv: string, os_version: string) {
+export async function addINIValues(
+  ini_values_csv: string,
+  os_version: string,
+  no_step = false
+): Promise<string> {
+  let script: string = '\n';
+  switch (no_step) {
+    case true:
+      script +=
+        (await utils.stepLog('Add php.ini values', os_version)) +
+        (await utils.suppressOutput(os_version)) +
+        '\n';
+      break;
+    case false:
+    default:
+      script += (await utils.stepLog('Add php.ini values', os_version)) + '\n';
+      break;
+  }
   switch (os_version) {
     case 'win32':
-      return await addINIValuesWindows(ini_values_csv);
+      return script + (await addINIValuesWindows(ini_values_csv));
     case 'darwin':
     case 'linux':
-      return await addINIValuesUnix(ini_values_csv);
+      return script + (await addINIValuesUnix(ini_values_csv));
     default:
       return await utils.log(
         'Platform ' + os_version + ' is not supported',
         os_version,
-        'error',
-        'Add Config'
+        'error'
       );
   }
 }
@@ -32,7 +48,12 @@ export async function addINIValuesUnix(
   ini_values_csv: string
 ): Promise<string> {
   let ini_values: Array<string> = await utils.INIArray(ini_values_csv);
-  return '\necho "' + ini_values.join('\n') + '" >> $ini_file\n';
+  let script: string = '\n';
+  await utils.asyncForEach(ini_values, async function(line: string) {
+    script +=
+      (await utils.addLog('$tick', line, 'Added to php.ini', 'linux')) + '\n';
+  });
+  return 'echo "' + ini_values.join('\n') + '" >> $ini_file' + script;
 }
 
 /**
@@ -44,7 +65,15 @@ export async function addINIValuesWindows(
   ini_values_csv: string
 ): Promise<string> {
   let ini_values: Array<string> = await utils.INIArray(ini_values_csv);
+  let script: string = '\n';
+  await utils.asyncForEach(ini_values, async function(line: string) {
+    script +=
+      (await utils.addLog('$tick', line, 'Added to php.ini', 'win32')) + '\n';
+  });
   return (
-    'Add-Content C:\\tools\\php\\php.ini "' + ini_values.join('\n') + '"\n'
+    'Add-Content C:\\tools\\php\\php.ini "' +
+    ini_values.join('\n') +
+    '"' +
+    script
   );
 }

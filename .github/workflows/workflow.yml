@@ -33,7 +33,7 @@ jobs:
       run: node lib/install.js
       env:
         php-version: ${{ matrix.php-versions }}
-        extension-csv: mbstring, xdebug, pcov #optional
+        extension-csv: mbstring, xdebug, pcov, pdo_mysql #optional
         ini-values-csv: post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata #optional
 
     - name: Testing PHP version

@@ -16,7 +16,7 @@ add_log() {
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
   fi
 }
-version='7.4.0RC3'
+version='7.4.0RC4'
 step_log "Setup dependencies"
 for package in pkg-config autoconf bison re2c openssl@1.1 krb5 enchant libffi freetype intltool icu4c libiconv t1lib gd libzip gmp tidyp libxml2 libxslt postgresql curl;
 do

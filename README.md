@@ -26,7 +26,7 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 |7.1|`Stable`|`Security fixes only`|
 |7.2|`Stable`|`Active`|
 |7.3|`Stable`|`Active`|
-|7.4|`RC3`|`Active`|
+|7.4|`RC3`/`RC4`|`Active`|
 
 **Note:** PHP 7.4 is currently in development, do not use in production/release branches.
 
@@ -108,7 +108,7 @@ See [action.yml](action.yml "Metadata for this GitHub Action") and usage below f
 steps:
 - name: Checkout
   uses: actions/checkout@master
-- name: Installing PHP
+- name: Setup PHP
   uses: shivammathur/setup-php@master
   with:
     php-version: '7.3'
@@ -138,7 +138,7 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@master
-    - name: Install PHP
+    - name: Setup PHP
       uses: shivammathur/setup-php@master
       with:
         php-version: ${{ matrix.php-versions }}
@@ -186,7 +186,7 @@ Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "sh
 ## :sparkling_heart: Support this project
 
 - Please star the project and share it.
-- Consider supporting on <a href="https://www.patreon.com/shivammathur"><img alt="Support me on Patreon" src="https://shivammathur.com/badges/patreon.svg"></a> and <a href="https://www.paypal.me/shivammathur"><img alt="Support me on Paypal" src="https://shivammathur.com/badges/paypal.svg"></a>.
+- Please support on <a href="https://www.patreon.com/shivammathur"><img alt="Support me on Patreon" src="https://shivammathur.com/badges/patreon.svg"></a> and <a href="https://www.paypal.me/shivammathur"><img alt="Support me on Paypal" src="https://shivammathur.com/badges/paypal.svg"></a>.
 
 ## :bookmark: This action uses the following works
 

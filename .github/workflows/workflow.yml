@@ -24,12 +24,16 @@ jobs:
     - name: Installing NPM packages
       run: npm install  
 
-    - name: Run tests and send coverage
-      run: |
-        npm test
-        curl -s https://codecov.io/bash | bash -s -- -t ${{secrets.CODECOV_TOKEN}} -f coverage/clover.xml -n github-actions-codecov-${{ matrix.operating-system }}-php${{ matrix.php-versions }}
+    - name: Run tests
+      run: npm test
 
-    - name: Installing PHP with extensions and custom config
+    - name: Send Coverage
+      continue-on-error: true
+      timeout-minutes: 2
+      shell: pwsh
+      run: curl -s https://codecov.io/bash | bash -s -- -t ${{secrets.CODECOV_TOKEN}} -f coverage/clover.xml -n github-actions-codecov-${{ matrix.operating-system }}-php${{ matrix.php-versions }}
+
+    - name: Setup PHP with extensions and custom config
       run: node lib/install.js
       env:
         php-version: ${{ matrix.php-versions }}

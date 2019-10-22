@@ -39,8 +39,9 @@ Add-Content C:\tools\php\php.ini "date.timezone = 'UTC'"
 Set-PhpIniKey extension_dir $ext_dir
 if($version -lt '7.4') {
   Enable-PhpExtension openssl
+  Enable-PhpExtension curl
 } else {
-  Add-Content C:\tools\php\php.ini "extension=php_openssl.dll"
+  Add-Content C:\tools\php\php.ini "extension=php_openssl.dll`nextension=php_curl.dll"
   Copy-Item "php_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
 }
 Add-Log $tick "PHP" $status

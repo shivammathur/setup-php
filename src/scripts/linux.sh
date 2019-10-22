@@ -23,11 +23,10 @@ step_log "Setup PHP and Composer"
 if [ "$existing_version" != "$1" ]; then
 	if [ ! -e "/usr/bin/php$1" ]; then
 		sudo DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/php -y >/dev/null 2>&1
-		sudo DEBIAN_FRONTEND=noninteractive apt update -y >/dev/null 2>&1
 		if [ "$1" != "7.4" ]; then
-		  sudo DEBIAN_FRONTEND=noninteractive apt install -y php"$1" curl php"$1"-curl >/dev/null 2>&1
+		  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1" curl php"$1"-curl >/dev/null 2>&1
 		else
-		  sudo DEBIAN_FRONTEND=noninteractive apt install -y php"$1" php"$1"-dev curl php"$1"-curl >/dev/null 2>&1
+		  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1" php"$1"-dev curl php"$1"-curl >/dev/null 2>&1
 		fi
 		status="Installed PHP$version"
 	fi

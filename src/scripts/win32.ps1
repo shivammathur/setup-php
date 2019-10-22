@@ -30,12 +30,7 @@ if($installed -ne $version) {
   if($version -lt '7.0') {
     Install-Module -Name VcRedist -Force
   }
-  Uninstall-Php C:\tools\php
-  Install-Php -Version $version -Architecture x86 -ThreadSafe $true -InstallVC -Path C:\tools\php$version -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
-  (Get-PhpSwitcher).targets
-  Initialize-PhpSwitcher -Alias C:\tools\php -Scope CurrentUser -Force
-  Add-PhpToSwitcher -Name $version -Path C:\tools\php$version -Force
-  Switch-Php $version -Force
+  Install-Php -Version $version -Architecture x86 -ThreadSafe $true -InstallVC -Path C:\tools\php -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
   $status = "Installed PHP$version"
 }
 

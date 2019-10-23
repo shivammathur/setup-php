@@ -6,12 +6,12 @@ $tick = ([char]8730)
 $cross = ([char]10007)
 
 Function Step-Log($message) {
-  printf "\n\033[90;1m==> \033[0m\033[37;1m%s \033[0m" $message
+  printf "\n\033[90;1m==> \033[0m\033[37;1m%s \033[0m\n" $message
 }
 
 Function Add-Log($mark, $subject, $message) {
   $code = if($mark -eq $cross) {"31"} else {"32"}
-  printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m" $code $mark $subject $message
+  printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $code $mark $subject $message
 }
 
 if($version -eq '7.4') {
@@ -20,7 +20,6 @@ if($version -eq '7.4') {
 
 Step-Log "Setup PhpManager"
 Install-Module -Name PhpManager -Force -Scope CurrentUser
-printf "\n"
 Add-Log $tick "PhpManager" "Installed"
 
 $installed = $($(php -v)[0] -join '')[4..6] -join ''

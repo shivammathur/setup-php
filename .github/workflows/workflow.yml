@@ -30,7 +30,6 @@ jobs:
     - name: Send Coverage
       continue-on-error: true
       timeout-minutes: 2
-      shell: pwsh
       run: curl -s https://codecov.io/bash | bash -s -- -t ${{secrets.CODECOV_TOKEN}} -f coverage/clover.xml -n github-actions-codecov-${{ matrix.operating-system }}-php${{ matrix.php-versions }}
 
     - name: Setup PHP with extensions and custom config
@@ -48,6 +47,6 @@ jobs:
       run: php -m
     - name: Testing ini values
       run: |
-        php -r "echo \"post_max_size: \" . ini_get('post_max_size') . \"\n\";"
-        php -r "echo \"short_open_tag: \" . ini_get('short_open_tag') . \"\n\";"
-        php -r "echo \"date.timezone: \" . ini_get('date.timezone') . \"\n\";"
+        printf "post_max_size: %s\n" $(php -r "echo ini_get('post_max_size');")
+        printf "short_open_tag: %s\n" $(php -r "echo ini_get('short_open_tag');")
+        printf "date.timezone: %s\n" $(php -r "echo ini_get('date.timezone');")

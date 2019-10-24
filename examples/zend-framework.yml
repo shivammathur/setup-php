@@ -24,4 +24,3 @@ jobs:
           composer require --dev phpunit/phpunit squizlabs/php_codesniffer zendframework/zend-test
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text
-        shell: pwsh

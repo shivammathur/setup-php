@@ -6,12 +6,12 @@ $tick = ([char]8730)
 $cross = ([char]10007)
 
 Function Step-Log($message) {
-  printf "\n\033[90;1m==> \033[0m\033[37;1m%s \033[0m" $message
+  printf "\n\033[90;1m==> \033[0m\033[37;1m%s \033[0m\n" $message
 }
 
 Function Add-Log($mark, $subject, $message) {
   $code = if($mark -eq $cross) {"31"} else {"32"}
-  printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m" $code $mark $subject $message
+  printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $code $mark $subject $message
 }
 
 if($version -eq '7.4') {
@@ -20,7 +20,6 @@ if($version -eq '7.4') {
 
 Step-Log "Setup PhpManager"
 Install-Module -Name PhpManager -Force -Scope CurrentUser
-printf "\n"
 Add-Log $tick "PhpManager" "Installed"
 
 $installed = $($(php -v)[0] -join '')[4..6] -join ''
@@ -30,12 +29,7 @@ if($installed -ne $version) {
   if($version -lt '7.0') {
     Install-Module -Name VcRedist -Force
   }
-  Uninstall-Php C:\tools\php
-  Install-Php -Version $version -Architecture x86 -ThreadSafe $true -InstallVC -Path C:\tools\php$version -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
-  (Get-PhpSwitcher).targets
-  Initialize-PhpSwitcher -Alias C:\tools\php -Scope CurrentUser -Force
-  Add-PhpToSwitcher -Name $version -Path C:\tools\php$version -Force
-  Switch-Php $version -Force
+  Install-Php -Version $version -Architecture x86 -ThreadSafe $true -InstallVC -Path C:\tools\php -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
   $status = "Installed PHP$version"
 }
 
@@ -44,8 +38,9 @@ Add-Content C:\tools\php\php.ini "date.timezone = 'UTC'"
 Set-PhpIniKey extension_dir $ext_dir
 if($version -lt '7.4') {
   Enable-PhpExtension openssl
+  Enable-PhpExtension curl
 } else {
-  Add-Content C:\tools\php\php.ini "extension=php_openssl.dll"
+  Add-Content C:\tools\php\php.ini "extension=php_openssl.dll`nextension=php_curl.dll"
   Copy-Item "php_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
 }
 Add-Log $tick "PHP" $status

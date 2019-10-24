@@ -30,4 +30,3 @@ jobs:
         run: php artisan config:clear
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text
-        shell: pwsh

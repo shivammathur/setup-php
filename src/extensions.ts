@@ -165,7 +165,7 @@ export async function addExtensionLinux(
         break;
       default:
         install_command =
-          'sudo DEBIAN_FRONTEND=noninteractive apt install -y php' +
+          'sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php' +
           version +
           '-' +
           extension +

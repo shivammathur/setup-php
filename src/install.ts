@@ -44,7 +44,7 @@ async function run() {
       await exec('sh ./' + version + 'darwin.sh ' + version);
     } else if (os_version == 'win32') {
       await build('win32.ps1', version, os_version);
-      await exec('powershell .\\' + version + 'win32.ps1 -version ' + version);
+      await exec('pwsh .\\' + version + 'win32.ps1 -version ' + version);
     } else if (os_version == 'linux') {
       await build('linux.sh', version, os_version);
       await exec('./' + version + 'linux.sh ' + version);

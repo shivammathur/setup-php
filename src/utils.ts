@@ -39,19 +39,6 @@ export async function asyncForEach(
 }
 
 /**
- * Copy config
- *
- * @param files
- */
-export async function moveFiles(files: Array<string>) {
-  await asyncForEach(files, function(filename: string) {
-    fs.createReadStream(path.join(__dirname, '../src/' + filename)).pipe(
-      fs.createWriteStream(filename.split('/')[1], {mode: 0o755})
-    );
-  });
-}
-
-/**
  * Read the scripts
  *
  * @param filename
@@ -67,33 +54,21 @@ export async function readScript(
     case 'darwin':
       switch (version) {
         case '7.4':
-          await moveFiles([
-            'configs/config.yaml',
-            'scripts/xdebug_darwin.sh',
-            'scripts/pcov.sh'
-          ]);
           return fs.readFileSync(
             path.join(__dirname, '../src/scripts/7.4.sh'),
             'utf8'
           );
       }
-      break;
+      return fs.readFileSync(
+        path.join(__dirname, '../src/scripts/' + filename),
+        'utf8'
+      );
     case 'linux':
-      let files: Array<string> = ['scripts/phalcon.sh'];
-      switch (version) {
-        case '7.4':
-          files = files.concat(['scripts/xdebug.sh', 'scripts/pcov.sh']);
-          break;
-      }
-      await moveFiles(files);
-      break;
     case 'win32':
-      switch (version) {
-        case '7.4':
-          await moveFiles(['ext/php_pcov.dll']);
-          break;
-      }
-      break;
+      return fs.readFileSync(
+        path.join(__dirname, '../src/scripts/' + filename),
+        'utf8'
+      );
     default:
       return await log(
         'Platform ' + os_version + ' is not supported',
@@ -101,11 +76,6 @@ export async function readScript(
         'error'
       );
   }
-
-  return fs.readFileSync(
-    path.join(__dirname, '../src/scripts/' + filename),
-    'utf8'
-  );
 }
 
 /**
@@ -117,10 +87,12 @@ export async function readScript(
  */
 export async function writeScript(
   filename: string,
-  version: string,
   script: string
-): Promise<any> {
-  fs.writeFileSync(version + filename, script, {mode: 0o755});
+): Promise<string> {
+  let runner_dir: string = await getInput('RUNNER_TOOL_CACHE', false);
+  let script_path: string = path.join(runner_dir, filename);
+  fs.writeFileSync(script_path, script, {mode: 0o755});
+  return script_path;
 }
 
 /**

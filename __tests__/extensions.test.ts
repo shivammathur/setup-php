@@ -47,16 +47,16 @@ describe('Extension tests', () => {
     );
 
     linux = await extensions.addExtension('xdebug, pcov', '7.4', 'linux');
-    expect(linux).toContain('./xdebug.sh');
-    expect(linux).toContain('./pcov.sh');
+    expect(linux).toContain('xdebug.sh');
+    expect(linux).toContain('pcov.sh');
 
     linux = await extensions.addExtension('phalcon3, phalcon4', '7.2', 'linux');
-    expect(linux).toContain('./phalcon.sh master 7.2');
-    expect(linux).toContain('./phalcon.sh 4.0.x 7.2');
+    expect(linux).toContain('phalcon.sh master 7.2');
+    expect(linux).toContain('phalcon.sh 4.0.x 7.2');
 
     linux = await extensions.addExtension('phalcon3, phalcon4', '7.3', 'linux');
-    expect(linux).toContain('./phalcon.sh master 7.3');
-    expect(linux).toContain('./phalcon.sh 4.0.x 7.3');
+    expect(linux).toContain('phalcon.sh master 7.3');
+    expect(linux).toContain('phalcon.sh 4.0.x 7.3');
 
     linux = await extensions.addExtension('xdebug', '7.2', 'fedora');
     expect(linux).toContain('Platform fedora is not supported');
@@ -81,10 +81,10 @@ describe('Extension tests', () => {
     expect(darwin).toContain('sudo pecl install xdebug-2.5.5');
 
     darwin = await extensions.addExtension('xdebug', '7.4', 'darwin');
-    expect(darwin).toContain('sh ./xdebug_darwin.sh');
+    expect(darwin).toContain('xdebug_darwin.sh');
 
     darwin = await extensions.addExtension('pcov', '7.4', 'darwin');
-    expect(darwin).toContain('sh ./pcov.sh');
+    expect(darwin).toContain('pcov.sh');
 
     darwin = await extensions.addExtension('xdebug', '7.2', 'darwin');
     expect(darwin).toContain('sudo pecl install xdebug');

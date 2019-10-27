@@ -61,23 +61,17 @@ describe('Utils tests', () => {
     expect(await utils.readScript('fedora.sh', '7.3', 'fedora')).toContain(
       'Platform fedora is not supported'
     );
-    await cleanup('./config.yaml');
-    await cleanup('./pcov.sh');
-    await cleanup('./phalcon.sh');
-    await cleanup('./php_pcov.dll');
-    await cleanup('./xdebug_darwin.sh');
   });
 
   it('checking writeScripts', async () => {
     let testString: string = 'sudo apt-get install php';
-    await utils.writeScript('test.sh', '10', testString);
-    await fs.readFile(path.join(__dirname, '../10test.sh'), function(
-      error: any,
-      data: Buffer
-    ) {
+    let runner_dir: string = process.env['RUNNER_TOOL_CACHE'] || '';
+    let script_path: string = path.join(runner_dir, 'test.sh');
+    await utils.writeScript('test.sh', testString);
+    await fs.readFile(script_path, function(error: any, data: Buffer) {
       expect(testString).toBe(data.toString());
     });
-    await cleanup('./10test.sh');
+    await cleanup(script_path);
   });
 
   it('checking extensionArray', async () => {

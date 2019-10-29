@@ -1,8 +1,8 @@
 {
   "name": "setup-php",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "private": false,
-  "description": "Setup php action",
+  "description": "Setup PHP for use with GitHub Actions",
   "main": "lib/setup-php.js",
   "scripts": {
     "build": "tsc",

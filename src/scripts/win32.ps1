@@ -1,5 +1,6 @@
 param (
-    [Parameter(Mandatory=$true)][string]$version = "7.3"  
+    [Parameter(Mandatory=$true)][string]$version = "7.3",
+    [Parameter(Mandatory=$true)][string]$dir
 )
 
 $tick = ([char]8730)
@@ -41,7 +42,7 @@ if($version -lt '7.4') {
   Enable-PhpExtension curl
 } else {
   Add-Content C:\tools\php\php.ini "extension=php_openssl.dll`nextension=php_curl.dll"
-  Copy-Item "php_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
+  Copy-Item $dir"\..\src\ext\php_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
 }
 Add-Log $tick "PHP" $status
 

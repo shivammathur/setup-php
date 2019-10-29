@@ -1,9 +1,10 @@
 import {exec} from '@actions/exec/lib/exec';
 import * as core from '@actions/core';
-import * as utils from './utils';
-import * as extensions from './extensions';
+import * as path from 'path';
 import * as config from './config';
 import * as coverage from './coverage';
+import * as extensions from './extensions';
+import * as utils from './utils';
 
 /**
  * Build the script
@@ -12,7 +13,11 @@ import * as coverage from './coverage';
  * @param version
  * @param os_version
  */
-async function build(filename: string, version: string, os_version: string) {
+async function build(
+  filename: string,
+  version: string,
+  os_version: string
+): Promise<string> {
   // taking inputs
   let extension_csv: string = await utils.getInput('extension-csv', false);
   let ini_values_csv: string = await utils.getInput('ini-values-csv', false);
@@ -28,7 +33,8 @@ async function build(filename: string, version: string, os_version: string) {
   if (coverage_driver) {
     script += await coverage.addCoverage(coverage_driver, version, os_version);
   }
-  await utils.writeScript(filename, version, script);
+
+  return await utils.writeScript(filename, script);
 }
 
 /**
@@ -40,14 +46,16 @@ async function run() {
     let version: string = await utils.getInput('php-version', true);
     // check the os version and run the respective script
     if (os_version == 'darwin') {
-      await build('darwin.sh', version, os_version);
-      await exec('sh ./' + version + 'darwin.sh ' + version);
+      let script_path: string = await build('darwin.sh', version, os_version);
+      await exec('sh ' + script_path + ' ' + version + ' ' + __dirname);
     } else if (os_version == 'win32') {
-      await build('win32.ps1', version, os_version);
-      await exec('pwsh .\\' + version + 'win32.ps1 -version ' + version);
+      let script_path: string = await build('win32.ps1', version, os_version);
+      await exec(
+        'pwsh ' + script_path + ' -version ' + version + ' -dir ' + __dirname
+      );
     } else if (os_version == 'linux') {
-      await build('linux.sh', version, os_version);
-      await exec('./' + version + 'linux.sh ' + version);
+      let script_path: string = await build('linux.sh', version, os_version);
+      await exec('sh ' + script_path + ' ' + version + ' ' + __dirname);
     }
   } catch (error) {
     core.setFailed(error.message);

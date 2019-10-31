@@ -11,7 +11,7 @@ describe('Extension tests', () => {
     expect(win32).toContain('Install-PhpExtension pcov');
     win32 = await extensions.addExtension('xdebug, pcov', '7.4', 'win32');
     const extension_url: string =
-      'https://xdebug.org/files/php_xdebug-2.8.0beta2-7.4-vc15.dll';
+      'https://xdebug.org/files/php_xdebug-2.8.0-7.4-vc15.dll';
     expect(win32).toContain(
       'Invoke-WebRequest -Uri ' +
         extension_url +

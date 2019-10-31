@@ -111,7 +111,7 @@ export async function addExtensionWindows(
     switch (version + extension) {
       case '7.4xdebug':
         const extension_url: string =
-          'https://xdebug.org/files/php_xdebug-2.8.0beta2-7.4-vc15.dll';
+          'https://xdebug.org/files/php_xdebug-2.8.0-7.4-vc15.dll';
         install_command =
           'Invoke-WebRequest -Uri ' +
           extension_url +

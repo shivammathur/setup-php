@@ -20,9 +20,9 @@ existing_version=$(php-config --version | cut -c 1-3)
 version=$1
 status="Switched to PHP$version"
 step_log "Setup PHP and Composer"
+find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
 if [ "$existing_version" != "$1" ]; then
 	if [ ! -e "/usr/bin/php$1" ]; then
-		sudo DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/php -y >/dev/null 2>&1
 		if [ "$1" != "7.4" ]; then
 		  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1" curl php"$1"-curl >/dev/null 2>&1
 		else

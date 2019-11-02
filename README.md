@@ -26,7 +26,7 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 |7.1|`Stable`|`Security fixes only`|
 |7.2|`Stable`|`Active`|
 |7.3|`Stable`|`Active`|
-|7.4|`RC4`|`Active`|
+|7.4|`RC4`/`RC5`|`Active`|
 
 **Note:** PHP 7.4 is currently in development, do not use in production/release branches.
 

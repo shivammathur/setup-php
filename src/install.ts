@@ -1,6 +1,5 @@
 import {exec} from '@actions/exec/lib/exec';
 import * as core from '@actions/core';
-import * as path from 'path';
 import * as config from './config';
 import * as coverage from './coverage';
 import * as extensions from './extensions';
@@ -13,7 +12,7 @@ import * as utils from './utils';
  * @param version
  * @param os_version
  */
-async function build(
+export async function build(
   filename: string,
   version: string,
   os_version: string
@@ -40,22 +39,24 @@ async function build(
 /**
  * Run the script
  */
-async function run() {
+export async function run() {
   try {
     let os_version: string = process.platform;
     let version: string = await utils.getInput('php-version', true);
     // check the os version and run the respective script
-    if (os_version == 'darwin') {
-      let script_path: string = await build('darwin.sh', version, os_version);
-      await exec('sh ' + script_path + ' ' + version + ' ' + __dirname);
-    } else if (os_version == 'win32') {
-      let script_path: string = await build('win32.ps1', version, os_version);
-      await exec(
-        'pwsh ' + script_path + ' -version ' + version + ' -dir ' + __dirname
-      );
-    } else if (os_version == 'linux') {
-      let script_path: string = await build('linux.sh', version, os_version);
-      await exec('sh ' + script_path + ' ' + version + ' ' + __dirname);
+    let script_path: string = '';
+    switch (os_version) {
+      case 'darwin':
+      case 'linux':
+        script_path = await build(os_version + '.sh', version, os_version);
+        await exec('sh ' + script_path + ' ' + version + ' ' + __dirname);
+        break;
+      case 'win32':
+        script_path = await build('win32.ps1', version, os_version);
+        await exec(
+          'pwsh ' + script_path + ' -version ' + version + ' -dir ' + __dirname
+        );
+        break;
     }
   } catch (error) {
     core.setFailed(error.message);

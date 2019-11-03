@@ -17,6 +17,26 @@
 
 Setup PHP with required extensions, php.ini configuration and composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
 
+## Contents
+
+- [PHP Support](#tada-php-support)
+- [OS/Platform Support](#cloud-osplatform-support)
+- [PHP Extension Support](#wrench-php-extension-support)
+- [Coverage support](#signal_strength-coverage-support)
+  - [Xdebug](#xdebug)
+  - [PCOV](#pcov)
+  - [Disable coverage](#disable-coverage)
+- [Usage](#memo-usage)
+  - [Basic Usage](#basic-usage)
+  - [Matrix Testing](#matrix-testing)
+  - [Cache dependencies](#cache-dependencies)
+  - [Examples](#examples)
+- [License](#scroll-license)
+- [Contributions](#1-contributions)
+- [Support this project](#sparkling_heart-support-this-project)
+- [This action uses the following works](#bookmark-this-action-uses-the-following-works)
+- [Further Reading](#bookmark_tabs-further-reading)
+
 ## :tada: PHP Support
 
 |PHP Version|Stability|Release Support|
@@ -64,7 +84,7 @@ with:
 
 Specify `coverage: pcov` to use `PCOV`.  
 It is much faster than `Xdebug`.  
-`PCOV` needs `PHP >= 7.1`  
+`PCOV` needs `PHP >= 7.1`.  
 If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values-csv` input.  
 
 
@@ -80,9 +100,10 @@ with:
 
 Specify `coverage: none` to disable both `Xdebug` and `PCOV`.
 Consider disabling the coverage using this PHP action for these reasons.
+
 - You are not generating coverage reports while testing.
 - It will disable `Xdebug`, which will have a positive impact on PHP performance.
-- You are using `phpdbg`.
+- You are using `phpdbg` for running your tests.
 
 ```yaml
 uses: shivammathur/setup-php@master
@@ -153,6 +174,24 @@ jobs:
       run: php -m
 ```
 
+### Cache dependencies
+
+You can cache you dependencies using the [`action/cache`](https://github.com/actions/cache) GitHub Action and add a condition in your `composer install` step to run only if your dependencies are not cached. The files cached using this method are available across check-runs and will reduce the workflow execution time.
+
+```yaml
+- name: Cache dependencies
+- uses: actions/cache@preview
+  id: cache
+  with:
+    path: vendor     
+    key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+    restore-keys: |
+      ${{ runner.os }}-php-
+- name: Install dependencies
+  if: steps.cache.outputs.cache-hit != 'true'
+  run: composer install
+```
+
 ### Examples
 
 Examples for setting up this GitHub Action with different PHP Frameworks/Packages.
@@ -181,12 +220,15 @@ The scripts and documentation in this project are released under the [MIT Licens
 
 ## :+1: Contributions
 
-Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "shivammathur/setup-php contribution guide").
+Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "shivammathur/setup-php contribution guide"). If you face any issues while using this or want to suggest a feature/improvement, create an issue [here](https://github.com/shivammathur/setup-php/issues "Issues reported").
 
 ## :sparkling_heart: Support this project
 
-- Please star the project and share it.
-- Please support on <a href="https://www.patreon.com/shivammathur"><img alt="Support me on Patreon" src="https://shivammathur.com/badges/patreon.svg"></a> and <a href="https://www.paypal.me/shivammathur"><img alt="Support me on Paypal" src="https://shivammathur.com/badges/paypal.svg"></a>.
+If this action helped you.
+
+- Please star the project and share it, this helps reach more people.
+- If you blog, write about your experience using this.
+- Support on this project on <a href="https://www.patreon.com/shivammathur"><img alt="Patreon" src="https://shivammathur.com/badges/patreon.svg"></a> or using <a href="https://www.paypal.me/shivammathur"><img alt="Paypal" src="https://shivammathur.com/badges/paypal.svg"></a>.
 
 ## :bookmark: This action uses the following works
 

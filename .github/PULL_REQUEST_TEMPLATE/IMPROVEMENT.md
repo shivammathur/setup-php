@@ -2,6 +2,7 @@
 name: ⚙ Improvement
 about: You have some improvement to make setup-php better?
 labels: enhancement
+
 ---
 
 ## A Pull Request should be associated with an Issue.

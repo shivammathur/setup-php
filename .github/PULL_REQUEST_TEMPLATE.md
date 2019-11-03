@@ -1,11 +1,8 @@
 ---
-name: |
-  🐞 Failing Test
-  🐞 Bug Fix
-  ⚙ Improvement
-  🎉 New Feature
-about: You found a bug, have a failing test, want to improve something or add a new feature
+name: 🐞 Bug Fix, ⚙ Improvement or 🎉 New Feature
+about: You found a bug, want to improve something or add a new feature
 labels: bug or enhancement
+
 ---
 
 ## A Pull Request should be associated with an Issue.

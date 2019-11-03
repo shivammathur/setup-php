@@ -21,7 +21,17 @@ jobs:
         with:
           node-version: 12.x
 
+      - name: Cache node modules
+        uses: actions/cache@preview
+        id: cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Installing NPM packages
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm install
 
       - name: Run tests

@@ -2,6 +2,7 @@
 name: 🎉 New Feature
 about: You have implemented some neat idea that you want to make part of setup-php?
 labels: enhancement
+
 ---
 
 ## A Pull Request should be associated with an Issue.

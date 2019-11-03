@@ -2,6 +2,7 @@
 name: 🐞 Bug Fix
 about: You have a fix for a bug?
 labels: bug
+
 ---
 
 ## A Pull Request should be associated with an Issue.

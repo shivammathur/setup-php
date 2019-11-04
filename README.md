@@ -176,20 +176,30 @@ jobs:
 
 ### Cache dependencies
 
-You can cache you dependencies using the [`action/cache`](https://github.com/actions/cache) GitHub Action and add a condition in your `composer install` step to run only if your dependencies are not cached. The files cached using this method are available across check-runs and will reduce the workflow execution time.
+You can persist composer's internal cache directory using the [`action/cache`](https://github.com/actions/cache) GitHub Action. Dependencies cached are loaded directly instead of downloading them while installation. The files cached are available across check-runs and will reduce the workflow execution time.
+
+**Note:** Please do not cache `vendor` directory using `action/cache` as that will have side-effects.
 
 ```yaml
-- name: Cache dependencies
-- uses: actions/cache@preview
-  id: cache
+- name: Get Composer Cache Directory
+  id: composer-cache
+  run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+- name: Cache on linux and macOS
+  if: matrix.operating-system != 'windows-latest'
+  uses: actions/cache@v1        
   with:
-    path: vendor     
-    key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-    restore-keys: |
-      ${{ runner.os }}-php-
-- name: Install dependencies
-  if: steps.cache.outputs.cache-hit != 'true'
-  run: composer install
+    path: ${{ steps.composer-cache.outputs.dir }}
+    key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+    restore-keys: ${{ runner.os }}-composer-
+- name: Cache on windows
+  if: matrix.operating-system == 'windows-latest'
+  uses: actions/cache@v1        
+  with:
+    path: ${{ steps.composer-cache.outputs.dir }}
+    key: ${{ runner.os }}-composer-${{ hashFiles('**composer.lock') }}
+    restore-keys: ${{ runner.os }}-composer-
+- name: Install Dependencies
+  run: composer install --prefer-dist
 ```
 
 ### Examples

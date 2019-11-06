@@ -40,10 +40,10 @@ describe('Extension tests', () => {
       'linux'
     );
     expect(linux).toContain(
-      'sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php7.2-xdebug'
+      'sudo DEBIAN_FRONTEND=noninteractive apt install -y php7.2-xdebug'
     );
     expect(linux).toContain(
-      'sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php7.2-pcov'
+      'sudo DEBIAN_FRONTEND=noninteractive apt install -y php7.2-pcov'
     );
 
     linux = await extensions.addExtension('xdebug, pcov', '7.4', 'linux');

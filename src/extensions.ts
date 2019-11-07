@@ -185,9 +185,11 @@ export async function addExtensionLinux(
         break;
       default:
         install_command =
-          'sudo DEBIAN_FRONTEND=noninteractive apt install -y php' +
+          'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php' +
           version +
           '-' +
+          extension +
+          ' >/dev/null 2>&1 || sudo pecl install ' +
           extension +
           ' >/dev/null 2>&1';
         break;

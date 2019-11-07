@@ -60,8 +60,9 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 |macOS X Catalina 10.15|`macOS-latest` or `macOS-10.15`|
 
 ## :wrench: PHP Extension Support
-- On `ubuntu` extensions which have the package in apt are installed.
-- On `windows` and `macOS` PECL extensions are installed.
+- On `ubuntu` extensions which have the package in `APT` are installed. If extension is not in `APT`, you can use `PECL` to install the extension as fallback by specifying `pecl: true`. 
+- On `windows` extensions which have `windows` binary on `PECL` can be installed.
+- On `macOS` extensions which are on `PECL` can be installed.
 - Extensions which are installed along with PHP if specified are enabled.
 - Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
 
@@ -119,6 +120,7 @@ Inputs supported by this GitHub Action.
 - extension-csv `optional`
 - ini-values-csv `optional`
 - coverage `optional`
+- pecl `optional`
 
 See [action.yml](action.yml "Metadata for this GitHub Action") and usage below for more info.
 
@@ -132,9 +134,10 @@ steps:
   uses: shivammathur/setup-php@master
   with:
     php-version: '7.3'
-    extension-csv: mbstring, xdebug #optional
-    ini-values-csv: post_max_size=256M, short_open_tag=On #optional
-    coverage: xdebug #optional
+    extension-csv: mbstring, xdebug #optional, setup extensions
+    ini-values-csv: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
+    coverage: xdebug #optional, setup coverage driver
+    pecl: true #optional, setup PECL
 - name: Check PHP Version
   run: php -v
 - name: Check Composer Version
@@ -161,10 +164,10 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@master
       with:
-        php-version: ${{ matrix.php-versions }}
-        extension-csv: mbstring, xdebug #optional
-        ini-values-csv: post_max_size=256M, short_open_tag=On #optional
-        coverage: xdebug #optional
+        extension-csv: mbstring, xdebug #optional, setup extensions
+        ini-values-csv: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
+        coverage: xdebug #optional, setup coverage driver
+        pecl: true #optional, setup PECL
     - name: Check PHP Version
       run: php -v
     - name: Check Composer Version

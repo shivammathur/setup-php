@@ -16,6 +16,9 @@ inputs:
   coverage: 
     description: '(Optional) Code coverage driver you want to install. (Accepts: xdebug, pcov and none)'
     required: false
+  pecl:
+    description: '(Optional) Setup PECL on ubuntu'
+    required: false
 runs:
   using: 'node12'
   main: 'lib/install.js'

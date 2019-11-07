@@ -164,6 +164,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@master
       with:
+        php-version: ${{ matrix.php-versions }}
         extension-csv: mbstring, xdebug #optional, setup extensions
         ini-values-csv: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
         coverage: xdebug #optional, setup coverage driver

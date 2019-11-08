@@ -48,10 +48,6 @@ describe('Extension tests', () => {
     );
     expect(linux).toContain('pecl install pcov');
 
-    linux = await extensions.addExtension('xdebug, pcov', '7.4', 'linux');
-    expect(linux).toContain('xdebug.sh');
-    expect(linux).toContain('pcov.sh');
-
     linux = await extensions.addExtension('phalcon3, phalcon4', '7.2', 'linux');
     expect(linux).toContain('phalcon.sh master 7.2');
     expect(linux).toContain('phalcon.sh 4.0.x 7.2');
@@ -81,12 +77,6 @@ describe('Extension tests', () => {
 
     darwin = await extensions.addExtension('xdebug', '5.6', 'darwin');
     expect(darwin).toContain('sudo pecl install xdebug-2.5.5');
-
-    darwin = await extensions.addExtension('xdebug', '7.4', 'darwin');
-    expect(darwin).toContain('xdebug_darwin.sh');
-
-    darwin = await extensions.addExtension('pcov', '7.4', 'darwin');
-    expect(darwin).toContain('pcov.sh');
 
     darwin = await extensions.addExtension('xdebug', '7.2', 'darwin');
     expect(darwin).toContain('sudo pecl install xdebug');

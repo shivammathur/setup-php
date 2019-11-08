@@ -61,18 +61,6 @@ export async function addExtensionDarwin(
     // add script to enable extension is already installed along with php
     let install_command: string = '';
     switch (version + extension) {
-      case '7.4xdebug':
-        install_command =
-          'sh ' +
-          path.join(__dirname, '../src/scripts/xdebug_darwin.sh') +
-          ' >/dev/null 2>&1 && echo "zend_extension=xdebug.so" >> $ini_file';
-        break;
-      case '7.4pcov':
-        install_command =
-          'sh ' +
-          path.join(__dirname, '../src/scripts/pcov.sh') +
-          ' >/dev/null 2>&1 && echo "extension=pcov.so" >> $ini_file';
-        break;
       case '5.6xdebug':
         install_command = 'sudo pecl install xdebug-2.5.5 >/dev/null 2>&1';
         break;
@@ -152,18 +140,6 @@ export async function addExtensionLinux(
 
     let install_command: string = '';
     switch (version + extension) {
-      case '7.4xdebug':
-        install_command =
-          'sh ' +
-          path.join(__dirname, '../src/scripts/xdebug.sh') +
-          ' >/dev/null 2>&1 && echo "zend_extension=xdebug.so" >> $ini_file';
-        break;
-      case '7.4pcov':
-        install_command =
-          'sh ' +
-          path.join(__dirname, '../src/scripts/pcov.sh') +
-          ' >/dev/null 2>&1 && echo "extension=pcov.so" >> $ini_file';
-        break;
       case '7.2phalcon3':
       case '7.3phalcon3':
         install_command =

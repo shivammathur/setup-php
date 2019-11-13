@@ -164,7 +164,7 @@ export async function addExtensionLinux(
           'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php' +
           version +
           '-' +
-          extension +
+          extension.replace('pdo_', '').replace('pdo-', '') +
           ' >/dev/null 2>&1 || sudo pecl install ' +
           extension +
           ' >/dev/null 2>&1';

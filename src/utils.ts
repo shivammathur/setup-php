@@ -112,9 +112,7 @@ export async function extensionArray(
         return extension
           .trim()
           .replace('php-', '')
-          .replace('php_', '')
-          .replace('pdo_', '')
-          .replace('pdo-', '');
+          .replace('php_', '');
       });
   }
 }

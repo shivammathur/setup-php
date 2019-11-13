@@ -188,20 +188,11 @@ You can persist composer's internal cache directory using the [`action/cache`](h
   id: composer-cache
   run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-- name: Cache on linux and macOS
-  if: runner.os != 'Windows'
+- name: Cache dependencies  
   uses: actions/cache@v1
   with:
     path: ${{ steps.composer-cache.outputs.dir }}
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-    restore-keys: ${{ runner.os }}-composer-
-
-- name: Cache on windows
-  if: runner.os == 'Windows'
-  uses: actions/cache@v1
-  with:
-    path: ${{ steps.composer-cache.outputs.dir }}
-    key: ${{ runner.os }}-composer-${{ hashFiles('**composer.lock') }}
     restore-keys: ${{ runner.os }}-composer-
 
 - name: Install Dependencies

@@ -52,9 +52,11 @@ Add-Log $tick "Composer" "Installed"
 Function Add-Extension($extension, $install_command, $prefix)
 {
   try {
-    $exist = Test-Path -Path C:\tools\php\ext\php_$extension.dll
-    if(!(php -m | findstr -i ${extension}) -and $exist) {
-      Add-Content C:\tools\php\php.ini "$prefix=php_$extension.dll"
+    $existing_extensions = Get-PhpExtension -Path C:\tools\php
+    $match = @($existing_extensions | Where-Object { $_.Name -like $extension })
+    if(!(php -m | findstr -i ${extension}) -and $match) {
+      $filename = $match."Filename".split('\')[-1]
+      Add-Content C:\tools\php\php.ini "`n$prefix=$filename"
       Add-Log $tick $extension "Enabled"
     } elseif(php -m | findstr -i $extension) {
       Add-Log $tick $extension "Enabled"

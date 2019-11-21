@@ -6,7 +6,6 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
-      max-parallel: 15
       matrix:
         operating-system: [windows-latest]
         php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3']

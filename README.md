@@ -46,9 +46,7 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 |7.1|`Stable`|`Security fixes only`|
 |7.2|`Stable`|`Active`|
 |7.3|`Stable`|`Active`|
-|7.4|`RC4`/`RC6`|`Active`|
-
-**Note:** PHP 7.4 is currently in development, do not use in production/release branches.
+|7.4|`RC6`|`Active`|
 
 ## :cloud: OS/Platform Support
 
@@ -60,7 +58,7 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 |macOS X Catalina 10.15|`macOS-latest` or `macOS-10.15`|
 
 ## :wrench: PHP Extension Support
-- On `ubuntu` extensions which have the package in `APT` are installed. If extension is not in `APT`, you can use `PECL` to install the extension as fallback by specifying `pecl: true`. 
+- On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl: true`. 
 - On `windows` extensions which have `windows` binary on `PECL` can be installed.
 - On `macOS` extensions which are on `PECL` can be installed.
 - Extensions which are installed along with PHP if specified are enabled.
@@ -130,18 +128,22 @@ See [action.yml](action.yml "Metadata for this GitHub Action") and usage below f
 steps:
 - name: Checkout
   uses: actions/checkout@master
+
 - name: Setup PHP
   uses: shivammathur/setup-php@master
   with:
     php-version: '7.3'
-    extension-csv: mbstring, xdebug #optional, setup extensions
+    extension-csv: mbstring, intl #optional, setup extensions
     ini-values-csv: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
     coverage: xdebug #optional, setup coverage driver
-    pecl: true #optional, setup PECL
+    pecl: false #optional, setup PECL
+
 - name: Check PHP Version
   run: php -v
+
 - name: Check Composer Version
   run: composer -V
+
 - name: Check PHP Extensions
   run: php -m
 ```
@@ -152,8 +154,7 @@ steps:
 jobs:
   run:    
     runs-on: ${{ matrix.operating-system }}
-    strategy:
-      max-parallel: 15
+    strategy:      
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macOS-latest]
         php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3']
@@ -161,25 +162,29 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@master
+
     - name: Setup PHP
       uses: shivammathur/setup-php@master
       with:
         php-version: ${{ matrix.php-versions }}
-        extension-csv: mbstring, xdebug #optional, setup extensions
+        extension-csv: mbstring, intl #optional, setup extensions
         ini-values-csv: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
         coverage: xdebug #optional, setup coverage driver
-        pecl: true #optional, setup PECL
+        pecl: false #optional, setup PECL
+
     - name: Check PHP Version
       run: php -v
+
     - name: Check Composer Version
       run: composer -V
+
     - name: Check PHP Extensions
       run: php -m
 ```
 
 ### Cache dependencies
 
-You can persist composer's internal cache directory using the [`action/cache`](https://github.com/actions/cache) GitHub Action. Dependencies cached are loaded directly instead of downloading them while installation. The files cached are available across check-runs and will reduce the workflow execution time.
+You can persist composer's internal cache directory using the [`action/cache`](https://github.com/actions/cache "GitHub Action to cache files") GitHub Action. Dependencies cached are loaded directly instead of downloading them while installation. The files cached are available across check-runs and will reduce the workflow execution time.
 
 **Note:** Please do not cache `vendor` directory using `action/cache` as that will have side-effects.
 
@@ -223,7 +228,7 @@ Examples for setting up this GitHub Action with different PHP Frameworks/Package
 
 ## :scroll: License
 
-The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). This project has multiple [dependencies](https://github.com/shivammathur/setup-php/network/dependencies "Dependencies for this PHP Action") and their licenses can be found in their respective repositories.
+The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). This project has multiple [dependencies](https://github.com/shivammathur/setup-php/network/dependencies "Dependencies for this PHP Action") and uses [various works](#bookmark-this-action-uses-the-following-works "Tools used by this action"). Their licenses can be found in their respective repositories.
 
 ## :+1: Contributions
 

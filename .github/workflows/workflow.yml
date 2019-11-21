@@ -1,4 +1,4 @@
-name: Ubuntu workflow
+name: Main workflow
 on: [push, pull_request]
 jobs:
   run:
@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ubuntu-latest]
+        operating-system: [ubuntu-latest, windows-latest, macOS-latest]
         php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3']
     steps:
       - name: Checkout

@@ -42,7 +42,7 @@ export async function build(
 export async function run(): Promise<void> {
   try {
     const os_version: string = process.platform;
-    const version: string = await utils.getInput('php-version', true);
+    const version: string = await utils.getVersion();
     // check the os version and run the respective script
     let script_path = '';
     switch (os_version) {

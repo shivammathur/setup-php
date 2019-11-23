@@ -1,14 +1,15 @@
 {
   "name": "setup-php",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
-  "main": "lib/setup-php.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "lint": "eslint **/*.ts --cache",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
+    "release": "ncc build src/install.ts -o dist && git add -f dist/",
     "test": "jest"
   },
   "repository": {
@@ -32,6 +33,7 @@
     "@types/node": "^12.12.0",
     "@typescript-eslint/eslint-plugin": "^2.7.0",
     "@typescript-eslint/parser": "^2.7.0",
+    "@zeit/ncc": "^0.20.5",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.5.0",
     "eslint-plugin-import": "^2.18.2",

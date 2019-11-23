@@ -21,4 +21,4 @@ inputs:
     required: false
 runs:
   using: 'node12'
-  main: 'lib/install.js'
+  main: 'dist/index.js'

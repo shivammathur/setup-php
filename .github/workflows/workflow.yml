@@ -65,7 +65,7 @@ jobs:
         run: curl -s https://codecov.io/bash | bash -s -- -t ${{secrets.CODECOV_TOKEN}} -f coverage/clover.xml -n github-actions-codecov-${{ matrix.operating-system }}-php${{ matrix.php-versions }}
 
       - name: Setup PHP with extensions and custom config
-        run: node lib/install.js
+        run: node dist/index.js
         env:
           php-version: ${{ matrix.php-versions }}
           extension-csv: mbstring, xdebug, pcov #optional

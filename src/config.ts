@@ -1,6 +1,45 @@
 import * as utils from './utils';
 
 /**
+ * Add script to set custom ini values for unix
+ *
+ * @param ini_values_csv
+ */
+export async function addINIValuesUnix(
+  ini_values_csv: string
+): Promise<string> {
+  const ini_values: Array<string> = await utils.INIArray(ini_values_csv);
+  let script = '\n';
+  await utils.asyncForEach(ini_values, async function(line: string) {
+    script +=
+      (await utils.addLog('$tick', line, 'Added to php.ini', 'linux')) + '\n';
+  });
+  return 'echo "' + ini_values.join('\n') + '" >> $ini_file' + script;
+}
+
+/**
+ * Add script to set custom ini values for windows
+ *
+ * @param ini_values_csv
+ */
+export async function addINIValuesWindows(
+  ini_values_csv: string
+): Promise<string> {
+  const ini_values: Array<string> = await utils.INIArray(ini_values_csv);
+  let script = '\n';
+  await utils.asyncForEach(ini_values, async function(line: string) {
+    script +=
+      (await utils.addLog('$tick', line, 'Added to php.ini', 'win32')) + '\n';
+  });
+  return (
+    'Add-Content C:\\tools\\php\\php.ini "' +
+    ini_values.join('\n') +
+    '"' +
+    script
+  );
+}
+
+/**
  * Function to add custom ini values
  *
  * @param ini_values_csv
@@ -11,7 +50,7 @@ export async function addINIValues(
   os_version: string,
   no_step = false
 ): Promise<string> {
-  let script: string = '\n';
+  let script = '\n';
   switch (no_step) {
     case true:
       script +=
@@ -37,43 +76,4 @@ export async function addINIValues(
         'error'
       );
   }
-}
-
-/**
- * Add script to set custom ini values for unix
- *
- * @param ini_values_csv
- */
-export async function addINIValuesUnix(
-  ini_values_csv: string
-): Promise<string> {
-  let ini_values: Array<string> = await utils.INIArray(ini_values_csv);
-  let script: string = '\n';
-  await utils.asyncForEach(ini_values, async function(line: string) {
-    script +=
-      (await utils.addLog('$tick', line, 'Added to php.ini', 'linux')) + '\n';
-  });
-  return 'echo "' + ini_values.join('\n') + '" >> $ini_file' + script;
-}
-
-/**
- * Add script to set custom ini values for windows
- *
- * @param ini_values_csv
- */
-export async function addINIValuesWindows(
-  ini_values_csv: string
-): Promise<string> {
-  let ini_values: Array<string> = await utils.INIArray(ini_values_csv);
-  let script: string = '\n';
-  await utils.asyncForEach(ini_values, async function(line: string) {
-    script +=
-      (await utils.addLog('$tick', line, 'Added to php.ini', 'win32')) + '\n';
-  });
-  return (
-    'Add-Content C:\\tools\\php\\php.ini "' +
-    ini_values.join('\n') +
-    '"' +
-    script
-  );
 }

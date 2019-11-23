@@ -10,11 +10,11 @@ jest.mock('../src/install', () => ({
       version: string,
       os_version: string
     ): Promise<string> => {
-      let extension_csv: string = process.env['extension-csv'] || '';
-      let ini_values_csv: string = process.env['ini-values-csv'] || '';
-      let coverage_driver: string = process.env['coverage'] || '';
+      const extension_csv: string = process.env['extension-csv'] || '';
+      const ini_values_csv: string = process.env['ini-values-csv'] || '';
+      const coverage_driver: string = process.env['coverage'] || '';
 
-      let script: string = 'initial script';
+      let script = 'initial script ' + filename + version + os_version;
       if (extension_csv) {
         script += 'install extensions';
       }
@@ -30,19 +30,20 @@ jest.mock('../src/install', () => ({
   ),
   run: jest.fn().mockImplementation(
     async (): Promise<string> => {
-      let os_version: string = process.env['RUNNER_OS'] || '';
-      let version: string = process.env['php-version'] || '';
-      let script: string = '';
+      const os_version: string = process.env['RUNNER_OS'] || '';
+      const version: string = process.env['php-version'] || '';
+      let script = '';
       switch (os_version) {
         case 'darwin':
           script = await install.build(os_version + '.sh', version, os_version);
           script += 'sh script.sh ' + version + ' ' + __dirname;
           break;
-        case 'linux':
-          let pecl: string = process.env['pecl'] || '';
+        case 'linux': {
+          const pecl: string = process.env['pecl'] || '';
           script = await install.build(os_version + '.sh', version, os_version);
           script += 'sh script.sh ' + version + ' ' + pecl + ' ' + __dirname;
           break;
+        }
         case 'win32':
           script = await install.build(os_version + '.sh', version, os_version);
           script +=
@@ -72,7 +73,7 @@ function setEnv(
   extension_csv: string,
   ini_values_csv: string,
   coverage_driver: string,
-  pecl: any
+  pecl: string
 ): void {
   process.env['php-version'] = version;
   process.env['RUNNER_OS'] = os;
@@ -116,7 +117,7 @@ describe('Install', () => {
     expect(script).toContain('set coverage driver');
     expect(script).toContain('sh script.sh 7.3 true');
 
-    setEnv('7.3', 'linux', 'a, b', 'a=b', 'x', true);
+    setEnv('7.3', 'linux', 'a, b', 'a=b', 'x', 'true');
     // @ts-ignore
     script = await install.run();
     expect(script).toContain('initial script');

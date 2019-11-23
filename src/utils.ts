@@ -12,7 +12,7 @@ export async function getInput(
   name: string,
   mandatory: boolean
 ): Promise<string> {
-  let input = process.env[name];
+  const input = process.env[name];
   switch (input) {
     case '':
     case undefined:
@@ -30,108 +30,64 @@ export async function getInput(
  * @param callback
  */
 export async function asyncForEach(
-  array: Array<any>,
-  callback: any
-): Promise<any> {
-  for (let index: number = 0; index < array.length; index++) {
+  array: Array<string>,
+  callback: (
+    element: string,
+    index: number,
+    array: Array<string>
+  ) => Promise<void>
+): Promise<void> {
+  for (let index = 0; index < array.length; index++) {
     await callback(array[index], index, array);
   }
 }
 
 /**
- * Read the scripts
+ * Get color index
  *
- * @param filename
- * @param version
- * @param os_version
+ * @param type
  */
-export async function readScript(
-  filename: string,
-  version: string,
-  os_version: string
+export async function color(type: string): Promise<string> {
+  switch (type) {
+    case 'error':
+      return '31';
+    default:
+    case 'success':
+      return '32';
+    case 'warning':
+      return '33';
+  }
+}
+
+/**
+ * Log to console
+ *
+ * @param message
+ * @param os_version
+ * @param log_type
+ * @param prefix
+ */
+export async function log(
+  message: string,
+  os_version: string,
+  log_type: string
 ): Promise<string> {
   switch (os_version) {
-    case 'darwin':
-      switch (version) {
-        case '7.4':
-          return fs.readFileSync(
-            path.join(__dirname, '../src/scripts/7.4.sh'),
-            'utf8'
-          );
-      }
-      return fs.readFileSync(
-        path.join(__dirname, '../src/scripts/' + filename),
-        'utf8'
-      );
-    case 'linux':
     case 'win32':
-      return fs.readFileSync(
-        path.join(__dirname, '../src/scripts/' + filename),
-        'utf8'
+      return (
+        'printf "\\033[' +
+        (await color(log_type)) +
+        ';1m' +
+        message +
+        ' \\033[0m"'
       );
+
+    case 'linux':
+    case 'darwin':
     default:
-      return await log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
+      return (
+        'echo "\\033[' + (await color(log_type)) + ';1m' + message + '\\033[0m"'
       );
-  }
-}
-
-/**
- * Write final script which runs
- *
- * @param filename
- * @param version
- * @param script
- */
-export async function writeScript(
-  filename: string,
-  script: string
-): Promise<string> {
-  let runner_dir: string = await getInput('RUNNER_TOOL_CACHE', false);
-  let script_path: string = path.join(runner_dir, filename);
-  fs.writeFileSync(script_path, script, {mode: 0o755});
-  return script_path;
-}
-
-/**
- * Function to break extension csv into an array
- *
- * @param extension_csv
- */
-export async function extensionArray(
-  extension_csv: string
-): Promise<Array<string>> {
-  switch (extension_csv) {
-    case '':
-    case ' ':
-      return [];
-    default:
-      return extension_csv.split(',').map(function(extension: string) {
-        return extension
-          .trim()
-          .replace('php-', '')
-          .replace('php_', '');
-      });
-  }
-}
-
-/**
- * Function to break ini values csv into an array
- *
- * @param ini_values_csv
- * @constructor
- */
-export async function INIArray(ini_values_csv: string): Promise<Array<string>> {
-  switch (ini_values_csv) {
-    case '':
-    case ' ':
-      return [];
-    default:
-      return ini_values_csv.split(',').map(function(ini_value: string) {
-        return ini_value.trim();
-      });
   }
 }
 
@@ -188,34 +144,99 @@ export async function addLog(
 }
 
 /**
- * Log to console
+ * Read the scripts
  *
- * @param message
+ * @param filename
+ * @param version
  * @param os_version
- * @param log_type
- * @param prefix
  */
-export async function log(
-  message: string,
-  os_version: string,
-  log_type: string
+export async function readScript(
+  filename: string,
+  version: string,
+  os_version: string
 ): Promise<string> {
-  const color: any = {
-    error: '31',
-    success: '32',
-    warning: '33'
-  };
-
   switch (os_version) {
-    case 'win32':
-      return (
-        'printf "\\033[' + color[log_type] + ';1m' + message + ' \\033[0m"'
-      );
-
-    case 'linux':
     case 'darwin':
+      switch (version) {
+        case '7.4':
+          return fs.readFileSync(
+            path.join(__dirname, '../src/scripts/7.4.sh'),
+            'utf8'
+          );
+      }
+      return fs.readFileSync(
+        path.join(__dirname, '../src/scripts/' + filename),
+        'utf8'
+      );
+    case 'linux':
+    case 'win32':
+      return fs.readFileSync(
+        path.join(__dirname, '../src/scripts/' + filename),
+        'utf8'
+      );
     default:
-      return 'echo "\\033[' + color[log_type] + ';1m' + message + '\\033[0m"';
+      return await log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
+  }
+}
+
+/**
+ * Write final script which runs
+ *
+ * @param filename
+ * @param version
+ * @param script
+ */
+export async function writeScript(
+  filename: string,
+  script: string
+): Promise<string> {
+  const runner_dir: string = await getInput('RUNNER_TOOL_CACHE', false);
+  const script_path: string = path.join(runner_dir, filename);
+  fs.writeFileSync(script_path, script, {mode: 0o755});
+  return script_path;
+}
+
+/**
+ * Function to break extension csv into an array
+ *
+ * @param extension_csv
+ */
+export async function extensionArray(
+  extension_csv: string
+): Promise<Array<string>> {
+  switch (extension_csv) {
+    case '':
+    case ' ':
+      return [];
+    default:
+      return extension_csv.split(',').map(function(extension: string) {
+        return extension
+          .trim()
+          .replace('php-', '')
+          .replace('php_', '');
+      });
+  }
+}
+
+/**
+ * Function to break ini values csv into an array
+ *
+ * @param ini_values_csv
+ * @constructor
+ */
+export async function INIArray(ini_values_csv: string): Promise<Array<string>> {
+  switch (ini_values_csv) {
+    case '':
+    case ' ':
+      return [];
+    default:
+      return ini_values_csv.split(',').map(function(ini_value: string) {
+        return ini_value.trim();
+      });
   }
 }
 
@@ -225,7 +246,7 @@ export async function log(
  * @param extension
  */
 export async function getExtensionPrefix(extension: string): Promise<string> {
-  let zend: Array<string> = ['xdebug', 'opcache', 'ioncube', 'eaccelerator'];
+  const zend: Array<string> = ['xdebug', 'opcache', 'ioncube', 'eaccelerator'];
   switch (zend.indexOf(extension)) {
     case 0:
     case 1:

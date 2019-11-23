@@ -3,39 +3,15 @@ import * as extensions from './extensions';
 import * as config from './config';
 
 /**
- * Function to set coverage driver
- *
- * @param coverage_driver
- * @param version
- * @param os_version
- */
-export async function addCoverage(
-  coverage_driver: string,
-  version: string,
-  os_version: string
-): Promise<string> {
-  coverage_driver.toLowerCase();
-  let script: string =
-    '\n' + (await utils.stepLog('Setup Coverage', os_version));
-  switch (coverage_driver) {
-    case 'pcov':
-      return script + (await addCoveragePCOV(version, os_version));
-    case 'xdebug':
-      return script + (await addCoverageXdebug(version, os_version));
-    case 'none':
-      return script + (await disableCoverage(version, os_version));
-    default:
-      return '';
-  }
-}
-
-/**
  * Function to setup Xdebug
  *
  * @param version
  * @param os_version
  */
-export async function addCoverageXdebug(version: string, os_version: string) {
+export async function addCoverageXdebug(
+  version: string,
+  os_version: string
+): Promise<string> {
   return (
     (await extensions.addExtension('xdebug', version, os_version, true)) +
     (await utils.suppressOutput(os_version)) +
@@ -55,8 +31,11 @@ export async function addCoverageXdebug(version: string, os_version: string) {
  * @param version
  * @param os_version
  */
-export async function addCoveragePCOV(version: string, os_version: string) {
-  let script: string = '\n';
+export async function addCoveragePCOV(
+  version: string,
+  os_version: string
+): Promise<string> {
+  let script = '\n';
   switch (version) {
     default:
       script +=
@@ -115,8 +94,11 @@ export async function addCoveragePCOV(version: string, os_version: string) {
  * @param version
  * @param os_version
  */
-export async function disableCoverage(version: string, os_version: string) {
-  let script: string = '\n';
+export async function disableCoverage(
+  version: string,
+  os_version: string
+): Promise<string> {
+  let script = '\n';
   switch (os_version) {
     case 'linux':
       script +=
@@ -153,4 +135,31 @@ export async function disableCoverage(version: string, os_version: string) {
   );
 
   return script;
+}
+
+/**
+ * Function to set coverage driver
+ *
+ * @param coverage_driver
+ * @param version
+ * @param os_version
+ */
+export async function addCoverage(
+  coverage_driver: string,
+  version: string,
+  os_version: string
+): Promise<string> {
+  coverage_driver.toLowerCase();
+  const script: string =
+    '\n' + (await utils.stepLog('Setup Coverage', os_version));
+  switch (coverage_driver) {
+    case 'pcov':
+      return script + (await addCoveragePCOV(version, os_version));
+    case 'xdebug':
+      return script + (await addCoverageXdebug(version, os_version));
+    case 'none':
+      return script + (await disableCoverage(version, os_version));
+    default:
+      return '';
+  }
 }

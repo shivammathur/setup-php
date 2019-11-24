@@ -4,6 +4,7 @@ import * as config from './config';
 import * as coverage from './coverage';
 import * as extensions from './extensions';
 import * as utils from './utils';
+import {addMatchers} from './matchers';
 
 /**
  * Build the script
@@ -63,6 +64,8 @@ export async function run(): Promise<void> {
         );
         break;
     }
+
+    addMatchers();
   } catch (error) {
     core.setFailed(error.message);
   }

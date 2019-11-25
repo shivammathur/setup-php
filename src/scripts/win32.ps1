@@ -59,7 +59,7 @@ Add-Log $tick "PHP" $status
 Install-Composer -Scope System -Path $php_dir -PhpPath $php_dir
 Add-Log $tick "Composer" "Installed"
 
-Function Add-Extension($extension) {
+Function Add-Extension($extension, $mininum_stability) {
   try {
     $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
     if ($null -ne $extension_info) {
@@ -77,7 +77,7 @@ Function Add-Extension($extension) {
       }
     }
     else {
-      Install-PhpExtension -Extension $extension -Path $php_dir
+      Install-PhpExtension -Extension $extension -MinimumStability $mininum_stability -Path $php_dir
       Add-Log $tick $extension "Downloaded and enabled"
     }
   }

@@ -50,7 +50,14 @@ export async function addExtensionWindows(
   let script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     // add script to enable extension is already installed along with php
-    script += '\nAdd-Extension ' + extension;
+    let minimum_stability = 'stable';
+    switch (version + extension.toLowerCase()) {
+      case '7.4xdebug':
+        minimum_stability = 'beta';
+        break;
+    }
+    script += `
+Add-Extension ${extension} ${minimum_stability}`;
   });
   return script;
 }

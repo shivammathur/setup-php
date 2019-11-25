@@ -10,7 +10,7 @@ describe('Extension tests', () => {
     expect(win32).toContain('Add-Extension xdebug');
     expect(win32).toContain('Add-Extension pcov');
     win32 = await extensions.addExtension('xdebug, pcov', '7.4', 'win32');
-    expect(win32).toContain('Add-Extension pcov');
+    expect(win32).toContain('Add-Extension xdebug beta');
 
     win32 = await extensions.addExtension(
       'does_not_exist',

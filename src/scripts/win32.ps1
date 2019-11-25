@@ -91,7 +91,7 @@ Function Add-Extension {
     }
     else {
       Install-PhpExtension -Extension $extension -MinimumStability $mininum_stability -Path $php_dir
-      Add-Log $tick $extension "Downloaded and enabled"
+      Add-Log $tick $extension "Installed and enabled"
     }
   }
   catch {

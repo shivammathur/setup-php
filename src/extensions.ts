@@ -49,33 +49,8 @@ export async function addExtensionWindows(
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
-    extension = extension.toLowerCase();
     // add script to enable extension is already installed along with php
-
-    let install_command = '';
-    switch (version + extension) {
-      case '7.4xdebug': {
-        const extension_url =
-          'https://xdebug.org/files/php_xdebug-2.8.0-7.4-vc15.dll';
-        install_command =
-          'Invoke-WebRequest -Uri ' +
-          extension_url +
-          ' -OutFile C:\\tools\\php\\ext\\php_xdebug.dll\n';
-        install_command += 'Enable-PhpExtension xdebug';
-        break;
-      }
-      case '7.2xdebug':
-      default:
-        install_command = 'Install-PhpExtension ' + extension;
-        break;
-    }
-    script +=
-      '\nAdd-Extension ' +
-      extension +
-      ' "' +
-      install_command +
-      '" ' +
-      (await utils.getExtensionPrefix(extension));
+    script += '\nAdd-Extension ' + extension;
   });
   return script;
 }

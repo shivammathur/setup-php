@@ -48,7 +48,8 @@ Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
 Enable-PhpExtension -Extension openssl, curl -Path $php_dir
 try {
   Update-PhpCAInfo -Path $php_dir -Source CurrentUser
-} catch {
+}
+catch {
   Update-PhpCAInfo -Path $php_dir -Source Curl
 }
 if ([Version]$installed.Version -ge '7.4') {
@@ -59,7 +60,19 @@ Add-Log $tick "PHP" $status
 Install-Composer -Scope System -Path $php_dir -PhpPath $php_dir
 Add-Log $tick "Composer" "Installed"
 
-Function Add-Extension($extension, $mininum_stability) {
+Function Add-Extension {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $extension,
+    [Parameter(Position = 1, Mandatory = $false)]
+    [ValidateNotNull()]
+    [ValidateSet('stable', 'beta', 'alpha', 'devel', 'snapshot')]
+    [string]
+    $mininum_stability = 'stable'
+  )
   try {
     $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
     if ($null -ne $extension_info) {

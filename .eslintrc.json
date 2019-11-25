@@ -17,6 +17,7 @@
     "camelcase": "off",
     "require-atomic-updates": "off",
     "@typescript-eslint/ban-ts-ignore": "off",
-    "@typescript-eslint/camelcase": "off"
+    "@typescript-eslint/camelcase": "off",
+    "@typescript-eslint/no-unused-vars": "off"
   }
 }

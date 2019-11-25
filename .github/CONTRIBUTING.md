@@ -17,10 +17,11 @@ Due to time constraints, you may not always get a quick response. Please do not 
 
 ## Coding Guidelines
 
-This project comes with a `.prettierrc.json` configuration file. Please run the following command to format the code before committing it.
+This project comes with `.prettierrc.json` and `eslintrc.json` configuration files. Please run the following commands to format the code before committing it.
 
 ```bash
 $ npm run format
+$ npm run lint
 ```
 
 ## Using setup-php from a Git checkout
@@ -45,6 +46,14 @@ After following the steps shown above, The `setup-php` tests in the `__tests__` 
 
 ```bash
 $ npm test
+```
+
+## Creating a release
+
+Create a release before you push your changes.
+
+```bash
+$ npm run release
 ```
 
 ## Reporting issues

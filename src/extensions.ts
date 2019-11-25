@@ -56,8 +56,7 @@ export async function addExtensionWindows(
         minimum_stability = 'beta';
         break;
     }
-    script += `
-Add-Extension ${extension} ${minimum_stability}`;
+    script += '\nAdd-Extension ' + extension + ' ' + minimum_stability;
   });
   return script;
 }

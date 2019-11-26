@@ -1,6 +1,4 @@
-import * as config from '../src/config';
 import * as coverage from '../src/coverage';
-import * as extensions from '../src/coverage';
 
 jest.mock('../src/extensions', () => ({
   addExtension: jest.fn().mockImplementation(extension => {
@@ -24,40 +22,44 @@ describe('Config tests', () => {
   });
 
   it('checking addCoverage with PCOV on linux', async () => {
-    let linux: string = await coverage.addCoverage('pcov', '7.4', 'linux');
+    const linux: string = await coverage.addCoverage('pcov', '7.4', 'linux');
     expect(linux).toContain('addExtension pcov');
     expect(linux).toContain('sudo sed -i "/xdebug/d" $ini_file');
     expect(linux).toContain('sudo phpdismod -v 7.4 xdebug');
   });
 
   it('checking addCoverage with PCOV on darwin', async () => {
-    let darwin: string = await coverage.addCoverage('pcov', '7.4', 'darwin');
+    const darwin: string = await coverage.addCoverage('pcov', '7.4', 'darwin');
     expect(darwin).toContain('addExtension pcov');
   });
 
   it('checking addCoverage with Xdebug on windows', async () => {
-    let win32: string = await coverage.addCoverage('xdebug', '7.3', 'win32');
+    const win32: string = await coverage.addCoverage('xdebug', '7.3', 'win32');
     expect(win32).toContain('addExtension xdebug');
   });
 
   it('checking addCoverage with Xdebug on linux', async () => {
-    let linux: string = await coverage.addCoverage('xdebug', '7.4', 'linux');
+    const linux: string = await coverage.addCoverage('xdebug', '7.4', 'linux');
     expect(linux).toContain('addExtension xdebug');
   });
 
   it('checking addCoverage with Xdebug on darwin', async () => {
-    let darwin: string = await coverage.addCoverage('xdebug', '7.4', 'darwin');
+    const darwin: string = await coverage.addCoverage(
+      'xdebug',
+      '7.4',
+      'darwin'
+    );
     expect(darwin).toContain('addExtension xdebug');
   });
 
   it('checking disableCoverage windows', async () => {
-    let win32 = await coverage.addCoverage('none', '7.4', 'win32');
+    const win32 = await coverage.addCoverage('none', '7.4', 'win32');
     expect(win32).toContain('Disable-PhpExtension xdebug');
     expect(win32).toContain('Disable-PhpExtension pcov');
   });
 
   it('checking disableCoverage on linux', async () => {
-    let linux: string = await coverage.addCoverage('none', '7.4', 'linux');
+    const linux: string = await coverage.addCoverage('none', '7.4', 'linux');
     expect(linux).toContain('sudo phpdismod -v 7.4 xdebug');
     expect(linux).toContain('sudo phpdismod -v 7.4 pcov');
     expect(linux).toContain('sudo sed -i "/xdebug/d" $ini_file');
@@ -65,7 +67,7 @@ describe('Config tests', () => {
   });
 
   it('checking disableCoverage on darwin', async () => {
-    let darwin: string = await coverage.addCoverage('none', '7.4', 'darwin');
+    const darwin: string = await coverage.addCoverage('none', '7.4', 'darwin');
     expect(darwin).toContain('sudo sed -i \'\' "/xdebug/d" $ini_file');
     expect(darwin).toContain('sudo sed -i \'\' "/pcov/d" $ini_file');
   });

@@ -7,17 +7,10 @@ describe('Extension tests', () => {
       '7.2',
       'win32'
     );
-    expect(win32).toContain('Install-PhpExtension xdebug');
-    expect(win32).toContain('Install-PhpExtension pcov');
+    expect(win32).toContain('Add-Extension xdebug');
+    expect(win32).toContain('Add-Extension pcov');
     win32 = await extensions.addExtension('xdebug, pcov', '7.4', 'win32');
-    const extension_url: string =
-      'https://xdebug.org/files/php_xdebug-2.8.0-7.4-vc15.dll';
-    expect(win32).toContain(
-      'Invoke-WebRequest -Uri ' +
-        extension_url +
-        ' -OutFile C:\\tools\\php\\ext\\php_xdebug.dll'
-    );
-    expect(win32).toContain('Install-PhpExtension pcov');
+    expect(win32).toContain('Add-Extension xdebug');
 
     win32 = await extensions.addExtension(
       'does_not_exist',
@@ -25,9 +18,7 @@ describe('Extension tests', () => {
       'win32',
       true
     );
-    expect(win32).toContain(
-      'Add-Extension does_not_exist "Install-PhpExtension does_not_exist" extension'
-    );
+    expect(win32).toContain('Add-Extension does_not_exist');
 
     win32 = await extensions.addExtension('xdebug', '7.2', 'fedora');
     expect(win32).toContain('Platform fedora is not supported');

@@ -22,8 +22,10 @@ This PR [briefly explain what it does]
 
 > In case this PR introduced TypeScript/JavaScript code changes:
 
-- [ ] I have written test cases for the changes in this pull request
+- [ ] I have written test cases for the changes in this pull request.
 - [ ] I have run `npm run format` before the commit.
+- [ ] I have run `npm run lint` before the commit.
+- [ ] I have run `npm run release` before the commit.
 - [ ] `npm test` returns with no unit test errors.
 
 <!--

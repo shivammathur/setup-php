@@ -26,29 +26,53 @@ describe('Utils tests', () => {
     expect(await utils.getInput('DoesNotExist', false)).toBe('');
   });
 
+  it('checking getVersion', async () => {
+    process.env['php-version'] = '7.3';
+    expect(await utils.getVersion()).toBe('7.3');
+    process.env['php-version'] = '7.4';
+    expect(await utils.getVersion()).toBe('7.4');
+    process.env['php-version'] = '8.0';
+    expect(await utils.getVersion()).toBe('7.4');
+    process.env['php-version'] = '8.0-dev';
+    expect(await utils.getVersion()).toBe('7.4');
+    process.env['php-version'] = '7.4nightly';
+    expect(await utils.getVersion()).toBe('7.4');
+    process.env['php-version'] = '7.4snapshot';
+    expect(await utils.getVersion()).toBe('7.4');
+    process.env['php-version'] = 'nightly';
+    expect(await utils.getVersion()).toBe('7.4');
+  });
+
   it('checking asyncForEach', async () => {
-    let array: Array<number> = [1, 2, 3, 4];
-    let sum: number = 0;
-    await utils.asyncForEach(array, function(num: number): void {
-      sum += num;
+    const array: Array<string> = ['a', 'b', 'c'];
+    let concat = '';
+    await utils.asyncForEach(array, async function(str: string): Promise<void> {
+      concat += str;
     });
-    expect(sum).toBe(10);
+    expect(concat).toBe('abc');
+  });
+
+  it('checking asyncForEach', async () => {
+    expect(await utils.color('error')).toBe('31');
+    expect(await utils.color('success')).toBe('32');
+    expect(await utils.color('any')).toBe('32');
+    expect(await utils.color('warning')).toBe('33');
   });
 
   it('checking readScripts', async () => {
-    let rc: string = fs.readFileSync(
+    const rc: string = fs.readFileSync(
       path.join(__dirname, '../src/scripts/7.4.sh'),
       'utf8'
     );
-    let darwin: string = fs.readFileSync(
+    const darwin: string = fs.readFileSync(
       path.join(__dirname, '../src/scripts/darwin.sh'),
       'utf8'
     );
-    let linux: string = fs.readFileSync(
+    const linux: string = fs.readFileSync(
       path.join(__dirname, '../src/scripts/linux.sh'),
       'utf8'
     );
-    let win32: string = fs.readFileSync(
+    const win32: string = fs.readFileSync(
       path.join(__dirname, '../src/scripts/win32.ps1'),
       'utf8'
     );
@@ -64,11 +88,11 @@ describe('Utils tests', () => {
   });
 
   it('checking writeScripts', async () => {
-    let testString: string = 'sudo apt-get install php';
-    let runner_dir: string = process.env['RUNNER_TOOL_CACHE'] || '';
-    let script_path: string = path.join(runner_dir, 'test.sh');
+    const testString = 'sudo apt-get install php';
+    const runner_dir: string = process.env['RUNNER_TOOL_CACHE'] || '';
+    const script_path: string = path.join(runner_dir, 'test.sh');
     await utils.writeScript('test.sh', testString);
-    await fs.readFile(script_path, function(error: any, data: Buffer) {
+    await fs.readFile(script_path, function(error: Error | null, data: Buffer) {
       expect(testString).toBe(data.toString());
     });
     await cleanup(script_path);
@@ -97,7 +121,7 @@ describe('Utils tests', () => {
   });
 
   it('checking log', async () => {
-    let message: string = 'Test message';
+    const message = 'Test message';
 
     let warning_log: string = await utils.log(message, 'win32', 'warning');
     expect(warning_log).toEqual('printf "\\033[33;1m' + message + ' \\033[0m"');

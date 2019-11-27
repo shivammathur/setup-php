@@ -242,7 +242,7 @@ If this action helped you.
 - Please star the project and share it, this helps reach more people.
 - If you blog, write about your experience using this.
 - Support this project on <a href="https://www.patreon.com/shivammathur"><img alt="Patreon" src="https://shivammathur.com/badges/patreon.svg"></a> or using <a href="https://www.paypal.me/shivammathur"><img alt="Paypal" src="https://shivammathur.com/badges/paypal.svg"></a>.
-- If you need using this GitHub Action for your project, you can contact me here <a href="https://www.codementor.io/shivammathur?utm_source=github&utm_medium=button&utm_term=shivammathur&utm_campaign=github" title="Contact Shivam Mathur on Codementor"><img alt="Contact me on Codementor" src="https://cdn.codementor.io/badges/contact_me_github.svg"></a>
+- If you need any help using this, reach out here <a href="https://www.codementor.io/shivammathur?utm_source=github&utm_medium=button&utm_term=shivammathur&utm_campaign=github" title="Contact Shivam Mathur on Codementor"><img alt="Contact me on Codementor" src="https://cdn.codementor.io/badges/contact_me_github.svg"></a>
 
 ## :bookmark: This action uses the following works
 

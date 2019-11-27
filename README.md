@@ -70,7 +70,7 @@ Specify `coverage: xdebug` to use `Xdebug`.
 Runs on all [PHP versions supported](#tada-php-support "List of PHP versions supported on this GitHub Action")    
 
 ```yaml
-uses: shivammathur/setup-php@master
+uses: shivammathur/setup-php@v1
 with:
   php-version: '7.3'  
   coverage: xdebug
@@ -85,7 +85,7 @@ If your source code directory is other than `src`, `lib` or, `app`, specify `pco
 
 
 ```yaml
-uses: shivammathur/setup-php@master
+uses: shivammathur/setup-php@v1
 with:
   php-version: '7.3'
   ini-values-csv: pcov.directory=api #optional, see above for usage.
@@ -102,7 +102,7 @@ Consider disabling the coverage using this PHP action for these reasons.
 - You are using `phpdbg` for running your tests.
 
 ```yaml
-uses: shivammathur/setup-php@master
+uses: shivammathur/setup-php@v1
 with:
   php-version: '7.3'
   coverage: none
@@ -125,10 +125,10 @@ See [action.yml](action.yml "Metadata for this GitHub Action") and usage below f
 ```yaml
 steps:
 - name: Checkout
-  uses: actions/checkout@master
+  uses: actions/checkout@v1
 
 - name: Setup PHP
-  uses: shivammathur/setup-php@master
+  uses: shivammathur/setup-php@v1
   with:
     php-version: '7.3'
     extension-csv: mbstring, intl #optional, setup extensions
@@ -159,10 +159,10 @@ jobs:
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
     steps:
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@v1
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@master
+      uses: shivammathur/setup-php@v1
       with:
         php-version: ${{ matrix.php-versions }}
         extension-csv: mbstring, intl #optional, setup extensions

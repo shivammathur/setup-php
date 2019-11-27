@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Setup PHP, with composer and extensions
-        uses: shivammathur/setup-php@master #https://github.com/shivammathur/setup-php
+        uses: shivammathur/setup-php@v1 #https://github.com/shivammathur/setup-php
         with:
           php-version: ${{ matrix.php-versions }}
           extension-csv: mbstring, dom, fileinfo, mysql

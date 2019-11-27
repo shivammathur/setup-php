@@ -27,12 +27,12 @@ jobs:
         php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3']
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v1
         with:
           fetch-depth: 1
 
       - name: Setup Node.js 12.x
-        uses: actions/setup-node@master
+        uses: actions/setup-node@v1
         with:
           node-version: 12.x
 

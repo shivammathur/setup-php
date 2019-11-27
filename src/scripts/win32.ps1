@@ -53,6 +53,7 @@ catch {
   try {
     Update-PhpCAInfo -Path $php_dir -Source Curl
   } catch {
+    Update-PhpCAInfo -Path $php_dir -Source Curl -SkipChecksumCheck
   }
 }
 if ([Version]$installed.Version -ge '7.4') {

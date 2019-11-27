@@ -10,9 +10,7 @@
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
   <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://codecov.io/gh/shivammathur/setup-php/branch/master/graph/badge.svg"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg"></a>
-  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a> 
-  <a href="https://www.patreon.com/shivammathur" title="Support Shivam Mathur on Patreon"><img alt="Support me on Patreon" src="https://shivammathur.com/badges/patreon.svg"></a>   <a href="https://www.paypal.me/shivammathur"><img alt="Support me on PayPal" src="https://shivammathur.com/badges/paypal.svg"></a>
-  <a href="https://www.codementor.io/shivammathur?utm_source=github&utm_medium=button&utm_term=shivammathur&utm_campaign=github" title="Contact Shivam Mathur on Codementor"><img alt="Contact me on Codementor" src="https://cdn.codementor.io/badges/contact_me_github.svg"></a>  
+  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a>  
 </p>
 
 Setup PHP with required extensions, php.ini configuration and composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
@@ -219,9 +217,12 @@ Examples for setting up this GitHub Action with different PHP Frameworks/Package
 |Lumen without services|`macOS`, `ubuntu` and `windows`|[lumen.yml](./examples/lumen.yml "GitHub Action for Lumen without services")|
 |Phalcon with `MySQL`|`ubuntu`|[phalcon-mysql.yml](./examples/phalcon-mysql.yml "GitHub Action for Phalcon with MySQL")|
 |Phalcon with `PostgreSQL`|`ubuntu`|[phalcon-postgres.yml](./examples/phalcon-postgres.yml "GitHub Action for Phalcon with PostgreSQL")|
+|Roots/bedrock|`ubuntu`|[bedrock.yml](./examples/bedrock.yml "GitHub Action for Wordpress Development using @roots/bedrock")|
+|Roots/sage|`ubuntu`|[sage.yml](./examples/sage.yml "GitHub Action for Wordpress Development using @roots/sage")|
 |Slim Framework|`macOS`, `ubuntu` and `windows`|[slim-framework.yml](./examples/slim-framework.yml "GitHub Action for Slim Framework")|
 |Symfony with `MySQL`|`ubuntu`|[symfony-mysql.yml](./examples/symfony-mysql.yml "GitHub Action for Symfony with MySQL")|
 |Symfony with `PostgreSQL`|`ubuntu`|[symfony-postgres.yml](./examples/symfony-postgres.yml "GitHub Action for Symfony with PostgreSQL")|
+|Symfony without services|`macOS`, `ubuntu` and `windows`|[symfony.yml](./examples/symfony.yml "GitHub Action for Symfony without services")|
 |Yii2 Starter Kit with `MySQL`|`ubuntu`|[yii2-mysql.yml](./examples/yii2-mysql.yml "GitHub Action for Yii2 Starter Kit with MySQL")|
 |Yii2 Starter Kit with `PostgreSQL`|`ubuntu`|[yii2-postgres.yml](./examples/yii2-postgres.yml "GitHub Action for Yii2 Starter Kit with PostgreSQL")|
 |Zend Framework|`macOS`, `ubuntu` and `windows`|[zend-framework.yml](./examples/zend-framework.yml "GitHub Action for Zend Framework")|
@@ -240,7 +241,8 @@ If this action helped you.
 
 - Please star the project and share it, this helps reach more people.
 - If you blog, write about your experience using this.
-- Support on this project on <a href="https://www.patreon.com/shivammathur"><img alt="Patreon" src="https://shivammathur.com/badges/patreon.svg"></a> or using <a href="https://www.paypal.me/shivammathur"><img alt="Paypal" src="https://shivammathur.com/badges/paypal.svg"></a>.
+- Support this project on <a href="https://www.patreon.com/shivammathur"><img alt="Patreon" src="https://shivammathur.com/badges/patreon.svg"></a> or using <a href="https://www.paypal.me/shivammathur"><img alt="Paypal" src="https://shivammathur.com/badges/paypal.svg"></a>.
+- If you need any help using this, reach out here <a href="https://www.codementor.io/shivammathur?utm_source=github&utm_medium=button&utm_term=shivammathur&utm_campaign=github" title="Contact Shivam Mathur on Codementor"><img alt="Contact me on Codementor" src="https://cdn.codementor.io/badges/contact_me_github.svg"></a>
 
 ## :bookmark: This action uses the following works
 

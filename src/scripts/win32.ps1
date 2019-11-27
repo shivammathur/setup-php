@@ -50,7 +50,10 @@ try {
   Update-PhpCAInfo -Path $php_dir -Source CurrentUser
 }
 catch {
-  Update-PhpCAInfo -Path $php_dir -Source Curl
+  try {
+    Update-PhpCAInfo -Path $php_dir -Source Curl
+  } catch {
+  }
 }
 if ([Version]$installed.Version -ge '7.4') {
   Copy-Item "$dir\..\src\ext\php_pcov.dll" -Destination "$($installed.ExtensionsPath)\php_pcov.dll"

@@ -1,32 +1,30 @@
-# GitHub Action for CodeIgniter
-name: Testing CodeIgniter
+# GitHub Action for roots/bedrock
+name: Testing Bedrock
 on: [push, pull_request]
 jobs:
-  build:
+  bedrock:
+    name: Bedrock (PHP ${{ matrix.php-versions }})
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        operating-system: [ubuntu-latest, windows-latest, macOS-latest]
-        php-versions: ['7.2', '7.3']
-    runs-on: ${{ matrix.operating-system }}
+        php-versions: ['7.1', '7.2', '7.3', '7.4']
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v1
       - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@master #https://github.com/shivammathur/setup-php
         with:
           php-version: ${{ matrix.php-versions }}
-          extension-csv: mbstring, intl, curl, dom
-          coverage: xdebug #optional
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Cache composer dependencies
-        uses: actions/cache@v1
+      - uses: actions/cache@v1
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
-      - name: Install dependencies
-        run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
-      - name: Test with phpunit
-        run: vendor/bin/phpunit --coverage-text
+      - name: Install Composer dependencies
+        run: composer install -n --prefer-dist
+      - name: PHP test
+        run: composer test

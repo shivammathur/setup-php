@@ -28,7 +28,6 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     strategy:
       fail-fast: false
-      max-parallel: 3
       matrix:
         php-versions: ['7.2', '7.3', '7.4']
     steps:
@@ -40,6 +39,15 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           extension-csv: mbstring, dom, zip, phalcon4, mysql #use phalcon3 for the phalcon 3.x.
           coverage: xdebug #optional
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Cache composer dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
       - name: Install Composer dependencies
         run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
       - name: Prepare the application

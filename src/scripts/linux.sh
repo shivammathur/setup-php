@@ -20,6 +20,8 @@ existing_version=$(php-config --version | cut -c 1-3)
 version=$1
 status="Switched to PHP$version"
 step_log "Setup PHP and Composer"
+sudo mkdir -p /var/run
+sudo mkdir -p /run/php
 find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
 if [ "$existing_version" != "$1" ]; then
 	if [ ! -e "/usr/bin/php$1" ]; then
@@ -41,7 +43,6 @@ fi
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
 sudo chmod 777 "$ini_file"
-sudo mkdir -p /run/php
 add_log "$tick" "PHP" "$status"
 if [ "$2" = "true" ]; then
   if [ "$1" != "7.4" ]; then

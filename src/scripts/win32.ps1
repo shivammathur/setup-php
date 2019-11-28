@@ -33,9 +33,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   if ($version -lt '7.0') {
     Install-Module -Name VcRedist -Force
   }
-  if ($version -eq '7.4') {
-    $version = '7.4RC'
-  }
+
   Install-Php -Version $version -Architecture x86 -ThreadSafe $true -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
   $installed = Get-Php -Path $php_dir
   $status = "Installed PHP $($installed.FullVersion)"

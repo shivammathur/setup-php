@@ -25,11 +25,7 @@ sudo mkdir -p /run/php
 find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
 if [ "$existing_version" != "$1" ]; then
 	if [ ! -e "/usr/bin/php$1" ]; then
-		if [ "$1" != "7.4" ]; then
-		  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1" curl php"$1"-curl >/dev/null 2>&1
-		else
-		  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1" php"$1"-dev php"$1"-xml curl php"$1"-curl >/dev/null 2>&1
-		fi
+    sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1" curl php"$1"-curl >/dev/null 2>&1
 		status="Installed PHP$version"
 	fi
 
@@ -45,9 +41,7 @@ ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
 sudo chmod 777 "$ini_file"
 add_log "$tick" "PHP" "$status"
 if [ "$2" = "true" ]; then
-  if [ "$1" != "7.4" ]; then
-    sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1"-dev php"$1"-xml >/dev/null 2>&1
-  fi
+  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1"-dev php"$1"-xml >/dev/null 2>&1
   sudo update-alternatives --set php-config /usr/bin/php-config"$1" >/dev/null 2>&1
   sudo update-alternatives --set phpize /usr/bin/phpize"$1" >/dev/null 2>&1
   wget https://github.com/pear/pearweb_phars/raw/master/install-pear-nozlib.phar >/dev/null 2>&1

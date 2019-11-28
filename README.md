@@ -44,7 +44,7 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 |7.1|`Stable`|`Security fixes only`|
 |7.2|`Stable`|`Active`|
 |7.3|`Stable`|`Active`|
-|7.4|`RC6`|`Active`|
+|7.4|`Stable`|`Active`|
 
 ## :cloud: OS/Platform Support
 

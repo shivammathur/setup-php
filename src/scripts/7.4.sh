@@ -16,7 +16,7 @@ add_log() {
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
   fi
 }
-version='7.4.0RC6'
+version='7.4.0'
 step_log "Setup dependencies"
 for package in pkg-config autoconf bison re2c openssl@1.1 krb5 enchant libffi freetype intltool icu4c libiconv t1lib gd libzip gmp tidyp libxml2 libxslt postgresql curl;
 do
@@ -78,13 +78,14 @@ source ~/.bash_profile >/dev/null 2>&1
 source ~/.bashrc >/dev/null 2>&1
 
 step_log "Setup PHP and Composer"
-phpbrew install -j 6 $version +dev >/dev/null 2>&1
+phpbrew install -j 6 github:php/php-src@PHP-$version as php-$version +dev >/dev/null 2>&1
 phpbrew switch $version
 sudo ln -sf /opt/phpbrew/php/php-$version/bin/* /usr/local/bin/
 sudo ln -sf /opt/phpbrew/php/php-$version/etc/php.ini /etc/php.ini
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /opt" | sed -e "s|.*=> s*||")
 pecl config-set php_ini "$ini_file" >/dev/null 2>&1
+pear config-set php_ini "$ini_file" >/dev/null 2>&1
 sudo chmod 777 "$ini_file"
 brew install composer >/dev/null 2>&1
 

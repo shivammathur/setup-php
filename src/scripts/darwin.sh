@@ -17,12 +17,15 @@ add_log() {
   fi
 }
 
+step_log "Setup PHP and Composer"
 version=$1
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
 if [ "$1" = "5.6" ] || [ "$1" = "7.0" ]; then
   brew tap exolnet/homebrew-deprecated >/dev/null 2>&1
 fi
-step_log "Setup PHP and Composer"
+if [ "$1" = "7.4" ]; then
+  brew update >/dev/null 2>&1
+fi
 brew install php@"$1" composer >/dev/null 2>&1
 brew link --force --overwrite php@"$1" >/dev/null 2>&1
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")

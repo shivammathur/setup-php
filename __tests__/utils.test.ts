@@ -60,10 +60,6 @@ describe('Utils tests', () => {
   });
 
   it('checking readScripts', async () => {
-    const rc: string = fs.readFileSync(
-      path.join(__dirname, '../src/scripts/7.4.sh'),
-      'utf8'
-    );
     const darwin: string = fs.readFileSync(
       path.join(__dirname, '../src/scripts/darwin.sh'),
       'utf8'
@@ -76,15 +72,12 @@ describe('Utils tests', () => {
       path.join(__dirname, '../src/scripts/win32.ps1'),
       'utf8'
     );
-    expect(await utils.readScript('darwin.sh', '7.4', 'darwin')).toBe(rc);
+    expect(await utils.readScript('darwin.sh', '7.4', 'darwin')).toBe(darwin);
     expect(await utils.readScript('darwin.sh', '7.3', 'darwin')).toBe(darwin);
     expect(await utils.readScript('linux.sh', '7.4', 'linux')).toBe(linux);
     expect(await utils.readScript('linux.sh', '7.3', 'linux')).toBe(linux);
     expect(await utils.readScript('win32.ps1', '7.4', 'win32')).toBe(win32);
     expect(await utils.readScript('win32.ps1', '7.3', 'win32')).toBe(win32);
-    expect(await utils.readScript('fedora.sh', '7.3', 'fedora')).toContain(
-      'Platform fedora is not supported'
-    );
   });
 
   it('checking writeScripts', async () => {

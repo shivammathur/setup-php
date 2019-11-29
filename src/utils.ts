@@ -173,32 +173,10 @@ export async function readScript(
   version: string,
   os_version: string
 ): Promise<string> {
-  switch (os_version) {
-    case 'darwin':
-      switch (version) {
-        case '7.4':
-          return fs.readFileSync(
-            path.join(__dirname, '../src/scripts/7.4.sh'),
-            'utf8'
-          );
-      }
-      return fs.readFileSync(
-        path.join(__dirname, '../src/scripts/' + filename),
-        'utf8'
-      );
-    case 'linux':
-    case 'win32':
-      return fs.readFileSync(
-        path.join(__dirname, '../src/scripts/' + filename),
-        'utf8'
-      );
-    default:
-      return await log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
-  }
+  return fs.readFileSync(
+    path.join(__dirname, '../src/scripts/' + filename),
+    'utf8'
+  );
 }
 
 /**

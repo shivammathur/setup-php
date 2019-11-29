@@ -44,16 +44,7 @@ else {
 
 Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
 Enable-PhpExtension -Extension openssl, curl -Path $php_dir
-try {
-  Update-PhpCAInfo -Path $php_dir -Source CurrentUser
-}
-catch {
-  try {
-    Update-PhpCAInfo -Path $php_dir -Source Curl
-  } catch {
-    Update-PhpCAInfo -Path $php_dir -Source Curl -SkipChecksumCheck
-  }
-}
+Update-PhpCAInfo -Path $php_dir -Source CurrentUser
 if ([Version]$installed.Version -ge '7.4') {
   Copy-Item "$dir\..\src\ext\php_pcov.dll" -Destination "$($installed.ExtensionsPath)\php_pcov.dll"
 }

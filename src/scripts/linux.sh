@@ -29,7 +29,7 @@ if [ "$existing_version" != "$1" ]; then
 		status="Installed PHP$version"
 	fi
 
-	for tool in php phar phar.phar php-cgi php-config phpize; do
+	for tool in php phar phar.phar php-cgi php-config phpize phpdbg; do
 		if [ -e "/usr/bin/$tool$1" ]; then
 			sudo update-alternatives --set $tool /usr/bin/"$tool$1" >/dev/null 2>&1
 		fi

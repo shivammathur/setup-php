@@ -72,7 +72,7 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
 ```yaml
 uses: shivammathur/setup-php@v1
 with:
-  php-version: '7.3'  
+  php-version: '7.4'  
   coverage: xdebug
 ```
 
@@ -87,7 +87,7 @@ If your source code directory is other than `src`, `lib` or, `app`, specify `pco
 ```yaml
 uses: shivammathur/setup-php@v1
 with:
-  php-version: '7.3'
+  php-version: '7.4'
   ini-values-csv: pcov.directory=api #optional, see above for usage.
   coverage: pcov
 ```
@@ -104,7 +104,7 @@ Consider disabling the coverage using this PHP action for these reasons.
 ```yaml
 uses: shivammathur/setup-php@v1
 with:
-  php-version: '7.3'
+  php-version: '7.4'
   coverage: none
 ```
 
@@ -130,7 +130,7 @@ steps:
 - name: Setup PHP
   uses: shivammathur/setup-php@v1
   with:
-    php-version: '7.3'
+    php-version: '7.4'
     extension-csv: mbstring, intl #optional, setup extensions
     ini-values-csv: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
     coverage: xdebug #optional, setup coverage driver
@@ -155,7 +155,7 @@ jobs:
     strategy:      
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macOS-latest]
-        php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3']
+        php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4']
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
     steps:
     - name: Checkout
@@ -250,7 +250,6 @@ If this action helped you.
 - [Homebrew](https://brew.sh/ "MacOS package manager")
 - [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Pre-compiled ubuntu packages")
 - [exolnet/homebrew-deprecated](https://github.com/eXolnet/homebrew-deprecated "Pre-compiled deprecated PHP for macOS")
-- [phpbrew](https://github.com/phpbrew/phpbrew "PHP packages manager")
 
 ## :bookmark_tabs: Further Reading
 

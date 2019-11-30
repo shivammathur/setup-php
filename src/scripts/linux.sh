@@ -18,7 +18,6 @@ add_log() {
 }
 existing_version=$(php-config --version | cut -c 1-3)
 version=$1
-status="Switched to PHP$version"
 step_log "Setup PHP and Composer"
 sudo mkdir -p /var/run
 sudo mkdir -p /run/php
@@ -30,7 +29,9 @@ if [ "$existing_version" != "$1" ]; then
 		else
 		  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1" php"$1"-phpdbg php"$1"-xml curl php"$1"-curl >/dev/null 2>&1
 		fi
-		status="Installed PHP$version"
+		status="installed"
+	else
+	  status="switched"
 	fi
 
 	for tool in php phar phar.phar php-cgi php-config phpize phpdbg; do
@@ -38,6 +39,13 @@ if [ "$existing_version" != "$1" ]; then
 			sudo update-alternatives --set $tool /usr/bin/"$tool$1" >/dev/null 2>&1
 		fi
 	done
+	if [ "$status" != "switched" ]; then
+	  status="Installed PHP $(php -v | head -n 1 | cut -c 5-10)"
+	else
+	  status="Switched to PHP $(php -v | head -n 1 | cut -c 5-10)"
+	fi
+else
+  status="PHP $(php -v | head -n 1 | cut -c 5-10) Found"
 fi
 
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")

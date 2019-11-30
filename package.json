@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint **/*.ts --cache",
-    "format": "prettier --write **/*.ts",
+    "format": "prettier --write **/*.ts && git add .",
     "format-check": "prettier --check **/*.ts",
     "release": "ncc build src/install.ts -o dist && git add -f dist/",
     "test": "jest"

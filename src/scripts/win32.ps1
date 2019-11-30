@@ -39,7 +39,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   $status = "Installed PHP $($installed.FullVersion)"
 }
 else {
-  $status = "Switched to PHP $($installed.FullVersion)"
+  $status = "PHP $($installed.FullVersion) Found"
 }
 
 Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir

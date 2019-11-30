@@ -34,7 +34,7 @@ ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
 sudo chmod 777 "$ini_file"
 mkdir -p "$(pecl config-get ext_dir)"
 composer global require hirak/prestissimo >/dev/null 2>&1
-add_log "$tick" "PHP" "Installed PHP$version"
+add_log "$tick" "PHP" "Installed PHP $(php -v | head -n 1 | cut -c 5-10)"
 add_log "$tick" "Composer" "Installed"
 
 add_extension() {

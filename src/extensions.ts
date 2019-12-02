@@ -21,6 +21,9 @@ export async function addExtensionDarwin(
       case '5.6xdebug':
         install_command = 'sudo pecl install xdebug-2.5.5 >/dev/null 2>&1';
         break;
+      case '5.6redis':
+        install_command = 'sudo pecl install redis-2.2.8 >/dev/null 2>&1';
+        break;
       default:
         install_command = 'sudo pecl install ' + extension + ' >/dev/null 2>&1';
         break;
@@ -50,7 +53,14 @@ export async function addExtensionWindows(
   let script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     // add script to enable extension is already installed along with php
-    script += '\nAdd-Extension ' + extension;
+    switch (version + extension) {
+      case '7.4redis':
+        script += '\nAdd-Extension ' + extension + ' beta';
+        break;
+      default:
+        script += '\nAdd-Extension ' + extension;
+        break;
+    }
   });
   return script;
 }
@@ -73,6 +83,10 @@ export async function addExtensionLinux(
 
     let install_command = '';
     switch (version + extension) {
+      case '7.4redis':
+        install_command =
+          'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-igbinary php7.4-redis >/dev/null 2>&1';
+        break;
       case '7.2phalcon3':
       case '7.3phalcon3':
         install_command =

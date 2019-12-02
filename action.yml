@@ -5,19 +5,20 @@ branding:
   color: 'purple'
 inputs:
   php-version:
-    description: 'PHP version you want to install.'
+    description: 'Setup PHP version.'
+    default: '7.4'
     required: true
   extension-csv:
-    description: '(Optional) PHP extensions you want to install.'
+    description: 'Setup PHP extensions.'
     required: false
   ini-values-csv: 
-    description: '(Optional) Custom values you want to set in php.ini.'
+    description: 'Add values to php.ini.'
     required: false
   coverage: 
-    description: '(Optional) Code coverage driver you want to install. (Accepts: xdebug, pcov and none)'
+    description: 'Setup code coverage driver.'
     required: false
   pecl:
-    description: '(Optional) Setup PECL on ubuntu'
+    description: 'Setup PECL on ubuntu'
     required: false
 runs:
   using: 'node12'

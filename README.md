@@ -42,7 +42,7 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 |5.6|`Stable`|`End of life`|
 |7.0|`Stable`|`End of life`|
 |7.1|`Stable`|`End of life`|
-|7.2|`Stable`|`Security fixes only	`|
+|7.2|`Stable`|`Security fixes only`|
 |7.3|`Stable`|`Active`|
 |7.4|`Stable`|`Active`|
 

@@ -1,6 +1,6 @@
 {
   "name": "setup-php",
-  "version": "1.5.7",
+  "version": "1.5.8",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
   "main": "dist/index.js",
@@ -44,7 +44,7 @@
     "jest-circus": "^24.9.0",
     "prettier": "^1.17.1",
     "ts-jest": "^24.1.0",
-    "typescript": "^3.6.4"
+    "typescript": "^3.7.3"
   },
   "husky": {
     "skipCI": true,

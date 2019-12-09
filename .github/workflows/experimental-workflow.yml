@@ -1,7 +1,8 @@
-name: Main workflow
+name: Experimental workflow
 on:
   pull_request:
     branches:
+      - nightly
       - master
       - develop
       - verbose
@@ -10,6 +11,7 @@ on:
       - 'examples/**'
   push:
     branches:
+      - nightly
       - master
       - develop
       - verbose
@@ -23,8 +25,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ubuntu-latest, windows-latest, macOS-latest]
-        php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4']
+        operating-system: [ubuntu-latest, ubuntu-16.04, macOS-latest]
+        php-versions: ['8.0']
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -73,10 +75,17 @@ jobs:
         run: |
           php -m
           php -r "if(! extension_loaded('mbstring')) {throw new Exception('mbstring not found');}"
-          php -r "if(! extension_loaded('Xdebug')) {throw new Exception('Xdebug not found');}"
-          php -r "if(phpversion()>=7.1 && ! extension_loaded('pcov')) {throw new Exception('PCOV not found');}"
+          # php -r "if(! extension_loaded('Xdebug')) {throw new Exception('Xdebug not found');}"
+          php -r "if(! extension_loaded('pcov')) {throw new Exception('PCOV not found');}"
       - name: Testing ini values
         run: |
           php -r "if(ini_get('post_max_size')!='256M') {throw new Exception('post_max_size not added');}"
           php -r "if(ini_get('short_open_tag')!=1) {throw new Exception('short_open_tag not added');}"
           php -r "if(ini_get('date.timezone')!='Asia/Kolkata') {throw new Exception('date.timezone not added');}"
+      - name: Test and Benchmark JIT
+        run: |
+          php -r "if(! extension_loaded('Zend OPcache')) {throw new Exception('Zend OPcache not found');}"
+          php -r "if(ini_get('opcache.jit_buffer_size')!='256M') {throw new Exception('opcache.jit_buffer_size not set');}"
+          php -r "if(ini_get('opcache.jit')!=1235) {throw new Exception('opcache.jit not set');}"
+          php -r "if(ini_get('pcre.jit')!=1) {throw new Exception('pcre.jit not set');}"
+          curl https://raw.githubusercontent.com/php/php-src/master/Zend/bench.php | php

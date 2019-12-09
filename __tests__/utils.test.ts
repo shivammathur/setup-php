@@ -26,23 +26,6 @@ describe('Utils tests', () => {
     expect(await utils.getInput('DoesNotExist', false)).toBe('');
   });
 
-  it('checking getVersion', async () => {
-    process.env['php-version'] = '7.3';
-    expect(await utils.getVersion()).toBe('7.3');
-    process.env['php-version'] = '7.4';
-    expect(await utils.getVersion()).toBe('7.4');
-    process.env['php-version'] = '8.0';
-    expect(await utils.getVersion()).toBe('7.4');
-    process.env['php-version'] = '8.0-dev';
-    expect(await utils.getVersion()).toBe('7.4');
-    process.env['php-version'] = '7.4nightly';
-    expect(await utils.getVersion()).toBe('7.4');
-    process.env['php-version'] = '7.4snapshot';
-    expect(await utils.getVersion()).toBe('7.4');
-    process.env['php-version'] = 'nightly';
-    expect(await utils.getVersion()).toBe('7.4');
-  });
-
   it('checking asyncForEach', async () => {
     const array: Array<string> = ['a', 'b', 'c'];
     let concat = '';

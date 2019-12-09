@@ -8,10 +8,10 @@ inputs:
     description: 'Setup PHP version.'
     default: '7.4'
     required: true
-  extension-csv:
+  extensions:
     description: 'Setup PHP extensions.'
     required: false
-  ini-values-csv: 
+  ini-values:
     description: 'Add values to php.ini.'
     required: false
   coverage: 
@@ -19,6 +19,15 @@ inputs:
     required: false
   pecl:
     description: 'Setup PECL on ubuntu'
+    required: false
+  # Deprecated options, do not use. Will not be supported after February 1, 2019.
+  extension-csv:
+    description: 'Deprecated! Use extensions instead.'
+    deprecationMessage: 'The extension-csv property will not be supported after February 1, 2020. Use extensions instead.'
+    required: false
+  ini-values-csv:
+    description: 'Deprecated! Use ini-values instead.'
+    deprecationMessage: 'The ini-values-csv property will not be supported after February 1, 2020. Use ini-values instead.'
     required: false
 runs:
   using: 'node12'

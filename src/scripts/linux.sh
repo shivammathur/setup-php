@@ -17,35 +17,49 @@ add_log() {
   fi
 }
 existing_version=$(php-config --version | cut -c 1-3)
-version=$1
+semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
 step_log "Setup PHP and Composer"
 sudo mkdir -p /var/run
 sudo mkdir -p /run/php
 find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
 if [ "$existing_version" != "$1" ]; then
 	if [ ! -e "/usr/bin/php$1" ]; then
-		if [ "$1" != "7.4" ]; then
-		  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1" curl php"$1"-curl >/dev/null 2>&1
-		else
+		if [ "$1" = "7.4" ]; then
 		  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1" php"$1"-phpdbg php"$1"-xml curl php"$1"-curl >/dev/null 2>&1
+		elif [ "$1" = "8.0" ]; then
+      tar_file=php_"$1"%2Bubuntu"$(lsb_release -r -s)".tar.xz
+      install_dir=~/php/"$1"
+      sudo DEBIAN_FRONTEND=noninteractive apt-get -y install libicu-dev >/dev/null 2>&1
+      curl -o "$tar_file" -L https://bintray.com/shivammathur/php/download_file?file_path="$tar_file" >/dev/null 2>&1
+      sudo mkdir -m 777 -p ~/php
+      sudo tar xf "$tar_file" -C ~/php  >/dev/null 2>&1 && rm -rf "$tar_file"
+      sudo ln -sf -S "$1" "$install_dir"/bin/* /usr/bin/ && sudo ln -sf "$install_dir"/etc/php.ini /etc/php.ini
+		else
+		  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1" curl php"$1"-curl >/dev/null 2>&1
 		fi
 		status="installed"
 	else
 	  status="switched"
 	fi
 
-	for tool in php phar phar.phar php-cgi php-config phpize phpdbg; do
+	for tool in pear pecl php phar phar.phar php-cgi php-config phpize phpdbg; do
 		if [ -e "/usr/bin/$tool$1" ]; then
 			sudo update-alternatives --set $tool /usr/bin/"$tool$1" >/dev/null 2>&1
 		fi
 	done
+
+	semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
+	if [ "$1" = "8.0" ]; then
+	  semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
+	fi
+
 	if [ "$status" != "switched" ]; then
-	  status="Installed PHP $(php -v | head -n 1 | cut -c 5-10)"
+	  status="Installed PHP $semver"
 	else
-	  status="Switched to PHP $(php -v | head -n 1 | cut -c 5-10)"
+	  status="Switched to PHP $semver"
 	fi
 else
-  status="PHP $(php -v | head -n 1 | cut -c 5-10) Found"
+  status="PHP $semver Found"
 fi
 
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
@@ -88,6 +102,6 @@ add_extension()
       (
         eval "$install_command" && \
         add_log "$tick" "$extension" "Installed and enabled"
-      ) || add_log "$cross" "$extension" "Could not install $extension on php$version"
+      ) || add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi
 }

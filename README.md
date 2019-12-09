@@ -13,7 +13,7 @@
   <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a>  
 </p>
 
-Setup PHP with required extensions, php.ini configuration and composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
+Setup PHP with required extensions, php.ini configuration, code-coverage support and composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross platform interface to setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
 
 ## Contents
 
@@ -45,6 +45,9 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 |7.2|`Stable`|`Security fixes only`|
 |7.3|`Stable`|`Active`|
 |7.4|`Stable`|`Active`|
+|8.0|`Experimental`|`In development`|
+
+**Note:** Specifying `8.0` in `php-version` input installs `PHP 8.0.0-dev`. This is an experimental feature on this action available on `ubuntu` and `macOS`. Currently some extensions might not be available for this version.   
 
 ## :cloud: OS/Platform Support
 
@@ -81,14 +84,14 @@ with:
 Specify `coverage: pcov` to use `PCOV`.  
 It is much faster than `Xdebug`.  
 `PCOV` needs `PHP >= 7.1`.  
-If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values-csv` input.  
+If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.  
 
 
 ```yaml
 uses: shivammathur/setup-php@v1
 with:
   php-version: '7.4'
-  ini-values-csv: pcov.directory=api #optional, see above for usage.
+  ini-values: pcov.directory=api #optional, see above for usage.
   coverage: pcov
 ```
 
@@ -113,14 +116,16 @@ with:
 Inputs supported by this GitHub Action.
 
 - php-version `required`
-- extension-csv `optional`
-- ini-values-csv `optional`
+- extension `optional`
+- ini-values `optional`
 - coverage `optional`
 - pecl `optional`
 
 See [action.yml](action.yml "Metadata for this GitHub Action") and usage below for more info.
 
-### Basic Usage
+### Basic Usage 
+
+> Setup a particular PHP version
 
 ```yaml
 steps:
@@ -131,22 +136,15 @@ steps:
   uses: shivammathur/setup-php@v1
   with:
     php-version: '7.4'
-    extension-csv: mbstring, intl #optional, setup extensions
-    ini-values-csv: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
+    extensions: mbstring, intl #optional, setup extensions
+    ini-values: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
     coverage: xdebug #optional, setup coverage driver
     pecl: false #optional, setup PECL
-
-- name: Check PHP Version
-  run: php -v
-
-- name: Check Composer Version
-  run: composer -V
-
-- name: Check PHP Extensions
-  run: php -m
 ```
 
 ### Matrix Testing
+
+> Setup multiple PHP versions
 
 ```yaml
 jobs:
@@ -165,19 +163,10 @@ jobs:
       uses: shivammathur/setup-php@v1
       with:
         php-version: ${{ matrix.php-versions }}
-        extension-csv: mbstring, intl #optional, setup extensions
-        ini-values-csv: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
+        extensions: mbstring, intl #optional, setup extensions
+        ini-values: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
         coverage: xdebug #optional, setup coverage driver
         pecl: false #optional, setup PECL
-
-    - name: Check PHP Version
-      run: php -v
-
-    - name: Check Composer Version
-      run: composer -V
-
-    - name: Check PHP Extensions
-      run: php -m
 ```
 
 ### Cache dependencies
@@ -246,10 +235,10 @@ If this action helped you.
 
 ## :bookmark: This action uses the following works
 
-- [powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager "Package to handle PHP on windows")
-- [Homebrew](https://brew.sh/ "MacOS package manager")
 - [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Pre-compiled ubuntu packages")
-- [exolnet/homebrew-deprecated](https://github.com/eXolnet/homebrew-deprecated "Pre-compiled deprecated PHP for macOS")
+- [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Pre-compiled nightly PHP builds")
+- [mlocati/powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager "Package to handle PHP on windows")
+- [shivammathur/homebrew-php](https://github.com/shivammathur/homebrew-php "Tap for PHP builds for MacOS")
 
 ## :bookmark_tabs: Further Reading
 

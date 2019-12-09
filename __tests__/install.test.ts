@@ -10,8 +10,8 @@ jest.mock('../src/install', () => ({
       version: string,
       os_version: string
     ): Promise<string> => {
-      const extension_csv: string = process.env['extension-csv'] || '';
-      const ini_values_csv: string = process.env['ini-values-csv'] || '';
+      const extension_csv: string = process.env['extensions'] || '';
+      const ini_values_csv: string = process.env['ini-values'] || '';
       const coverage_driver: string = process.env['coverage'] || '';
 
       let script = 'initial script ' + filename + version + os_version;
@@ -77,8 +77,8 @@ function setEnv(
 ): void {
   process.env['php-version'] = version;
   process.env['RUNNER_OS'] = os;
-  process.env['extension-csv'] = extension_csv;
-  process.env['ini-values-csv'] = ini_values_csv;
+  process.env['extensions'] = extension_csv;
+  process.env['ini-values'] = ini_values_csv;
   process.env['coverage'] = coverage_driver;
   process.env['pecl'] = pecl;
 }

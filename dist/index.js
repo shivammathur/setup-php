@@ -683,26 +683,6 @@ function getInput(name, mandatory) {
 }
 exports.getInput = getInput;
 /**
- * Function to read the PHP version.
- */
-function getVersion() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const version = yield getInput('php-version', true);
-        switch (version) {
-            case '8.0':
-            case '8.0-dev':
-            case '7.4':
-            case '7.4snapshot':
-            case '7.4nightly':
-            case 'nightly':
-                return '7.4';
-            default:
-                return version;
-        }
-    });
-}
-exports.getVersion = getVersion;
-/**
  * Async foreach loop
  *
  * @author https://github.com/Atinux
@@ -1501,8 +1481,10 @@ const utils = __importStar(__webpack_require__(163));
 function build(filename, version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
         // taking inputs
-        const extension_csv = yield utils.getInput('extension-csv', false);
-        const ini_values_csv = yield utils.getInput('ini-values-csv', false);
+        const extension_csv = (yield utils.getInput('extensions', false)) ||
+            (yield utils.getInput('extension-csv', false));
+        const ini_values_csv = (yield utils.getInput('ini-values', false)) ||
+            (yield utils.getInput('ini-values-csv', false));
         const coverage_driver = yield utils.getInput('coverage', false);
         let script = yield utils.readScript(filename, version, os_version);
         if (extension_csv) {
@@ -1525,7 +1507,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const os_version = process.platform;
-            const version = yield utils.getVersion();
+            const version = yield utils.getInput('php-version', true);
             // check the os version and run the respective script
             let script_path = '';
             switch (os_version) {
@@ -1541,7 +1523,7 @@ function run() {
                 }
                 case 'win32':
                     script_path = yield build('win32.ps1', version, os_version);
-                    yield exec_1.exec('pwsh ' + script_path + ' -version ' + version + ' -dir ' + __dirname);
+                    yield exec_1.exec('pwsh ' + script_path + ' -version ' + version);
                     break;
             }
         }

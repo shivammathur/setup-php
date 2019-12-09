@@ -23,24 +23,6 @@ export async function getInput(
 }
 
 /**
- * Function to read the PHP version.
- */
-export async function getVersion(): Promise<string> {
-  const version: string = await getInput('php-version', true);
-  switch (version) {
-    case '8.0':
-    case '8.0-dev':
-    case '7.4':
-    case '7.4snapshot':
-    case '7.4nightly':
-    case 'nightly':
-      return '7.4';
-    default:
-      return version;
-  }
-}
-
-/**
  * Async foreach loop
  *
  * @author https://github.com/Atinux

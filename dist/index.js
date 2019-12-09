@@ -1481,8 +1481,10 @@ const utils = __importStar(__webpack_require__(163));
 function build(filename, version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
         // taking inputs
-        const extension_csv = yield utils.getInput('extension-csv', false);
-        const ini_values_csv = yield utils.getInput('ini-values-csv', false);
+        const extension_csv = (yield utils.getInput('extensions', false)) ||
+            (yield utils.getInput('extension-csv', false));
+        const ini_values_csv = (yield utils.getInput('ini-values', false)) ||
+            (yield utils.getInput('ini-values-csv', false));
         const coverage_driver = yield utils.getInput('coverage', false);
         let script = yield utils.readScript(filename, version, os_version);
         if (extension_csv) {

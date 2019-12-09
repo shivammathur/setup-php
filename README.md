@@ -84,14 +84,14 @@ with:
 Specify `coverage: pcov` to use `PCOV`.  
 It is much faster than `Xdebug`.  
 `PCOV` needs `PHP >= 7.1`.  
-If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values-csv` input.  
+If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.  
 
 
 ```yaml
 uses: shivammathur/setup-php@v1
 with:
   php-version: '7.4'
-  ini-values-csv: pcov.directory=api #optional, see above for usage.
+  ini-values: pcov.directory=api #optional, see above for usage.
   coverage: pcov
 ```
 
@@ -116,8 +116,8 @@ with:
 Inputs supported by this GitHub Action.
 
 - php-version `required`
-- extension-csv `optional`
-- ini-values-csv `optional`
+- extension `optional`
+- ini-values `optional`
 - coverage `optional`
 - pecl `optional`
 
@@ -134,8 +134,8 @@ steps:
   uses: shivammathur/setup-php@v1
   with:
     php-version: '7.4'
-    extension-csv: mbstring, intl #optional, setup extensions
-    ini-values-csv: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
+    extensions: mbstring, intl #optional, setup extensions
+    ini-values: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
     coverage: xdebug #optional, setup coverage driver
     pecl: false #optional, setup PECL
 ```
@@ -159,8 +159,8 @@ jobs:
       uses: shivammathur/setup-php@v1
       with:
         php-version: ${{ matrix.php-versions }}
-        extension-csv: mbstring, intl #optional, setup extensions
-        ini-values-csv: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
+        extensions: mbstring, intl #optional, setup extensions
+        ini-values: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
         coverage: xdebug #optional, setup coverage driver
         pecl: false #optional, setup PECL
 ```

@@ -59,8 +59,8 @@ jobs:
         run: node dist/index.js
         env:
           php-version: ${{ matrix.php-versions }}
-          extension-csv: mbstring, xdebug, pcov #optional
-          ini-values-csv: post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata #optional
+          extensions: mbstring, xdebug, pcov #optional
+          ini-values: post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata #optional
 
       - name: Testing PHP version
         run: |

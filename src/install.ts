@@ -18,8 +18,12 @@ export async function build(
   os_version: string
 ): Promise<string> {
   // taking inputs
-  const extension_csv: string = await utils.getInput('extension-csv', false);
-  const ini_values_csv: string = await utils.getInput('ini-values-csv', false);
+  const extension_csv: string =
+    (await utils.getInput('extensions', false)) ||
+    (await utils.getInput('extension-csv', false));
+  const ini_values_csv: string =
+    (await utils.getInput('ini-values', false)) ||
+    (await utils.getInput('ini-values-csv', false));
   const coverage_driver: string = await utils.getInput('coverage', false);
 
   let script: string = await utils.readScript(filename, version, os_version);

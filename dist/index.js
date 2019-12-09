@@ -1216,10 +1216,17 @@ const config = __importStar(__webpack_require__(641));
  */
 function addCoverageXdebug(version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
-        return ((yield extensions.addExtension('xdebug', version, os_version, true)) +
-            (yield utils.suppressOutput(os_version)) +
-            '\n' +
-            (yield utils.addLog('$tick', 'xdebug', 'Xdebug enabled as coverage driver', os_version)));
+        switch (version) {
+            case '8.0':
+                return ('\n' +
+                    (yield utils.addLog('$cross', 'xdebug', 'Xdebug currently only supports PHP 7.4 or lower', os_version)));
+            case '7.4':
+            default:
+                return ((yield extensions.addExtension('xdebug', version, os_version, true)) +
+                    (yield utils.suppressOutput(os_version)) +
+                    '\n' +
+                    (yield utils.addLog('$tick', 'xdebug', 'Xdebug enabled as coverage driver', os_version)));
+        }
     });
 }
 exports.addCoverageXdebug = addCoverageXdebug;

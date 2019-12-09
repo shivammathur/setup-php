@@ -61,6 +61,7 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, xdebug, pcov #optional
           ini-values: post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata #optional
+          coverage: xdebug
 
       - name: Testing PHP version
         run: |

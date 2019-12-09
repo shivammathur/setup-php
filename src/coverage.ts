@@ -12,17 +12,31 @@ export async function addCoverageXdebug(
   version: string,
   os_version: string
 ): Promise<string> {
-  return (
-    (await extensions.addExtension('xdebug', version, os_version, true)) +
-    (await utils.suppressOutput(os_version)) +
-    '\n' +
-    (await utils.addLog(
-      '$tick',
-      'xdebug',
-      'Xdebug enabled as coverage driver',
-      os_version
-    ))
-  );
+  switch (version) {
+    case '8.0':
+      return (
+        '\n' +
+        (await utils.addLog(
+          '$cross',
+          'xdebug',
+          'Xdebug currently only supports PHP 7.4 or lower',
+          os_version
+        ))
+      );
+    case '7.4':
+    default:
+      return (
+        (await extensions.addExtension('xdebug', version, os_version, true)) +
+        (await utils.suppressOutput(os_version)) +
+        '\n' +
+        (await utils.addLog(
+          '$tick',
+          'xdebug',
+          'Xdebug enabled as coverage driver',
+          os_version
+        ))
+      );
+  }
 }
 
 /**

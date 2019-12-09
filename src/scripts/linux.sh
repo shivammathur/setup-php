@@ -26,7 +26,6 @@ if [ "$existing_version" != "$1" ]; then
 	if [ ! -e "/usr/bin/php$1" ]; then
 		if [ "$1" = "7.4" ]; then
 		  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1" php"$1"-phpdbg php"$1"-xml curl php"$1"-curl >/dev/null 2>&1
-		  semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
 		elif [ "$1" = "8.0" ]; then
       tar_file=php_"$1"%2Bubuntu"$(lsb_release -r -s)".tar.xz
       install_dir=~/php/"$1"
@@ -35,10 +34,8 @@ if [ "$existing_version" != "$1" ]; then
       sudo mkdir -m 777 -p ~/php
       sudo tar xf "$tar_file" -C ~/php  >/dev/null 2>&1 && rm -rf "$tar_file"
       sudo ln -sf -S "$1" "$install_dir"/bin/* /usr/bin/ && sudo ln -sf "$install_dir"/etc/php.ini /etc/php.ini
-      semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
 		else
 		  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1" curl php"$1"-curl >/dev/null 2>&1
-		  semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
 		fi
 		status="installed"
 	else
@@ -50,6 +47,12 @@ if [ "$existing_version" != "$1" ]; then
 			sudo update-alternatives --set $tool /usr/bin/"$tool$1" >/dev/null 2>&1
 		fi
 	done
+
+	semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
+	if [ "$1" = "8.0" ]; then
+	  semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
+	fi
+
 	if [ "$status" != "switched" ]; then
 	  status="Installed PHP $semver"
 	else

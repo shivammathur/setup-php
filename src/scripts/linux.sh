@@ -70,9 +70,16 @@ if [ "$2" = "true" ]; then
   sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1"-dev php"$1"-xml >/dev/null 2>&1
   sudo update-alternatives --set php-config /usr/bin/php-config"$1" >/dev/null 2>&1
   sudo update-alternatives --set phpize /usr/bin/phpize"$1" >/dev/null 2>&1
-  wget https://github.com/pear/pearweb_phars/raw/master/install-pear-nozlib.phar >/dev/null 2>&1
-  sudo php install-pear-nozlib.phar >/dev/null 2>&1
+  sudo DEBIAN_FRONTEND=noninteractive apt-fast update -y
+  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y expect
+  curl -o install-pear.sh -L https://raw.githubusercontent.com/shivammathur/php-builder/master/.github/scripts/install-pear.sh
+  curl -o go-pear.phar -L https://github.com/pear/pearweb_phars/raw/master/go-pear.phar
+  sudo chmod a+x ./install-pear.sh
+  sudo ./install-pear.sh /usr
+  rm -rf install-pear.sh >/dev/null 2>&1 && rm -rf go-pear.phar >/dev/null 2>&1
   sudo pear config-set php_ini "$ini_file" >/dev/null 2>&1
+  sudo pear config-set auto_discover 1 >/dev/null 2>&1
+  sudo pear channel-update pecl.php.net >/dev/null 2>&1
   add_log "$tick" "PECL" "Installed"
 fi
 

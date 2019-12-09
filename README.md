@@ -13,7 +13,7 @@
   <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a>  
 </p>
 
-Setup PHP with required extensions, php.ini configuration and composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action can be added as a step in your action workflow and it will setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
+Setup PHP with required extensions, php.ini configuration, code-coverage support and composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross platform interface to setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
 
 ## Contents
 
@@ -123,7 +123,9 @@ Inputs supported by this GitHub Action.
 
 See [action.yml](action.yml "Metadata for this GitHub Action") and usage below for more info.
 
-### Setup a particular PHP version
+### Basic Usage 
+
+> Setup a particular PHP version
 
 ```yaml
 steps:
@@ -140,7 +142,9 @@ steps:
     pecl: false #optional, setup PECL
 ```
 
-### Setup multiple PHP versions
+### Matrix Testing
+
+> Setup multiple PHP versions
 
 ```yaml
 jobs:

@@ -45,6 +45,9 @@ Setup PHP with required extensions, php.ini configuration and composer in [GitHu
 |7.2|`Stable`|`Security fixes only`|
 |7.3|`Stable`|`Active`|
 |7.4|`Stable`|`Active`|
+|8.0|`Experimental`|`In development`|
+
+**Note:** Specifying `8.0` in `php-version` input installs `PHP 8.0.0-dev`. This is an experimental feature on this action available on `ubuntu` and `macOS`. Currently some extensions might not be available for this version.   
 
 ## :cloud: OS/Platform Support
 
@@ -120,7 +123,7 @@ Inputs supported by this GitHub Action.
 
 See [action.yml](action.yml "Metadata for this GitHub Action") and usage below for more info.
 
-### Basic Usage
+### Setup a particular PHP version
 
 ```yaml
 steps:
@@ -135,18 +138,9 @@ steps:
     ini-values-csv: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
     coverage: xdebug #optional, setup coverage driver
     pecl: false #optional, setup PECL
-
-- name: Check PHP Version
-  run: php -v
-
-- name: Check Composer Version
-  run: composer -V
-
-- name: Check PHP Extensions
-  run: php -m
 ```
 
-### Matrix Testing
+### Setup multiple PHP versions
 
 ```yaml
 jobs:
@@ -169,15 +163,6 @@ jobs:
         ini-values-csv: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
         coverage: xdebug #optional, setup coverage driver
         pecl: false #optional, setup PECL
-
-    - name: Check PHP Version
-      run: php -v
-
-    - name: Check Composer Version
-      run: composer -V
-
-    - name: Check PHP Extensions
-      run: php -m
 ```
 
 ### Cache dependencies
@@ -246,10 +231,10 @@ If this action helped you.
 
 ## :bookmark: This action uses the following works
 
-- [powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager "Package to handle PHP on windows")
-- [Homebrew](https://brew.sh/ "MacOS package manager")
 - [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Pre-compiled ubuntu packages")
-- [exolnet/homebrew-deprecated](https://github.com/eXolnet/homebrew-deprecated "Pre-compiled deprecated PHP for macOS")
+- [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Pre-compiled nightly PHP builds")
+- [mlocati/powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager "Package to handle PHP on windows")
+- [shivammathur/homebrew-php](https://github.com/shivammathur/homebrew-php "Tap for PHP builds for MacOS")
 
 ## :bookmark_tabs: Further Reading
 

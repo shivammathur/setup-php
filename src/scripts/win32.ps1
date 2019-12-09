@@ -1,6 +1,5 @@
 param (
-  [Parameter(Mandatory = $true)][string]$version = "7.3",
-  [Parameter(Mandatory = $true)][string]$dir
+  [Parameter(Mandatory = $true)][string]$version = "7.3"
 )
 
 $tick = ([char]8730)
@@ -14,6 +13,10 @@ Function Step-Log($message) {
 Function Add-Log($mark, $subject, $message) {
   $code = if ($mark -eq $cross) { "31" } else { "32" }
   printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $code $mark $subject $message
+}
+
+if ($version -eq '8.0') {
+  $version = '7.4'
 }
 
 Step-Log "Setup PhpManager"
@@ -85,6 +88,6 @@ Function Add-Extension {
     }
   }
   catch {
-    Add-Log $cross $extension "Could not enable"
+    Add-Log $cross $extension "Could not install $extension on PHP $($installed.FullVersion)"
   }
 }

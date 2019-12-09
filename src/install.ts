@@ -42,7 +42,7 @@ export async function build(
 export async function run(): Promise<void> {
   try {
     const os_version: string = process.platform;
-    const version: string = await utils.getVersion();
+    const version: string = await utils.getInput('php-version', true);
     // check the os version and run the respective script
     let script_path = '';
     switch (os_version) {
@@ -58,9 +58,7 @@ export async function run(): Promise<void> {
       }
       case 'win32':
         script_path = await build('win32.ps1', version, os_version);
-        await exec(
-          'pwsh ' + script_path + ' -version ' + version + ' -dir ' + __dirname
-        );
+        await exec('pwsh ' + script_path + ' -version ' + version);
         break;
     }
   } catch (error) {

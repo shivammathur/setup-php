@@ -1,0 +1,91 @@
+name: Experimental workflow
+on:
+  pull_request:
+    branches:
+      - nightly
+      - master
+      - develop
+      - verbose
+    paths-ignore:
+      - '**.md'
+      - 'examples/**'
+  push:
+    branches:
+      - nightly
+      - master
+      - develop
+      - verbose
+    paths-ignore:
+      - '**.md'
+      - 'examples/**'
+jobs:
+  run:
+    name: Run
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, ubuntu-16.04, macOS-latest]
+        php-versions: ['8.0']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Prettier Format Check
+        run: npm run format-check
+
+      - name: ESLint Check
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Send Coverage
+        continue-on-error: true
+        timeout-minutes: 1
+        run: curl -s https://codecov.io/bash | bash -s -- -t ${{secrets.CODECOV_TOKEN}} -f coverage/clover.xml -n github-actions-codecov-${{ matrix.operating-system }}-php${{ matrix.php-versions }}
+
+      - name: Setup PHP with extensions and custom config
+        run: node dist/index.js
+        env:
+          php-version: ${{ matrix.php-versions }}
+          extension-csv: mbstring, xdebug, pcov #optional
+          ini-values-csv: post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata #optional
+
+      - name: Testing PHP version
+        run: |
+          php -v
+          php -r "if(strpos(phpversion(), '${{ matrix.php-versions }}') === false) {throw new Exception('Wrong PHP version Installed');}"
+
+      - name: Testing Composer version
+        run: |
+          composer -V
+          php -r "if(strpos(@exec('composer -V'), 'Composer version') === false) {throw new Exception('Composer not found');}"
+      - name: Testing Extensions
+        run: |
+          php -m
+          php -r "if(! extension_loaded('mbstring')) {throw new Exception('mbstring not found');}"
+          # php -r "if(! extension_loaded('Xdebug')) {throw new Exception('Xdebug not found');}"
+          php -r "if(! extension_loaded('pcov')) {throw new Exception('PCOV not found');}"
+      - name: Testing ini values
+        run: |
+          php -r "if(ini_get('post_max_size')!='256M') {throw new Exception('post_max_size not added');}"
+          php -r "if(ini_get('short_open_tag')!=1) {throw new Exception('short_open_tag not added');}"
+          php -r "if(ini_get('date.timezone')!='Asia/Kolkata') {throw new Exception('date.timezone not added');}"
+      - name: Test and Benchmark JIT
+        run: |
+          php -r "if(! extension_loaded('Zend OPcache')) {throw new Exception('Zend OPcache not found');}"
+          php -r "if(ini_get('opcache.jit_buffer_size')!='256M') {throw new Exception('opcache.jit_buffer_size not set');}"
+          php -r "if(ini_get('opcache.jit')!=1235) {throw new Exception('opcache.jit not set');}"
+          php -r "if(ini_get('pcre.jit')!=1) {throw new Exception('pcre.jit not set');}"
+          curl https://raw.githubusercontent.com/php/php-src/master/Zend/bench.php | php

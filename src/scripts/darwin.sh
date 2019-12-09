@@ -29,7 +29,8 @@ ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
 sudo chmod 777 "$ini_file"
 mkdir -p "$(pecl config-get ext_dir)"
 composer global require hirak/prestissimo >/dev/null 2>&1
-add_log "$tick" "PHP" "Installed PHP $(php -v | head -n 1 | cut -c 5-10)"
+semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
+add_log "$tick" "PHP" "Installed PHP $semver"
 add_log "$tick" "Composer" "Installed"
 
 add_extension() {
@@ -46,10 +47,10 @@ add_extension() {
       (
         eval "$install_command" && \
         add_log "$tick" "$extension" "Installed and enabled"
-      ) || add_log "$cross" "$extension" "Could not install $extension on PHP$version"
+      ) || add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
     else
       if ! php -m | grep -i -q "$extension"; then
-        add_log "$cross" "$extension" "Could not find $extension for PHP$version on PECL"
+        add_log "$cross" "$extension" "Could not find $extension for PHP $semver on PECL"
       fi
     fi
   fi

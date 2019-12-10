@@ -30,15 +30,15 @@ describe('Extension tests', () => {
       'linux'
     );
     expect(linux).toContain(
-      'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-xdebug'
+      'sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php7.4-xdebug'
     );
     expect(linux).toContain('pecl install xdebug');
     expect(linux).toContain(
-      'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-pcov'
+      'sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php7.4-pcov'
     );
     expect(linux).toContain('pecl install pcov');
     expect(linux).toContain(
-      'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-igbinary php7.4-redis'
+      'sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php7.4-igbinary php7.4-redis'
     );
 
     linux = await extensions.addExtension('phalcon3, phalcon4', '7.2', 'linux');

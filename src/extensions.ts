@@ -85,7 +85,7 @@ export async function addExtensionLinux(
     switch (version + extension) {
       case '7.4redis':
         install_command =
-          'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-igbinary php7.4-redis >/dev/null 2>&1';
+          'sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php7.4-igbinary php7.4-redis >/dev/null 2>&1';
         break;
       case '7.2phalcon3':
       case '7.3phalcon3':
@@ -108,7 +108,7 @@ export async function addExtensionLinux(
         break;
       default:
         install_command =
-          'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php' +
+          'sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php' +
           version +
           '-' +
           extension.replace('pdo_', '').replace('pdo-', '') +

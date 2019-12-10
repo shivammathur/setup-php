@@ -64,7 +64,7 @@ describe('Utils tests', () => {
   });
 
   it('checking writeScripts', async () => {
-    const testString = 'sudo apt-get install php';
+    const testString = 'sudo apt-fast install php';
     const runner_dir: string = process.env['RUNNER_TOOL_CACHE'] || '';
     const script_path: string = path.join(runner_dir, 'test.sh');
     await utils.writeScript('test.sh', testString);

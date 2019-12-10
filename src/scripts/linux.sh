@@ -29,7 +29,7 @@ if [ "$existing_version" != "$1" ]; then
 		elif [ "$1" = "8.0" ]; then
       tar_file=php_"$1"%2Bubuntu"$(lsb_release -r -s)".tar.xz
       install_dir=~/php/"$1"
-      sudo DEBIAN_FRONTEND=noninteractive apt-get -y install libicu-dev >/dev/null 2>&1
+      sudo DEBIAN_FRONTEND=noninteractive apt-fast -y install libicu-dev >/dev/null 2>&1
       curl -o "$tar_file" -L https://bintray.com/shivammathur/php/download_file?file_path="$tar_file" >/dev/null 2>&1
       sudo mkdir -m 777 -p ~/php
       sudo tar xf "$tar_file" -C ~/php  >/dev/null 2>&1 && rm -rf "$tar_file"

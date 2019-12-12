@@ -114,7 +114,7 @@ export async function addExtensionLinux(
         install_command =
           'sh ' +
           path.join(__dirname, '../src/scripts/gearman.sh') +
-          ' gearman-2.0.6' +
+          ' gearman-2.0.6 ' +
           version +
           ' >/dev/null 2>&1';
         break;

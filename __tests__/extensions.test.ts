@@ -53,7 +53,7 @@ describe('Extension tests', () => {
     expect(linux).toContain('phalcon.sh 4.0.x 7.4');
 
     linux = await extensions.addExtension('gearman', '7.3', 'linux');
-    expect(linux).toContain('gearman.sh gearman2.0.6 7.3');
+    expect(linux).toContain('gearman.sh gearman-2.0.6 7.3');
 
     linux = await extensions.addExtension('xdebug', '7.2', 'fedora');
     expect(linux).toContain('Platform fedora is not supported');

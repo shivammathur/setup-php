@@ -31,7 +31,8 @@ jest.mock('../src/install', () => ({
   run: jest.fn().mockImplementation(
     async (): Promise<string> => {
       const os_version: string = process.env['RUNNER_OS'] || '';
-      const version: string = process.env['php-version'] || '';
+      let version: string = process.env['php-version'] || '';
+      version = version.length > 1 ? version : version + '.0';
       let script = '';
       switch (os_version) {
         case 'darwin':
@@ -85,9 +86,15 @@ function setEnv(
 
 describe('Install', () => {
   it('Test install on windows', async () => {
-    setEnv('7.3', 'win32', '', '', '', '');
+    setEnv('7.0', 'win32', '', '', '', '');
     // @ts-ignore
     let script: string = await install.run();
+    expect(script).toContain('initial script');
+    expect(script).toContain('pwsh script.ps1 -version 7.0 -dir ' + __dirname);
+
+    setEnv('7.3', 'win32', '', '', '', '');
+    // @ts-ignore
+    script = await install.run();
     expect(script).toContain('initial script');
     expect(script).toContain('pwsh script.ps1 -version 7.3 -dir ' + __dirname);
 

@@ -1831,7 +1831,8 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const os_version = process.platform;
-            const version = yield utils.getInput('php-version', true);
+            let version = yield utils.getInput('php-version', true);
+            version = version.length > 1 ? version : version + '.0';
             // check the os version and run the respective script
             let script_path = '';
             switch (os_version) {

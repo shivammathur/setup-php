@@ -116,7 +116,7 @@ with:
 Inputs supported by this GitHub Action.
 
 - php-version `required`
-- extension `optional`
+- extensions `optional`
 - ini-values `optional`
 - coverage `optional`
 - pecl `optional`

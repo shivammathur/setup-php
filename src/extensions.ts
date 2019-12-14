@@ -106,6 +106,18 @@ export async function addExtensionLinux(
           version +
           ' >/dev/null 2>&1';
         break;
+      case '7.0gearman':
+      case '7.1gearman':
+      case '7.2gearman':
+      case '7.3gearman':
+      case '7.4gearman':
+        install_command =
+          'sh ' +
+          path.join(__dirname, '../src/scripts/gearman.sh') +
+          ' ' +
+          version +
+          ' >/dev/null 2>&1';
+        break;
       default:
         install_command =
           'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php' +

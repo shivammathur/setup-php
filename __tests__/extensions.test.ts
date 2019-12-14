@@ -41,16 +41,32 @@ describe('Extension tests', () => {
       'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-igbinary php7.4-redis'
     );
 
-    linux = await extensions.addExtension('phalcon3, phalcon4', '7.2', 'linux');
+    linux = await extensions.addExtension('gearman', '7.0', 'linux');
+    expect(linux).toContain('gearman.sh 7.0');
+    linux = await extensions.addExtension('gearman', '7.1', 'linux');
+    expect(linux).toContain('gearman.sh 7.1');
+
+    linux = await extensions.addExtension(
+      'phalcon3, phalcon4, gearman',
+      '7.2',
+      'linux'
+    );
     expect(linux).toContain('phalcon.sh master 7.2');
     expect(linux).toContain('phalcon.sh 4.0.x 7.2');
+    expect(linux).toContain('gearman.sh 7.2');
 
-    linux = await extensions.addExtension('phalcon3, phalcon4', '7.3', 'linux');
+    linux = await extensions.addExtension(
+      'phalcon3, phalcon4, gearman',
+      '7.3',
+      'linux'
+    );
     expect(linux).toContain('phalcon.sh master 7.3');
     expect(linux).toContain('phalcon.sh 4.0.x 7.3');
+    expect(linux).toContain('gearman.sh 7.3');
 
-    linux = await extensions.addExtension('phalcon4', '7.4', 'linux');
+    linux = await extensions.addExtension('phalcon4, gearman', '7.4', 'linux');
     expect(linux).toContain('phalcon.sh 4.0.x 7.4');
+    expect(linux).toContain('gearman.sh 7.4');
 
     linux = await extensions.addExtension('xdebug', '7.2', 'fedora');
     expect(linux).toContain('Platform fedora is not supported');

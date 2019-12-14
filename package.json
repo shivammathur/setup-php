@@ -1,6 +1,6 @@
 {
   "name": "setup-php",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
   "main": "dist/index.js",
@@ -25,18 +25,18 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.0",
-    "@actions/exec": "^1.0.1",
+    "@actions/exec": "^1.0.2",
     "fs": "0.0.1-security"
   },
   "devDependencies": {
     "@types/jest": "^24.0.21",
-    "@types/node": "^12.12.0",
-    "@typescript-eslint/eslint-plugin": "^2.7.0",
-    "@typescript-eslint/parser": "^2.7.0",
+    "@types/node": "^12.12.16",
+    "@typescript-eslint/eslint-plugin": "^2.11.0",
+    "@typescript-eslint/parser": "^2.11.0",
     "@zeit/ncc": "^0.20.5",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.5.0",
-    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-import": "^2.19.1",
     "eslint-plugin-jest": "^23.0.3",
     "eslint-plugin-prettier": "^3.1.1",
     "husky": "^3.0.9",

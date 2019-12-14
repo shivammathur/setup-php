@@ -73,6 +73,8 @@ if [ "$2" = "true" ]; then
   wget https://github.com/pear/pearweb_phars/raw/master/install-pear-nozlib.phar >/dev/null 2>&1
   sudo php install-pear-nozlib.phar >/dev/null 2>&1
   sudo pear config-set php_ini "$ini_file" >/dev/null 2>&1
+  sudo pear config-set auto_discover 1
+  sudo pear channel-update pear.php.net
   add_log "$tick" "PECL" "Installed"
 fi
 

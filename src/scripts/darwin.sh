@@ -37,11 +37,11 @@ add_extension() {
   extension=$1
   install_command=$2
   prefix=$3
-  if ! php -m | grep -i -q "$extension" && [ -e "$ext_dir/$extension.so" ]; then
+  if ! php -m | grep -i -q ^"$extension"$ && [ -e "$ext_dir/$extension.so" ]; then
     echo "$prefix=$extension" >>"$ini_file" && add_log $tick "$extension" "Enabled"
-  elif php -m | grep -i -q "$extension"; then
+  elif php -m | grep -i -q ^"$extension"$; then
     add_log "$tick" "$extension" "Enabled"
-  elif ! php -m | grep -i -q "$extension"; then
+  elif ! php -m | grep -i -q ^"$extension"$; then
     exists=$(curl -sL https://pecl.php.net/json.php?package="$extension" -w "%{http_code}" -o /dev/null)
     if [ "$exists" = "200" ]; then
       (
@@ -49,7 +49,7 @@ add_extension() {
         add_log "$tick" "$extension" "Installed and enabled"
       ) || add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
     else
-      if ! php -m | grep -i -q "$extension"; then
+      if ! php -m | grep -i -q ^"$extension"$; then
         add_log "$cross" "$extension" "Could not find $extension for PHP $semver on PECL"
       fi
     fi

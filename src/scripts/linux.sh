@@ -96,11 +96,11 @@ add_extension()
   extension=$1
   install_command=$2
   prefix=$3
-  if ! php -m | grep -i -q "$extension" && [ -e "$ext_dir/$extension.so" ]; then
+  if ! php -m | grep -i -q ^"$extension"$ && [ -e "$ext_dir/$extension.so" ]; then
     echo "$prefix=$extension" >> "$ini_file" && add_log "$tick" "$extension" "Enabled"
-  elif php -m | grep -i -q "$extension"; then
+  elif php -m | grep -i -q ^"$extension"$; then
     add_log "$tick" "$extension" "Enabled"
-  elif ! php -m | grep -i -q "$extension"; then
+  elif ! php -m | grep -i -q ^"$extension"$; then
       (
         eval "$install_command" && \
         add_log "$tick" "$extension" "Installed and enabled"

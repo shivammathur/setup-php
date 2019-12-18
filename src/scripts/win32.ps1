@@ -33,11 +33,13 @@ if (Test-Path -LiteralPath $php_dir -PathType Container) {
 }
 Step-Log "Setup PHP and Composer"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.')))) {
+  $arch='x64'
   if ($version -lt '7.0') {
     Install-Module -Name VcRedist -Force
+    $arch='x86'
   }
 
-  Install-Php -Version $version -Architecture x86 -ThreadSafe $true -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
+  Install-Php -Version $version -Architecture $arch -ThreadSafe $true -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
   $installed = Get-Php -Path $php_dir
   $status = "Installed PHP $($installed.FullVersion)"
 }

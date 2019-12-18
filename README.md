@@ -29,6 +29,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Matrix Setup](#matrix-setup)
   - [Experimental Setup](#experimental-setup)  
   - [Cache dependencies](#cache-dependencies)
+  - [Problem Matchers](#problem-matchers)
   - [Examples](#examples)
 - [License](#scroll-license)
 - [Contributions](#1-contributions)
@@ -213,6 +214,15 @@ You can persist composer's internal cache directory using the [`action/cache`](h
 
 - name: Install Dependencies
   run: composer install --prefer-dist
+```
+
+### Problem Matchers
+
+You can setup problem matchers for your `PHPUnit` output. This will scan the errors in your tests and surface that information prominently in the GitHub Actions UI by creating annotations and log file decorations.
+
+```yaml
+- name: Setup Problem Matchers for PHPUnit
+  run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 ```
 
 ### Examples

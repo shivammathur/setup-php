@@ -1,6 +1,4 @@
 import * as install from '../src/install';
-import * as matchers from '../src/matchers';
-import * as path from 'path';
 
 /**
  * Mock install.ts
@@ -151,35 +149,5 @@ describe('Install', () => {
     expect(script).toContain('edit php.ini');
     expect(script).toContain('set coverage driver');
     expect(script).toContain('sh script.sh 7.3 ' + __dirname);
-  });
-
-  describe('Matchers', () => {
-    let originalLogMethod: any;
-    let outputData: any[] = [];
-
-    beforeAll(() => {
-      originalLogMethod = console.log;
-      console['log'] = jest.fn(inputs => outputData.push(inputs));
-    });
-
-    beforeEach(() => {
-      outputData = [];
-    });
-
-    afterAll(() => {
-      console['log'] = originalLogMethod;
-    });
-
-    it('Add matchers', async () => {
-      matchers.addMatchers();
-
-      expect(outputData).toEqual([
-        `##[add-matcher]${path.join(
-          __dirname,
-          '..',
-          '.github/matchers/phpunit.json'
-        )}`
-      ]);
-    });
   });
 });

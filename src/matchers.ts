@@ -1,10 +1,18 @@
 import * as path from 'path';
+import * as utils from './utils';
+import * as io from '@actions/io';
 
 /**
- * Add matches using the Actions Toolkit problem matchers syntax
- * https://github.com/actions/toolkit/blob/master/docs/problem-matchers.md
+ * Cache json files for problem matchers
  */
-export function addMatchers(): void {
-  const matchersPath = path.join(__dirname, '..', '.github/matchers');
-  console.log(`##[add-matcher]${path.join(matchersPath, 'phpunit.json')}`);
+export async function addMatchers(): Promise<void> {
+  const config_path = path.join(
+    __dirname,
+    '..',
+    'src',
+    'configs',
+    'phpunit.json'
+  );
+  const runner_dir: string = await utils.getInput('RUNNER_TOOL_CACHE', false);
+  await io.cp(config_path, runner_dir);
 }

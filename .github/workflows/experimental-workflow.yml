@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ubuntu-latest, ubuntu-16.04, macOS-latest]
+        operating-system: [ubuntu-latest, windows-latest, macOS-latest]
         php-versions: ['8.0']
     steps:
       - name: Checkout
@@ -59,7 +59,7 @@ jobs:
         run: node dist/index.js
         env:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, xdebug, pcov #optional
+          extensions: mbstring, opcache, xdebug, pcov #optional
           ini-values: post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata #optional
           coverage: xdebug
 
@@ -83,10 +83,13 @@ jobs:
           php -r "if(ini_get('post_max_size')!='256M') {throw new Exception('post_max_size not added');}"
           php -r "if(ini_get('short_open_tag')!=1) {throw new Exception('short_open_tag not added');}"
           php -r "if(ini_get('date.timezone')!='Asia/Kolkata') {throw new Exception('date.timezone not added');}"
-      - name: Test and Benchmark JIT
+      - name: Test JIT
         run: |
           php -r "if(! extension_loaded('Zend OPcache')) {throw new Exception('Zend OPcache not found');}"
           php -r "if(ini_get('opcache.jit_buffer_size')!='256M') {throw new Exception('opcache.jit_buffer_size not set');}"
           php -r "if(ini_get('opcache.jit')!=1235) {throw new Exception('opcache.jit not set');}"
           php -r "if(ini_get('pcre.jit')!=1) {throw new Exception('pcre.jit not set');}"
-          curl https://raw.githubusercontent.com/php/php-src/master/Zend/bench.php | php
+      - name: Benchmark JIT
+        run: |
+          curl -o bench.php https://raw.githubusercontent.com/php/php-src/master/Zend/bench.php
+          php bench.php

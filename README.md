@@ -25,8 +25,9 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [PCOV](#pcov)
   - [Disable coverage](#disable-coverage)
 - [Usage](#memo-usage)
-  - [Basic Usage](#basic-usage)
-  - [Matrix Testing](#matrix-testing)
+  - [Basic Setup](#basic-setup)
+  - [Matrix Setup](#matrix-setup)
+  - [Experimental Setup](#experimental-setup)  
   - [Cache dependencies](#cache-dependencies)
   - [Examples](#examples)
 - [License](#scroll-license)
@@ -47,7 +48,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |7.4|`Stable`|`Active`|
 |8.0|`Experimental`|`In development`|
 
-**Note:** Specifying `8.0` in `php-version` input installs `PHP 8.0.0-dev`. This is an experimental feature on this action available on `ubuntu` and `macOS`. Currently some extensions might not be available for this version.   
+**Note:** Specifying `8.0` in `php-version` input installs a nightly build of `PHP 8.0.0-dev` with `PHP JIT` support. See [experimental setup](#experimental-setup) for more information.
 
 ## :cloud: OS/Platform Support
 
@@ -70,7 +71,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 ### Xdebug
 
 Specify `coverage: xdebug` to use `Xdebug`.  
-Runs on all [PHP versions supported](#tada-php-support "List of PHP versions supported on this GitHub Action")    
+Runs on all [PHP versions supported](#tada-php-support "List of PHP versions supported on this GitHub Action") except `8.0`.
 
 ```yaml
 uses: shivammathur/setup-php@v1
@@ -123,9 +124,9 @@ Inputs supported by this GitHub Action.
 
 See [action.yml](action.yml "Metadata for this GitHub Action") and usage below for more info.
 
-### Basic Usage 
+### Basic Setup 
 
-> Setup a particular PHP version
+> Setup a particular PHP version.
 
 ```yaml
 steps:
@@ -142,9 +143,9 @@ steps:
     pecl: false #optional, setup PECL
 ```
 
-### Matrix Testing
+### Matrix Setup
 
-> Setup multiple PHP versions
+> Setup multiple PHP versions on multiple operating systems.
 
 ```yaml
 jobs:
@@ -167,6 +168,29 @@ jobs:
         ini-values: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
         coverage: xdebug #optional, setup coverage driver
         pecl: false #optional, setup PECL
+```
+
+### Experimental Setup 
+
+> Setup a nightly build of `PHP 8.0.0-dev` from the [master branch](https://github.com/php/php-src/tree/master "Master branch on PHP source repository") of PHP.
+
+- This version is currently in development and is an experimental feature on this action.
+- `PECL` is installed by default with this version on `ubuntu`.
+- Some extensions might not support this version currently.
+- Refer to this [RFC](https://wiki.php.net/rfc/jit "PHP JIT RFC configuration") for configuring `PHP JIT` on this version.
+
+```yaml
+steps:
+- name: Checkout
+  uses: actions/checkout@v1
+
+- name: Setup PHP
+  uses: shivammathur/setup-php@v1
+  with:
+    php-version: '8.0'
+    extensions: mbstring #optional, setup extensions
+    ini-values: opcache.jit_buffer_size=256M, opcache.jit=1235, pcre.jit=1 #optional, setup php.ini configuration
+    coverage: pcov #optional, setup PCOV, Xdebug does not support this version yet.    
 ```
 
 ### Cache dependencies

@@ -1,11 +1,14 @@
 param (
-  [Parameter(Mandatory = $true)][string]$version = "7.3"
+  [Parameter(Mandatory = $true)][string]$version = "7.4",
+  [Parameter(Mandatory=$true)][string]$dir
 )
 
 $tick = ([char]8730)
 $cross = ([char]10007)
 $php_dir = 'C:\tools\php'
+$ext_dir = $php_dir + '\ext'
 $ProgressPreference = 'SilentlyContinue'
+$master_version = '8.0'
 
 Function Step-Log($message) {
   printf "\n\033[90;1m==> \033[0m\033[37;1m%s \033[0m\n" $message
@@ -14,10 +17,6 @@ Function Step-Log($message) {
 Function Add-Log($mark, $subject, $message) {
   $code = if ($mark -eq $cross) { "31" } else { "32" }
   printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $code $mark $subject $message
-}
-
-if ($version -eq '8.0') {
-  $version = '7.4'
 }
 
 Step-Log "Setup PhpManager"
@@ -39,6 +38,9 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
     Install-Module -Name VcRedist -Force
     $arch='x86'
   }
+  if ($version -eq $master_version) {
+    $version = 'master'
+  }
 
   Install-Php -Version $version -Architecture $arch -ThreadSafe $true -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
   $installed = Get-Php -Path $php_dir
@@ -49,12 +51,17 @@ else {
 }
 
 Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
-Enable-PhpExtension -Extension openssl, curl -Path $php_dir
+Enable-PhpExtension -Extension openssl, curl, opcache -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
 Add-Log $tick "PHP" $status
 
 Install-Composer -Scope System -Path $php_dir -PhpPath $php_dir
 Add-Log $tick "Composer" "Installed"
+if ($version -eq 'master') {
+  Copy-Item $dir"\..\src\ext\php_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
+  Set-PhpIniKey -Key 'opcache.jit_buffer_size' -Value '256M' -Path $php_dir
+  Set-PhpIniKey -Key 'opcache.jit' -Value '1235' -Path $php_dir
+}
 
 Function Add-Extension {
   Param (

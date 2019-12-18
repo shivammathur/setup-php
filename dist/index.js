@@ -1848,7 +1848,7 @@ function run() {
                 }
                 case 'win32':
                     script_path = yield build('win32.ps1', version, os_version);
-                    yield exec_1.exec('pwsh ' + script_path + ' -version ' + version);
+                    yield exec_1.exec('pwsh ' + script_path + ' -version ' + version + ' -dir ' + __dirname);
                     break;
             }
         }

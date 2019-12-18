@@ -5,6 +5,7 @@ param (
 $tick = ([char]8730)
 $cross = ([char]10007)
 $php_dir = 'C:\tools\php'
+$ProgressPreference = 'SilentlyContinue'
 
 Function Step-Log($message) {
   printf "\n\033[90;1m==> \033[0m\033[37;1m%s \033[0m\n" $message

@@ -57,7 +57,7 @@ jobs:
         run: node dist/index.js
         env:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, xdebug, pcov #optional
+          extensions: xml, opcache, xdebug, pcov #optional
           ini-values: post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata #optional
 
       - name: Testing PHP version
@@ -72,7 +72,7 @@ jobs:
       - name: Testing Extensions
         run: |
           php -m
-          php -r "if(! extension_loaded('mbstring')) {throw new Exception('mbstring not found');}"
+          php -r "if(! extension_loaded('xml')) {throw new Exception('xml not found');}"
           php -r "if(! extension_loaded('Xdebug')) {throw new Exception('Xdebug not found');}"
           php -r "if(phpversion()>=7.1 && ! extension_loaded('pcov')) {throw new Exception('PCOV not found');}"
       - name: Testing ini values

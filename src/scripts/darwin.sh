@@ -17,8 +17,22 @@ add_log() {
   fi
 }
 
+get_extension_regex() {
+  extension=$1
+  case $extension in
+    "opcache")
+      echo "^Zend\sOPcache$"
+      ;;
+    "xdebug")
+      echo "^Xdebug$"
+      ;;
+    *)
+      echo ^"$extension"$
+      ;;
+  esac
+}
+
 step_log "Setup PHP and Composer"
-version=$1
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
 brew tap shivammathur/homebrew-php >/dev/null 2>&1
 brew install shivammathur/php/php@"$1" composer >/dev/null 2>&1
@@ -37,11 +51,12 @@ add_extension() {
   extension=$1
   install_command=$2
   prefix=$3
-  if ! php -m | grep -i -q ^"$extension"$ && [ -e "$ext_dir/$extension.so" ]; then
-    echo "$prefix=$extension" >>"$ini_file" && add_log $tick "$extension" "Enabled"
-  elif php -m | grep -i -q ^"$extension"$; then
+  extension_regex="$(get_extension_regex "$extension")"
+  if ! php -m | grep -i -q "$extension_regex" && [ -e "$ext_dir/$extension.so" ]; then
+    echo "$prefix=$extension" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
+  elif php -m | grep -i -q "$extension_regex"; then
     add_log "$tick" "$extension" "Enabled"
-  elif ! php -m | grep -i -q ^"$extension"$; then
+  elif ! php -m | grep -i -q "$extension_regex"; then
     exists=$(curl -sL https://pecl.php.net/json.php?package="$extension" -w "%{http_code}" -o /dev/null)
     if [ "$exists" = "200" ]; then
       (
@@ -49,7 +64,7 @@ add_extension() {
         add_log "$tick" "$extension" "Installed and enabled"
       ) || add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
     else
-      if ! php -m | grep -i -q ^"$extension"$; then
+      if ! php -m | grep -i -q "$extension_regex"; then
         add_log "$cross" "$extension" "Could not find $extension for PHP $semver on PECL"
       fi
     fi

@@ -20,7 +20,7 @@ inputs:
   pecl:
     description: 'Setup PECL on ubuntu'
     required: false
-  # Deprecated options, do not use. Will not be supported after February 1, 2019.
+  # Deprecated options, do not use. Will not be supported after February 1, 2020.
   extension-csv:
     description: 'Deprecated! Use extensions instead.'
     deprecationMessage: 'The extension-csv property will not be supported after February 1, 2020. Use extensions instead.'

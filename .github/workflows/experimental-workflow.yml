@@ -61,7 +61,7 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, opcache, xdebug, pcov #optional
           ini-values: post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata #optional
-          coverage: xdebug
+          coverage: pcov
 
       - name: Testing PHP version
         run: |
@@ -76,7 +76,6 @@ jobs:
         run: |
           php -m
           php -r "if(! extension_loaded('mbstring')) {throw new Exception('mbstring not found');}"
-          # php -r "if(! extension_loaded('Xdebug')) {throw new Exception('Xdebug not found');}"
           php -r "if(! extension_loaded('pcov')) {throw new Exception('PCOV not found');}"
       - name: Testing ini values
         run: |

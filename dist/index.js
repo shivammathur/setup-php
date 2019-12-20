@@ -1906,7 +1906,7 @@ function run() {
         try {
             const os_version = process.platform;
             let version = yield utils.getInput('php-version', true);
-            version = version.length > 1 ? version : version + '.0';
+            version = version.length > 1 ? version.slice(0, 3) : version + '.0';
             // check the os version and run the respective script
             let script_path = '';
             switch (os_version) {

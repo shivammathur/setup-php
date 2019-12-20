@@ -32,7 +32,7 @@ jest.mock('../src/install', () => ({
     async (): Promise<string> => {
       const os_version: string = process.env['RUNNER_OS'] || '';
       let version: string = process.env['php-version'] || '';
-      version = version.length > 1 ? version : version + '.0';
+      version = version.length > 1 ? version.slice(0, 3) : version + '.0';
       let script = '';
       switch (os_version) {
         case 'darwin':
@@ -69,14 +69,14 @@ jest.mock('../src/install', () => ({
  * @param coverage_driver
  */
 function setEnv(
-  version: string,
+  version: string | number,
   os: string,
   extension_csv: string,
   ini_values_csv: string,
   coverage_driver: string,
   pecl: string
 ): void {
-  process.env['php-version'] = version;
+  process.env['php-version'] = version.toString();
   process.env['RUNNER_OS'] = os;
   process.env['extensions'] = extension_csv;
   process.env['ini-values'] = ini_values_csv;
@@ -149,5 +149,25 @@ describe('Install', () => {
     expect(script).toContain('edit php.ini');
     expect(script).toContain('set coverage driver');
     expect(script).toContain('sh script.sh 7.3 ' + __dirname);
+  });
+
+  it('Test malformed version inputs', async () => {
+    setEnv('7.4.1', 'darwin', '', '', '', '');
+    // @ts-ignore
+    let script: string = await install.run();
+    expect(script).toContain('initial script');
+    expect(script).toContain('sh script.sh 7.4 ' + __dirname);
+
+    setEnv(8.0, 'darwin', '', '', '', '');
+    // @ts-ignore
+    script = await install.run();
+    expect(script).toContain('initial script');
+    expect(script).toContain('sh script.sh 8.0 ' + __dirname);
+
+    setEnv(8, 'darwin', '', '', '', '');
+    // @ts-ignore
+    script = await install.run();
+    expect(script).toContain('initial script');
+    expect(script).toContain('sh script.sh 8.0 ' + __dirname);
   });
 });

@@ -4,6 +4,7 @@ import * as config from './config';
 import * as coverage from './coverage';
 import * as extensions from './extensions';
 import * as utils from './utils';
+import * as matchers from './matchers';
 
 /**
  * Build the script
@@ -25,6 +26,7 @@ export async function build(
     (await utils.getInput('ini-values', false)) ||
     (await utils.getInput('ini-values-csv', false));
   const coverage_driver: string = await utils.getInput('coverage', false);
+  const setup_matchers: string = await utils.getInput('matchers', false);
 
   let script: string = await utils.readScript(filename, version, os_version);
   if (extension_csv) {
@@ -63,9 +65,12 @@ export async function run(): Promise<void> {
       }
       case 'win32':
         script_path = await build('win32.ps1', version, os_version);
-        await exec('pwsh ' + script_path + ' -version ' + version);
+        await exec(
+          'pwsh ' + script_path + ' -version ' + version + ' -dir ' + __dirname
+        );
         break;
     }
+    await matchers.addMatchers();
   } catch (error) {
     core.setFailed(error.message);
   }

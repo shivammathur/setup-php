@@ -934,6 +934,46 @@ class ExecState extends events.EventEmitter {
 
 /***/ }),
 
+/***/ 86:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const path = __importStar(__webpack_require__(622));
+const utils = __importStar(__webpack_require__(163));
+const io = __importStar(__webpack_require__(1));
+/**
+ * Cache json files for problem matchers
+ */
+function addMatchers() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const config_path = path.join(__dirname, '..', 'src', 'configs', 'phpunit.json');
+        const runner_dir = yield utils.getInput('RUNNER_TOOL_CACHE', false);
+        yield io.cp(config_path, runner_dir);
+    });
+}
+exports.addMatchers = addMatchers;
+
+
+/***/ }),
+
 /***/ 87:
 /***/ (function(module) {
 
@@ -1795,6 +1835,7 @@ const config = __importStar(__webpack_require__(641));
 const coverage = __importStar(__webpack_require__(635));
 const extensions = __importStar(__webpack_require__(911));
 const utils = __importStar(__webpack_require__(163));
+const matchers = __importStar(__webpack_require__(86));
 /**
  * Build the script
  *
@@ -1810,6 +1851,7 @@ function build(filename, version, os_version) {
         const ini_values_csv = (yield utils.getInput('ini-values', false)) ||
             (yield utils.getInput('ini-values-csv', false));
         const coverage_driver = yield utils.getInput('coverage', false);
+        const setup_matchers = yield utils.getInput('matchers', false);
         let script = yield utils.readScript(filename, version, os_version);
         if (extension_csv) {
             script += yield extensions.addExtension(extension_csv, version, os_version);
@@ -1848,9 +1890,10 @@ function run() {
                 }
                 case 'win32':
                     script_path = yield build('win32.ps1', version, os_version);
-                    yield exec_1.exec('pwsh ' + script_path + ' -version ' + version);
+                    yield exec_1.exec('pwsh ' + script_path + ' -version ' + version + ' -dir ' + __dirname);
                     break;
             }
+            yield matchers.addMatchers();
         }
         catch (error) {
             core.setFailed(error.message);

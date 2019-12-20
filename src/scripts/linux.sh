@@ -16,6 +16,22 @@ add_log() {
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
   fi
 }
+
+get_extension_regex() {
+  extension=$1
+  case $extension in
+    "opcache")
+      echo "^Zend\sOPcache$"
+      ;;
+    "xdebug")
+      echo "^Xdebug$"
+      ;;
+    *)
+      echo ^"$extension"$
+      ;;
+  esac
+}
+
 existing_version=$(php-config --version | cut -c 1-3)
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
 step_log "Setup PHP and Composer"
@@ -96,11 +112,12 @@ add_extension()
   extension=$1
   install_command=$2
   prefix=$3
-  if ! php -m | grep -i -q ^"$extension"$ && [ -e "$ext_dir/$extension.so" ]; then
+  extension_regex="$(get_extension_regex "$extension")"
+  if ! php -m | grep -i -q "$extension_regex" && [ -e "$ext_dir/$extension.so" ]; then
     echo "$prefix=$extension" >> "$ini_file" && add_log "$tick" "$extension" "Enabled"
-  elif php -m | grep -i -q ^"$extension"$; then
+  elif php -m | grep -i -q "$extension_regex"; then
     add_log "$tick" "$extension" "Enabled"
-  elif ! php -m | grep -i -q ^"$extension"$; then
+  elif ! php -m | grep -i -q "$extension_regex"; then
       (
         eval "$install_command" && \
         add_log "$tick" "$extension" "Installed and enabled"

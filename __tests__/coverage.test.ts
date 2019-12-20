@@ -11,7 +11,10 @@ describe('Config tests', () => {
     let win32: string = await coverage.addCoverage('pcov', '7.4', 'win32');
     expect(win32).toContain('addExtension pcov');
     expect(win32).toContain(
-      'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug C:\\tools\\php'
+      'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug $php_dir'
+    );
+    expect(win32).toContain(
+      'if (Test-Path $ext_dir\\php_xdebug.dll) { Remove-Item $ext_dir\\php_xdebug.dll }'
     );
 
     win32 = await coverage.addCoverage('pcov', '7.0', 'win32');
@@ -24,13 +27,18 @@ describe('Config tests', () => {
   it('checking addCoverage with PCOV on linux', async () => {
     const linux: string = await coverage.addCoverage('pcov', '7.4', 'linux');
     expect(linux).toContain('addExtension pcov');
-    expect(linux).toContain('sudo sed -i "/xdebug/d" $ini_file');
+    expect(linux).toContain('sudo sed -i "/xdebug/d" "$ini_file"');
     expect(linux).toContain('sudo phpdismod -v 7.4 xdebug');
+    expect(linux).toContain(
+      'sudo DEBIAN_FRONTEND=noninteractive apt-fast remove php-xdebug'
+    );
   });
 
   it('checking addCoverage with PCOV on darwin', async () => {
     const darwin: string = await coverage.addCoverage('pcov', '7.4', 'darwin');
     expect(darwin).toContain('addExtension pcov');
+    expect(darwin).toContain('sudo sed -i \'\' "/xdebug/d" "$ini_file"');
+    expect(darwin).toContain('sudo rm -rf "$ext_dir"/xdebug.so');
   });
 
   it('checking addCoverage with Xdebug on windows', async () => {
@@ -75,20 +83,31 @@ describe('Config tests', () => {
     const win32 = await coverage.addCoverage('none', '7.4', 'win32');
     expect(win32).toContain('Disable-PhpExtension xdebug');
     expect(win32).toContain('Disable-PhpExtension pcov');
+    expect(win32).toContain(
+      'if (Test-Path $ext_dir\\php_xdebug.dll) { Remove-Item $ext_dir\\php_xdebug.dll }'
+    );
+    expect(win32).toContain(
+      'if (Test-Path $ext_dir\\php_pcov.dll) { Remove-Item $ext_dir\\php_pcov.dll }'
+    );
   });
 
   it('checking disableCoverage on linux', async () => {
     const linux: string = await coverage.addCoverage('none', '7.4', 'linux');
     expect(linux).toContain('sudo phpdismod -v 7.4 xdebug');
     expect(linux).toContain('sudo phpdismod -v 7.4 pcov');
-    expect(linux).toContain('sudo sed -i "/xdebug/d" $ini_file');
-    expect(linux).toContain('sudo sed -i "/pcov/d" $ini_file');
+    expect(linux).toContain('sudo sed -i "/xdebug/d" "$ini_file"');
+    expect(linux).toContain('sudo sed -i "/pcov/d" "$ini_file"');
+    expect(linux).toContain(
+      'sudo DEBIAN_FRONTEND=noninteractive apt-fast remove php-xdebug php-pcov'
+    );
   });
 
   it('checking disableCoverage on darwin', async () => {
     const darwin: string = await coverage.addCoverage('none', '7.4', 'darwin');
-    expect(darwin).toContain('sudo sed -i \'\' "/xdebug/d" $ini_file');
-    expect(darwin).toContain('sudo sed -i \'\' "/pcov/d" $ini_file');
+    expect(darwin).toContain('sudo sed -i \'\' "/xdebug/d" "$ini_file"');
+    expect(darwin).toContain('sudo sed -i \'\' "/pcov/d" "$ini_file"');
+    expect(darwin).toContain('sudo rm -rf "$ext_dir"/xdebug.so');
+    expect(darwin).toContain('sudo rm -rf "$ext_dir"/pcov.so');
   });
 
   it('checking no or invalid coverage driver', async () => {

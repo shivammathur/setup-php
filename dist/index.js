@@ -1613,14 +1613,26 @@ function addCoveragePCOV(version, os_version) {
                                 '/mods-available/xdebug.ini ]; then sudo phpdismod -v ' +
                                 version +
                                 ' xdebug; fi\n';
-                        script += 'sudo sed -i "/xdebug/d" $ini_file\n';
+                        script += 'sudo sed -i "/xdebug/d" "$ini_file"\n';
+                        script +=
+                            'sudo DEBIAN_FRONTEND=noninteractive apt-fast remove php-xdebug -y ' +
+                                (yield utils.suppressOutput('linux')) +
+                                '\n';
                         break;
                     case 'darwin':
-                        script += 'sudo sed -i \'\' "/xdebug/d" $ini_file\n';
+                        script += 'sudo sed -i \'\' "/xdebug/d" "$ini_file"\n';
+                        script +=
+                            'sudo rm -rf "$ext_dir"/xdebug.so ' +
+                                (yield utils.suppressOutput('darwin')) +
+                                '\n';
                         break;
                     case 'win32':
                         script +=
-                            'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug C:\\tools\\php }\n';
+                            'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug $php_dir }\n';
+                        script +=
+                            'if (Test-Path $ext_dir\\php_xdebug.dll) { Remove-Item $ext_dir\\php_xdebug.dll }' +
+                                (yield utils.suppressOutput('win32')) +
+                                '\n';
                         break;
                 }
                 // success
@@ -1659,18 +1671,38 @@ function disableCoverage(version, os_version) {
                         '/mods-available/pcov.ini ]; then sudo phpdismod -v ' +
                         version +
                         ' pcov; fi\n';
-                script += 'sudo sed -i "/xdebug/d" $ini_file\n';
-                script += 'sudo sed -i "/pcov/d" $ini_file\n';
+                script += 'sudo sed -i "/xdebug/d" "$ini_file"\n';
+                script += 'sudo sed -i "/pcov/d" "$ini_file"\n';
+                script +=
+                    'sudo DEBIAN_FRONTEND=noninteractive apt-fast remove php-xdebug php-pcov -y ' +
+                        (yield utils.suppressOutput('linux')) +
+                        '\n';
                 break;
             case 'darwin':
-                script += 'sudo sed -i \'\' "/xdebug/d" $ini_file\n';
-                script += 'sudo sed -i \'\' "/pcov/d" $ini_file\n';
+                script += 'sudo sed -i \'\' "/xdebug/d" "$ini_file"\n';
+                script += 'sudo sed -i \'\' "/pcov/d" "$ini_file"\n';
+                script +=
+                    'sudo rm -rf "$ext_dir"/xdebug.so ' +
+                        (yield utils.suppressOutput('darwin')) +
+                        '\n';
+                script +=
+                    'sudo rm -rf "$ext_dir"/pcov.so ' +
+                        (yield utils.suppressOutput('darwin')) +
+                        '\n';
                 break;
             case 'win32':
                 script +=
-                    'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug C:\\tools\\php }\n';
+                    'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug $php_dir }\n';
                 script +=
-                    'if(php -m | findstr -i pcov) { Disable-PhpExtension pcov C:\\tools\\php }\n';
+                    'if(php -m | findstr -i pcov) { Disable-PhpExtension pcov $php_dir }\n';
+                script +=
+                    'if (Test-Path $ext_dir\\php_xdebug.dll) { Remove-Item $ext_dir\\php_xdebug.dll }' +
+                        (yield utils.suppressOutput('win32')) +
+                        '\n';
+                script +=
+                    'if (Test-Path $ext_dir\\php_pcov.dll) { Remove-Item $ext_dir\\php_pcov.dll }' +
+                        (yield utils.suppressOutput('win32')) +
+                        '\n';
                 break;
         }
         script += yield utils.addLog('$tick', 'none', 'Disabled Xdebug and PCOV', os_version);

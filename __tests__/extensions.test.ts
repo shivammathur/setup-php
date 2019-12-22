@@ -51,8 +51,8 @@ describe('Extension tests', () => {
       '7.2',
       'linux'
     );
+    expect(linux).toContain('phalcon.sh 3.4.x 7.2');
     expect(linux).toContain('phalcon.sh master 7.2');
-    expect(linux).toContain('phalcon.sh 4.0.x 7.2');
     expect(linux).toContain('gearman.sh 7.2');
 
     linux = await extensions.addExtension(
@@ -60,12 +60,12 @@ describe('Extension tests', () => {
       '7.3',
       'linux'
     );
+    expect(linux).toContain('phalcon.sh 3.4.x 7.3');
     expect(linux).toContain('phalcon.sh master 7.3');
-    expect(linux).toContain('phalcon.sh 4.0.x 7.3');
     expect(linux).toContain('gearman.sh 7.3');
 
     linux = await extensions.addExtension('phalcon4, gearman', '7.4', 'linux');
-    expect(linux).toContain('phalcon.sh 4.0.x 7.4');
+    expect(linux).toContain('phalcon.sh master 7.4');
     expect(linux).toContain('gearman.sh 7.4');
 
     linux = await extensions.addExtension('xdebug', '7.2', 'fedora');

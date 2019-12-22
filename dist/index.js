@@ -2270,7 +2270,7 @@ function addExtensionLinux(extension_csv, version) {
                         install_command =
                             'sh ' +
                                 path.join(__dirname, '../src/scripts/phalcon.sh') +
-                                ' master ' +
+                                ' 3.4.x ' +
                                 version +
                                 ' >/dev/null 2>&1';
                         break;
@@ -2280,7 +2280,7 @@ function addExtensionLinux(extension_csv, version) {
                         install_command =
                             'sh ' +
                                 path.join(__dirname, '../src/scripts/phalcon.sh') +
-                                ' 4.0.x ' +
+                                ' master ' +
                                 version +
                                 ' >/dev/null 2>&1';
                         break;

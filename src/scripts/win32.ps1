@@ -9,6 +9,7 @@ $php_dir = 'C:\tools\php'
 $ext_dir = $php_dir + '\ext'
 $ProgressPreference = 'SilentlyContinue'
 $master_version = '8.0'
+$arch='x64'
 
 Function Step-Log($message) {
   printf "\n\033[90;1m==> \033[0m\033[37;1m%s \033[0m\n" $message
@@ -33,7 +34,6 @@ if (Test-Path -LiteralPath $php_dir -PathType Container) {
 }
 Step-Log "Setup PHP and Composer"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.')))) {
-  $arch='x64'
   if ($version -lt '7.0') {
     Install-Module -Name VcRedist -Force
     $arch='x86'
@@ -98,6 +98,32 @@ Function Add-Extension {
     }
   }
   catch {
+    Add-Log $cross $extension "Could not install $extension on PHP $($installed.FullVersion)"
+  }
+}
+
+Function Add-Phalcon {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateSet('phalcon3', 'phalcon4')]
+    [string]
+    $extension
+  )
+  $extension_version = $extension.substring($extension.Length - 1)
+  $nts = if(! $installed.ThreadSafe ) { "_nts" } else { "" }
+  $domain = "https://github.com"
+  Install-Phpextension psr
+  try
+  {
+    $match = Invoke-WebRequest -UseBasicParsing -Uri $domain/phalcon/cphalcon/releases | Select-String -Pattern "href=`"(.*phalcon_${arch}_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)`""
+    $zip_file = $match.Matches[0].Groups[1].Value
+    Invoke-WebRequest -UseBasicParsing -Uri $domain/$zip_file -OutFile $PSScriptRoot\phalcon.zip
+    Expand-Archive -Path $PSScriptRoot\phalcon.zip -DestinationPath $PSScriptRoot\phalcon -Force > $null 2>&1
+    New-Item -ItemType SymbolicLink -Path $ext_dir\php_phalcon.dll -Target $PSScriptRoot\phalcon\php_phalcon.dll > $null 2>&1
+    Enable-PhpExtension -Extension phalcon -Path $php_dir
+    Add-Log $tick $extension "Installed and enabled"
+  } catch {
     Add-Log $cross $extension "Could not install $extension on PHP $($installed.FullVersion)"
   }
 }

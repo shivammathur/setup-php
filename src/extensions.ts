@@ -17,13 +17,16 @@ export async function addExtensionDarwin(
     extension = extension.toLowerCase();
     // add script to enable extension is already installed along with php
     let install_command = '';
-    switch (version + extension) {
-      case '5.6xdebug':
+    switch (true) {
+      case /5\.6xdebug/.test(version + extension):
         install_command = 'sudo pecl install xdebug-2.5.5 >/dev/null 2>&1';
         break;
-      case '5.6redis':
+      case /5\.6redis/.test(version + extension):
         install_command = 'sudo pecl install redis-2.2.8 >/dev/null 2>&1';
         break;
+      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version + extension):
+        script += '\nadd_phalcon ' + extension;
+        return;
       default:
         install_command = 'sudo pecl install ' + extension + ' >/dev/null 2>&1';
         break;
@@ -53,9 +56,10 @@ export async function addExtensionWindows(
   let script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     // add script to enable extension is already installed along with php
-    switch (version + extension) {
-      case '7.4redis':
-        script += '\nAdd-Extension ' + extension + ' beta';
+    switch (true) {
+      // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version + extension):
+        script += '\nAdd-Phalcon ' + extension;
         break;
       default:
         script += '\nAdd-Extension ' + extension;
@@ -82,38 +86,23 @@ export async function addExtensionLinux(
     // add script to enable extension is already installed along with php
 
     let install_command = '';
-    switch (version + extension) {
-      case '7.4redis':
-        install_command =
-          'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-igbinary php7.4-redis >/dev/null 2>&1';
-        break;
-      case '7.2phalcon3':
-      case '7.3phalcon3':
-        install_command =
-          'sh ' +
-          path.join(__dirname, '../src/scripts/phalcon.sh') +
-          ' 3.4.x ' +
-          version +
-          ' >/dev/null 2>&1';
-        break;
-      case '7.2phalcon4':
-      case '7.3phalcon4':
-      case '7.4phalcon4':
-        install_command =
-          'sh ' +
-          path.join(__dirname, '../src/scripts/phalcon.sh') +
-          ' master ' +
-          version +
-          ' >/dev/null 2>&1';
-        break;
-      case '7.0gearman':
-      case '7.1gearman':
-      case '7.2gearman':
-      case '7.3gearman':
-      case '7.4gearman':
+    switch (true) {
+      // match 5.6gearman..7.4gearman
+      case /^((5\.6)|(7\.[0-4]))gearman$/.test(version + extension):
         install_command =
           'sh ' +
           path.join(__dirname, '../src/scripts/gearman.sh') +
+          ' ' +
+          version +
+          ' >/dev/null 2>&1';
+        break;
+      // match 7.0phalcon3..7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version + extension):
+        install_command =
+          'sh ' +
+          path.join(__dirname, '../src/scripts/phalcon.sh') +
+          ' ' +
+          extension +
           ' ' +
           version +
           ' >/dev/null 2>&1';

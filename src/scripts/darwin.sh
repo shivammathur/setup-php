@@ -40,6 +40,22 @@ add_extension() {
   fi
 }
 
+add_phalcon() {
+  extension=$1
+  sudo pecl install psr >/dev/null 2>&1
+  brew install autoconf automake libtool >/dev/null 2>&1
+  git clone https://github.com/phalcon/cphalcon.git >/dev/null 2>&1
+  cd cphalcon || echo "could not cd"
+  git checkout "$(git branch -r | grep -E "origin/${extension: -1}\.\d\.x" | sort -r | head -n 1 | sed "s/ //g")" >/dev/null 2>&1
+  sed -i '' 's/zend_ulong/ulong/' build/php7/64bits/phalcon.zep.c
+  sed -i '' 's/ulong/zend_ulong/' build/php7/64bits/phalcon.zep.c
+  cd build/php7/64bits && sudo phpize >/dev/null 2>&1
+  sudo ./configure --with-php-config=/usr/local/bin/php-config --enable-phalcon >/dev/null 2>&1
+  sudo glibtoolize --force >/dev/null 2>&1 && sudo autoreconf >/dev/null 2>&1
+  sudo make -i -j2 >/dev/null 2>&1 && sudo make install >/dev/null 2>&1
+  echo "extension=phalcon.so" >>"$ini_file" && add_log "$tick" "$extension" "Installed and enabled"
+}
+
 # Function to setup PHP and composer
 setup_php_and_composer() {
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE

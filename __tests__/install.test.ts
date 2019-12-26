@@ -47,8 +47,7 @@ jest.mock('../src/install', () => ({
         }
         case 'win32':
           script = await install.build(os_version + '.sh', version, os_version);
-          script +=
-            'pwsh script.ps1 -version ' + version + ' -dir ' + __dirname;
+          script += 'pwsh script.ps1 ' + version + ' ' + __dirname;
           break;
         default:
           script += os_version + ' is not supported';
@@ -90,13 +89,13 @@ describe('Install', () => {
     // @ts-ignore
     let script: string = await install.run();
     expect(script).toContain('initial script');
-    expect(script).toContain('pwsh script.ps1 -version 7.0 -dir ' + __dirname);
+    expect(script).toContain('pwsh script.ps1 7.0 ' + __dirname);
 
     setEnv('7.3', 'win32', '', '', '', '');
     // @ts-ignore
     script = await install.run();
     expect(script).toContain('initial script');
-    expect(script).toContain('pwsh script.ps1 -version 7.3 -dir ' + __dirname);
+    expect(script).toContain('pwsh script.ps1 7.3 ' + __dirname);
 
     setEnv('7.3', 'win32', 'a, b', 'a=b', 'x', '');
     // @ts-ignore
@@ -105,7 +104,7 @@ describe('Install', () => {
     expect(script).toContain('install extensions');
     expect(script).toContain('edit php.ini');
     expect(script).toContain('set coverage driver');
-    expect(script).toContain('pwsh script.ps1 -version 7.3 -dir ' + __dirname);
+    expect(script).toContain('pwsh script.ps1 7.3 ' + __dirname);
   });
 
   it('Test install on linux', async () => {

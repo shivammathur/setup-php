@@ -9,7 +9,7 @@ describe('Extension tests', () => {
     );
     expect(win32).toContain('Add-Extension xdebug');
     expect(win32).toContain('Add-Extension pcov');
-    expect(win32).toContain('Add-Phalcon phalcon4');
+    expect(win32).toContain('phalcon.ps1 phalcon4');
 
     win32 = await extensions.addExtension(
       'phalcon3, does_not_exist',
@@ -17,7 +17,7 @@ describe('Extension tests', () => {
       'win32',
       true
     );
-    expect(win32).toContain('Add-Phalcon phalcon3');
+    expect(win32).toContain('phalcon.ps1 phalcon3');
     expect(win32).toContain('Add-Extension does_not_exist');
 
     win32 = await extensions.addExtension('xdebug', '7.2', 'fedora');
@@ -80,10 +80,10 @@ describe('Extension tests', () => {
     expect(darwin).toContain('sudo pecl install pcov');
 
     darwin = await extensions.addExtension('phalcon3', '7.0', 'darwin');
-    expect(darwin).toContain('add_phalcon phalcon3');
+    expect(darwin).toContain('phalcon_darwin.sh phalcon3');
 
     darwin = await extensions.addExtension('phalcon4', '7.3', 'darwin');
-    expect(darwin).toContain('add_phalcon phalcon4');
+    expect(darwin).toContain('phalcon_darwin.sh phalcon4');
 
     darwin = await extensions.addExtension('pcov', '5.6', 'darwin');
     expect(darwin).toContain('sudo pecl install pcov');

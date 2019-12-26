@@ -65,9 +65,7 @@ export async function run(): Promise<void> {
       }
       case 'win32':
         script_path = await build('win32.ps1', version, os_version);
-        await exec(
-          'pwsh ' + script_path + ' -version ' + version + ' -dir ' + __dirname
-        );
+        await exec('pwsh ' + script_path + ' ' + version + ' ' + __dirname);
         break;
     }
     await matchers.addMatchers();

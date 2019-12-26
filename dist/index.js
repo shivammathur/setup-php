@@ -1570,8 +1570,9 @@ const config = __importStar(__webpack_require__(641));
  *
  * @param version
  * @param os_version
+ * @param pipe
  */
-function addCoverageXdebug(version, os_version) {
+function addCoverageXdebug(version, os_version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (version) {
             case '8.0':
@@ -1580,7 +1581,7 @@ function addCoverageXdebug(version, os_version) {
             case '7.4':
             default:
                 return ((yield extensions.addExtension('xdebug', version, os_version, true)) +
-                    (yield utils.suppressOutput(os_version)) +
+                    pipe +
                     '\n' +
                     (yield utils.addLog('$tick', 'xdebug', 'Xdebug enabled as coverage driver', os_version)));
         }
@@ -1592,47 +1593,27 @@ exports.addCoverageXdebug = addCoverageXdebug;
  *
  * @param version
  * @param os_version
+ * @param pipe
  */
-function addCoveragePCOV(version, os_version) {
+function addCoveragePCOV(version, os_version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         let script = '\n';
         switch (version) {
             default:
                 script +=
                     (yield extensions.addExtension('pcov', version, os_version, true)) +
-                        (yield utils.suppressOutput(os_version)) +
+                        pipe +
                         '\n';
                 script +=
                     (yield config.addINIValues('pcov.enabled=1', os_version, true)) + '\n';
                 // add command to disable xdebug and enable pcov
                 switch (os_version) {
                     case 'linux':
-                        script +=
-                            'if [ -e /etc/php/' +
-                                version +
-                                '/mods-available/xdebug.ini ]; then sudo phpdismod -v ' +
-                                version +
-                                ' xdebug; fi\n';
-                        script += 'sudo sed -i "/xdebug/d" "$ini_file"\n';
-                        script +=
-                            'sudo DEBIAN_FRONTEND=noninteractive apt-fast remove php-xdebug -y ' +
-                                (yield utils.suppressOutput('linux')) +
-                                '\n';
-                        break;
                     case 'darwin':
-                        script += 'sudo sed -i \'\' "/xdebug/d" "$ini_file"\n';
-                        script +=
-                            'sudo rm -rf "$ext_dir"/xdebug.so ' +
-                                (yield utils.suppressOutput('darwin')) +
-                                '\n';
+                        script += 'remove_extension xdebug' + pipe + '\n';
                         break;
                     case 'win32':
-                        script +=
-                            'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug $php_dir }\n';
-                        script +=
-                            'if (Test-Path $ext_dir\\php_xdebug.dll) { Remove-Item $ext_dir\\php_xdebug.dll }' +
-                                (yield utils.suppressOutput('win32')) +
-                                '\n';
+                        script += 'Remove-Extension xdebug' + pipe + '\n';
                         break;
                 }
                 // success
@@ -1653,56 +1634,20 @@ exports.addCoveragePCOV = addCoveragePCOV;
  *
  * @param version
  * @param os_version
+ * @param pipe
  */
-function disableCoverage(version, os_version) {
+function disableCoverage(version, os_version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         let script = '\n';
         switch (os_version) {
             case 'linux':
-                script +=
-                    'if [ -e /etc/php/' +
-                        version +
-                        '/mods-available/xdebug.ini ]; then sudo phpdismod -v ' +
-                        version +
-                        ' xdebug; fi\n';
-                script +=
-                    'if [ -e /etc/php/' +
-                        version +
-                        '/mods-available/pcov.ini ]; then sudo phpdismod -v ' +
-                        version +
-                        ' pcov; fi\n';
-                script += 'sudo sed -i "/xdebug/d" "$ini_file"\n';
-                script += 'sudo sed -i "/pcov/d" "$ini_file"\n';
-                script +=
-                    'sudo DEBIAN_FRONTEND=noninteractive apt-fast remove php-xdebug php-pcov -y ' +
-                        (yield utils.suppressOutput('linux')) +
-                        '\n';
-                break;
             case 'darwin':
-                script += 'sudo sed -i \'\' "/xdebug/d" "$ini_file"\n';
-                script += 'sudo sed -i \'\' "/pcov/d" "$ini_file"\n';
-                script +=
-                    'sudo rm -rf "$ext_dir"/xdebug.so ' +
-                        (yield utils.suppressOutput('darwin')) +
-                        '\n';
-                script +=
-                    'sudo rm -rf "$ext_dir"/pcov.so ' +
-                        (yield utils.suppressOutput('darwin')) +
-                        '\n';
+                script += 'remove_extension xdebug' + pipe + '\n';
+                script += 'remove_extension pcov' + pipe + '\n';
                 break;
             case 'win32':
-                script +=
-                    'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug $php_dir }\n';
-                script +=
-                    'if(php -m | findstr -i pcov) { Disable-PhpExtension pcov $php_dir }\n';
-                script +=
-                    'if (Test-Path $ext_dir\\php_xdebug.dll) { Remove-Item $ext_dir\\php_xdebug.dll }' +
-                        (yield utils.suppressOutput('win32')) +
-                        '\n';
-                script +=
-                    'if (Test-Path $ext_dir\\php_pcov.dll) { Remove-Item $ext_dir\\php_pcov.dll }' +
-                        (yield utils.suppressOutput('win32')) +
-                        '\n';
+                script += 'Remove-Extension xdebug' + pipe + '\n';
+                script += 'Remove-Extension pcov' + pipe + '\n';
                 break;
         }
         script += yield utils.addLog('$tick', 'none', 'Disabled Xdebug and PCOV', os_version);
@@ -1721,13 +1666,14 @@ function addCoverage(coverage_driver, version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
         coverage_driver.toLowerCase();
         const script = '\n' + (yield utils.stepLog('Setup Coverage', os_version));
+        const pipe = yield utils.suppressOutput(os_version);
         switch (coverage_driver) {
             case 'pcov':
-                return script + (yield addCoveragePCOV(version, os_version));
+                return script + (yield addCoveragePCOV(version, os_version, pipe));
             case 'xdebug':
-                return script + (yield addCoverageXdebug(version, os_version));
+                return script + (yield addCoverageXdebug(version, os_version, pipe));
             case 'none':
-                return script + (yield disableCoverage(version, os_version));
+                return script + (yield disableCoverage(version, os_version, pipe));
             default:
                 return '';
         }
@@ -1922,7 +1868,7 @@ function run() {
                 }
                 case 'win32':
                     script_path = yield build('win32.ps1', version, os_version);
-                    yield exec_1.exec('pwsh ' + script_path + ' -version ' + version + ' -dir ' + __dirname);
+                    yield exec_1.exec('pwsh ' + script_path + ' ' + version + ' ' + __dirname);
                     break;
             }
             yield matchers.addMatchers();
@@ -2184,28 +2130,35 @@ const utils = __importStar(__webpack_require__(163));
  *
  * @param extension_csv
  * @param version
+ * @param pipe
  */
-function addExtensionDarwin(extension_csv, version) {
+function addExtensionDarwin(extension_csv, version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         const extensions = yield utils.extensionArray(extension_csv);
         let script = '\n';
         yield utils.asyncForEach(extensions, function (extension) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
+                const version_extension = version + extension;
                 // add script to enable extension is already installed along with php
                 let install_command = '';
                 switch (true) {
-                    case /5\.6xdebug/.test(version + extension):
-                        install_command = 'sudo pecl install xdebug-2.5.5 >/dev/null 2>&1';
+                    case /5\.6xdebug/.test(version_extension):
+                        install_command = 'sudo pecl install xdebug-2.5.5' + pipe;
                         break;
-                    case /5\.6redis/.test(version + extension):
-                        install_command = 'sudo pecl install redis-2.2.8 >/dev/null 2>&1';
+                    case /5\.6redis/.test(version_extension):
+                        install_command = 'sudo pecl install redis-2.2.8' + pipe;
                         break;
-                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version + extension):
-                        script += '\nadd_phalcon ' + extension;
-                        return;
+                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+                        install_command =
+                            'sh ' +
+                                path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
+                                ' ' +
+                                extension +
+                                pipe;
+                        break;
                     default:
-                        install_command = 'sudo pecl install ' + extension + ' >/dev/null 2>&1';
+                        install_command = 'sudo pecl install ' + extension + pipe;
                         break;
                 }
                 script +=
@@ -2226,18 +2179,27 @@ exports.addExtensionDarwin = addExtensionDarwin;
  *
  * @param extension_csv
  * @param version
+ * @param pipe
  */
-function addExtensionWindows(extension_csv, version) {
+function addExtensionWindows(extension_csv, version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         const extensions = yield utils.extensionArray(extension_csv);
         let script = '\n';
         yield utils.asyncForEach(extensions, function (extension) {
             return __awaiter(this, void 0, void 0, function* () {
                 // add script to enable extension is already installed along with php
+                const version_extension = version + extension;
                 switch (true) {
                     // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version + extension):
-                        script += '\nAdd-Phalcon ' + extension;
+                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+                        script +=
+                            '\n& ' +
+                                path.join(__dirname, '../src/scripts/ext/phalcon.ps1') +
+                                ' ' +
+                                extension +
+                                ' ' +
+                                version +
+                                '\n';
                         break;
                     default:
                         script += '\nAdd-Extension ' + extension;
@@ -2254,8 +2216,9 @@ exports.addExtensionWindows = addExtensionWindows;
  *
  * @param extension_csv
  * @param version
+ * @param pipe
  */
-function addExtensionLinux(extension_csv, version) {
+function addExtensionLinux(extension_csv, version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         const extensions = yield utils.extensionArray(extension_csv);
         let script = '\n';
@@ -2263,27 +2226,28 @@ function addExtensionLinux(extension_csv, version) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
                 // add script to enable extension is already installed along with php
+                const version_extension = version + extension;
                 let install_command = '';
                 switch (true) {
                     // match 5.6gearman..7.4gearman
-                    case /^((5\.6)|(7\.[0-4]))gearman$/.test(version + extension):
+                    case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
                         install_command =
                             'sh ' +
-                                path.join(__dirname, '../src/scripts/gearman.sh') +
+                                path.join(__dirname, '../src/scripts/ext/gearman.sh') +
                                 ' ' +
                                 version +
-                                ' >/dev/null 2>&1';
+                                pipe;
                         break;
                     // match 7.0phalcon3..7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version + extension):
+                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
                         install_command =
                             'sh ' +
-                                path.join(__dirname, '../src/scripts/phalcon.sh') +
+                                path.join(__dirname, '../src/scripts/ext/phalcon.sh') +
                                 ' ' +
                                 extension +
                                 ' ' +
                                 version +
-                                ' >/dev/null 2>&1';
+                                pipe;
                         break;
                     default:
                         install_command =
@@ -2291,9 +2255,10 @@ function addExtensionLinux(extension_csv, version) {
                                 version +
                                 '-' +
                                 extension.replace('pdo_', '').replace('pdo-', '') +
-                                ' >/dev/null 2>&1 || sudo pecl install ' +
+                                pipe +
+                                ' || sudo pecl install ' +
                                 extension +
-                                ' >/dev/null 2>&1';
+                                pipe;
                         break;
                 }
                 script +=
@@ -2319,12 +2284,11 @@ exports.addExtensionLinux = addExtensionLinux;
  */
 function addExtension(extension_csv, version, os_version, no_step = false) {
     return __awaiter(this, void 0, void 0, function* () {
+        const pipe = yield utils.suppressOutput(os_version);
         let script = '\n';
         switch (no_step) {
             case true:
-                script +=
-                    (yield utils.stepLog('Setup Extensions', os_version)) +
-                        (yield utils.suppressOutput(os_version));
+                script += (yield utils.stepLog('Setup Extensions', os_version)) + pipe;
                 break;
             case false:
             default:
@@ -2333,11 +2297,11 @@ function addExtension(extension_csv, version, os_version, no_step = false) {
         }
         switch (os_version) {
             case 'win32':
-                return script + (yield addExtensionWindows(extension_csv, version));
+                return script + (yield addExtensionWindows(extension_csv, version, pipe));
             case 'darwin':
-                return script + (yield addExtensionDarwin(extension_csv, version));
+                return script + (yield addExtensionDarwin(extension_csv, version, pipe));
             case 'linux':
-                return script + (yield addExtensionLinux(extension_csv, version));
+                return script + (yield addExtensionLinux(extension_csv, version, pipe));
             default:
                 return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
         }

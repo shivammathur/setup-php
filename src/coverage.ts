@@ -7,10 +7,12 @@ import * as config from './config';
  *
  * @param version
  * @param os_version
+ * @param pipe
  */
 export async function addCoverageXdebug(
   version: string,
-  os_version: string
+  os_version: string,
+  pipe: string
 ): Promise<string> {
   switch (version) {
     case '8.0':
@@ -27,7 +29,7 @@ export async function addCoverageXdebug(
     default:
       return (
         (await extensions.addExtension('xdebug', version, os_version, true)) +
-        (await utils.suppressOutput(os_version)) +
+        pipe +
         '\n' +
         (await utils.addLog(
           '$tick',
@@ -44,17 +46,19 @@ export async function addCoverageXdebug(
  *
  * @param version
  * @param os_version
+ * @param pipe
  */
 export async function addCoveragePCOV(
   version: string,
-  os_version: string
+  os_version: string,
+  pipe: string
 ): Promise<string> {
   let script = '\n';
   switch (version) {
     default:
       script +=
         (await extensions.addExtension('pcov', version, os_version, true)) +
-        (await utils.suppressOutput(os_version)) +
+        pipe +
         '\n';
       script +=
         (await config.addINIValues('pcov.enabled=1', os_version, true)) + '\n';
@@ -62,32 +66,11 @@ export async function addCoveragePCOV(
       // add command to disable xdebug and enable pcov
       switch (os_version) {
         case 'linux':
-          script +=
-            'if [ -e /etc/php/' +
-            version +
-            '/mods-available/xdebug.ini ]; then sudo phpdismod -v ' +
-            version +
-            ' xdebug; fi\n';
-          script += 'sudo sed -i "/xdebug/d" "$ini_file"\n';
-          script +=
-            'sudo DEBIAN_FRONTEND=noninteractive apt-fast remove php-xdebug -y ' +
-            (await utils.suppressOutput('linux')) +
-            '\n';
-          break;
         case 'darwin':
-          script += 'sudo sed -i \'\' "/xdebug/d" "$ini_file"\n';
-          script +=
-            'sudo rm -rf "$ext_dir"/xdebug.so ' +
-            (await utils.suppressOutput('darwin')) +
-            '\n';
+          script += 'remove_extension xdebug' + pipe + '\n';
           break;
         case 'win32':
-          script +=
-            'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug $php_dir }\n';
-          script +=
-            'if (Test-Path $ext_dir\\php_xdebug.dll) { Remove-Item $ext_dir\\php_xdebug.dll }' +
-            (await utils.suppressOutput('win32')) +
-            '\n';
+          script += 'Remove-Extension xdebug' + pipe + '\n';
           break;
       }
 
@@ -119,58 +102,23 @@ export async function addCoveragePCOV(
  *
  * @param version
  * @param os_version
+ * @param pipe
  */
 export async function disableCoverage(
   version: string,
-  os_version: string
+  os_version: string,
+  pipe: string
 ): Promise<string> {
   let script = '\n';
   switch (os_version) {
     case 'linux':
-      script +=
-        'if [ -e /etc/php/' +
-        version +
-        '/mods-available/xdebug.ini ]; then sudo phpdismod -v ' +
-        version +
-        ' xdebug; fi\n';
-      script +=
-        'if [ -e /etc/php/' +
-        version +
-        '/mods-available/pcov.ini ]; then sudo phpdismod -v ' +
-        version +
-        ' pcov; fi\n';
-      script += 'sudo sed -i "/xdebug/d" "$ini_file"\n';
-      script += 'sudo sed -i "/pcov/d" "$ini_file"\n';
-      script +=
-        'sudo DEBIAN_FRONTEND=noninteractive apt-fast remove php-xdebug php-pcov -y ' +
-        (await utils.suppressOutput('linux')) +
-        '\n';
-      break;
     case 'darwin':
-      script += 'sudo sed -i \'\' "/xdebug/d" "$ini_file"\n';
-      script += 'sudo sed -i \'\' "/pcov/d" "$ini_file"\n';
-      script +=
-        'sudo rm -rf "$ext_dir"/xdebug.so ' +
-        (await utils.suppressOutput('darwin')) +
-        '\n';
-      script +=
-        'sudo rm -rf "$ext_dir"/pcov.so ' +
-        (await utils.suppressOutput('darwin')) +
-        '\n';
+      script += 'remove_extension xdebug' + pipe + '\n';
+      script += 'remove_extension pcov' + pipe + '\n';
       break;
     case 'win32':
-      script +=
-        'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug $php_dir }\n';
-      script +=
-        'if(php -m | findstr -i pcov) { Disable-PhpExtension pcov $php_dir }\n';
-      script +=
-        'if (Test-Path $ext_dir\\php_xdebug.dll) { Remove-Item $ext_dir\\php_xdebug.dll }' +
-        (await utils.suppressOutput('win32')) +
-        '\n';
-      script +=
-        'if (Test-Path $ext_dir\\php_pcov.dll) { Remove-Item $ext_dir\\php_pcov.dll }' +
-        (await utils.suppressOutput('win32')) +
-        '\n';
+      script += 'Remove-Extension xdebug' + pipe + '\n';
+      script += 'Remove-Extension pcov' + pipe + '\n';
       break;
   }
   script += await utils.addLog(
@@ -198,13 +146,14 @@ export async function addCoverage(
   coverage_driver.toLowerCase();
   const script: string =
     '\n' + (await utils.stepLog('Setup Coverage', os_version));
+  const pipe: string = await utils.suppressOutput(os_version);
   switch (coverage_driver) {
     case 'pcov':
-      return script + (await addCoveragePCOV(version, os_version));
+      return script + (await addCoveragePCOV(version, os_version, pipe));
     case 'xdebug':
-      return script + (await addCoverageXdebug(version, os_version));
+      return script + (await addCoverageXdebug(version, os_version, pipe));
     case 'none':
-      return script + (await disableCoverage(version, os_version));
+      return script + (await disableCoverage(version, os_version, pipe));
     default:
       return '';
   }

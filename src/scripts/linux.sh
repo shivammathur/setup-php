@@ -24,7 +24,7 @@ update_ppa() {
   fi
 }
 
-# Function to setup extension
+# Function to setup extensions
 add_extension() {
   extension=$1
   install_command=$2
@@ -38,6 +38,16 @@ add_extension() {
     (update_ppa && eval "$install_command" && add_log "$tick" "$extension" "Installed and enabled") ||
     add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi
+}
+
+# Function to remove extensions
+remove_extension() {
+  extension=$1
+  if [ -e /etc/php/"$version"/mods-available/$1.ini ]; then
+    sudo phpdismod -v "$version" $1
+  fi
+  sudo sed -i "/$1/d" "$ini_file"
+  sudo DEBIAN_FRONTEND=noninteractive apt-get remove php-$1 -y >/dev/null 2>&1
 }
 
 # Function to setup the nightly build from master branch

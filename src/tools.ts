@@ -42,7 +42,7 @@ export async function addTools(
   tools_csv: string,
   os_version: string
 ): Promise<string> {
-  let script = await utils.stepLog('Setup Tools', os_version);
+  let script = '\n' + (await utils.stepLog('Setup Tools', os_version));
   let tools: Array<string> = await utils.CSVArray(tools_csv);
   tools = tools.filter(tool => tool !== 'composer');
   tools.unshift('composer');
@@ -91,10 +91,22 @@ export async function addTools(
           ' ' +
           'phpmd';
         break;
+      case 'psalm':
+        script +=
+          (await getToolCommand(os_version)) +
+          'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar' +
+          ' ' +
+          'psalm';
+        break;
+      case 'phinx':
+        script +=
+          'composer global require robmorgan/phinx' +
+          (await utils.suppressOutput(os_version));
+        break;
       case 'composer':
         script +=
           (await getToolCommand(os_version)) +
-          'https://getcomposer.org/composer.phar' +
+          'https://github.com/composer/composer/releases/latest/download/composer.phar' +
           ' ' +
           'composer';
         break;

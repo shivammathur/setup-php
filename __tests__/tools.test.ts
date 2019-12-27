@@ -21,40 +21,57 @@ describe('Tools tests', () => {
 
   it('checking addTools', async () => {
     let script: string = await tools.addTools(
-      'php-cs-fixer, phpstan, phpunit, pecl',
+      'php-cs-fixer, phpstan, phpunit, pecl, phinx',
       'linux'
     );
-    expect(script).toContain('add_tool https://getcomposer.org/composer.phar');
     expect(script).toContain(
-      'add_tool https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/latest/download/php-cs-fixer.phar'
+      'add_tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
     );
     expect(script).toContain(
-      'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar'
+      'add_tool https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/latest/download/php-cs-fixer.phar php-cs-fixer'
     );
-    expect(script).toContain('add_tool https://phar.phpunit.de/phpunit.phar');
+    expect(script).toContain(
+      'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar phpstan'
+    );
+    expect(script).toContain(
+      'add_tool https://phar.phpunit.de/phpunit.phar phpunit'
+    );
     expect(script).toContain('add_pecl');
+    expect(script).toContain('composer global require robmorgan/phinx');
 
-    script = await tools.addTools('phpcs, phpcbf, phpcpd, phpmd', 'darwin');
-    expect(script).toContain('add_tool https://getcomposer.org/composer.phar');
-    expect(script).toContain(
-      'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar'
+    script = await tools.addTools(
+      'phpcs, phpcbf, phpcpd, phpmd, psalm',
+      'darwin'
     );
     expect(script).toContain(
-      'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcbf.phar'
+      'add_tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
     );
     expect(script).toContain(
-      'add_tool https://github.com/sebastianbergmann/phpcpd/releases/latest/download/phpcpd.phar'
+      'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar phpcs'
     );
     expect(script).toContain(
-      'add_tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar'
+      'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcbf.phar phpcbf'
+    );
+    expect(script).toContain(
+      'add_tool https://github.com/sebastianbergmann/phpcpd/releases/latest/download/phpcpd.phar phpcpd'
+    );
+    expect(script).toContain(
+      'add_tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd'
+    );
+    expect(script).toContain(
+      'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar psalm'
     );
 
     script = await tools.addTools(
       'codeception, deployer, prestissimo, phpmd, does_not_exit',
       'win32'
     );
-    expect(script).toContain('Add-Tool https://getcomposer.org/composer.phar');
-    expect(script).toContain('Add-Tool https://deployer.org/deployer.phar');
+    expect(script).toContain(
+      'Add-Tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
+    );
+    expect(script).toContain(
+      'Add-Tool https://deployer.org/deployer.phar deployer'
+    );
     expect(script).toContain('composer global require hirak/prestissimo');
     expect(script).toContain('Tool does_not_exit is not supported');
   });

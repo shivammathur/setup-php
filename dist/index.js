@@ -1591,7 +1591,7 @@ exports.getPECLCommand = getPECLCommand;
  */
 function addTools(tools_csv, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
-        let script = yield utils.stepLog('Setup Tools', os_version);
+        let script = '\n' + (yield utils.stepLog('Setup Tools', os_version));
         let tools = yield utils.CSVArray(tools_csv);
         tools = tools.filter(tool => tool !== 'composer');
         tools.unshift('composer');
@@ -1641,10 +1641,22 @@ function addTools(tools_csv, os_version) {
                                 ' ' +
                                 'phpmd';
                         break;
+                    case 'psalm':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar' +
+                                ' ' +
+                                'psalm';
+                        break;
+                    case 'phinx':
+                        script +=
+                            'composer global require robmorgan/phinx' +
+                                (yield utils.suppressOutput(os_version));
+                        break;
                     case 'composer':
                         script +=
                             (yield getToolCommand(os_version)) +
-                                'https://getcomposer.org/composer.phar' +
+                                'https://github.com/composer/composer/releases/latest/download/composer.phar' +
                                 ' ' +
                                 'composer';
                         break;

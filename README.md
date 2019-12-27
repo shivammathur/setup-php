@@ -72,7 +72,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 The latest version of the following tools can be setup globally using the `tools` input
 
-`composer`, `codeception`, `deployer`, `pecl`, `phpcbf`, `phpcpd`, `php-cs-fixer`, `phpcs`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`
+`composer`, `codeception`, `deployer`, `pecl`, `phinx`, `phpcbf`, `phpcpd`, `php-cs-fixer`, `phpcs`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`
 
 ```yml
 uses: shivammathur/setup-php@v1

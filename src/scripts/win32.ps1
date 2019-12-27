@@ -89,17 +89,22 @@ Function Add-Tool() {
     [string]
     $tool
   )
-  if (Test-Path $php_dir\$tool) {
-    Remove-Item $php_dir\$tool
+  if($tool -eq "composer") {
+    Install-Composer -Scope System -Path $php_dir -PhpPath $php_dir
+  } else {
+    if (Test-Path $php_dir\$tool)
+    {
+      Remove-Item $php_dir\$tool
+    }
+    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool > $null 2>&1
+    $bat_content = @()
+    $bat_content += "@ECHO off"
+    $bat_content += "setlocal DISABLEDELAYEDEXPANSION"
+    $bat_content += "SET BIN_TARGET=%~dp0/" + $tool
+    $bat_content += "php %BIN_TARGET% %*"
+    Set-Content -Path $php_dir\$tool.bat -Value $bat_content
+    Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.bat"
   }
-  Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool > $null 2>&1
-  $bat_content = @()
-  $bat_content += "@ECHO off"
-  $bat_content += "setlocal DISABLEDELAYEDEXPANSION"
-  $bat_content += "SET BIN_TARGET=%~dp0/" + $tool
-  $bat_content += "php %BIN_TARGET% %*"
-  Set-Content -Path $php_dir\$tool.bat -Value $bat_content
-  Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.bat"
   Add-Log $tick $tool "Added"
 }
 

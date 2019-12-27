@@ -51,11 +51,15 @@ remove_extension() {
 add_tool() {
   url=$1
   tool=$2
-  if [ ! -e /usr/local/bin/"$tool" ]; then
-    rm -rf /usr/local/bin/"${tool:?}"
+  if [ "$tool" = "composer" ]; then
+    brew install composer >/dev/null 2>&1
+  else
+    if [ ! -e /usr/local/bin/"$tool" ]; then
+      rm -rf /usr/local/bin/"${tool:?}"
+    fi
+    sudo curl -o /usr/local/bin/"$tool" -L "$url" >/dev/null 2>&1
+    sudo chmod a+x /usr/local/bin/"$tool"
   fi
-  sudo curl -o /usr/local/bin/"$tool" -L "$url" >/dev/null 2>&1
-  sudo chmod a+x /usr/local/bin/"$tool"
   add_log "$tick" "$tool" "Added"
 }
 

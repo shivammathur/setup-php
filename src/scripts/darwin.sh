@@ -47,11 +47,27 @@ remove_extension() {
   sudo rm -rf "$ext_dir"/"$1".so >/dev/null 2>&1
 }
 
+# Function to setup a remote tool
+add_tool() {
+  url=$1
+  tool=$2
+  if [ ! -e /usr/local/bin/"$tool" ]; then
+    rm -rf /usr/local/bin/"${tool:?}"
+  fi
+  sudo curl -o /usr/local/bin/"$tool" -L "$url" >/dev/null 2>&1
+  sudo chmod a+x /usr/local/bin/"$tool"
+  add_log "$tick" "$tool" "Added"
+}
+
+add_pecl() {
+  add_log "$tick" "PECL" "Added"
+}
+
 # Function to setup PHP and composer
 setup_php_and_composer() {
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
   brew tap shivammathur/homebrew-php >/dev/null 2>&1
-  brew install shivammathur/php/php@"$version" composer >/dev/null 2>&1
+  brew install shivammathur/php/php@"$version" >/dev/null 2>&1
   brew link --force --overwrite php@"$version" >/dev/null 2>&1
 }
 
@@ -61,7 +77,7 @@ cross="✗"
 version=$1
 
 # Setup PHP and composer
-step_log "Setup PHP and Composer"
+step_log "Setup PHP"
 setup_php_and_composer
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 echo "date.timezone=UTC" >> "$ini_file"
@@ -70,4 +86,3 @@ sudo chmod 777 "$ini_file"
 mkdir -p "$(pecl config-get ext_dir)"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
 add_log "$tick" "PHP" "Installed PHP $semver"
-add_log "$tick" "Composer" "Installed"

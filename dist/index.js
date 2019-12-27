@@ -1172,36 +1172,42 @@ function extensionArray(extension_csv) {
             case ' ':
                 return [];
             default:
-                return extension_csv.split(',').map(function (extension) {
+                return extension_csv
+                    .split(',')
+                    .map(function (extension) {
                     return extension
                         .trim()
                         .replace('php-', '')
                         .replace('php_', '');
-                });
+                })
+                    .filter(Boolean);
         }
     });
 }
 exports.extensionArray = extensionArray;
 /**
- * Function to break ini values csv into an array
+ * Function to break csv into an array
  *
- * @param ini_values_csv
+ * @param values_csv
  * @constructor
  */
-function INIArray(ini_values_csv) {
+function CSVArray(values_csv) {
     return __awaiter(this, void 0, void 0, function* () {
-        switch (ini_values_csv) {
+        switch (values_csv) {
             case '':
             case ' ':
                 return [];
             default:
-                return ini_values_csv.split(',').map(function (ini_value) {
-                    return ini_value.trim();
-                });
+                return values_csv
+                    .split(',')
+                    .map(function (value) {
+                    return value.trim();
+                })
+                    .filter(Boolean);
         }
     });
 }
-exports.INIArray = INIArray;
+exports.CSVArray = CSVArray;
 /**
  * Function to get prefix required to load an extension.
  *
@@ -1526,6 +1532,165 @@ exports.getState = getState;
 
 /***/ }),
 
+/***/ 534:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const utils = __importStar(__webpack_require__(163));
+function getToolCommand(os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (os_version) {
+            case 'linux':
+            case 'darwin':
+                return 'add_tool ';
+            case 'win32':
+                return 'Add-Tool ';
+            default:
+                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+        }
+    });
+}
+exports.getToolCommand = getToolCommand;
+function getPECLCommand(os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (os_version) {
+            case 'linux':
+            case 'darwin':
+                return 'add_pecl ';
+            case 'win32':
+                return 'Add-PECL ';
+            default:
+                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+        }
+    });
+}
+exports.getPECLCommand = getPECLCommand;
+/**
+ * Setup tools
+ *
+ * @param tool_csv
+ * @param os_version
+ */
+function addTools(tools_csv, os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let script = yield utils.stepLog('Setup Tools', os_version);
+        let tools = yield utils.CSVArray(tools_csv);
+        tools = tools.filter(tool => tool !== 'composer');
+        tools.unshift('composer');
+        yield utils.asyncForEach(tools, function (tool) {
+            return __awaiter(this, void 0, void 0, function* () {
+                script += '\n';
+                switch (tool) {
+                    case 'php-cs-fixer':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/latest/download/php-cs-fixer.phar' +
+                                ' ' +
+                                'php-cs-fixer';
+                        break;
+                    case 'phpcs':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar' +
+                                ' ' +
+                                'phpcs';
+                        break;
+                    case 'phpcbf':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcbf.phar' +
+                                ' ' +
+                                'phpcbf';
+                        break;
+                    case 'phpcpd':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/sebastianbergmann/phpcpd/releases/latest/download/phpcpd.phar' +
+                                ' ' +
+                                'phpcpd';
+                        break;
+                    case 'phpstan':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar' +
+                                ' ' +
+                                'phpstan';
+                        break;
+                    case 'phpmd':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar' +
+                                ' ' +
+                                'phpmd';
+                        break;
+                    case 'composer':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://getcomposer.org/composer.phar' +
+                                ' ' +
+                                'composer';
+                        break;
+                    case 'codeception':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://codeception.com/codecept.phar' +
+                                ' ' +
+                                'codeception';
+                        break;
+                    case 'phpunit':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://phar.phpunit.de/phpunit.phar' +
+                                ' ' +
+                                'phpunit';
+                        break;
+                    case 'deployer':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://deployer.org/deployer.phar' +
+                                ' ' +
+                                'deployer';
+                        break;
+                    case 'prestissimo':
+                        script +=
+                            'composer global require hirak/prestissimo' +
+                                (yield utils.suppressOutput(os_version));
+                        break;
+                    case 'pecl':
+                        script += yield getPECLCommand(os_version);
+                        break;
+                    default:
+                        script += yield utils.log('Tool ' + tool + ' is not supported', os_version, 'error');
+                        break;
+                }
+            });
+        });
+        return script;
+    });
+}
+exports.addTools = addTools;
+
+
+/***/ }),
+
 /***/ 614:
 /***/ (function(module) {
 
@@ -1714,7 +1879,7 @@ const utils = __importStar(__webpack_require__(163));
  */
 function addINIValuesUnix(ini_values_csv) {
     return __awaiter(this, void 0, void 0, function* () {
-        const ini_values = yield utils.INIArray(ini_values_csv);
+        const ini_values = yield utils.CSVArray(ini_values_csv);
         let script = '\n';
         yield utils.asyncForEach(ini_values, function (line) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -1733,7 +1898,7 @@ exports.addINIValuesUnix = addINIValuesUnix;
  */
 function addINIValuesWindows(ini_values_csv) {
     return __awaiter(this, void 0, void 0, function* () {
-        const ini_values = yield utils.INIArray(ini_values_csv);
+        const ini_values = yield utils.CSVArray(ini_values_csv);
         let script = '\n';
         yield utils.asyncForEach(ini_values, function (line) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -1812,6 +1977,7 @@ const core = __importStar(__webpack_require__(470));
 const config = __importStar(__webpack_require__(641));
 const coverage = __importStar(__webpack_require__(635));
 const extensions = __importStar(__webpack_require__(911));
+const tools = __importStar(__webpack_require__(534));
 const utils = __importStar(__webpack_require__(163));
 const matchers = __importStar(__webpack_require__(86));
 /**
@@ -1829,7 +1995,11 @@ function build(filename, version, os_version) {
         const ini_values_csv = (yield utils.getInput('ini-values', false)) ||
             (yield utils.getInput('ini-values-csv', false));
         const coverage_driver = yield utils.getInput('coverage', false);
-        const setup_matchers = yield utils.getInput('matchers', false);
+        const pecl = yield utils.getInput('pecl', false);
+        let tools_csv = yield utils.getInput('tools', false);
+        if (pecl == 'true') {
+            tools_csv = 'pecl, ' + tools_csv;
+        }
         let script = yield utils.readScript(filename, version, os_version);
         if (extension_csv) {
             script += yield extensions.addExtension(extension_csv, version, os_version);
@@ -1840,6 +2010,7 @@ function build(filename, version, os_version) {
         if (coverage_driver) {
             script += yield coverage.addCoverage(coverage_driver, version, os_version);
         }
+        script += yield tools.addTools(tools_csv, os_version);
         return yield utils.writeScript(filename, script);
     });
 }
@@ -1857,15 +2028,10 @@ function run() {
             let script_path = '';
             switch (os_version) {
                 case 'darwin':
+                case 'linux':
                     script_path = yield build(os_version + '.sh', version, os_version);
                     yield exec_1.exec('sh ' + script_path + ' ' + version + ' ' + __dirname);
                     break;
-                case 'linux': {
-                    const pecl = yield utils.getInput('pecl', false);
-                    script_path = yield build(os_version + '.sh', version, os_version);
-                    yield exec_1.exec('sh ' + script_path + ' ' + version + ' ' + pecl);
-                    break;
-                }
                 case 'win32':
                     script_path = yield build('win32.ps1', version, os_version);
                     yield exec_1.exec('pwsh ' + script_path + ' ' + version + ' ' + __dirname);

@@ -75,6 +75,38 @@ Function Remove-Extension() {
   }
 }
 
+# Function to setup a remote tool
+Function Add-Tool() {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $url,
+    [Parameter(Position = 1, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $tool
+  )
+  if (Test-Path $php_dir\$tool) {
+    Remove-Item $php_dir\$tool
+  }
+  Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool > $null 2>&1
+  $bat_content = @()
+  $bat_content += "@ECHO off"
+  $bat_content += "setlocal DISABLEDELAYEDEXPANSION"
+  $bat_content += "SET BIN_TARGET=%~dp0/" + $tool
+  $bat_content += "php %BIN_TARGET% %*"
+  Set-Content -Path $php_dir\$tool.bat -Value $bat_content
+  Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.bat"
+  Add-Log $tick $tool "Added"
+}
+
+Function Add-PECL() {
+  Add-Log $tick "PECL" "Use extensions input or Install-PhpExtension to setup PECL extensions on windows"
+}
+
 # Variables
 $tick = ([char]8730)
 $cross = ([char]10007)
@@ -96,7 +128,7 @@ if (Test-Path -LiteralPath $php_dir -PathType Container) {
   catch {
   }
 }
-Step-Log "Setup PHP and Composer"
+Step-Log "Setup PHP"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.')))) {
   if ($version -lt '7.0') {
     Install-Module -Name VcRedist -Force
@@ -123,6 +155,3 @@ if ($version -eq 'master') {
   Set-PhpIniKey -Key 'opcache.jit' -Value '1235' -Path $php_dir
 }
 Add-Log $tick "PHP" $status
-
-Install-Composer -Scope System -Path $php_dir -PhpPath $php_dir
-Add-Log $tick "Composer" "Installed"

@@ -19,7 +19,8 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 - [PHP Support](#tada-php-support)
 - [OS/Platform Support](#cloud-osplatform-support)
-- [PHP Extension Support](#wrench-php-extension-support)
+- [PHP Extension Support](#heavy_plus_sign-php-extension-support)
+- [Tools Support](#wrench-tools-support)
 - [Coverage support](#signal_strength-coverage-support)
   - [Xdebug](#xdebug)
   - [PCOV](#pcov)
@@ -60,12 +61,35 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |Ubuntu 16.04|`ubuntu-16.04`|
 |macOS X Catalina 10.15|`macOS-latest` or `macOS-10.15`|
 
-## :wrench: PHP Extension Support
-- On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl: true`. 
+## :heavy_plus_sign: PHP Extension Support
+- On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl` in the tools input. 
 - On `windows` extensions which have `windows` binary on `PECL` can be installed.
 - On `macOS` extensions which are on `PECL` can be installed.
 - Extensions which are installed along with PHP if specified are enabled.
 - Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
+
+## :wrench: Tools Support
+
+The following tools can be setup globally using the `tools` input
+
+- `php-cs-fixer`
+- `phpcs`
+- `phpcbf`
+- `phpcpd`
+- `phpstan`
+- `phpmd`
+- `codeception`
+- `phpunit`
+- `deployer`
+- `prestissimo`
+- `pecl`
+
+```yml
+uses: shivammathur/setup-php@v1
+with:
+  php-version: '7.4'
+  tools: php-cs-fixer, phpunit
+```
 
 ## :signal_strength: Coverage support
 
@@ -121,7 +145,7 @@ Inputs supported by this GitHub Action.
 - extensions `optional`
 - ini-values `optional`
 - coverage `optional`
-- pecl `optional`
+- tools `optional`
 
 See [action.yml](action.yml "Metadata for this GitHub Action") and usage below for more info.
 
@@ -141,7 +165,7 @@ steps:
     extensions: mbstring, intl #optional, setup extensions
     ini-values: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
     coverage: xdebug #optional, setup coverage driver
-    pecl: false #optional, setup PECL
+    tools: php-cs-fixer, phpunit #optional, setup tools globally
 ```
 
 ### Matrix Setup
@@ -168,7 +192,7 @@ jobs:
         extensions: mbstring, intl #optional, setup extensions
         ini-values: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
         coverage: xdebug #optional, setup coverage driver
-        pecl: false #optional, setup PECL
+        tools: php-cs-fixer, phpunit #optional, setup tools globally
 ```
 
 ### Experimental Setup 
@@ -191,7 +215,8 @@ steps:
     php-version: '8.0'
     extensions: mbstring #optional, setup extensions
     ini-values: opcache.jit_buffer_size=256M, opcache.jit=1235, pcre.jit=1 #optional, setup php.ini configuration
-    coverage: pcov #optional, setup PCOV, Xdebug does not support this version yet.    
+    coverage: pcov #optional, setup PCOV, Xdebug does not support this version yet.
+    tools: php-cs-fixer, phpunit #optional, setup tools globally    
 ```
 
 ### Cache dependencies
@@ -208,7 +233,7 @@ You can persist composer's internal cache directory using the [`action/cache`](h
 - name: Cache dependencies  
   uses: actions/cache@v1
   with:
-    path: ${{ steps.composer-cache.outputs.dir }}
+    path: ${{ steps.composer-cache.outputs.dir }}    
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
     restore-keys: ${{ runner.os }}-composer-
 

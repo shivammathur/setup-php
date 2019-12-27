@@ -17,8 +17,8 @@ inputs:
   coverage: 
     description: 'Setup code coverage driver.'
     required: false
-  pecl:
-    description: 'Setup PECL on ubuntu'
+  tools:
+    description: 'Setup popular tools globally.'
     required: false
   # Deprecated options, do not use. Will not be supported after February 1, 2020.
   extension-csv:
@@ -28,6 +28,10 @@ inputs:
   ini-values-csv:
     description: 'Deprecated! Use ini-values instead.'
     deprecationMessage: 'The ini-values-csv property will not be supported after February 1, 2020. Use ini-values instead.'
+    required: false
+  pecl:
+    description: 'Deprecated! Use tools instead to setup PECL.'
+    deprecationMessage: 'The pecl property will not be supported after February 1, 2020. Specify pecl in tools instead.'
     required: false
 runs:
   using: 'node12'

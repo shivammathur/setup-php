@@ -19,6 +19,7 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, xml, ctype, iconv
           coverage: xdebug #optional
+          tools: phpunit
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
@@ -26,6 +27,8 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
+          # Use composer.json for key, if composer.lock is not committed.
+          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
       - name: Install Composer dependencies
@@ -33,6 +36,4 @@ jobs:
           composer require symfony/orm-pack
           composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
       - name: Run Tests
-        run: |
-          composer require phpunit
-          php bin/phpunit --coverage-text
+        run: phpunit --coverage-text

@@ -13,7 +13,7 @@
   <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a>  
 </p>
 
-Setup PHP with required extensions, php.ini configuration, code-coverage support and composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross platform interface to setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
+Setup PHP with required extensions, php.ini configuration, code-coverage support and tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross platform interface to setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
 
 ## Contents
 
@@ -50,7 +50,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |7.4|`Stable`|`Active`|
 |8.0|`Experimental`|`In development`|
 
-**Note:** Specifying `8.0` in `php-version` input installs a nightly build of `PHP 8.0.0-dev` with `PHP JIT` support. See [experimental setup](#experimental-setup) for more information.
+**Note:** Specifying `8.0` in `php-version` input installs a nightly build of `PHP 8.0.0-dev` with `PHP JIT`, `Union Types v2` and other [new features](https://wiki.php.net/rfc#php_80 "New features implemented in PHP 8"). See [experimental setup](#experimental-setup) for more information.
 
 ## :cloud: OS/Platform Support
 
@@ -70,19 +70,9 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 ## :wrench: Tools Support
 
-The following tools can be setup globally using the `tools` input
+The latest version of the following tools can be setup globally using the `tools` input
 
-- `php-cs-fixer`
-- `phpcs`
-- `phpcbf`
-- `phpcpd`
-- `phpstan`
-- `phpmd`
-- `codeception`
-- `phpunit`
-- `deployer`
-- `prestissimo`
-- `pecl`
+`composer`, `codeception`, `deployer`, `pecl`, `phpcbf`, `phpcpd`, `php-cs-fixer`, `phpcs`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`
 
 ```yml
 uses: shivammathur/setup-php@v1
@@ -90,6 +80,8 @@ with:
   php-version: '7.4'
   tools: php-cs-fixer, phpunit
 ```
+
+**Note:** `composer` is setup by default, so that is not required to be specified. 
 
 ## :signal_strength: Coverage support
 
@@ -127,7 +119,7 @@ Specify `coverage: none` to disable both `Xdebug` and `PCOV`.
 Consider disabling the coverage using this PHP action for these reasons.
 
 - You are not generating coverage reports while testing.
-- It will disable `Xdebug`, which will have a positive impact on PHP performance.
+- It will remove `Xdebug`, which will have a positive impact on PHP performance.
 - You are using `phpdbg` for running your tests.
 
 ```yaml
@@ -203,6 +195,7 @@ jobs:
 - `PECL` is installed by default with this version on `ubuntu`.
 - Some extensions might not support this version currently.
 - Refer to this [RFC](https://wiki.php.net/rfc/jit "PHP JIT RFC configuration") for configuring `PHP JIT` on this version.
+- Refer to this [list of RFCs](https://wiki.php.net/rfc#php_80 "List of RFCs implemented in PHP8") implemented in this version.
 
 ```yaml
 steps:
@@ -233,13 +226,19 @@ You can persist composer's internal cache directory using the [`action/cache`](h
 - name: Cache dependencies  
   uses: actions/cache@v1
   with:
-    path: ${{ steps.composer-cache.outputs.dir }}    
+    path: ${{ steps.composer-cache.outputs.dir }}   
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
     restore-keys: ${{ runner.os }}-composer-
 
 - name: Install Dependencies
   run: composer install --prefer-dist
 ```
+
+In the above example, if you support a range of `composer` dependencies and do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
+
+```yml
+key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }} 
+``` 
 
 ### Problem Matchers
 

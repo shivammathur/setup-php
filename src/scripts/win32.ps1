@@ -144,13 +144,12 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   }
 
   Install-Php -Version $version -Architecture $arch -ThreadSafe $true -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
-  $installed = Get-Php -Path $php_dir
-  $status = "Installed PHP $($installed.FullVersion)"
 }
 else {
-  $status = "PHP $($installed.FullVersion) Found"
+  Update-Php $php_dir >$null 2>&1
 }
 
+$installed = Get-Php -Path $php_dir
 Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
 Enable-PhpExtension -Extension openssl, curl, opcache -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
@@ -159,4 +158,4 @@ if ($version -eq 'master') {
   Set-PhpIniKey -Key 'opcache.jit_buffer_size' -Value '256M' -Path $php_dir
   Set-PhpIniKey -Key 'opcache.jit' -Value '1235' -Path $php_dir
 }
-Add-Log $tick "PHP" $status
+Add-Log $tick "PHP" "Installed PHP $($installed.FullVersion)"

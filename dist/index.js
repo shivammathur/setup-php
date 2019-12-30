@@ -1583,6 +1583,29 @@ function getPECLCommand(os_version) {
     });
 }
 exports.getPECLCommand = getPECLCommand;
+function linkTool(tool, os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (os_version) {
+            case 'linux':
+            case 'darwin':
+                return ('sudo ln -s "$(composer -q global config home)"/vendor/bin/' +
+                    tool +
+                    ' /usr/local/bin/' +
+                    tool);
+            case 'win32':
+                return ('$composer_dir = composer -q global config home | % {$_ -replace "/", "\\"}' +
+                    '\n' +
+                    'Add-Content -Path $PsHome\\profile.ps1 -Value "New-Alias ' +
+                    tool +
+                    ' $composer_dir\\vendor\\bin\\' +
+                    tool +
+                    '.bat"');
+            default:
+                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+        }
+    });
+}
+exports.linkTool = linkTool;
 /**
  * Setup tools
  *
@@ -1651,7 +1674,11 @@ function addTools(tools_csv, os_version) {
                     case 'phinx':
                         script +=
                             'composer global require robmorgan/phinx' +
-                                (yield utils.suppressOutput(os_version));
+                                (yield utils.suppressOutput(os_version)) +
+                                '\n' +
+                                (yield linkTool('phinx', os_version)) +
+                                '\n' +
+                                (yield utils.addLog('$tick', 'phinx', 'Added', os_version));
                         break;
                     case 'composer':
                         script +=
@@ -1684,7 +1711,9 @@ function addTools(tools_csv, os_version) {
                     case 'prestissimo':
                         script +=
                             'composer global require hirak/prestissimo' +
-                                (yield utils.suppressOutput(os_version));
+                                (yield utils.suppressOutput(os_version)) +
+                                '\n' +
+                                (yield utils.addLog('$tick', 'hirak/prestissimo', 'Added', os_version));
                         break;
                     case 'pecl':
                         script += yield getPECLCommand(os_version);

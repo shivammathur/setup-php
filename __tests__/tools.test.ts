@@ -19,6 +19,24 @@ describe('Tools tests', () => {
     );
   });
 
+  it('checking linkTool', async () => {
+    expect(await tools.linkTool('tool', 'linux')).toContain(
+      'sudo ln -s "$(composer -q global config home)"/vendor/bin/tool /usr/local/bin/tool'
+    );
+    expect(await tools.linkTool('tool', 'darwin')).toContain(
+      'sudo ln -s "$(composer -q global config home)"/vendor/bin/tool /usr/local/bin/tool'
+    );
+    expect(await tools.linkTool('tool', 'win32')).toContain(
+      '$composer_dir = composer -q global config home | % {$_ -replace "/", "\\"}'
+    );
+    expect(await tools.linkTool('tool', 'win32')).toContain(
+      'Add-Content -Path $PsHome\\profile.ps1 -Value "New-Alias tool $composer_dir\\vendor\\bin\\tool.bat"'
+    );
+    expect(await tools.linkTool('tool', 'fedora')).toContain(
+      'Platform fedora is not supported'
+    );
+  });
+
   it('checking addTools', async () => {
     let script: string = await tools.addTools(
       'php-cs-fixer, phpstan, phpunit, pecl, phinx',
@@ -38,9 +56,12 @@ describe('Tools tests', () => {
     );
     expect(script).toContain('add_pecl');
     expect(script).toContain('composer global require robmorgan/phinx');
+    expect(script).toContain(
+      'sudo ln -s "$(composer -q global config home)"/vendor/bin/phinx /usr/local/bin/phinx'
+    );
 
     script = await tools.addTools(
-      'phpcs, phpcbf, phpcpd, phpmd, psalm',
+      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx',
       'darwin'
     );
     expect(script).toContain(
@@ -61,9 +82,13 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar psalm'
     );
+    expect(script).toContain('composer global require robmorgan/phinx');
+    expect(script).toContain(
+      'sudo ln -s "$(composer -q global config home)"/vendor/bin/phinx /usr/local/bin/phinx'
+    );
 
     script = await tools.addTools(
-      'codeception, deployer, prestissimo, phpmd, does_not_exit',
+      'codeception, deployer, prestissimo, phpmd, phinx, does_not_exit',
       'win32'
     );
     expect(script).toContain(
@@ -73,6 +98,13 @@ describe('Tools tests', () => {
       'Add-Tool https://deployer.org/deployer.phar deployer'
     );
     expect(script).toContain('composer global require hirak/prestissimo');
+    expect(script).toContain('composer global require robmorgan/phinx');
+    expect(script).toContain(
+      '$composer_dir = composer -q global config home | % {$_ -replace "/", "\\"}'
+    );
+    expect(script).toContain(
+      'Add-Content -Path $PsHome\\profile.ps1 -Value "New-Alias phinx $composer_dir\\vendor\\bin\\phinx.bat"'
+    );
     expect(script).toContain('Tool does_not_exit is not supported');
   });
 });

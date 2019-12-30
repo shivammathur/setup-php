@@ -32,6 +32,38 @@ export async function getPECLCommand(os_version: string): Promise<string> {
   }
 }
 
+export async function linkTool(
+  tool: string,
+  os_version: string
+): Promise<string> {
+  switch (os_version) {
+    case 'linux':
+    case 'darwin':
+      return (
+        'sudo ln -s "$(composer -q global config home)"/vendor/bin/' +
+        tool +
+        ' /usr/local/bin/' +
+        tool
+      );
+    case 'win32':
+      return (
+        '$composer_dir = composer -q global config home | % {$_ -replace "/", "\\"}' +
+        '\n' +
+        'Add-Content -Path $PsHome\\profile.ps1 -Value "New-Alias ' +
+        tool +
+        ' $composer_dir\\vendor\\bin\\' +
+        tool +
+        '.bat"'
+      );
+    default:
+      return await utils.log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
+  }
+}
+
 /**
  * Setup tools
  *
@@ -101,7 +133,11 @@ export async function addTools(
       case 'phinx':
         script +=
           'composer global require robmorgan/phinx' +
-          (await utils.suppressOutput(os_version));
+          (await utils.suppressOutput(os_version)) +
+          '\n' +
+          (await linkTool('phinx', os_version)) +
+          '\n' +
+          (await utils.addLog('$tick', 'phinx', 'Added', os_version));
         break;
       case 'composer':
         script +=
@@ -134,7 +170,14 @@ export async function addTools(
       case 'prestissimo':
         script +=
           'composer global require hirak/prestissimo' +
-          (await utils.suppressOutput(os_version));
+          (await utils.suppressOutput(os_version)) +
+          '\n' +
+          (await utils.addLog(
+            '$tick',
+            'hirak/prestissimo',
+            'Added',
+            os_version
+          ));
         break;
       case 'pecl':
         script += await getPECLCommand(os_version);

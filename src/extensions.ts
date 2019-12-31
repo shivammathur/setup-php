@@ -6,26 +6,39 @@ import * as utils from './utils';
  *
  * @param extension_csv
  * @param version
+ * @param pipe
  */
 export async function addExtensionDarwin(
   extension_csv: string,
-  version: string
+  version: string,
+  pipe: string
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     extension = extension.toLowerCase();
+    const version_extension: string = version + extension;
     // add script to enable extension is already installed along with php
     let install_command = '';
-    switch (version + extension) {
-      case '5.6xdebug':
-        install_command = 'sudo pecl install xdebug-2.5.5 >/dev/null 2>&1';
+    switch (true) {
+      case /5\.6xdebug/.test(version_extension):
+        install_command = 'sudo pecl install xdebug-2.5.5' + pipe;
         break;
-      case '5.6redis':
-        install_command = 'sudo pecl install redis-2.2.8 >/dev/null 2>&1';
+      case /5\.6redis/.test(version_extension):
+        install_command = 'sudo pecl install redis-2.2.8' + pipe;
+        break;
+      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+        install_command =
+          'sh ' +
+          path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
+          ' ' +
+          extension +
+          ' ' +
+          version +
+          pipe;
         break;
       default:
-        install_command = 'sudo pecl install ' + extension + ' >/dev/null 2>&1';
+        install_command = 'sudo pecl install ' + extension + pipe;
         break;
     }
     script +=
@@ -44,18 +57,29 @@ export async function addExtensionDarwin(
  *
  * @param extension_csv
  * @param version
+ * @param pipe
  */
 export async function addExtensionWindows(
   extension_csv: string,
-  version: string
+  version: string,
+  pipe: string
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     // add script to enable extension is already installed along with php
-    switch (version + extension) {
-      case '7.4redis':
-        script += '\nAdd-Extension ' + extension + ' beta';
+    const version_extension: string = version + extension;
+    switch (true) {
+      // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+        script +=
+          '\n& ' +
+          path.join(__dirname, '../src/scripts/ext/phalcon.ps1') +
+          ' ' +
+          extension +
+          ' ' +
+          version +
+          '\n';
         break;
       default:
         script += '\nAdd-Extension ' + extension;
@@ -70,53 +94,40 @@ export async function addExtensionWindows(
  *
  * @param extension_csv
  * @param version
+ * @param pipe
  */
 export async function addExtensionLinux(
   extension_csv: string,
-  version: string
+  version: string,
+  pipe: string
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     extension = extension.toLowerCase();
     // add script to enable extension is already installed along with php
-
+    const version_extension: string = version + extension;
     let install_command = '';
-    switch (version + extension) {
-      case '7.4redis':
-        install_command =
-          'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-igbinary php7.4-redis >/dev/null 2>&1';
-        break;
-      case '7.2phalcon3':
-      case '7.3phalcon3':
+    switch (true) {
+      // match 5.6gearman..7.4gearman
+      case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
         install_command =
           'sh ' +
-          path.join(__dirname, '../src/scripts/phalcon.sh') +
-          ' 3.4.x ' +
-          version +
-          ' >/dev/null 2>&1';
-        break;
-      case '7.2phalcon4':
-      case '7.3phalcon4':
-      case '7.4phalcon4':
-        install_command =
-          'sh ' +
-          path.join(__dirname, '../src/scripts/phalcon.sh') +
-          ' master ' +
-          version +
-          ' >/dev/null 2>&1';
-        break;
-      case '7.0gearman':
-      case '7.1gearman':
-      case '7.2gearman':
-      case '7.3gearman':
-      case '7.4gearman':
-        install_command =
-          'sh ' +
-          path.join(__dirname, '../src/scripts/gearman.sh') +
+          path.join(__dirname, '../src/scripts/ext/gearman.sh') +
           ' ' +
           version +
-          ' >/dev/null 2>&1';
+          pipe;
+        break;
+      // match 7.0phalcon3..7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+        install_command =
+          'sh ' +
+          path.join(__dirname, '../src/scripts/ext/phalcon.sh') +
+          ' ' +
+          extension +
+          ' ' +
+          version +
+          pipe;
         break;
       default:
         install_command =
@@ -124,9 +135,10 @@ export async function addExtensionLinux(
           version +
           '-' +
           extension.replace('pdo_', '').replace('pdo-', '') +
-          ' >/dev/null 2>&1 || sudo pecl install ' +
+          pipe +
+          ' || sudo pecl install ' +
           extension +
-          ' >/dev/null 2>&1';
+          pipe;
         break;
     }
     script +=
@@ -154,12 +166,11 @@ export async function addExtension(
   os_version: string,
   no_step = false
 ): Promise<string> {
+  const pipe: string = await utils.suppressOutput(os_version);
   let script = '\n';
   switch (no_step) {
     case true:
-      script +=
-        (await utils.stepLog('Setup Extensions', os_version)) +
-        (await utils.suppressOutput(os_version));
+      script += (await utils.stepLog('Setup Extensions', os_version)) + pipe;
       break;
     case false:
     default:
@@ -169,11 +180,11 @@ export async function addExtension(
 
   switch (os_version) {
     case 'win32':
-      return script + (await addExtensionWindows(extension_csv, version));
+      return script + (await addExtensionWindows(extension_csv, version, pipe));
     case 'darwin':
-      return script + (await addExtensionDarwin(extension_csv, version));
+      return script + (await addExtensionDarwin(extension_csv, version, pipe));
     case 'linux':
-      return script + (await addExtensionLinux(extension_csv, version));
+      return script + (await addExtensionLinux(extension_csv, version, pipe));
     default:
       return await utils.log(
         'Platform ' + os_version + ' is not supported',

@@ -1172,36 +1172,42 @@ function extensionArray(extension_csv) {
             case ' ':
                 return [];
             default:
-                return extension_csv.split(',').map(function (extension) {
+                return extension_csv
+                    .split(',')
+                    .map(function (extension) {
                     return extension
                         .trim()
                         .replace('php-', '')
                         .replace('php_', '');
-                });
+                })
+                    .filter(Boolean);
         }
     });
 }
 exports.extensionArray = extensionArray;
 /**
- * Function to break ini values csv into an array
+ * Function to break csv into an array
  *
- * @param ini_values_csv
+ * @param values_csv
  * @constructor
  */
-function INIArray(ini_values_csv) {
+function CSVArray(values_csv) {
     return __awaiter(this, void 0, void 0, function* () {
-        switch (ini_values_csv) {
+        switch (values_csv) {
             case '':
             case ' ':
                 return [];
             default:
-                return ini_values_csv.split(',').map(function (ini_value) {
-                    return ini_value.trim();
-                });
+                return values_csv
+                    .split(',')
+                    .map(function (value) {
+                    return value.trim();
+                })
+                    .filter(Boolean);
         }
     });
 }
-exports.INIArray = INIArray;
+exports.CSVArray = CSVArray;
 /**
  * Function to get prefix required to load an extension.
  *
@@ -1526,6 +1532,206 @@ exports.getState = getState;
 
 /***/ }),
 
+/***/ 534:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const utils = __importStar(__webpack_require__(163));
+function getToolCommand(os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (os_version) {
+            case 'linux':
+            case 'darwin':
+                return 'add_tool ';
+            case 'win32':
+                return 'Add-Tool ';
+            default:
+                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+        }
+    });
+}
+exports.getToolCommand = getToolCommand;
+function getPECLCommand(os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (os_version) {
+            case 'linux':
+            case 'darwin':
+                return 'add_pecl ';
+            case 'win32':
+                return 'Add-PECL ';
+            default:
+                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+        }
+    });
+}
+exports.getPECLCommand = getPECLCommand;
+function linkTool(tool, os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (os_version) {
+            case 'linux':
+            case 'darwin':
+                return ('sudo ln -s "$(composer -q global config home)"/vendor/bin/' +
+                    tool +
+                    ' /usr/local/bin/' +
+                    tool);
+            case 'win32':
+                return ('$composer_dir = composer -q global config home | % {$_ -replace "/", "\\"}' +
+                    '\n' +
+                    'Add-Content -Path $PsHome\\profile.ps1 -Value "New-Alias ' +
+                    tool +
+                    ' $composer_dir\\vendor\\bin\\' +
+                    tool +
+                    '.bat"');
+            default:
+                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+        }
+    });
+}
+exports.linkTool = linkTool;
+/**
+ * Setup tools
+ *
+ * @param tool_csv
+ * @param os_version
+ */
+function addTools(tools_csv, os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let script = '\n' + (yield utils.stepLog('Setup Tools', os_version));
+        let tools = yield utils.CSVArray(tools_csv);
+        tools = tools.filter(tool => tool !== 'composer');
+        tools.unshift('composer');
+        yield utils.asyncForEach(tools, function (tool) {
+            return __awaiter(this, void 0, void 0, function* () {
+                script += '\n';
+                switch (tool) {
+                    case 'php-cs-fixer':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/latest/download/php-cs-fixer.phar' +
+                                ' ' +
+                                'php-cs-fixer';
+                        break;
+                    case 'phpcs':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar' +
+                                ' ' +
+                                'phpcs';
+                        break;
+                    case 'phpcbf':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcbf.phar' +
+                                ' ' +
+                                'phpcbf';
+                        break;
+                    case 'phpcpd':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/sebastianbergmann/phpcpd/releases/latest/download/phpcpd.phar' +
+                                ' ' +
+                                'phpcpd';
+                        break;
+                    case 'phpstan':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar' +
+                                ' ' +
+                                'phpstan';
+                        break;
+                    case 'phpmd':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar' +
+                                ' ' +
+                                'phpmd';
+                        break;
+                    case 'psalm':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar' +
+                                ' ' +
+                                'psalm';
+                        break;
+                    case 'phinx':
+                        script +=
+                            'composer global require robmorgan/phinx' +
+                                (yield utils.suppressOutput(os_version)) +
+                                '\n' +
+                                (yield linkTool('phinx', os_version)) +
+                                '\n' +
+                                (yield utils.addLog('$tick', 'phinx', 'Added', os_version));
+                        break;
+                    case 'composer':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://github.com/composer/composer/releases/latest/download/composer.phar' +
+                                ' ' +
+                                'composer';
+                        break;
+                    case 'codeception':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://codeception.com/codecept.phar' +
+                                ' ' +
+                                'codeception';
+                        break;
+                    case 'phpunit':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://phar.phpunit.de/phpunit.phar' +
+                                ' ' +
+                                'phpunit';
+                        break;
+                    case 'deployer':
+                        script +=
+                            (yield getToolCommand(os_version)) +
+                                'https://deployer.org/deployer.phar' +
+                                ' ' +
+                                'deployer';
+                        break;
+                    case 'prestissimo':
+                        script +=
+                            'composer global require hirak/prestissimo' +
+                                (yield utils.suppressOutput(os_version)) +
+                                '\n' +
+                                (yield utils.addLog('$tick', 'hirak/prestissimo', 'Added', os_version));
+                        break;
+                    case 'pecl':
+                        script += yield getPECLCommand(os_version);
+                        break;
+                    default:
+                        script += yield utils.log('Tool ' + tool + ' is not supported', os_version, 'error');
+                        break;
+                }
+            });
+        });
+        return script;
+    });
+}
+exports.addTools = addTools;
+
+
+/***/ }),
+
 /***/ 614:
 /***/ (function(module) {
 
@@ -1570,8 +1776,9 @@ const config = __importStar(__webpack_require__(641));
  *
  * @param version
  * @param os_version
+ * @param pipe
  */
-function addCoverageXdebug(version, os_version) {
+function addCoverageXdebug(version, os_version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (version) {
             case '8.0':
@@ -1580,7 +1787,7 @@ function addCoverageXdebug(version, os_version) {
             case '7.4':
             default:
                 return ((yield extensions.addExtension('xdebug', version, os_version, true)) +
-                    (yield utils.suppressOutput(os_version)) +
+                    pipe +
                     '\n' +
                     (yield utils.addLog('$tick', 'xdebug', 'Xdebug enabled as coverage driver', os_version)));
         }
@@ -1592,47 +1799,27 @@ exports.addCoverageXdebug = addCoverageXdebug;
  *
  * @param version
  * @param os_version
+ * @param pipe
  */
-function addCoveragePCOV(version, os_version) {
+function addCoveragePCOV(version, os_version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         let script = '\n';
         switch (version) {
             default:
                 script +=
                     (yield extensions.addExtension('pcov', version, os_version, true)) +
-                        (yield utils.suppressOutput(os_version)) +
+                        pipe +
                         '\n';
                 script +=
                     (yield config.addINIValues('pcov.enabled=1', os_version, true)) + '\n';
                 // add command to disable xdebug and enable pcov
                 switch (os_version) {
                     case 'linux':
-                        script +=
-                            'if [ -e /etc/php/' +
-                                version +
-                                '/mods-available/xdebug.ini ]; then sudo phpdismod -v ' +
-                                version +
-                                ' xdebug; fi\n';
-                        script += 'sudo sed -i "/xdebug/d" "$ini_file"\n';
-                        script +=
-                            'sudo DEBIAN_FRONTEND=noninteractive apt-fast remove php-xdebug -y ' +
-                                (yield utils.suppressOutput('linux')) +
-                                '\n';
-                        break;
                     case 'darwin':
-                        script += 'sudo sed -i \'\' "/xdebug/d" "$ini_file"\n';
-                        script +=
-                            'sudo rm -rf "$ext_dir"/xdebug.so ' +
-                                (yield utils.suppressOutput('darwin')) +
-                                '\n';
+                        script += 'remove_extension xdebug' + pipe + '\n';
                         break;
                     case 'win32':
-                        script +=
-                            'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug $php_dir }\n';
-                        script +=
-                            'if (Test-Path $ext_dir\\php_xdebug.dll) { Remove-Item $ext_dir\\php_xdebug.dll }' +
-                                (yield utils.suppressOutput('win32')) +
-                                '\n';
+                        script += 'Remove-Extension xdebug' + pipe + '\n';
                         break;
                 }
                 // success
@@ -1653,56 +1840,20 @@ exports.addCoveragePCOV = addCoveragePCOV;
  *
  * @param version
  * @param os_version
+ * @param pipe
  */
-function disableCoverage(version, os_version) {
+function disableCoverage(version, os_version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         let script = '\n';
         switch (os_version) {
             case 'linux':
-                script +=
-                    'if [ -e /etc/php/' +
-                        version +
-                        '/mods-available/xdebug.ini ]; then sudo phpdismod -v ' +
-                        version +
-                        ' xdebug; fi\n';
-                script +=
-                    'if [ -e /etc/php/' +
-                        version +
-                        '/mods-available/pcov.ini ]; then sudo phpdismod -v ' +
-                        version +
-                        ' pcov; fi\n';
-                script += 'sudo sed -i "/xdebug/d" "$ini_file"\n';
-                script += 'sudo sed -i "/pcov/d" "$ini_file"\n';
-                script +=
-                    'sudo DEBIAN_FRONTEND=noninteractive apt-fast remove php-xdebug php-pcov -y ' +
-                        (yield utils.suppressOutput('linux')) +
-                        '\n';
-                break;
             case 'darwin':
-                script += 'sudo sed -i \'\' "/xdebug/d" "$ini_file"\n';
-                script += 'sudo sed -i \'\' "/pcov/d" "$ini_file"\n';
-                script +=
-                    'sudo rm -rf "$ext_dir"/xdebug.so ' +
-                        (yield utils.suppressOutput('darwin')) +
-                        '\n';
-                script +=
-                    'sudo rm -rf "$ext_dir"/pcov.so ' +
-                        (yield utils.suppressOutput('darwin')) +
-                        '\n';
+                script += 'remove_extension xdebug' + pipe + '\n';
+                script += 'remove_extension pcov' + pipe + '\n';
                 break;
             case 'win32':
-                script +=
-                    'if(php -m | findstr -i xdebug) { Disable-PhpExtension xdebug $php_dir }\n';
-                script +=
-                    'if(php -m | findstr -i pcov) { Disable-PhpExtension pcov $php_dir }\n';
-                script +=
-                    'if (Test-Path $ext_dir\\php_xdebug.dll) { Remove-Item $ext_dir\\php_xdebug.dll }' +
-                        (yield utils.suppressOutput('win32')) +
-                        '\n';
-                script +=
-                    'if (Test-Path $ext_dir\\php_pcov.dll) { Remove-Item $ext_dir\\php_pcov.dll }' +
-                        (yield utils.suppressOutput('win32')) +
-                        '\n';
+                script += 'Remove-Extension xdebug' + pipe + '\n';
+                script += 'Remove-Extension pcov' + pipe + '\n';
                 break;
         }
         script += yield utils.addLog('$tick', 'none', 'Disabled Xdebug and PCOV', os_version);
@@ -1721,13 +1872,14 @@ function addCoverage(coverage_driver, version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
         coverage_driver.toLowerCase();
         const script = '\n' + (yield utils.stepLog('Setup Coverage', os_version));
+        const pipe = yield utils.suppressOutput(os_version);
         switch (coverage_driver) {
             case 'pcov':
-                return script + (yield addCoveragePCOV(version, os_version));
+                return script + (yield addCoveragePCOV(version, os_version, pipe));
             case 'xdebug':
-                return script + (yield addCoverageXdebug(version, os_version));
+                return script + (yield addCoverageXdebug(version, os_version, pipe));
             case 'none':
-                return script + (yield disableCoverage(version, os_version));
+                return script + (yield disableCoverage(version, os_version, pipe));
             default:
                 return '';
         }
@@ -1768,7 +1920,7 @@ const utils = __importStar(__webpack_require__(163));
  */
 function addINIValuesUnix(ini_values_csv) {
     return __awaiter(this, void 0, void 0, function* () {
-        const ini_values = yield utils.INIArray(ini_values_csv);
+        const ini_values = yield utils.CSVArray(ini_values_csv);
         let script = '\n';
         yield utils.asyncForEach(ini_values, function (line) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -1787,7 +1939,7 @@ exports.addINIValuesUnix = addINIValuesUnix;
  */
 function addINIValuesWindows(ini_values_csv) {
     return __awaiter(this, void 0, void 0, function* () {
-        const ini_values = yield utils.INIArray(ini_values_csv);
+        const ini_values = yield utils.CSVArray(ini_values_csv);
         let script = '\n';
         yield utils.asyncForEach(ini_values, function (line) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -1866,6 +2018,7 @@ const core = __importStar(__webpack_require__(470));
 const config = __importStar(__webpack_require__(641));
 const coverage = __importStar(__webpack_require__(635));
 const extensions = __importStar(__webpack_require__(911));
+const tools = __importStar(__webpack_require__(534));
 const utils = __importStar(__webpack_require__(163));
 const matchers = __importStar(__webpack_require__(86));
 /**
@@ -1883,7 +2036,11 @@ function build(filename, version, os_version) {
         const ini_values_csv = (yield utils.getInput('ini-values', false)) ||
             (yield utils.getInput('ini-values-csv', false));
         const coverage_driver = yield utils.getInput('coverage', false);
-        const setup_matchers = yield utils.getInput('matchers', false);
+        const pecl = yield utils.getInput('pecl', false);
+        let tools_csv = yield utils.getInput('tools', false);
+        if (pecl == 'true') {
+            tools_csv = 'pecl, ' + tools_csv;
+        }
         let script = yield utils.readScript(filename, version, os_version);
         if (extension_csv) {
             script += yield extensions.addExtension(extension_csv, version, os_version);
@@ -1894,6 +2051,7 @@ function build(filename, version, os_version) {
         if (coverage_driver) {
             script += yield coverage.addCoverage(coverage_driver, version, os_version);
         }
+        script += yield tools.addTools(tools_csv, os_version);
         return yield utils.writeScript(filename, script);
     });
 }
@@ -1906,23 +2064,18 @@ function run() {
         try {
             const os_version = process.platform;
             let version = yield utils.getInput('php-version', true);
-            version = version.length > 1 ? version : version + '.0';
+            version = version.length > 1 ? version.slice(0, 3) : version + '.0';
             // check the os version and run the respective script
             let script_path = '';
             switch (os_version) {
                 case 'darwin':
+                case 'linux':
                     script_path = yield build(os_version + '.sh', version, os_version);
                     yield exec_1.exec('sh ' + script_path + ' ' + version + ' ' + __dirname);
                     break;
-                case 'linux': {
-                    const pecl = yield utils.getInput('pecl', false);
-                    script_path = yield build(os_version + '.sh', version, os_version);
-                    yield exec_1.exec('sh ' + script_path + ' ' + version + ' ' + pecl);
-                    break;
-                }
                 case 'win32':
                     script_path = yield build('win32.ps1', version, os_version);
-                    yield exec_1.exec('pwsh ' + script_path + ' -version ' + version + ' -dir ' + __dirname);
+                    yield exec_1.exec('pwsh ' + script_path + ' ' + version + ' ' + __dirname);
                     break;
             }
             yield matchers.addMatchers();
@@ -2184,25 +2337,37 @@ const utils = __importStar(__webpack_require__(163));
  *
  * @param extension_csv
  * @param version
+ * @param pipe
  */
-function addExtensionDarwin(extension_csv, version) {
+function addExtensionDarwin(extension_csv, version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         const extensions = yield utils.extensionArray(extension_csv);
         let script = '\n';
         yield utils.asyncForEach(extensions, function (extension) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
+                const version_extension = version + extension;
                 // add script to enable extension is already installed along with php
                 let install_command = '';
-                switch (version + extension) {
-                    case '5.6xdebug':
-                        install_command = 'sudo pecl install xdebug-2.5.5 >/dev/null 2>&1';
+                switch (true) {
+                    case /5\.6xdebug/.test(version_extension):
+                        install_command = 'sudo pecl install xdebug-2.5.5' + pipe;
                         break;
-                    case '5.6redis':
-                        install_command = 'sudo pecl install redis-2.2.8 >/dev/null 2>&1';
+                    case /5\.6redis/.test(version_extension):
+                        install_command = 'sudo pecl install redis-2.2.8' + pipe;
+                        break;
+                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+                        install_command =
+                            'sh ' +
+                                path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
+                                ' ' +
+                                extension +
+                                ' ' +
+                                version +
+                                pipe;
                         break;
                     default:
-                        install_command = 'sudo pecl install ' + extension + ' >/dev/null 2>&1';
+                        install_command = 'sudo pecl install ' + extension + pipe;
                         break;
                 }
                 script +=
@@ -2223,17 +2388,27 @@ exports.addExtensionDarwin = addExtensionDarwin;
  *
  * @param extension_csv
  * @param version
+ * @param pipe
  */
-function addExtensionWindows(extension_csv, version) {
+function addExtensionWindows(extension_csv, version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         const extensions = yield utils.extensionArray(extension_csv);
         let script = '\n';
         yield utils.asyncForEach(extensions, function (extension) {
             return __awaiter(this, void 0, void 0, function* () {
                 // add script to enable extension is already installed along with php
-                switch (version + extension) {
-                    case '7.4redis':
-                        script += '\nAdd-Extension ' + extension + ' beta';
+                const version_extension = version + extension;
+                switch (true) {
+                    // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+                        script +=
+                            '\n& ' +
+                                path.join(__dirname, '../src/scripts/ext/phalcon.ps1') +
+                                ' ' +
+                                extension +
+                                ' ' +
+                                version +
+                                '\n';
                         break;
                     default:
                         script += '\nAdd-Extension ' + extension;
@@ -2250,8 +2425,9 @@ exports.addExtensionWindows = addExtensionWindows;
  *
  * @param extension_csv
  * @param version
+ * @param pipe
  */
-function addExtensionLinux(extension_csv, version) {
+function addExtensionLinux(extension_csv, version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         const extensions = yield utils.extensionArray(extension_csv);
         let script = '\n';
@@ -2259,42 +2435,28 @@ function addExtensionLinux(extension_csv, version) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
                 // add script to enable extension is already installed along with php
+                const version_extension = version + extension;
                 let install_command = '';
-                switch (version + extension) {
-                    case '7.4redis':
-                        install_command =
-                            'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-igbinary php7.4-redis >/dev/null 2>&1';
-                        break;
-                    case '7.2phalcon3':
-                    case '7.3phalcon3':
+                switch (true) {
+                    // match 5.6gearman..7.4gearman
+                    case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
                         install_command =
                             'sh ' +
-                                path.join(__dirname, '../src/scripts/phalcon.sh') +
-                                ' 3.4.x ' +
-                                version +
-                                ' >/dev/null 2>&1';
-                        break;
-                    case '7.2phalcon4':
-                    case '7.3phalcon4':
-                    case '7.4phalcon4':
-                        install_command =
-                            'sh ' +
-                                path.join(__dirname, '../src/scripts/phalcon.sh') +
-                                ' master ' +
-                                version +
-                                ' >/dev/null 2>&1';
-                        break;
-                    case '7.0gearman':
-                    case '7.1gearman':
-                    case '7.2gearman':
-                    case '7.3gearman':
-                    case '7.4gearman':
-                        install_command =
-                            'sh ' +
-                                path.join(__dirname, '../src/scripts/gearman.sh') +
+                                path.join(__dirname, '../src/scripts/ext/gearman.sh') +
                                 ' ' +
                                 version +
-                                ' >/dev/null 2>&1';
+                                pipe;
+                        break;
+                    // match 7.0phalcon3..7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+                        install_command =
+                            'sh ' +
+                                path.join(__dirname, '../src/scripts/ext/phalcon.sh') +
+                                ' ' +
+                                extension +
+                                ' ' +
+                                version +
+                                pipe;
                         break;
                     default:
                         install_command =
@@ -2302,9 +2464,10 @@ function addExtensionLinux(extension_csv, version) {
                                 version +
                                 '-' +
                                 extension.replace('pdo_', '').replace('pdo-', '') +
-                                ' >/dev/null 2>&1 || sudo pecl install ' +
+                                pipe +
+                                ' || sudo pecl install ' +
                                 extension +
-                                ' >/dev/null 2>&1';
+                                pipe;
                         break;
                 }
                 script +=
@@ -2330,12 +2493,11 @@ exports.addExtensionLinux = addExtensionLinux;
  */
 function addExtension(extension_csv, version, os_version, no_step = false) {
     return __awaiter(this, void 0, void 0, function* () {
+        const pipe = yield utils.suppressOutput(os_version);
         let script = '\n';
         switch (no_step) {
             case true:
-                script +=
-                    (yield utils.stepLog('Setup Extensions', os_version)) +
-                        (yield utils.suppressOutput(os_version));
+                script += (yield utils.stepLog('Setup Extensions', os_version)) + pipe;
                 break;
             case false:
             default:
@@ -2344,11 +2506,11 @@ function addExtension(extension_csv, version, os_version, no_step = false) {
         }
         switch (os_version) {
             case 'win32':
-                return script + (yield addExtensionWindows(extension_csv, version));
+                return script + (yield addExtensionWindows(extension_csv, version, pipe));
             case 'darwin':
-                return script + (yield addExtensionDarwin(extension_csv, version));
+                return script + (yield addExtensionDarwin(extension_csv, version, pipe));
             case 'linux':
-                return script + (yield addExtensionLinux(extension_csv, version));
+                return script + (yield addExtensionLinux(extension_csv, version, pipe));
             default:
                 return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
         }

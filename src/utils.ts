@@ -191,30 +191,36 @@ export async function extensionArray(
     case ' ':
       return [];
     default:
-      return extension_csv.split(',').map(function(extension: string) {
-        return extension
-          .trim()
-          .replace('php-', '')
-          .replace('php_', '');
-      });
+      return extension_csv
+        .split(',')
+        .map(function(extension: string) {
+          return extension
+            .trim()
+            .replace('php-', '')
+            .replace('php_', '');
+        })
+        .filter(Boolean);
   }
 }
 
 /**
- * Function to break ini values csv into an array
+ * Function to break csv into an array
  *
- * @param ini_values_csv
+ * @param values_csv
  * @constructor
  */
-export async function INIArray(ini_values_csv: string): Promise<Array<string>> {
-  switch (ini_values_csv) {
+export async function CSVArray(values_csv: string): Promise<Array<string>> {
+  switch (values_csv) {
     case '':
     case ' ':
       return [];
     default:
-      return ini_values_csv.split(',').map(function(ini_value: string) {
-        return ini_value.trim();
-      });
+      return values_csv
+        .split(',')
+        .map(function(value: string) {
+          return value.trim();
+        })
+        .filter(Boolean);
   }
 }
 

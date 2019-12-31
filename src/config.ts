@@ -8,7 +8,7 @@ import * as utils from './utils';
 export async function addINIValuesUnix(
   ini_values_csv: string
 ): Promise<string> {
-  const ini_values: Array<string> = await utils.INIArray(ini_values_csv);
+  const ini_values: Array<string> = await utils.CSVArray(ini_values_csv);
   let script = '\n';
   await utils.asyncForEach(ini_values, async function(line: string) {
     script +=
@@ -25,7 +25,7 @@ export async function addINIValuesUnix(
 export async function addINIValuesWindows(
   ini_values_csv: string
 ): Promise<string> {
-  const ini_values: Array<string> = await utils.INIArray(ini_values_csv);
+  const ini_values: Array<string> = await utils.CSVArray(ini_values_csv);
   let script = '\n';
   await utils.asyncForEach(ini_values, async function(line: string) {
     script +=

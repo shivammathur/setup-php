@@ -87,13 +87,13 @@ describe('Utils tests', () => {
   });
 
   it('checking INIArray', async () => {
-    expect(await utils.INIArray('a=1, b=2, c=3')).toEqual([
+    expect(await utils.CSVArray('a=1, b=2, c=3')).toEqual([
       'a=1',
       'b=2',
       'c=3'
     ]);
-    expect(await utils.INIArray('')).toEqual([]);
-    expect(await utils.INIArray(' ')).toEqual([]);
+    expect(await utils.CSVArray('')).toEqual([]);
+    expect(await utils.CSVArray(' ')).toEqual([]);
   });
 
   it('checking log', async () => {

@@ -80,10 +80,10 @@ describe('Extension tests', () => {
     expect(darwin).toContain('sudo pecl install pcov');
 
     darwin = await extensions.addExtension('phalcon3', '7.0', 'darwin');
-    expect(darwin).toContain('phalcon_darwin.sh phalcon3');
+    expect(darwin).toContain('phalcon_darwin.sh phalcon3 7.0');
 
     darwin = await extensions.addExtension('phalcon4', '7.3', 'darwin');
-    expect(darwin).toContain('phalcon_darwin.sh phalcon4');
+    expect(darwin).toContain('phalcon_darwin.sh phalcon4 7.3');
 
     darwin = await extensions.addExtension('pcov', '5.6', 'darwin');
     expect(darwin).toContain('sudo pecl install pcov');

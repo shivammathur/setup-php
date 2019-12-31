@@ -2362,6 +2362,8 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                                 path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
                                 ' ' +
                                 extension +
+                                ' ' +
+                                version +
                                 pipe;
                         break;
                     default:

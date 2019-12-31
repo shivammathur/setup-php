@@ -33,6 +33,8 @@ export async function addExtensionDarwin(
           path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
           ' ' +
           extension +
+          ' ' +
+          version +
           pipe;
         break;
       default:

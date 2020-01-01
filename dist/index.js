@@ -2042,6 +2042,7 @@ function build(filename, version, os_version) {
             tools_csv = 'pecl, ' + tools_csv;
         }
         let script = yield utils.readScript(filename, version, os_version);
+        script += yield tools.addTools(tools_csv, os_version);
         if (extension_csv) {
             script += yield extensions.addExtension(extension_csv, version, os_version);
         }
@@ -2051,7 +2052,6 @@ function build(filename, version, os_version) {
         if (coverage_driver) {
             script += yield coverage.addCoverage(coverage_driver, version, os_version);
         }
-        script += yield tools.addTools(tools_csv, os_version);
         return yield utils.writeScript(filename, script);
     });
 }

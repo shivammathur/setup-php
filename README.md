@@ -148,7 +148,7 @@ See [action.yml](action.yml "Metadata for this GitHub Action") and usage below f
 ```yaml
 steps:
 - name: Checkout
-  uses: actions/checkout@v1
+  uses: actions/checkout@v2
 
 - name: Setup PHP
   uses: shivammathur/setup-php@v1
@@ -175,7 +175,7 @@ jobs:
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v1
@@ -200,7 +200,7 @@ jobs:
 ```yaml
 steps:
 - name: Checkout
-  uses: actions/checkout@v1
+  uses: actions/checkout@v2
 
 - name: Setup PHP
   uses: shivammathur/setup-php@v1

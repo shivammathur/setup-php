@@ -20,6 +20,9 @@ jest.mock('../src/install', () => ({
       }
 
       let script = 'initial script ' + filename + version + os_version;
+      if (tools_csv) {
+        script += 'add_tool';
+      }
       if (extension_csv) {
         script += 'install extensions';
       }
@@ -28,9 +31,6 @@ jest.mock('../src/install', () => ({
       }
       if (coverage_driver) {
         script += 'set coverage driver';
-      }
-      if (tools_csv) {
-        script += 'add_tool';
       }
 
       return script;

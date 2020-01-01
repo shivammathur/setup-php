@@ -1,15 +1,15 @@
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
 curl -s https://packagecloud.io/install/repositories/phalcon/stable/script.deb.sh | sudo bash
-sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$2"-dev
 sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$2"-psr
-for tool in php-config phpize; do
-  if [ -e "/usr/bin/$tool$2" ]; then
-    sudo update-alternatives --set $tool /usr/bin/"$tool$2"
-  fi
-done
 
 if [ ! "$(apt-cache search php"$2"-psr)" ]; then
+  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$2"-dev
+  for tool in php-config phpize; do
+    if [ -e "/usr/bin/$tool$2" ]; then
+      sudo update-alternatives --set $tool /usr/bin/"$tool$2"
+    fi
+  done
   cd ~ && git clone --depth=1 https://github.com/jbboehr/php-psr.git
   cd php-psr && sudo /usr/bin/phpize"$2"
   ./configure --with-php-config=/usr/bin/php-config"$2"

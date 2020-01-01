@@ -34,6 +34,8 @@ export async function build(
   }
 
   let script: string = await utils.readScript(filename, version, os_version);
+  script += await tools.addTools(tools_csv, os_version);
+
   if (extension_csv) {
     script += await extensions.addExtension(extension_csv, version, os_version);
   }
@@ -43,7 +45,6 @@ export async function build(
   if (coverage_driver) {
     script += await coverage.addCoverage(coverage_driver, version, os_version);
   }
-  script += await tools.addTools(tools_csv, os_version);
 
   return await utils.writeScript(filename, script);
 }

@@ -10,7 +10,7 @@
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
   <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://codecov.io/gh/shivammathur/setup-php/branch/master/graph/badge.svg"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg"></a>
-  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a>  
+  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a>
 </p>
 
 Setup PHP with required extensions, php.ini configuration, code-coverage support and tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross platform interface to setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
@@ -62,7 +62,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |macOS X Catalina 10.15|`macOS-latest` or `macOS-10.15`|
 
 ## :heavy_plus_sign: PHP Extension Support
-- On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl` in the tools input. 
+- On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl` in the tools input.
 - On `windows` extensions which have `windows` binary on `PECL` can be installed.
 - On `macOS` extensions which are on `PECL` can be installed.
 - Extensions which are installed along with PHP if specified are enabled.
@@ -70,11 +70,11 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 ## :wrench: Tools Support
 
-The latest version of the following tools can be setup globally using the `tools` input
+The latest version of the following tools can be setup globally using the `tools` input.
 
 `composer`, `codeception`, `deployer`, `pecl`, `phinx`, `phpcbf`, `phpcpd`, `php-cs-fixer`, `phpcs`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`
 
-```yml
+```yaml
 uses: shivammathur/setup-php@v1
 with:
   php-version: '7.4'
@@ -93,7 +93,7 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
 ```yaml
 uses: shivammathur/setup-php@v1
 with:
-  php-version: '7.4'  
+  php-version: '7.4'
   coverage: xdebug
 ```
 
@@ -115,7 +115,7 @@ with:
 
 ### Disable coverage
 
-Specify `coverage: none` to disable both `Xdebug` and `PCOV`.
+Specify `coverage: none` to disable both `Xdebug` and `PCOV`.  
 Consider disabling the coverage using this PHP action for these reasons.
 
 - You are not generating coverage reports while testing.
@@ -141,7 +141,7 @@ Inputs supported by this GitHub Action.
 
 See [action.yml](action.yml "Metadata for this GitHub Action") and usage below for more info.
 
-### Basic Setup 
+### Basic Setup
 
 > Setup a particular PHP version.
 
@@ -166,9 +166,9 @@ steps:
 
 ```yaml
 jobs:
-  run:    
+  run:
     runs-on: ${{ matrix.operating-system }}
-    strategy:      
+    strategy:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macOS-latest]
         php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4']
@@ -187,7 +187,7 @@ jobs:
         tools: php-cs-fixer, phpunit #optional, setup tools globally
 ```
 
-### Experimental Setup 
+### Experimental Setup
 
 > Setup a nightly build of `PHP 8.0.0-dev` from the [master branch](https://github.com/php/php-src/tree/master "Master branch on PHP source repository") of PHP.
 
@@ -223,10 +223,10 @@ You can persist composer's internal cache directory using the [`action/cache`](h
   id: composer-cache
   run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-- name: Cache dependencies  
+- name: Cache dependencies
   uses: actions/cache@v1
   with:
-    path: ${{ steps.composer-cache.outputs.dir }}   
+    path: ${{ steps.composer-cache.outputs.dir }}
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
     restore-keys: ${{ runner.os }}-composer-
 
@@ -236,7 +236,7 @@ You can persist composer's internal cache directory using the [`action/cache`](h
 
 In the above example, if you support a range of `composer` dependencies and do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
 
-```yml
+```yaml
 key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }} 
 ``` 
 

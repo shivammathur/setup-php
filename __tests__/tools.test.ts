@@ -106,5 +106,13 @@ describe('Tools tests', () => {
       'Add-Content -Path $PsHome\\profile.ps1 -Value "New-Alias phinx $composer_dir\\vendor\\bin\\phinx.bat"'
     );
     expect(script).toContain('Tool does_not_exit is not supported');
+
+    script = await tools.addTools('phpstan, composer-prefetcher', 'darwin');
+    expect(script).toContain(
+      'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar phpstan'
+    );
+    expect(script).toContain(
+      'composer global require narrowspark/automatic-composer-prefetcher'
+    );
   });
 });

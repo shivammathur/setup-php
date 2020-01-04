@@ -179,6 +179,18 @@ export async function addTools(
             os_version
           ));
         break;
+      case 'composer-prefetcher':
+        script +=
+          'composer global require narrowspark/automatic-composer-prefetcher' +
+          (await utils.suppressOutput(os_version)) +
+          '\n' +
+          (await utils.addLog(
+            '$tick',
+            'narrowspark/automatic-composer-prefetcher',
+            'Added',
+            os_version
+          ));
+        break;
       case 'pecl':
         script += await getPECLCommand(os_version);
         break;

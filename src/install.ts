@@ -34,7 +34,7 @@ export async function build(
   }
 
   let script: string = await utils.readScript(filename, version, os_version);
-  script += await tools.addTools(tools_csv, os_version);
+  script += await tools.addTools(tools_csv, version, os_version);
 
   if (extension_csv) {
     script += await extensions.addExtension(extension_csv, version, os_version);

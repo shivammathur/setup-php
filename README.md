@@ -70,7 +70,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 ## :wrench: Tools Support
 
-The latest version of the following tools can be setup globally using the `tools` input.
+These tools can be setup globally using the `tools` input.
 
 `composer`, `codeception`, `deployer`, `pecl`, `phinx`, `phpcbf`, `phpcpd`, `php-cs-fixer`, `phpcs`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `composer-prefetcher`, `psalm`
 
@@ -81,7 +81,21 @@ with:
   tools: php-cs-fixer, phpunit
 ```
 
-**Note:** `composer` is setup by default, so that is not required to be specified. 
+To setup a particular version of a tool, specify it in the form `tool:version`.  
+Version should be in semver format and a valid release of the tool.
+
+```yaml
+uses: shivammathur/setup-php@v1
+with:
+  php-version: '7.4'
+  tools: php-cs-fixer:2.15.5, phpunit:8.5.1
+``` 
+
+**Note**
+- `composer` is setup by default.
+- Specifying version for `composer` and `pecl` has no effect, latest version of both tools will be setup.
+- If the version specified for the tool is not in semver format, latest version of the tool will be setup.
+- Tools which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
 
 ## :signal_strength: Coverage support
 

@@ -91,21 +91,57 @@ Function Add-Tool() {
   )
   if($tool -eq "composer") {
     Install-Composer -Scope System -Path $php_dir -PhpPath $php_dir
+    Add-Log $tick $tool "Added"
   } else {
-    if (Test-Path $php_dir\$tool)
-    {
+    if (Test-Path $php_dir\$tool) {
       Remove-Item $php_dir\$tool
     }
-    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool > $null 2>&1
-    $bat_content = @()
-    $bat_content += "@ECHO off"
-    $bat_content += "setlocal DISABLEDELAYEDEXPANSION"
-    $bat_content += "SET BIN_TARGET=%~dp0/" + $tool
-    $bat_content += "php %BIN_TARGET% %*"
-    Set-Content -Path $php_dir\$tool.bat -Value $bat_content
-    Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.bat"
+    try {
+      Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool
+      $bat_content = @()
+      $bat_content += "@ECHO off"
+      $bat_content += "setlocal DISABLEDELAYEDEXPANSION"
+      $bat_content += "SET BIN_TARGET=%~dp0/" + $tool
+      $bat_content += "php %BIN_TARGET% %*"
+      Set-Content -Path $php_dir\$tool.bat -Value $bat_content
+      Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.bat" > $null 2>&1
+      if (Test-Path $php_dir\$tool) {
+          Add-Log $tick $tool "Added"
+      } else {
+          Add-Log $cross $tool "Could not add $tool"
+      }
+    } catch {
+      Add-Log $cross $tool "Could not add $tool"
+    }
   }
-  Add-Log $tick $tool "Added"
+}
+
+Function Add-Composer-Tool() {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $tool,
+    [Parameter(Position = 1, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $release,
+    [Parameter(Position = 2, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $prefix
+  )
+  composer -q global require $prefix$release 2>&1 | out-null
+  if($?) {
+    $composer_dir = composer -q global config home | ForEach-Object { $_ -replace "/", "\" }
+    Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $composer_dir\vendor\bin\$tool.bat"
+    Add-Log $tick $tool "Added"
+  } else {
+    Add-Log $cross $tool "Could not setup $tool"
+  }
 }
 
 Function Add-PECL() {

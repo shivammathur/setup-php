@@ -133,11 +133,11 @@ if [ "$existing_version" != "$version" ]; then
     update_ppa
     ppa_updated=1
     if [ "$version" = "7.4" ]; then
-      $apt_install php"$version" php"$version"-phpdbg php"$version"-xml curl php"$version"-curl >/dev/null 2>&1
+      $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml php"$version"-phpdbg >/dev/null 2>&1
     elif [ "$version" = "8.0" ]; then
       setup_master
     else
-      $apt_install php"$version" curl php"$version"-curl >/dev/null 2>&1
+      $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml >/dev/null 2>&1
     fi
     status="installed"
   else

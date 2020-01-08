@@ -57,9 +57,24 @@ add_tool() {
   if [ ! -e /usr/local/bin/"$tool" ]; then
     rm -rf /usr/local/bin/"${tool:?}"
   fi
-  sudo curl -o /usr/local/bin/"$tool" -L "$url" >/dev/null 2>&1
-  sudo chmod a+x /usr/local/bin/"$tool"
+  status_code=$(sudo curl -s -w "%{http_code}" -o /usr/local/bin/"$tool" -L "$url")
+  if [ "$status_code" = "200" ]; then
+    sudo chmod a+x /usr/local/bin/"$tool"
+    add_log "$tick" "$tool" "Added"
+  else
+    add_log "$cross" "$tool" "Could not setup $tool"
+  fi
+}
+
+add_composer_tool() {
+  tool=$1
+  release=$2
+  prefix=$3
+  (
+  composer global require "$prefix$release" >/dev/null 2>&1 && \
+  sudo ln -sf "$(composer -q global config home)"/vendor/bin/"$tool" /usr/local/bin/"$tool" && \
   add_log "$tick" "$tool" "Added"
+  ) || add_log "$cross" "$tool" "Could not setup $tool"
 }
 
 # Function to setup the nightly build from master branch
@@ -118,11 +133,11 @@ if [ "$existing_version" != "$version" ]; then
     update_ppa
     ppa_updated=1
     if [ "$version" = "7.4" ]; then
-      $apt_install php"$version" php"$version"-phpdbg php"$version"-xml curl php"$version"-curl >/dev/null 2>&1
+      $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml php"$version"-phpdbg >/dev/null 2>&1
     elif [ "$version" = "8.0" ]; then
       setup_master
     else
-      $apt_install php"$version" curl php"$version"-curl >/dev/null 2>&1
+      $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml >/dev/null 2>&1
     fi
     status="installed"
   else

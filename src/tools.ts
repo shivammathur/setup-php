@@ -1,6 +1,11 @@
 import * as utils from './utils';
 
-export async function getToolCommand(os_version: string): Promise<string> {
+/**
+ * Function to get command to setup tool
+ *
+ * @param os_version
+ */
+export async function getArchiveCommand(os_version: string): Promise<string> {
   switch (os_version) {
     case 'linux':
     case 'darwin':
@@ -16,6 +21,33 @@ export async function getToolCommand(os_version: string): Promise<string> {
   }
 }
 
+/**
+ * Function to get command to setup tools using composer
+ *
+ * @param os_version
+ */
+export async function getPackageCommand(os_version: string): Promise<string> {
+  switch (os_version) {
+    case 'linux':
+    case 'darwin':
+      return 'add_composer_tool ';
+    case 'win32':
+      return 'Add-Composer-Tool ';
+    default:
+      return await utils.log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
+  }
+}
+
+/**
+ *
+ * Function to get command to setup PECL
+ *
+ * @param os_version
+ */
 export async function getPECLCommand(os_version: string): Promise<string> {
   switch (os_version) {
     case 'linux':
@@ -32,36 +64,227 @@ export async function getPECLCommand(os_version: string): Promise<string> {
   }
 }
 
-export async function linkTool(
+/**
+ * Function to get tool version
+ *
+ * @param version
+ */
+export async function getToolVersion(version: string): Promise<string> {
+  // semver_regex - https://semver.org/
+  const semver_regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+  version = version.replace(/[><=^]*/, '');
+  switch (true) {
+    case semver_regex.test(version):
+      return version;
+    default:
+      return 'latest';
+  }
+}
+
+/**
+ * Function to parse tool:version
+ *
+ * @param release
+ */
+export async function parseTool(
+  release: string
+): Promise<{name: string; version: string}> {
+  const parts: string[] = release.split(':');
+  const tool: string = parts[0];
+  const version: string | undefined = parts[1];
+  switch (version) {
+    case undefined:
+      return {
+        name: tool,
+        version: 'latest'
+      };
+    default:
+      return {
+        name: tool,
+        version: await getToolVersion(parts[1])
+      };
+  }
+}
+
+/**
+ * Function to get the url of tool with the given version
+ *
+ * @param version
+ * @param prefix
+ * @param version_prefix
+ * @param verb
+ */
+export async function getUri(
   tool: string,
+  version: string,
+  prefix: string,
+  version_prefix: string,
+  verb: string
+): Promise<string> {
+  switch (version) {
+    case 'latest':
+      return [prefix, version, verb, tool + '.phar'].filter(Boolean).join('/');
+    default:
+      return [prefix, verb, version_prefix + version, tool + '.phar']
+        .filter(Boolean)
+        .join('/');
+  }
+}
+
+/**
+ * Helper function to get the codeception url
+ *
+ * @param version
+ * @param php_version
+ * @param suffix
+ */
+export async function getCodeceptionUriBuilder(
+  version: string,
+  php_version: string,
+  suffix: string
+): Promise<string> {
+  switch (true) {
+    case /^5\.6$|^7\.[0|1]$/.test(php_version):
+      return ['releases', version, suffix, 'codecept.phar']
+        .filter(Boolean)
+        .join('/');
+    case /^7\.[2-4]$/.test(php_version):
+    default:
+      return ['releases', version, 'codecept.phar'].filter(Boolean).join('/');
+  }
+}
+
+/**
+ * Function to get the codeception url
+ *
+ * @param version
+ * @param php_version
+ */
+export async function getCodeceptionUri(
+  version: string,
+  php_version: string
+): Promise<string> {
+  switch (true) {
+    case /latest/.test(version):
+      switch (true) {
+        case /^5\.6$|^7\.[0|1]$/.test(php_version):
+          return 'php56/codecept.phar';
+        case /^7\.[2-4]$/.test(php_version):
+        default:
+          return 'codecept.phar';
+      }
+    case /([4-9]|\d{2,})\..*/.test(version):
+      return await getCodeceptionUriBuilder(version, php_version, 'php56');
+    default:
+      return await getCodeceptionUriBuilder(version, php_version, 'php54');
+  }
+}
+
+/**
+ * Function to get the PHPUnit url
+ *
+ * @param version
+ */
+export async function getPhpunitUrl(
+  tool: string,
+  version: string
+): Promise<string> {
+  const phpunit = 'https://phar.phpunit.de';
+  switch (version) {
+    case 'latest':
+      return phpunit + '/' + tool + '.phar';
+    default:
+      return phpunit + '/' + tool + '-' + version + '.phar';
+  }
+}
+
+/**
+ * Function to get the Deployer url
+ *
+ * @param version
+ */
+export async function getDeployerUrl(version: string): Promise<string> {
+  const deployer = 'https://deployer.org';
+  switch (version) {
+    case 'latest':
+      return deployer + '/deployer.phar';
+    default:
+      return deployer + '/releases/v' + version + '/deployer.phar';
+  }
+}
+
+/**
+ * Function to add/move composer in the tools list
+ *
+ * @param tools
+ */
+export async function addComposer(tools_list: string[]): Promise<string[]> {
+  const regex = /^composer($|:.*)/;
+  const composer: string = tools_list.filter(tool => regex.test(tool))[0];
+  switch (composer) {
+    case undefined:
+      break;
+    default:
+      tools_list = tools_list.filter(tool => !regex.test(tool));
+      break;
+  }
+  tools_list.unshift('composer');
+  return tools_list;
+}
+
+/**
+ * Function to get Tools list after cleanup
+ *
+ * @param tools_csv
+ */
+export async function getCleanedToolsList(
+  tools_csv: string
+): Promise<string[]> {
+  let tools_list: string[] = await utils.CSVArray(tools_csv);
+  tools_list = await addComposer(tools_list);
+  tools_list = tools_list
+    .map(function(extension: string) {
+      return extension
+        .trim()
+        .replace(/robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
+    })
+    .filter(Boolean);
+  return [...new Set(tools_list)];
+}
+
+/**
+ * Helper function to get script to setup a tool using a phar url
+ *
+ * @param tool
+ * @param version
+ * @param url
+ * @param os_version
+ */
+export async function addArchive(
+  tool: string,
+  version: string,
+  url: string,
   os_version: string
 ): Promise<string> {
-  switch (os_version) {
-    case 'linux':
-    case 'darwin':
-      return (
-        'sudo ln -s "$(composer -q global config home)"/vendor/bin/' +
-        tool +
-        ' /usr/local/bin/' +
-        tool
-      );
-    case 'win32':
-      return (
-        '$composer_dir = composer -q global config home | % {$_ -replace "/", "\\"}' +
-        '\n' +
-        'Add-Content -Path $PsHome\\profile.ps1 -Value "New-Alias ' +
-        tool +
-        ' $composer_dir\\vendor\\bin\\' +
-        tool +
-        '.bat"'
-      );
-    default:
-      return await utils.log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
-  }
+  return (await getArchiveCommand(os_version)) + url + ' ' + tool;
+}
+
+/**
+ * Helper function to get script to setup a tool using composer
+ *
+ * @param tool
+ * @param release
+ * @param prefix
+ * @param os_version
+ */
+export async function addPackage(
+  tool: string,
+  release: string,
+  prefix: string,
+  os_version: string
+): Promise<string> {
+  const tool_command = await getPackageCommand(os_version);
+  return tool_command + tool + ' ' + release + ' ' + prefix;
 }
 
 /**
@@ -72,121 +295,85 @@ export async function linkTool(
  */
 export async function addTools(
   tools_csv: string,
+  php_version: string,
   os_version: string
 ): Promise<string> {
   let script = '\n' + (await utils.stepLog('Setup Tools', os_version));
-  let tools: Array<string> = await utils.CSVArray(tools_csv);
-  tools = tools.filter(tool => tool !== 'composer');
-  tools.unshift('composer');
-  await utils.asyncForEach(tools, async function(tool: string) {
+  const tools_list: Array<string> = await getCleanedToolsList(tools_csv);
+  await utils.asyncForEach(tools_list, async function(release: string) {
+    const tool_data: {name: string; version: string} = await parseTool(release);
+    const tool: string = tool_data.name;
+    const version: string = tool_data.version;
+    const github = 'https://github.com/';
+    let uri: string = await getUri(tool, version, 'releases', '', 'download');
     script += '\n';
+    let url = '';
     switch (tool) {
       case 'php-cs-fixer':
-        script +=
-          (await getToolCommand(os_version)) +
-          'https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/latest/download/php-cs-fixer.phar' +
-          ' ' +
-          'php-cs-fixer';
+        uri = await getUri(tool, version, 'releases', 'v', 'download');
+        url = github + 'FriendsOfPHP/PHP-CS-Fixer/' + uri;
+        script += await addArchive(tool, version, url, os_version);
         break;
       case 'phpcs':
-        script +=
-          (await getToolCommand(os_version)) +
-          'https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar' +
-          ' ' +
-          'phpcs';
-        break;
       case 'phpcbf':
-        script +=
-          (await getToolCommand(os_version)) +
-          'https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcbf.phar' +
-          ' ' +
-          'phpcbf';
-        break;
-      case 'phpcpd':
-        script +=
-          (await getToolCommand(os_version)) +
-          'https://github.com/sebastianbergmann/phpcpd/releases/latest/download/phpcpd.phar' +
-          ' ' +
-          'phpcpd';
+        url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
+        script += await addArchive(tool, version, url, os_version);
         break;
       case 'phpstan':
-        script +=
-          (await getToolCommand(os_version)) +
-          'https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar' +
-          ' ' +
-          'phpstan';
+        url = github + 'phpstan/phpstan/' + uri;
+        script += await addArchive(tool, version, url, os_version);
         break;
       case 'phpmd':
-        script +=
-          (await getToolCommand(os_version)) +
-          'https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar' +
-          ' ' +
-          'phpmd';
+        url = github + 'phpmd/phpmd/' + uri;
+        script += await addArchive(tool, version, url, os_version);
         break;
       case 'psalm':
-        script +=
-          (await getToolCommand(os_version)) +
-          'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar' +
-          ' ' +
-          'psalm';
-        break;
-      case 'phinx':
-        script +=
-          'composer global require robmorgan/phinx' +
-          (await utils.suppressOutput(os_version)) +
-          '\n' +
-          (await linkTool('phinx', os_version)) +
-          '\n' +
-          (await utils.addLog('$tick', 'phinx', 'Added', os_version));
+        url = github + 'vimeo/psalm/' + uri;
+        script += await addArchive(tool, version, url, os_version);
         break;
       case 'composer':
-        script +=
-          (await getToolCommand(os_version)) +
-          'https://github.com/composer/composer/releases/latest/download/composer.phar' +
-          ' ' +
-          'composer';
+        url =
+          github + 'composer/composer/releases/latest/download/composer.phar';
+        script += await addArchive(tool, version, url, os_version);
         break;
       case 'codeception':
-        script +=
-          (await getToolCommand(os_version)) +
-          'https://codeception.com/codecept.phar' +
-          ' ' +
-          'codeception';
+        url =
+          'https://codeception.com/' +
+          (await getCodeceptionUri(version, php_version));
+        script += await addArchive(tool, version, url, os_version);
         break;
+      case 'phpcpd':
       case 'phpunit':
-        script +=
-          (await getToolCommand(os_version)) +
-          'https://phar.phpunit.de/phpunit.phar' +
-          ' ' +
-          'phpunit';
+        url = await getPhpunitUrl(tool, version);
+        script += await addArchive(tool, version, url, os_version);
         break;
       case 'deployer':
-        script +=
-          (await getToolCommand(os_version)) +
-          'https://deployer.org/deployer.phar' +
-          ' ' +
-          'deployer';
+        url = await getDeployerUrl(version);
+        script += await addArchive(tool, version, url, os_version);
+        break;
+      case 'phinx':
+        script += await addPackage(tool, release, 'robmorgan/', os_version);
         break;
       case 'prestissimo':
-        script +=
-          'composer global require hirak/prestissimo' +
-          (await utils.suppressOutput(os_version)) +
-          '\n' +
-          (await utils.addLog(
-            '$tick',
-            'hirak/prestissimo',
-            'Added',
-            os_version
-          ));
+        script += await addPackage(tool, release, 'hirak/', os_version);
+        break;
+      case 'composer-prefetcher':
+        script += await addPackage(
+          tool,
+          release,
+          'narrowspark/automatic-',
+          os_version
+        );
         break;
       case 'pecl':
         script += await getPECLCommand(os_version);
         break;
       default:
-        script += await utils.log(
+        script += await utils.addLog(
+          '$cross',
+          tool,
           'Tool ' + tool + ' is not supported',
-          os_version,
-          'error'
+          os_version
         );
         break;
     }

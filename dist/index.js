@@ -1555,7 +1555,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils = __importStar(__webpack_require__(163));
-function getToolCommand(os_version) {
+/**
+ * Function to get command to setup tool
+ *
+ * @param os_version
+ */
+function getArchiveCommand(os_version) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (os_version) {
             case 'linux':
@@ -1568,7 +1573,32 @@ function getToolCommand(os_version) {
         }
     });
 }
-exports.getToolCommand = getToolCommand;
+exports.getArchiveCommand = getArchiveCommand;
+/**
+ * Function to get command to setup tools using composer
+ *
+ * @param os_version
+ */
+function getPackageCommand(os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (os_version) {
+            case 'linux':
+            case 'darwin':
+                return 'add_composer_tool ';
+            case 'win32':
+                return 'Add-Composer-Tool ';
+            default:
+                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+        }
+    });
+}
+exports.getPackageCommand = getPackageCommand;
+/**
+ *
+ * Function to get command to setup PECL
+ *
+ * @param os_version
+ */
 function getPECLCommand(os_version) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (os_version) {
@@ -1583,143 +1613,297 @@ function getPECLCommand(os_version) {
     });
 }
 exports.getPECLCommand = getPECLCommand;
-function linkTool(tool, os_version) {
+/**
+ * Function to get tool version
+ *
+ * @param version
+ */
+function getToolVersion(version) {
     return __awaiter(this, void 0, void 0, function* () {
-        switch (os_version) {
-            case 'linux':
-            case 'darwin':
-                return ('sudo ln -s "$(composer -q global config home)"/vendor/bin/' +
-                    tool +
-                    ' /usr/local/bin/' +
-                    tool);
-            case 'win32':
-                return ('$composer_dir = composer -q global config home | % {$_ -replace "/", "\\"}' +
-                    '\n' +
-                    'Add-Content -Path $PsHome\\profile.ps1 -Value "New-Alias ' +
-                    tool +
-                    ' $composer_dir\\vendor\\bin\\' +
-                    tool +
-                    '.bat"');
+        // semver_regex - https://semver.org/
+        const semver_regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+        version = version.replace(/[><=^]*/, '');
+        switch (true) {
+            case semver_regex.test(version):
+                return version;
             default:
-                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+                return 'latest';
         }
     });
 }
-exports.linkTool = linkTool;
+exports.getToolVersion = getToolVersion;
+/**
+ * Function to parse tool:version
+ *
+ * @param release
+ */
+function parseTool(release) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const parts = release.split(':');
+        const tool = parts[0];
+        const version = parts[1];
+        switch (version) {
+            case undefined:
+                return {
+                    name: tool,
+                    version: 'latest'
+                };
+            default:
+                return {
+                    name: tool,
+                    version: yield getToolVersion(parts[1])
+                };
+        }
+    });
+}
+exports.parseTool = parseTool;
+/**
+ * Function to get the url of tool with the given version
+ *
+ * @param version
+ * @param prefix
+ * @param version_prefix
+ * @param verb
+ */
+function getUri(tool, version, prefix, version_prefix, verb) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (version) {
+            case 'latest':
+                return [prefix, version, verb, tool + '.phar'].filter(Boolean).join('/');
+            default:
+                return [prefix, verb, version_prefix + version, tool + '.phar']
+                    .filter(Boolean)
+                    .join('/');
+        }
+    });
+}
+exports.getUri = getUri;
+/**
+ * Helper function to get the codeception url
+ *
+ * @param version
+ * @param php_version
+ * @param suffix
+ */
+function getCodeceptionUriBuilder(version, php_version, suffix) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (true) {
+            case /^5\.6$|^7\.[0|1]$/.test(php_version):
+                return ['releases', version, suffix, 'codecept.phar']
+                    .filter(Boolean)
+                    .join('/');
+            case /^7\.[2-4]$/.test(php_version):
+            default:
+                return ['releases', version, 'codecept.phar'].filter(Boolean).join('/');
+        }
+    });
+}
+exports.getCodeceptionUriBuilder = getCodeceptionUriBuilder;
+/**
+ * Function to get the codeception url
+ *
+ * @param version
+ * @param php_version
+ */
+function getCodeceptionUri(version, php_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (true) {
+            case /latest/.test(version):
+                switch (true) {
+                    case /^5\.6$|^7\.[0|1]$/.test(php_version):
+                        return 'php56/codecept.phar';
+                    case /^7\.[2-4]$/.test(php_version):
+                    default:
+                        return 'codecept.phar';
+                }
+            case /([4-9]|\d{2,})\..*/.test(version):
+                return yield getCodeceptionUriBuilder(version, php_version, 'php56');
+            default:
+                return yield getCodeceptionUriBuilder(version, php_version, 'php54');
+        }
+    });
+}
+exports.getCodeceptionUri = getCodeceptionUri;
+/**
+ * Function to get the PHPUnit url
+ *
+ * @param version
+ */
+function getPhpunitUrl(tool, version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const phpunit = 'https://phar.phpunit.de';
+        switch (version) {
+            case 'latest':
+                return phpunit + '/' + tool + '.phar';
+            default:
+                return phpunit + '/' + tool + '-' + version + '.phar';
+        }
+    });
+}
+exports.getPhpunitUrl = getPhpunitUrl;
+/**
+ * Function to get the Deployer url
+ *
+ * @param version
+ */
+function getDeployerUrl(version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const deployer = 'https://deployer.org';
+        switch (version) {
+            case 'latest':
+                return deployer + '/deployer.phar';
+            default:
+                return deployer + '/releases/v' + version + '/deployer.phar';
+        }
+    });
+}
+exports.getDeployerUrl = getDeployerUrl;
+/**
+ * Function to add/move composer in the tools list
+ *
+ * @param tools
+ */
+function addComposer(tools_list) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const regex = /^composer($|:.*)/;
+        const composer = tools_list.filter(tool => regex.test(tool))[0];
+        switch (composer) {
+            case undefined:
+                break;
+            default:
+                tools_list = tools_list.filter(tool => !regex.test(tool));
+                break;
+        }
+        tools_list.unshift('composer');
+        return tools_list;
+    });
+}
+exports.addComposer = addComposer;
+/**
+ * Function to get Tools list after cleanup
+ *
+ * @param tools_csv
+ */
+function getCleanedToolsList(tools_csv) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let tools_list = yield utils.CSVArray(tools_csv);
+        tools_list = yield addComposer(tools_list);
+        tools_list = tools_list
+            .map(function (extension) {
+            return extension
+                .trim()
+                .replace(/robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
+        })
+            .filter(Boolean);
+        return [...new Set(tools_list)];
+    });
+}
+exports.getCleanedToolsList = getCleanedToolsList;
+/**
+ * Helper function to get script to setup a tool using a phar url
+ *
+ * @param tool
+ * @param version
+ * @param url
+ * @param os_version
+ */
+function addArchive(tool, version, url, os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return (yield getArchiveCommand(os_version)) + url + ' ' + tool;
+    });
+}
+exports.addArchive = addArchive;
+/**
+ * Helper function to get script to setup a tool using composer
+ *
+ * @param tool
+ * @param release
+ * @param prefix
+ * @param os_version
+ */
+function addPackage(tool, release, prefix, os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const tool_command = yield getPackageCommand(os_version);
+        return tool_command + tool + ' ' + release + ' ' + prefix;
+    });
+}
+exports.addPackage = addPackage;
 /**
  * Setup tools
  *
  * @param tool_csv
  * @param os_version
  */
-function addTools(tools_csv, os_version) {
+function addTools(tools_csv, php_version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
         let script = '\n' + (yield utils.stepLog('Setup Tools', os_version));
-        let tools = yield utils.CSVArray(tools_csv);
-        tools = tools.filter(tool => tool !== 'composer');
-        tools.unshift('composer');
-        yield utils.asyncForEach(tools, function (tool) {
+        const tools_list = yield getCleanedToolsList(tools_csv);
+        yield utils.asyncForEach(tools_list, function (release) {
             return __awaiter(this, void 0, void 0, function* () {
+                const tool_data = yield parseTool(release);
+                const tool = tool_data.name;
+                const version = tool_data.version;
+                const github = 'https://github.com/';
+                let uri = yield getUri(tool, version, 'releases', '', 'download');
                 script += '\n';
+                let url = '';
                 switch (tool) {
                     case 'php-cs-fixer':
-                        script +=
-                            (yield getToolCommand(os_version)) +
-                                'https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/latest/download/php-cs-fixer.phar' +
-                                ' ' +
-                                'php-cs-fixer';
+                        uri = yield getUri(tool, version, 'releases', 'v', 'download');
+                        url = github + 'FriendsOfPHP/PHP-CS-Fixer/' + uri;
+                        script += yield addArchive(tool, version, url, os_version);
                         break;
                     case 'phpcs':
-                        script +=
-                            (yield getToolCommand(os_version)) +
-                                'https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar' +
-                                ' ' +
-                                'phpcs';
-                        break;
                     case 'phpcbf':
-                        script +=
-                            (yield getToolCommand(os_version)) +
-                                'https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcbf.phar' +
-                                ' ' +
-                                'phpcbf';
-                        break;
-                    case 'phpcpd':
-                        script +=
-                            (yield getToolCommand(os_version)) +
-                                'https://github.com/sebastianbergmann/phpcpd/releases/latest/download/phpcpd.phar' +
-                                ' ' +
-                                'phpcpd';
+                        url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
+                        script += yield addArchive(tool, version, url, os_version);
                         break;
                     case 'phpstan':
-                        script +=
-                            (yield getToolCommand(os_version)) +
-                                'https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar' +
-                                ' ' +
-                                'phpstan';
+                        url = github + 'phpstan/phpstan/' + uri;
+                        script += yield addArchive(tool, version, url, os_version);
                         break;
                     case 'phpmd':
-                        script +=
-                            (yield getToolCommand(os_version)) +
-                                'https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar' +
-                                ' ' +
-                                'phpmd';
+                        url = github + 'phpmd/phpmd/' + uri;
+                        script += yield addArchive(tool, version, url, os_version);
                         break;
                     case 'psalm':
-                        script +=
-                            (yield getToolCommand(os_version)) +
-                                'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar' +
-                                ' ' +
-                                'psalm';
-                        break;
-                    case 'phinx':
-                        script +=
-                            'composer global require robmorgan/phinx' +
-                                (yield utils.suppressOutput(os_version)) +
-                                '\n' +
-                                (yield linkTool('phinx', os_version)) +
-                                '\n' +
-                                (yield utils.addLog('$tick', 'phinx', 'Added', os_version));
+                        url = github + 'vimeo/psalm/' + uri;
+                        script += yield addArchive(tool, version, url, os_version);
                         break;
                     case 'composer':
-                        script +=
-                            (yield getToolCommand(os_version)) +
-                                'https://github.com/composer/composer/releases/latest/download/composer.phar' +
-                                ' ' +
-                                'composer';
+                        url =
+                            github + 'composer/composer/releases/latest/download/composer.phar';
+                        script += yield addArchive(tool, version, url, os_version);
                         break;
                     case 'codeception':
-                        script +=
-                            (yield getToolCommand(os_version)) +
-                                'https://codeception.com/codecept.phar' +
-                                ' ' +
-                                'codeception';
+                        url =
+                            'https://codeception.com/' +
+                                (yield getCodeceptionUri(version, php_version));
+                        script += yield addArchive(tool, version, url, os_version);
                         break;
+                    case 'phpcpd':
                     case 'phpunit':
-                        script +=
-                            (yield getToolCommand(os_version)) +
-                                'https://phar.phpunit.de/phpunit.phar' +
-                                ' ' +
-                                'phpunit';
+                        url = yield getPhpunitUrl(tool, version);
+                        script += yield addArchive(tool, version, url, os_version);
                         break;
                     case 'deployer':
-                        script +=
-                            (yield getToolCommand(os_version)) +
-                                'https://deployer.org/deployer.phar' +
-                                ' ' +
-                                'deployer';
+                        url = yield getDeployerUrl(version);
+                        script += yield addArchive(tool, version, url, os_version);
+                        break;
+                    case 'phinx':
+                        script += yield addPackage(tool, release, 'robmorgan/', os_version);
                         break;
                     case 'prestissimo':
-                        script +=
-                            'composer global require hirak/prestissimo' +
-                                (yield utils.suppressOutput(os_version)) +
-                                '\n' +
-                                (yield utils.addLog('$tick', 'hirak/prestissimo', 'Added', os_version));
+                        script += yield addPackage(tool, release, 'hirak/', os_version);
+                        break;
+                    case 'composer-prefetcher':
+                        script += yield addPackage(tool, release, 'narrowspark/automatic-', os_version);
                         break;
                     case 'pecl':
                         script += yield getPECLCommand(os_version);
                         break;
                     default:
-                        script += yield utils.log('Tool ' + tool + ' is not supported', os_version, 'error');
+                        script += yield utils.addLog('$cross', tool, 'Tool ' + tool + ' is not supported', os_version);
                         break;
                 }
             });
@@ -2042,7 +2226,7 @@ function build(filename, version, os_version) {
             tools_csv = 'pecl, ' + tools_csv;
         }
         let script = yield utils.readScript(filename, version, os_version);
-        script += yield tools.addTools(tools_csv, os_version);
+        script += yield tools.addTools(tools_csv, version, os_version);
         if (extension_csv) {
             script += yield extensions.addExtension(extension_csv, version, os_version);
         }

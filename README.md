@@ -70,9 +70,9 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 ## :wrench: Tools Support
 
-The latest version of the following tools can be setup globally using the `tools` input.
+These tools can be setup globally using the `tools` input.
 
-`composer`, `codeception`, `deployer`, `pecl`, `phinx`, `phpcbf`, `phpcpd`, `php-cs-fixer`, `phpcs`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`
+`codeception`, `composer`, `composer-prefetcher`, `deployer`, `pecl`, `phinx`, `phpcbf`, `phpcpd`, `php-cs-fixer`, `phpcs`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`
 
 ```yaml
 uses: shivammathur/setup-php@v1
@@ -81,7 +81,21 @@ with:
   tools: php-cs-fixer, phpunit
 ```
 
-**Note:** `composer` is setup by default, so that is not required to be specified. 
+To setup a particular version of a tool, specify it in the form `tool:version`.  
+Version should be in semver format and a valid release of the tool.
+
+```yaml
+uses: shivammathur/setup-php@v1
+with:
+  php-version: '7.4'
+  tools: php-cs-fixer:2.15.5, phpunit:8.5.1
+``` 
+
+**Note**
+- `composer` is setup by default.
+- Specifying version for `composer` and `pecl` has no effect, latest version of both tools will be setup.
+- If the version specified for the tool is not in semver format, latest version of the tool will be setup.
+- Tools which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
 
 ## :signal_strength: Coverage support
 
@@ -148,7 +162,7 @@ See [action.yml](action.yml "Metadata for this GitHub Action") and usage below f
 ```yaml
 steps:
 - name: Checkout
-  uses: actions/checkout@v1
+  uses: actions/checkout@v2
 
 - name: Setup PHP
   uses: shivammathur/setup-php@v1
@@ -175,7 +189,7 @@ jobs:
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v1
@@ -200,7 +214,7 @@ jobs:
 ```yaml
 steps:
 - name: Checkout
-  uses: actions/checkout@v1
+  uses: actions/checkout@v2
 
 - name: Setup PHP
   uses: shivammathur/setup-php@v1
@@ -255,6 +269,9 @@ Examples for setting up this GitHub Action with different PHP Frameworks/Package
 
 |Framework/Package|Runs on|Workflow|
 |--- |--- |--- |
+|CakePHP with `MySQL` and `Redis`|`ubuntu`|[cakephp-mysql.yml](./examples/cakephp-mysql.yml "GitHub Action for CakePHP with MySQL and Redis")|
+|CakePHP with `PostgreSQL` and `Redis`|`ubuntu`|[cakephp-postgres.yml](./examples/cakephp-postgres.yml "GitHub Action for CakePHP with Postgres and Redis")|
+|CakePHP without services|`macOS`, `ubuntu` and `windows`|[cakephp.yml](./examples/cakephp.yml "GitHub Action for CakePHP without services")|
 |CodeIgniter|`macOS`, `ubuntu` and `windows`|[codeigniter.yml](./examples/codeigniter.yml "GitHub Action for CodeIgniter")|
 |Laravel with `MySQL` and `Redis`|`ubuntu`|[laravel-mysql.yml](./examples/laravel-mysql.yml "GitHub Action for Laravel with MySQL and Redis")|
 |Laravel with `PostgreSQL` and `Redis`|`ubuntu`|[laravel-postgres.yml](./examples/laravel-postgres.yml "GitHub Action for Laravel with PostgreSQL and Redis")|

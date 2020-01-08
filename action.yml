@@ -20,18 +20,18 @@ inputs:
   tools:
     description: 'Setup popular tools globally.'
     required: false
-  # Deprecated options, do not use. Will not be supported after February 1, 2020.
+  # Deprecated options, do not use. Will not be supported in v2 which will be released around February 1, 2020.
   extension-csv:
     description: 'Deprecated! Use extensions instead.'
-    deprecationMessage: 'The extension-csv property will not be supported after February 1, 2020. Use extensions instead.'
+    deprecationMessage: 'The extension-csv property will not be supported in v2. Use extensions instead.'
     required: false
   ini-values-csv:
     description: 'Deprecated! Use ini-values instead.'
-    deprecationMessage: 'The ini-values-csv property will not be supported after February 1, 2020. Use ini-values instead.'
+    deprecationMessage: 'The ini-values-csv property will not be supported in v2. Use ini-values instead.'
     required: false
   pecl:
     description: 'Deprecated! Use tools instead to setup PECL.'
-    deprecationMessage: 'The pecl property will not be supported after February 1, 2020. Specify pecl in tools instead.'
+    deprecationMessage: 'The pecl property will not be supported in v2. Specify pecl in tools instead.'
     required: false
 runs:
   using: 'node12'

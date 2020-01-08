@@ -66,7 +66,9 @@ jobs:
         run: php artisan migrate -v
         env:
           DB_PORT: ${{ job.services.postgres.ports[5432] }}
+          REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text
         env:
           DB_PORT: ${{ job.services.postgres.ports[5432] }}
+          REDIS_PORT: ${{ job.services.redis.ports['6379'] }}

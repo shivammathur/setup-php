@@ -1,23 +1,39 @@
-# GitHub Action for CakePHP
+# GitHub Action for CakePHP with PostgreSQL and Redis
 # Tested with https://github.com/cakephp/app
-name: Testing CakePHP
+name: Testing CakePHP with PostgreSQL
 on: [push, pull_request]
 jobs:
   tests:
     strategy:
       matrix:
-        operating-system: [ubuntu-latest, windows-latest, macOS-latest]
         php-versions: ['7.2', '7.3', '7.4']
-    runs-on: ${{ matrix.operating-system }}
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432/tcp
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+      redis:
+        image: redis
+        ports:
+          - 6379/tcp
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup PHP
-        uses: shivammathur/setup-php@v1 #https://github.com/shivammathur/setup-php
+        uses: shivammathur/setup-php@v1
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, intl, pdo_sqlite, pdo_mysql
-          coverage: pcov #optional
+          # You can also use ext-apcu or ext-memcached instead of ext-redis
+          # Install memcached if using ext-memcached
+          extensions: mbstring, intl, redis, pdo_pgsql
+          coverage: pcov
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
@@ -33,8 +49,12 @@ jobs:
         run: |
           composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
           composer run-script post-install-cmd --no-interaction
+      # Add a step to run migrations if required
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text
+        env:
+          REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
+          DB_DSN: postgres://postgres@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/postgres
 
   coding-standard:
     name: Coding Standard

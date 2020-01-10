@@ -47,7 +47,8 @@ remove_extension() {
     sudo phpdismod -v "$version" "$extension"
   fi
   sudo sed -i "/$extension/d" "$ini_file"
-  sudo DEBIAN_FRONTEND=noninteractive apt-get remove php-"$extension" -y >/dev/null 2>&1
+  sudo rm -rf /etc/php/"$version"/cli/conf.d/*"$extension"* >/dev/null 2>&1
+  sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
 }
 
 # Function to setup a remote tool

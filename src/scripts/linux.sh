@@ -51,6 +51,21 @@ remove_extension() {
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
 }
 
+# Function to update extension
+update_extension() {
+  extension=$1
+  latest_version=$2
+  current_version=$(php -r "echo phpversion('$extension');")
+  final_version=$(printf "%s\n%s" "$current_version" "$latest_version" | sort | tail -n 1)
+  if [ "$final_version" != "$current_version"  ]; then
+    version_exists=$(apt-cache policy -- *"$extension" | grep "$final_version")
+    if [ -z "$version_exists" ]; then
+      update_ppa
+    fi
+    $apt_install php"$version"-"$extension"
+  fi
+}
+
 # Function to setup a remote tool
 add_tool() {
   url=$1

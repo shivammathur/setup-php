@@ -30,10 +30,7 @@ describe('Extension tests', () => {
       '7.4',
       'linux'
     );
-    expect(linux).toContain(
-      'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-xdebug'
-    );
-    expect(linux).toContain('pecl install xdebug');
+    expect(linux).toContain('update_extension xdebug 2.9.0');
     expect(linux).toContain(
       'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-pcov'
     );

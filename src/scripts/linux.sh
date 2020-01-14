@@ -80,6 +80,9 @@ add_tool() {
   else
     add_log "$cross" "$tool" "Could not setup $tool"
   fi
+  if [ "$tool" = "composer" ]; then
+    composer -q global config process-timeout 0
+  fi
 }
 
 add_composer_tool() {

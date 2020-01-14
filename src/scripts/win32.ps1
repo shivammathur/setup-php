@@ -91,6 +91,7 @@ Function Add-Tool() {
   )
   if($tool -eq "composer") {
     Install-Composer -Scope System -Path $php_dir -PhpPath $php_dir
+    composer -q global config process-timeout 0
     Add-Log $tick $tool "Added"
   } else {
     if (Test-Path $php_dir\$tool) {

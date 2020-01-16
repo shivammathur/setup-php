@@ -54,6 +54,7 @@ add_tool() {
   if [ "$tool" = "composer" ]; then
     brew install composer >/dev/null 2>&1
     composer -q global config process-timeout 0
+    add_log "$tick" "$tool" "Added"
   else
     if [ ! -e /usr/local/bin/"$tool" ]; then
       rm -rf /usr/local/bin/"${tool:?}"

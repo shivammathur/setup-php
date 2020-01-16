@@ -14,8 +14,8 @@ $tick = ([char]8730)
 $domain = 'https://github.com'
 $php_dir = 'C:\tools\php'
 $ext_dir = $php_dir + '\ext'
+Install-Phpextension psr -MinimumStability stable -Path $php_dir
 if($extension -eq "phalcon4") {
-    Install-Phpextension psr -MinimumStability stable -Path $php_dir
     Install-Phpextension phalcon -MinimumStability stable -Path $php_dir
 } else {
     $installed = Get-Php -Path $php_dir

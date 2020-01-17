@@ -13,7 +13,7 @@
   <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a>
 </p>
 
-Setup PHP with required extensions, php.ini configuration, code-coverage support and tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross platform interface to setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
+Setup PHP with required extensions, php.ini configuration, code-coverage support and various tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross platform interface to setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
 
 ## Contents
 
@@ -72,7 +72,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 These tools can be setup globally using the `tools` input.
 
-`codeception`, `composer`, `composer-prefetcher`, `deployer`, `pecl`, `phinx`, `phpcbf`, `phpcpd`, `php-cs-fixer`, `phpcs`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`
+`codeception`, `composer`, `composer-prefetcher`, `deployer`, `pecl`, `phinx`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`
 
 ```yaml
 uses: shivammathur/setup-php@v1

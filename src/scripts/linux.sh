@@ -51,6 +51,21 @@ remove_extension() {
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
 }
 
+# Function to update extension
+update_extension() {
+  extension=$1
+  latest_version=$2
+  current_version=$(php -r "echo phpversion('$extension');")
+  final_version=$(printf "%s\n%s" "$current_version" "$latest_version" | sort | tail -n 1)
+  if [ "$final_version" != "$current_version"  ]; then
+    version_exists=$(apt-cache policy -- *"$extension" | grep "$final_version")
+    if [ -z "$version_exists" ]; then
+      update_ppa
+    fi
+    $apt_install php"$version"-"$extension"
+  fi
+}
+
 # Function to setup a remote tool
 add_tool() {
   url=$1
@@ -65,6 +80,9 @@ add_tool() {
   else
     add_log "$cross" "$tool" "Could not setup $tool"
   fi
+  if [ "$tool" = "composer" ]; then
+    composer -q global config process-timeout 0
+  fi
 }
 
 add_composer_tool() {
@@ -76,6 +94,15 @@ add_composer_tool() {
   sudo ln -sf "$(composer -q global config home)"/vendor/bin/"$tool" /usr/local/bin/"$tool" && \
   add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
+}
+
+# Function to setup phpize and php-config
+add_devtools() {
+  if ! [ -e "/usr/bin/phpize$version" ] || ! [ -e "/usr/bin/php-config$version" ]; then
+    $apt_install php"$version"-dev php"$version"-xml >/dev/null 2>&1
+  fi
+  sudo update-alternatives --set php-config /usr/bin/php-config"$version" >/dev/null 2>&1
+  sudo update-alternatives --set phpize /usr/bin/phpize"$version" >/dev/null 2>&1
 }
 
 # Function to setup the nightly build from master branch
@@ -94,9 +121,7 @@ setup_master() {
 # Function to setup PECL
 add_pecl() {
   update_ppa
-  $apt_install php"$version"-dev php"$version"-xml >/dev/null 2>&1
-  sudo update-alternatives --set php-config /usr/bin/php-config"$version" >/dev/null 2>&1
-  sudo update-alternatives --set phpize /usr/bin/phpize"$version" >/dev/null 2>&1
+  add_devtools
   wget https://github.com/pear/pearweb_phars/raw/master/install-pear-nozlib.phar >/dev/null 2>&1
   sudo php install-pear-nozlib.phar >/dev/null 2>&1
   sudo rm -rf install-pear-nozlib.phar >/dev/null 2>&1

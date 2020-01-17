@@ -30,10 +30,7 @@ describe('Extension tests', () => {
       '7.4',
       'linux'
     );
-    expect(linux).toContain(
-      'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-xdebug'
-    );
-    expect(linux).toContain('pecl install xdebug');
+    expect(linux).toContain('update_extension xdebug 2.9.0');
     expect(linux).toContain(
       'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-pcov'
     );
@@ -93,6 +90,9 @@ describe('Extension tests', () => {
 
     darwin = await extensions.addExtension('xdebug', '5.6', 'darwin');
     expect(darwin).toContain('sudo pecl install xdebug-2.5.5');
+
+    darwin = await extensions.addExtension('xdebug', '7.0', 'darwin');
+    expect(darwin).toContain('sudo pecl install xdebug-2.9.0');
 
     darwin = await extensions.addExtension('xdebug', '7.2', 'darwin');
     expect(darwin).toContain('sudo pecl install xdebug');

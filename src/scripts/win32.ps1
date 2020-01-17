@@ -91,6 +91,7 @@ Function Add-Tool() {
   )
   if($tool -eq "composer") {
     Install-Composer -Scope System -Path $php_dir -PhpPath $php_dir
+    composer -q global config process-timeout 0
     Add-Log $tick $tool "Added"
   } else {
     if (Test-Path $php_dir\$tool) {
@@ -170,6 +171,7 @@ if (Test-Path -LiteralPath $php_dir -PathType Container) {
   }
 }
 Step-Log "Setup PHP"
+$status = "Installed"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.')))) {
   if ($version -lt '7.0') {
     Install-Module -Name VcRedist -Force
@@ -180,9 +182,11 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   }
 
   Install-Php -Version $version -Architecture $arch -ThreadSafe $true -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
-}
-else {
-  Update-Php $php_dir >$null 2>&1
+} else {
+  $updated = Update-Php $php_dir >$null 2>&1
+  if($updated -eq $False) {
+    $status = "Found"
+  }
 }
 
 $installed = Get-Php -Path $php_dir
@@ -194,4 +198,4 @@ if ($version -eq 'master') {
   Set-PhpIniKey -Key 'opcache.jit_buffer_size' -Value '256M' -Path $php_dir
   Set-PhpIniKey -Key 'opcache.jit' -Value '1235' -Path $php_dir
 }
-Add-Log $tick "PHP" "Installed PHP $($installed.FullVersion)"
+Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)"

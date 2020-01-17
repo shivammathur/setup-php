@@ -24,6 +24,9 @@ export async function addExtensionDarwin(
       case /5\.6xdebug/.test(version_extension):
         install_command = 'sudo pecl install xdebug-2.5.5' + pipe;
         break;
+      case /7\.0xdebug/.test(version_extension):
+        install_command = 'sudo pecl install xdebug-2.9.0' + pipe;
+        break;
       case /5\.6redis/.test(version_extension):
         install_command = 'sudo pecl install redis-2.2.8' + pipe;
         break;
@@ -118,17 +121,32 @@ export async function addExtensionLinux(
           version +
           pipe;
         break;
+      // match 7.0xdebug..7.4xdebug
+      case /^7\.[0-4]xdebug$/.test(version_extension):
+        script +=
+          '\nupdate_extension xdebug 2.9.0' +
+          pipe +
+          '\n' +
+          (await utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));
+        return;
       // match 7.0phalcon3..7.3phalcon3 and 7.2phalcon4...7.4phalcon4
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-        install_command =
-          'sh ' +
+        script +=
+          '\nsh ' +
           path.join(__dirname, '../src/scripts/ext/phalcon.sh') +
           ' ' +
           extension +
           ' ' +
           version +
-          pipe;
-        break;
+          pipe +
+          '\n' +
+          (await utils.addLog(
+            '$tick',
+            extension,
+            'Installed and enabled',
+            'linux'
+          ));
+        return;
       default:
         install_command =
           'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php' +

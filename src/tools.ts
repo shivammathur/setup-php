@@ -270,6 +270,41 @@ export async function addArchive(
 }
 
 /**
+ * Function to get the script to setup php-config and phpize
+ *
+ * @param tool
+ * @param os_version
+ */
+export async function addDevTools(
+  tool: string,
+  os_version: string
+): Promise<string> {
+  switch (os_version) {
+    case 'linux':
+      return (
+        'add_devtools' +
+        '\n' +
+        (await utils.addLog('$tick', tool, 'Added', 'linux'))
+      );
+    case 'darwin':
+      return await utils.addLog('$tick', tool, 'Added', 'darwin');
+    case 'win32':
+      return await utils.addLog(
+        '$cross',
+        tool,
+        tool + ' is not a windows tool',
+        'win32'
+      );
+    default:
+      return await utils.log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
+  }
+}
+
+/**
  * Helper function to get script to setup a tool using composer
  *
  * @param tool
@@ -367,6 +402,10 @@ export async function addTools(
         break;
       case 'pecl':
         script += await getPECLCommand(os_version);
+        break;
+      case 'php-config':
+      case 'phpize':
+        script += await addDevTools(tool, os_version);
         break;
       default:
         script += await utils.addLog(

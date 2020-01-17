@@ -91,6 +91,9 @@ describe('Extension tests', () => {
     darwin = await extensions.addExtension('xdebug', '5.6', 'darwin');
     expect(darwin).toContain('sudo pecl install xdebug-2.5.5');
 
+    darwin = await extensions.addExtension('xdebug', '7.0', 'darwin');
+    expect(darwin).toContain('sudo pecl install xdebug-2.9.0');
+
     darwin = await extensions.addExtension('xdebug', '7.2', 'darwin');
     expect(darwin).toContain('sudo pecl install xdebug');
 

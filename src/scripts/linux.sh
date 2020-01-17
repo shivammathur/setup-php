@@ -96,6 +96,15 @@ add_composer_tool() {
   ) || add_log "$cross" "$tool" "Could not setup $tool"
 }
 
+# Function to setup phpize and php-config
+add_devtools() {
+  if ! [ -e "/usr/bin/phpize$version" ] || ! [ -e "/usr/bin/php-config$version" ]; then
+    $apt_install php"$version"-dev php"$version"-xml >/dev/null 2>&1
+  fi
+  sudo update-alternatives --set php-config /usr/bin/php-config"$version" >/dev/null 2>&1
+  sudo update-alternatives --set phpize /usr/bin/phpize"$version" >/dev/null 2>&1
+}
+
 # Function to setup the nightly build from master branch
 setup_master() {
   tar_file=php_"$version"%2Bubuntu"$(lsb_release -r -s)".tar.xz
@@ -112,9 +121,7 @@ setup_master() {
 # Function to setup PECL
 add_pecl() {
   update_ppa
-  $apt_install php"$version"-dev php"$version"-xml >/dev/null 2>&1
-  sudo update-alternatives --set php-config /usr/bin/php-config"$version" >/dev/null 2>&1
-  sudo update-alternatives --set phpize /usr/bin/phpize"$version" >/dev/null 2>&1
+  add_devtools
   wget https://github.com/pear/pearweb_phars/raw/master/install-pear-nozlib.phar >/dev/null 2>&1
   sudo php install-pear-nozlib.phar >/dev/null 2>&1
   sudo rm -rf install-pear-nozlib.phar >/dev/null 2>&1

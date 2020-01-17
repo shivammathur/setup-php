@@ -1814,6 +1814,29 @@ function addArchive(tool, version, url, os_version) {
 }
 exports.addArchive = addArchive;
 /**
+ * Function to get the script to setup php-config and phpize
+ *
+ * @param tool
+ * @param os_version
+ */
+function addDevTools(tool, os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (os_version) {
+            case 'linux':
+                return ('add_devtools' +
+                    '\n' +
+                    (yield utils.addLog('$tick', tool, 'Added', 'linux')));
+            case 'darwin':
+                return yield utils.addLog('$tick', tool, 'Added', 'darwin');
+            case 'win32':
+                return yield utils.addLog('$cross', tool, tool + ' is not a windows tool', 'win32');
+            default:
+                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+        }
+    });
+}
+exports.addDevTools = addDevTools;
+/**
  * Helper function to get script to setup a tool using composer
  *
  * @param tool
@@ -1901,6 +1924,10 @@ function addTools(tools_csv, php_version, os_version) {
                         break;
                     case 'pecl':
                         script += yield getPECLCommand(os_version);
+                        break;
+                    case 'php-config':
+                    case 'phpize':
+                        script += yield addDevTools(tool, os_version);
                         break;
                     default:
                         script += yield utils.addLog('$cross', tool, 'Tool ' + tool + ' is not supported', os_version);

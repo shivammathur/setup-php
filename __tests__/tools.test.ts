@@ -239,6 +239,35 @@ describe('Tools tests', () => {
     expect(script).toContain('Platform fedora is not supported');
   });
 
+  it('checking addDevTools', async () => {
+    let script: string = await tools.addDevTools('phpize', 'linux');
+    expect(script).toContain('add_devtools');
+    expect(script).toContain('add_log "$tick" "phpize" "Added"');
+
+    script = await tools.addDevTools('php-config', 'linux');
+    expect(script).toContain('add_devtools');
+    expect(script).toContain('add_log "$tick" "php-config" "Added"');
+
+    script = await tools.addDevTools('phpize', 'darwin');
+    expect(script).toContain('add_log "$tick" "phpize" "Added"');
+
+    script = await tools.addDevTools('php-config', 'darwin');
+    expect(script).toContain('add_log "$tick" "php-config" "Added"');
+
+    script = await tools.addDevTools('phpize', 'win32');
+    expect(script).toContain(
+      'Add-Log "$cross" "phpize" "phpize is not a windows tool"'
+    );
+
+    script = await tools.addDevTools('php-config', 'win32');
+    expect(script).toContain(
+      'Add-Log "$cross" "php-config" "php-config is not a windows tool"'
+    );
+
+    script = await tools.addDevTools('tool', 'fedora');
+    expect(script).toContain('Platform fedora is not supported');
+  });
+
   it('checking addPackage', async () => {
     let script: string = await tools.addPackage(
       'tool',
@@ -260,7 +289,7 @@ describe('Tools tests', () => {
 
   it('checking addTools on linux', async () => {
     const script: string = await tools.addTools(
-      'php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3',
+      'php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, php-config, phpize',
       '7.4',
       'linux'
     );
@@ -279,10 +308,13 @@ describe('Tools tests', () => {
     expect(script).toContain('add_pecl');
     expect(script).toContain('add_composer_tool phinx phinx robmorgan/');
     expect(script).toContain('add_composer_tool phinx phinx:1.2.3 robmorgan/');
+    expect(script).toContain('add_devtools');
+    expect(script).toContain('add_log "$tick" "php-config" "Added"');
+    expect(script).toContain('add_log "$tick" "phpize" "Added"');
   });
   it('checking addTools on darwin', async () => {
     const script: string = await tools.addTools(
-      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, composer-prefetcher:1.2.3',
+      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, composer-prefetcher:1.2.3, phpize, php-config',
       '7.4',
       'darwin'
     );
@@ -308,10 +340,12 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'add_composer_tool composer-prefetcher composer-prefetcher:1.2.3 narrowspark/automatic-'
     );
+    expect(script).toContain('add_log "$tick" "phpize" "Added"');
+    expect(script).toContain('add_log "$tick" "php-config" "Added"');
   });
   it('checking addTools on windows', async () => {
     const script: string = await tools.addTools(
-      'codeception, deployer, prestissimo, phpmd, phinx, does_not_exit',
+      'codeception, deployer, prestissimo, phpmd, phinx, php-config, phpize, does_not_exit',
       '7.4',
       'win32'
     );
@@ -325,6 +359,9 @@ describe('Tools tests', () => {
       'Add-Composer-Tool prestissimo prestissimo hirak/'
     );
     expect(script).toContain('Add-Composer-Tool phinx phinx robmorgan/');
+    expect(script).toContain('phpize is not a windows tool');
+    expect(script).toContain('php-config is not a windows tool');
+    expect(script).toContain('Tool does_not_exit is not supported');
     expect(script).toContain('Tool does_not_exit is not supported');
   });
   it('checking addTools with composer tool using user/tool as input', async () => {

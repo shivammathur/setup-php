@@ -1732,6 +1732,31 @@ function getCodeceptionUri(version, php_version) {
 }
 exports.getCodeceptionUri = getCodeceptionUri;
 /**
+ * Helper function to get script to setup phive
+ *
+ * @param tool
+ * @param version
+ * @param url
+ * @param os_version
+ */
+function addPhive(version, os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (version) {
+            case 'latest':
+                return ((yield getArchiveCommand(os_version)) +
+                    'https://phar.io/releases/phive.phar phive');
+            default:
+                return ((yield getArchiveCommand(os_version)) +
+                    'https://github.com/phar-io/phive/releases/download/' +
+                    version +
+                    '/phive-' +
+                    version +
+                    '.phar phive');
+        }
+    });
+}
+exports.addPhive = addPhive;
+/**
  * Function to get the PHPUnit url
  *
  * @param version
@@ -1887,6 +1912,9 @@ function addTools(tools_csv, php_version, os_version) {
                     case 'phpcbf':
                         url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
                         script += yield addArchive(tool, version, url, os_version);
+                        break;
+                    case 'phive':
+                        script += yield addPhive(version, os_version);
                         break;
                     case 'phpstan':
                         url = github + 'phpstan/phpstan/' + uri;

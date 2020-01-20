@@ -181,6 +181,36 @@ export async function getCodeceptionUri(
 }
 
 /**
+ * Helper function to get script to setup phive
+ *
+ * @param tool
+ * @param version
+ * @param url
+ * @param os_version
+ */
+export async function addPhive(
+  version: string,
+  os_version: string
+): Promise<string> {
+  switch (version) {
+    case 'latest':
+      return (
+        (await getArchiveCommand(os_version)) +
+        'https://phar.io/releases/phive.phar phive'
+      );
+    default:
+      return (
+        (await getArchiveCommand(os_version)) +
+        'https://github.com/phar-io/phive/releases/download/' +
+        version +
+        '/phive-' +
+        version +
+        '.phar phive'
+      );
+  }
+}
+
+/**
  * Function to get the PHPUnit url
  *
  * @param version
@@ -353,6 +383,9 @@ export async function addTools(
       case 'phpcbf':
         url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
         script += await addArchive(tool, version, url, os_version);
+        break;
+      case 'phive':
+        script += await addPhive(version, os_version);
         break;
       case 'phpstan':
         url = github + 'phpstan/phpstan/' + uri;

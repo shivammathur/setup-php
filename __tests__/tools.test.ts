@@ -160,6 +160,18 @@ describe('Tools tests', () => {
     );
   });
 
+  it('checking addPhive', async () => {
+    let script: string = await tools.addPhive('1.2.3', 'linux');
+    expect(script).toContain(
+      'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'
+    );
+
+    script = await tools.addPhive('latest', 'win32');
+    expect(script).toContain(
+      'Add-Tool https://phar.io/releases/phive.phar phive'
+    );
+  });
+
   it('checking getPhpunitUri', async () => {
     expect(await tools.getPhpunitUrl('tool', 'latest')).toBe(
       'https://phar.phpunit.de/tool.phar'
@@ -289,7 +301,7 @@ describe('Tools tests', () => {
 
   it('checking addTools on linux', async () => {
     const script: string = await tools.addTools(
-      'php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, php-config, phpize',
+      'php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize',
       '7.4',
       'linux'
     );
@@ -303,6 +315,9 @@ describe('Tools tests', () => {
       'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar phpstan'
     );
     expect(script).toContain(
+      'add_tool https://phar.io/releases/phive.phar phive'
+    );
+    expect(script).toContain(
       'add_tool https://phar.phpunit.de/phpunit.phar phpunit'
     );
     expect(script).toContain('add_pecl');
@@ -314,7 +329,7 @@ describe('Tools tests', () => {
   });
   it('checking addTools on darwin', async () => {
     const script: string = await tools.addTools(
-      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, composer-prefetcher:1.2.3, phpize, php-config',
+      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, composer-prefetcher:1.2.3, phpize, php-config',
       '7.4',
       'darwin'
     );
@@ -338,6 +353,9 @@ describe('Tools tests', () => {
     );
     expect(script).toContain('add_composer_tool phinx phinx robmorgan/');
     expect(script).toContain(
+      'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'
+    );
+    expect(script).toContain(
       'add_composer_tool composer-prefetcher composer-prefetcher:1.2.3 narrowspark/automatic-'
     );
     expect(script).toContain('add_log "$tick" "phpize" "Added"');
@@ -345,7 +363,7 @@ describe('Tools tests', () => {
   });
   it('checking addTools on windows', async () => {
     const script: string = await tools.addTools(
-      'codeception, deployer, prestissimo, phpmd, phinx, php-config, phpize, does_not_exit',
+      'codeception, deployer, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, does_not_exit',
       '7.4',
       'win32'
     );
@@ -358,7 +376,13 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'Add-Composer-Tool prestissimo prestissimo hirak/'
     );
+    expect(script).toContain(
+      'Add-Tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd'
+    );
     expect(script).toContain('Add-Composer-Tool phinx phinx robmorgan/');
+    expect(script).toContain(
+      'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.2/phive-0.13.2.phar phive'
+    );
     expect(script).toContain('phpize is not a windows tool');
     expect(script).toContain('php-config is not a windows tool');
     expect(script).toContain('Tool does_not_exit is not supported');

@@ -115,6 +115,11 @@ Function Add-Tool() {
       Add-Log $cross $tool "Could not add $tool"
     }
   }
+  if($tool -eq "phive") {
+    Add-Extension curl >$null 2>&1
+    Add-Extension mbstring >$null 2>&1
+    Add-Extension xml >$null 2>&1
+  }
 }
 
 Function Add-Composer-Tool() {

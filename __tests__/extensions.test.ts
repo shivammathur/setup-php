@@ -41,22 +41,10 @@ describe('Extension tests', () => {
     linux = await extensions.addExtension('gearman', '7.1', 'linux');
     expect(linux).toContain('gearman.sh 7.1');
 
-    linux = await extensions.addExtension(
-      'phalcon3, phalcon4, gearman',
-      '7.2',
-      'linux'
-    );
-    expect(linux).toContain('phalcon.sh phalcon3 7.2');
-    expect(linux).toContain('phalcon.sh phalcon4 7.2');
+    linux = await extensions.addExtension('gearman', '7.2', 'linux');
     expect(linux).toContain('gearman.sh 7.2');
 
-    linux = await extensions.addExtension(
-      'phalcon3, phalcon4, gearman',
-      '7.3',
-      'linux'
-    );
-    expect(linux).toContain('phalcon.sh phalcon3 7.3');
-    expect(linux).toContain('phalcon.sh phalcon4 7.3');
+    linux = await extensions.addExtension('gearman', '7.3', 'linux');
     expect(linux).toContain('gearman.sh 7.3');
 
     linux = await extensions.addExtension('phalcon4, gearman', '7.4', 'linux');

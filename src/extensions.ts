@@ -129,8 +129,8 @@ export async function addExtensionLinux(
           '\n' +
           (await utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));
         return;
-      // match 7.0phalcon3..7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+      // match 7.4phalcon4
+      case /^7.4phalcon4$/.test(version_extension):
         script +=
           '\nsh ' +
           path.join(__dirname, '../src/scripts/ext/phalcon.sh') +

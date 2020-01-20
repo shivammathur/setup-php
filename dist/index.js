@@ -2676,19 +2676,6 @@ function addExtensionLinux(extension_csv, version, pipe) {
                                 '\n' +
                                 (yield utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));
                         return;
-                    // match 7.4phalcon4
-                    case /^7.4phalcon4$/.test(version_extension):
-                        script +=
-                            '\nsh ' +
-                                path.join(__dirname, '../src/scripts/ext/phalcon.sh') +
-                                ' ' +
-                                extension +
-                                ' ' +
-                                version +
-                                pipe +
-                                '\n' +
-                                (yield utils.addLog('$tick', extension, 'Installed and enabled', 'linux'));
-                        return;
                     default:
                         install_command =
                             'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php' +

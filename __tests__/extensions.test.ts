@@ -47,8 +47,7 @@ describe('Extension tests', () => {
     linux = await extensions.addExtension('gearman', '7.3', 'linux');
     expect(linux).toContain('gearman.sh 7.3');
 
-    linux = await extensions.addExtension('phalcon4, gearman', '7.4', 'linux');
-    expect(linux).toContain('phalcon.sh phalcon4 7.4');
+    linux = await extensions.addExtension('gearman', '7.4', 'linux');
     expect(linux).toContain('gearman.sh 7.4');
 
     linux = await extensions.addExtension('xdebug', '7.2', 'fedora');

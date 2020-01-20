@@ -90,6 +90,14 @@ describe('Extension tests', () => {
     darwin = await extensions.addExtension('redis', '7.2', 'darwin');
     expect(darwin).toContain('sudo pecl install redis');
 
+    darwin = await extensions.addExtension('imagick', '5.6', 'darwin');
+    expect(darwin).toContain('brew install pkg-config imagemagick');
+    expect(darwin).toContain('sudo pecl install imagick');
+
+    darwin = await extensions.addExtension('imagick', '7.4', 'darwin');
+    expect(darwin).toContain('brew install pkg-config imagemagick');
+    expect(darwin).toContain('sudo pecl install imagick');
+
     darwin = await extensions.addExtension(
       'does_not_exist',
       '7.2',

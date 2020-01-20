@@ -30,6 +30,13 @@ export async function addExtensionDarwin(
       case /5\.6redis/.test(version_extension):
         install_command = 'sudo pecl install redis-2.2.8' + pipe;
         break;
+      case /[5-9]\.\dimagick/.test(version_extension):
+        install_command =
+          'brew install pkg-config imagemagick' +
+          pipe +
+          ' && sudo pecl install imagick' +
+          pipe;
+        break;
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
         install_command =
           'sh ' +

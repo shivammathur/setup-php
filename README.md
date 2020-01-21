@@ -60,7 +60,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |Windows Server 2019|`windows-latest` or `windows-2019`|
 |Ubuntu 18.04|`ubuntu-latest` or `ubuntu-18.04`|
 |Ubuntu 16.04|`ubuntu-16.04`|
-|macOS X Catalina 10.15|`macOS-latest` or `macOS-10.15`|
+|macOS X Catalina 10.15|`macos-latest` or `macOS-10.15`|
 
 ## :heavy_plus_sign: PHP Extension Support
 - On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl` in the tools input.
@@ -185,7 +185,7 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: [ubuntu-latest, windows-latest, macOS-latest]
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
         php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4']
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
     steps:

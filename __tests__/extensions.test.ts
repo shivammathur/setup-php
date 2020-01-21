@@ -52,6 +52,10 @@ describe('Extension tests', () => {
 
     linux = await extensions.addExtension('xdebug', '7.2', 'fedora');
     expect(linux).toContain('Platform fedora is not supported');
+
+    linux = await extensions.addExtension('phalcon3, phalcon4', '7.3', 'linux');
+    expect(linux).toContain('phalcon.sh phalcon3 7.3');
+    expect(linux).toContain('phalcon.sh phalcon4 7.3');
   });
 
   it('checking addExtensionOnDarwin', async () => {

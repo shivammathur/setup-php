@@ -2703,6 +2703,15 @@ function addExtensionLinux(extension_csv, version, pipe) {
                                 version +
                                 pipe;
                         break;
+                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+                        script +=
+                            '\nsh ' +
+                                path.join(__dirname, '../src/scripts/ext/phalcon.sh') +
+                                ' ' +
+                                extension +
+                                ' ' +
+                                version;
+                        return;
                     // match 7.0xdebug..7.4xdebug
                     case /^7\.[0-4]xdebug$/.test(version_extension):
                         script +=

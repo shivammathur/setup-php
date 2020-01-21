@@ -41,30 +41,21 @@ describe('Extension tests', () => {
     linux = await extensions.addExtension('gearman', '7.1', 'linux');
     expect(linux).toContain('gearman.sh 7.1');
 
-    linux = await extensions.addExtension(
-      'phalcon3, phalcon4, gearman',
-      '7.2',
-      'linux'
-    );
-    expect(linux).toContain('phalcon.sh phalcon3 7.2');
-    expect(linux).toContain('phalcon.sh phalcon4 7.2');
+    linux = await extensions.addExtension('gearman', '7.2', 'linux');
     expect(linux).toContain('gearman.sh 7.2');
 
-    linux = await extensions.addExtension(
-      'phalcon3, phalcon4, gearman',
-      '7.3',
-      'linux'
-    );
-    expect(linux).toContain('phalcon.sh phalcon3 7.3');
-    expect(linux).toContain('phalcon.sh phalcon4 7.3');
+    linux = await extensions.addExtension('gearman', '7.3', 'linux');
     expect(linux).toContain('gearman.sh 7.3');
 
-    linux = await extensions.addExtension('phalcon4, gearman', '7.4', 'linux');
-    expect(linux).toContain('phalcon.sh phalcon4 7.4');
+    linux = await extensions.addExtension('gearman', '7.4', 'linux');
     expect(linux).toContain('gearman.sh 7.4');
 
     linux = await extensions.addExtension('xdebug', '7.2', 'fedora');
     expect(linux).toContain('Platform fedora is not supported');
+
+    linux = await extensions.addExtension('phalcon3, phalcon4', '7.3', 'linux');
+    expect(linux).toContain('phalcon.sh phalcon3 7.3');
+    expect(linux).toContain('phalcon.sh phalcon4 7.3');
   });
 
   it('checking addExtensionOnDarwin', async () => {
@@ -102,6 +93,14 @@ describe('Extension tests', () => {
 
     darwin = await extensions.addExtension('redis', '7.2', 'darwin');
     expect(darwin).toContain('sudo pecl install redis');
+
+    darwin = await extensions.addExtension('imagick', '5.6', 'darwin');
+    expect(darwin).toContain('brew install pkg-config imagemagick');
+    expect(darwin).toContain('sudo pecl install imagick');
+
+    darwin = await extensions.addExtension('imagick', '7.4', 'darwin');
+    expect(darwin).toContain('brew install pkg-config imagemagick');
+    expect(darwin).toContain('sudo pecl install imagick');
 
     darwin = await extensions.addExtension(
       'does_not_exist',

@@ -28,7 +28,8 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 - [Usage](#memo-usage)
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
-  - [Experimental Setup](#experimental-setup)  
+  - [Experimental Setup](#experimental-setup)
+  - [Thread Safe Setup](#thread-safe-setup)  
   - [Cache dependencies](#cache-dependencies)
   - [Problem Matchers](#problem-matchers)
   - [Examples](#examples)
@@ -59,7 +60,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |Windows Server 2019|`windows-latest` or `windows-2019`|
 |Ubuntu 18.04|`ubuntu-latest` or `ubuntu-18.04`|
 |Ubuntu 16.04|`ubuntu-16.04`|
-|macOS X Catalina 10.15|`macOS-latest` or `macOS-10.15`|
+|macOS X Catalina 10.15|`macos-latest` or `macOS-10.15`|
 
 ## :heavy_plus_sign: PHP Extension Support
 - On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl` in the tools input.
@@ -72,7 +73,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 These tools can be setup globally using the `tools` input.
 
-`codeception`, `composer`, `composer-prefetcher`, `deployer`, `pecl`, `phinx`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`
+`codeception`, `composer`, `composer-prefetcher`, `deployer`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`
 
 ```yaml
 uses: shivammathur/setup-php@v1
@@ -184,7 +185,7 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: [ubuntu-latest, windows-latest, macOS-latest]
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
         php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4']
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
     steps:
@@ -224,6 +225,29 @@ steps:
     ini-values: opcache.jit_buffer_size=256M, opcache.jit=1235, pcre.jit=1 #optional, setup php.ini configuration
     coverage: pcov #optional, setup PCOV, Xdebug does not support this version yet.
     tools: php-cs-fixer, phpunit #optional, setup tools globally    
+```
+
+### Thread Safe Setup
+
+- `NTS` versions are setup by default.
+- On `ubuntu` and `macOS` only NTS versions are supported.
+- On `windows` both `TS` and `NTS` versions are supported.
+
+```yaml
+jobs:
+  run:
+    runs-on: windows-latest
+    name: Setup PHP TS on Windows
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v1
+      with:
+        php-version: '7.4'
+      env:
+        PHPTS: ts # specify ts or nts
 ```
 
 ### Cache dependencies

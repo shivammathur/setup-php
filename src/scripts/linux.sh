@@ -83,6 +83,11 @@ add_tool() {
   if [ "$tool" = "composer" ]; then
     composer -q global config process-timeout 0
   fi
+  if [ "$tool" = "phive" ]; then
+    add_extension curl >/dev/null 2>&1
+    add_extension mbstring >/dev/null 2>&1
+    add_extension xml >/dev/null 2>&1
+  fi
 }
 
 add_composer_tool() {

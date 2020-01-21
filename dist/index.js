@@ -1732,6 +1732,31 @@ function getCodeceptionUri(version, php_version) {
 }
 exports.getCodeceptionUri = getCodeceptionUri;
 /**
+ * Helper function to get script to setup phive
+ *
+ * @param tool
+ * @param version
+ * @param url
+ * @param os_version
+ */
+function addPhive(version, os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (version) {
+            case 'latest':
+                return ((yield getArchiveCommand(os_version)) +
+                    'https://phar.io/releases/phive.phar phive');
+            default:
+                return ((yield getArchiveCommand(os_version)) +
+                    'https://github.com/phar-io/phive/releases/download/' +
+                    version +
+                    '/phive-' +
+                    version +
+                    '.phar phive');
+        }
+    });
+}
+exports.addPhive = addPhive;
+/**
  * Function to get the PHPUnit url
  *
  * @param version
@@ -1887,6 +1912,9 @@ function addTools(tools_csv, php_version, os_version) {
                     case 'phpcbf':
                         url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
                         script += yield addArchive(tool, version, url, os_version);
+                        break;
+                    case 'phive':
+                        script += yield addPhive(version, os_version);
                         break;
                     case 'phpstan':
                         url = github + 'phpstan/phpstan/' + uri;
@@ -2577,6 +2605,13 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                     case /5\.6redis/.test(version_extension):
                         install_command = 'sudo pecl install redis-2.2.8' + pipe;
                         break;
+                    case /[5-9]\.\dimagick/.test(version_extension):
+                        install_command =
+                            'brew install pkg-config imagemagick' +
+                                pipe +
+                                ' && sudo pecl install imagick' +
+                                pipe;
+                        break;
                     case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
                         install_command =
                             'sh ' +
@@ -2668,15 +2703,7 @@ function addExtensionLinux(extension_csv, version, pipe) {
                                 version +
                                 pipe;
                         break;
-                    // match 7.0xdebug..7.4xdebug
-                    case /^7\.[0-4]xdebug$/.test(version_extension):
-                        script +=
-                            '\nupdate_extension xdebug 2.9.0' +
-                                pipe +
-                                '\n' +
-                                (yield utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));
-                        return;
-                    // match 7.0phalcon3..7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+                    // match 7.0phalcon3...7.3phalcon3 or 7.2phalcon4...7.4phalcon4
                     case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
                         script +=
                             '\nsh ' +
@@ -2684,10 +2711,15 @@ function addExtensionLinux(extension_csv, version, pipe) {
                                 ' ' +
                                 extension +
                                 ' ' +
-                                version +
+                                version;
+                        return;
+                    // match 7.0xdebug..7.4xdebug
+                    case /^7\.[0-4]xdebug$/.test(version_extension):
+                        script +=
+                            '\nupdate_extension xdebug 2.9.0' +
                                 pipe +
                                 '\n' +
-                                (yield utils.addLog('$tick', extension, 'Installed and enabled', 'linux'));
+                                (yield utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));
                         return;
                     default:
                         install_command =

@@ -28,7 +28,8 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 - [Usage](#memo-usage)
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
-  - [Experimental Setup](#experimental-setup)  
+  - [Experimental Setup](#experimental-setup)
+  - [Thread Safe Setup](#thread-safe-setup)  
   - [Cache dependencies](#cache-dependencies)
   - [Problem Matchers](#problem-matchers)
   - [Examples](#examples)
@@ -72,7 +73,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 These tools can be setup globally using the `tools` input.
 
-`codeception`, `composer`, `composer-prefetcher`, `deployer`, `pecl`, `phinx`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`
+`codeception`, `composer`, `composer-prefetcher`, `deployer`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`
 
 ```yaml
 uses: shivammathur/setup-php@v1
@@ -224,6 +225,29 @@ steps:
     ini-values: opcache.jit_buffer_size=256M, opcache.jit=1235, pcre.jit=1 #optional, setup php.ini configuration
     coverage: pcov #optional, setup PCOV, Xdebug does not support this version yet.
     tools: php-cs-fixer, phpunit #optional, setup tools globally    
+```
+
+### Thread Safe Setup
+
+- `NTS` versions are setup by default.
+- On `ubuntu` and `macOS` only NTS versions are supported.
+- On `windows` both `TS` and `NTS` versions are supported.
+
+```yaml
+jobs:
+  run:
+    runs-on: windows-latest
+    name: Setup PHP TS on Windows
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v1
+      with:
+        php-version: '7.4'
+      env:
+        PHPTS: ts # specify ts or nts
 ```
 
 ### Cache dependencies

@@ -11,6 +11,7 @@ Param (
     $version
 )
 
+# Function to install phalcon
 Function Install-Phalcon() {
     if ($extension_version -eq '4') {
         Install-Phpextension phalcon -MinimumStability stable -Path $php_dir

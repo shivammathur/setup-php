@@ -1,3 +1,4 @@
+# Function to log result of a operation
 add_log() {
   mark=$1
   subject=$2
@@ -9,6 +10,7 @@ add_log() {
   fi
 }
 
+# Function to update php ppa
 update_ppa() {
   if [ "$ppa_updated" = "false" ]; then
     find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-get update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
@@ -16,6 +18,7 @@ update_ppa() {
   fi
 }
 
+# Function to install phalcon
 install_phalcon() {
   extension=$1
   version=$2
@@ -24,6 +27,7 @@ install_phalcon() {
   add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
 }
 
+# Function to remove an extensions
 remove_extension() {
   extension=$1
   sudo sed -i "/$extension/d" "$ini_file"

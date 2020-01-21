@@ -128,6 +128,7 @@ export async function addExtensionLinux(
           version +
           pipe;
         break;
+      // match 7.0phalcon3...7.3phalcon3 or 7.2phalcon4...7.4phalcon4
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
         script +=
           '\nsh ' +

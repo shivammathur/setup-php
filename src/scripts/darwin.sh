@@ -26,18 +26,19 @@ add_extension() {
   elif php -m | grep -i -q -w "$extension"; then
     add_log "$tick" "$extension" "Enabled"
   elif ! php -m | grep -i -q -w "$extension"; then
-    exists=$(curl -sL https://pecl.php.net/json.php?package="$extension" -w "%{http_code}" -o /dev/null)
-    if [ "$exists" = "200" ] || [[ "$extension" == "phalcon"* ]]; then
-      (
-        eval "$install_command" && \
-        add_log "$tick" "$extension" "Installed and enabled"
-      ) || add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
-    else
-      if ! php -m | grep -i -q -w "$extension"; then
-        add_log "$cross" "$extension" "Could not find $extension for PHP $semver on PECL"
-      fi
-    fi
+    (eval "$install_command" && add_log "$tick" "$extension" "Installed and enabled") ||
+    add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi
+}
+
+# Function to force install extensions using PECL
+install_extension() {
+  extension=$1
+  extension_name="$(echo "$extension" | cut -d'-' -f 1)"
+  sudo sed -i "/$extension_name/d" "$ini_file"
+  sudo rm -rf /etc/php/"$version"/cli/conf.d/*"$extension_name"* >/dev/null 2>&1
+  sudo rm -rf "$ext_dir"/"$extension_name".so >/dev/null 2>&1
+  sudo pecl install -f "$extension" >/dev/null 2>&1
 }
 
 # Function to remove extensions
@@ -79,13 +80,17 @@ add_composer_tool() {
   release=$2
   prefix=$3
   (
-  composer global require "$prefix$release" >/dev/null 2>&1 && \
-  sudo ln -sf "$(composer -q global config home)"/vendor/bin/"$tool" /usr/local/bin/"$tool" && \
-  add_log "$tick" "$tool" "Added"
+    composer global require "$prefix$release" >/dev/null 2>&1 && \
+    sudo ln -sf "$(composer -q global config home)"/vendor/bin/"$tool" /usr/local/bin/"$tool" && \
+    add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
 }
 
 add_pecl() {
+  sudo pear config-set php_ini "$ini_file" >/dev/null 2>&1
+  sudo pear config-set auto_discover 1 >/dev/null 2>&1
+  sudo pear channel-update pear.php.net >/dev/null 2>&1
+  sudo pecl channel-update pecl.php.net >/dev/null 2>&1
   add_log "$tick" "PECL" "Added"
 }
 
@@ -106,7 +111,7 @@ version=$1
 step_log "Setup PHP"
 setup_php_and_composer
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
-echo "date.timezone=UTC" >> "$ini_file"
+echo "date.timezone=UTC" >>"$ini_file"
 ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
 sudo chmod 777 "$ini_file"
 mkdir -p "$(pecl config-get ext_dir)"

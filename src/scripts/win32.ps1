@@ -35,7 +35,7 @@ Function Add-Extension {
   )
   try {
     $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
-    if ($null -ne $extension_info) {
+    if ($null -ne $extension_info -and $mininum_stability -eq 'stable') {
       switch ($extension_info.State) {
         'Builtin' {
           Add-Log $tick $extension "Enabled"
@@ -51,7 +51,11 @@ Function Add-Extension {
     }
     else {
       Install-PhpExtension -Extension $extension -MinimumStability $mininum_stability -Path $php_dir
-      Add-Log $tick $extension "Installed and enabled"
+      if($mininum_stability -ne 'stable') {
+        Add-Log $tick "$extension-$mininum_stability" "Installed and enabled"
+      } else {
+        Add-Log $tick $extension "Installed and enabled"
+      }
     }
   }
   catch {
@@ -151,7 +155,7 @@ Function Add-Composer-Tool() {
 }
 
 Function Add-PECL() {
-  Add-Log $tick "PECL" "Use extensions input or Install-PhpExtension to setup PECL extensions on windows"
+  Add-Log $tick "PECL" "Use extensions input to setup PECL extensions on windows"
 }
 
 # Variables

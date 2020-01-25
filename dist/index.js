@@ -2284,7 +2284,8 @@ function build(filename, version, os_version) {
         const coverage_driver = yield utils.getInput('coverage', false);
         const pecl = yield utils.getInput('pecl', false);
         let tools_csv = yield utils.getInput('tools', false);
-        if (pecl == 'true') {
+        if (pecl == 'true' ||
+            /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv)) {
             tools_csv = 'pecl, ' + tools_csv;
         }
         let script = yield utils.readScript(filename, version, os_version);
@@ -2593,23 +2594,26 @@ function addExtensionDarwin(extension_csv, version, pipe) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
                 const version_extension = version + extension;
-                // add script to enable extension is already installed along with php
                 let install_command = '';
                 switch (true) {
+                    // match pre-release versions
+                    case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+                        install_command = 'install_extension ' + extension + pipe;
+                        break;
                     case /5\.6xdebug/.test(version_extension):
-                        install_command = 'sudo pecl install xdebug-2.5.5' + pipe;
+                        install_command = 'sudo pecl install -f xdebug-2.5.5' + pipe;
                         break;
                     case /7\.0xdebug/.test(version_extension):
-                        install_command = 'sudo pecl install xdebug-2.9.0' + pipe;
+                        install_command = 'sudo pecl install -f xdebug-2.9.0' + pipe;
                         break;
                     case /5\.6redis/.test(version_extension):
-                        install_command = 'sudo pecl install redis-2.2.8' + pipe;
+                        install_command = 'sudo pecl install -f redis-2.2.8' + pipe;
                         break;
                     case /[5-9]\.\dimagick/.test(version_extension):
                         install_command =
                             'brew install pkg-config imagemagick' +
                                 pipe +
-                                ' && sudo pecl install imagick' +
+                                ' && sudo pecl install -f imagick' +
                                 pipe;
                         break;
                     case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
@@ -2623,7 +2627,7 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                                 pipe;
                         break;
                     default:
-                        install_command = 'sudo pecl install ' + extension + pipe;
+                        install_command = 'sudo pecl install -f ' + extension + pipe;
                         break;
                 }
                 script +=
@@ -2652,9 +2656,14 @@ function addExtensionWindows(extension_csv, version, pipe) {
         let script = '\n';
         yield utils.asyncForEach(extensions, function (extension) {
             return __awaiter(this, void 0, void 0, function* () {
-                // add script to enable extension is already installed along with php
+                extension = extension.toLowerCase();
+                const [extension_name, stability] = extension.split('-');
                 const version_extension = version + extension;
                 switch (true) {
+                    // match pre-release versions
+                    case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+                        script += '\nAdd-Extension ' + extension_name + ' ' + stability;
+                        break;
                     // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
                     case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
                         script +=
@@ -2690,10 +2699,13 @@ function addExtensionLinux(extension_csv, version, pipe) {
         yield utils.asyncForEach(extensions, function (extension) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
-                // add script to enable extension is already installed along with php
                 const version_extension = version + extension;
                 let install_command = '';
                 switch (true) {
+                    // match pre-release versions
+                    case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+                        install_command = 'install_extension ' + extension + pipe;
+                        break;
                     // match 5.6gearman..7.4gearman
                     case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
                         install_command =
@@ -2728,7 +2740,7 @@ function addExtensionLinux(extension_csv, version, pipe) {
                                 '-' +
                                 extension.replace('pdo_', '').replace('pdo-', '') +
                                 pipe +
-                                ' || sudo pecl install ' +
+                                ' || sudo pecl install -f ' +
                                 extension +
                                 pipe;
                         break;

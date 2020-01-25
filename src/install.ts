@@ -29,7 +29,10 @@ export async function build(
   const coverage_driver: string = await utils.getInput('coverage', false);
   const pecl: string = await utils.getInput('pecl', false);
   let tools_csv: string = await utils.getInput('tools', false);
-  if (pecl == 'true') {
+  if (
+    pecl == 'true' ||
+    /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv)
+  ) {
     tools_csv = 'pecl, ' + tools_csv;
   }
 

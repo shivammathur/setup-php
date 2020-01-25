@@ -38,6 +38,7 @@ add_extension() {
     (update_ppa && eval "$install_command" && add_log "$tick" "$extension" "Installed and enabled") ||
     add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi
+  sudo chmod 777 "$ini_file"
 }
 
 # Function to force install extensions using PECL

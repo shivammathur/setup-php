@@ -30,7 +30,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
       - name: Install dependencies
         run: |
-          composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+          composer install --quiet --no-progress --no-suggest --prefer-dist --optimize-autoloader
           composer require --dev phpunit/phpunit squizlabs/php_codesniffer zendframework/zend-test
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text

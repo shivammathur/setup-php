@@ -23,7 +23,7 @@ describe('Matchers', () => {
 
   it('Test Regex', async () => {
     const regex1 = /^\d+\)\s.*$/;
-    const regex2 = /^(.*)$/;
+    const regex2 = /^(.*Failed\sasserting\sthat.*)$/;
     const regex3 = /^\s*$/;
     const regex4 = /^(.*):(\d+)$/;
     expect(regex1.test('1) Tests\\Test::it_tests')).toBe(true);

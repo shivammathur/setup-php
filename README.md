@@ -287,6 +287,8 @@ You can setup problem matchers for your `PHPUnit` output. This will scan the err
   run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 ```
 
+_Make sure phpunit does not run int `verbose` mode, because the problem matcher would otherwise report skipped and flaky tests as errors._
+
 ### Examples
 
 Examples for setting up this GitHub Action with different PHP Frameworks/Packages.

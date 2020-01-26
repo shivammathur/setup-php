@@ -2151,7 +2151,7 @@ exports.disableCoverage = disableCoverage;
  */
 function addCoverage(coverage_driver, version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
-        coverage_driver.toLowerCase();
+        coverage_driver = coverage_driver.toLowerCase();
         const script = '\n' + (yield utils.stepLog('Setup Coverage', os_version));
         const pipe = yield utils.suppressOutput(os_version);
         switch (coverage_driver) {

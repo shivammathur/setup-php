@@ -22,6 +22,7 @@ export async function build(
   // taking inputs
   const extension_csv: string =
     (await utils.getInput('extensions', false)) ||
+    (await utils.getInput('extension', false)) ||
     (await utils.getInput('extension-csv', false));
   const ini_values_csv: string =
     (await utils.getInput('ini-values', false)) ||

@@ -2325,6 +2325,7 @@ function build(filename, version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
         // taking inputs
         const extension_csv = (yield utils.getInput('extensions', false)) ||
+            (yield utils.getInput('extension', false)) ||
             (yield utils.getInput('extension-csv', false));
         const ini_values_csv = (yield utils.getInput('ini-values', false)) ||
             (yield utils.getInput('ini-values-csv', false));

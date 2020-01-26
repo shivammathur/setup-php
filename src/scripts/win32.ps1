@@ -118,7 +118,7 @@ Function Add-Tool() {
     Add-Extension mbstring >$null 2>&1
     Add-Extension xml >$null 2>&1
   }
-  if (Test-Path $php_dir\$tool) {
+  if (((Get-ChildItem -Path $php_dir/* | Where-Object Name -Match "^$tool(.exe|.phar)*$").Count -gt 0)) {
     Add-Log $tick $tool "Added"
   } else {
     Add-Log $cross $tool "Could not add $tool"

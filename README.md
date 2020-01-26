@@ -67,13 +67,14 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 - On `windows` extensions which have `windows` binary on `PECL` can be installed.
 - On `macOS` extensions which are on `PECL` can be installed.
 - Extensions which are installed along with PHP if specified are enabled.
+- Extensions on `PECL` which do not have a latest stable version, their pre-release versions can be installed by suffixing the extension with its state i.e `alpha`, `beta`, `devel` or `snapshot` separated by a `-` like `msgpack-beta`.
 - Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
 
 ## :wrench: Tools Support
 
 These tools can be setup globally using the `tools` input.
 
-`codeception`, `composer`, `composer-prefetcher`, `deployer`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`
+`codeception`, `composer`, `composer-prefetcher`, `deployer`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`
 
 ```yaml
 uses: shivammathur/setup-php@v1
@@ -280,7 +281,7 @@ key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
 
 ### Problem Matchers
 
-You can setup problem matchers for your `PHPUnit` output. This will scan the errors in your tests and surface that information prominently in the GitHub Actions UI by creating annotations and log file decorations.
+You can setup problem matchers for your `PHPUnit` output by adding this step after the `setup-php` step. This will scan the logs for failing tests and surface that information prominently in the GitHub Actions UI by creating annotations and log file decorations.
 
 ```yaml
 - name: Setup Problem Matchers for PHPUnit
@@ -327,10 +328,10 @@ Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "sh
 
 If this action helped you.
 
-- Please star the project and share it, this helps reach more people.
-- If you blog, write about your experience using this.
-- Support this project on <a href="https://www.patreon.com/shivammathur"><img alt="Patreon" src="https://shivammathur.com/badges/patreon.svg"></a> or using <a href="https://www.paypal.me/shivammathur"><img alt="Paypal" src="https://shivammathur.com/badges/paypal.svg"></a>.
-- If you need any help using this, reach out here <a href="https://www.codementor.io/shivammathur?utm_source=github&utm_medium=button&utm_term=shivammathur&utm_campaign=github" title="Contact Shivam Mathur on Codementor"><img alt="Contact me on Codementor" src="https://cdn.codementor.io/badges/contact_me_github.svg"></a>
+- Please star the project and share it with the community.
+- If you blog, write about your experience while using this action.
+- I maintain this in my free time, please support me with a [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") subscription or a one time contribution using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal").
+- If you need any help using this, please contact me using [Codementor](https://www.codementor.io/shivammathur "Shivam Mathur Codementor")
 
 ## :bookmark: This action uses the following works
 

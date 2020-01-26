@@ -143,7 +143,7 @@ export async function addCoverage(
   version: string,
   os_version: string
 ): Promise<string> {
-  coverage_driver.toLowerCase();
+  coverage_driver = coverage_driver.toLowerCase();
   const script: string =
     '\n' + (await utils.stepLog('Setup Coverage', os_version));
   const pipe: string = await utils.suppressOutput(os_version);

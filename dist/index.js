@@ -1262,17 +1262,24 @@ module.exports = require("assert");
 
 "use strict";
 
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const os = __webpack_require__(87);
+const os = __importStar(__webpack_require__(87));
 /**
  * Commands
  *
  * Command Format:
- *   ##[name key=value;key=value]message
+ *   ::name key=value,key=value::message
  *
  * Examples:
- *   ##[warning]This is the user warning message
- *   ##[set-secret name=mypassword]definitelyNotAPassword!
+ *   ::warning::This is the message
+ *   ::set-env name=MY_VAR::some value
  */
 function issueCommand(command, properties, message) {
     const cmd = new Command(command, properties, message);
@@ -1308,30 +1315,28 @@ class Command {
                         else {
                             cmdStr += ',';
                         }
-                        // safely append the val - avoid blowing up when attempting to
-                        // call .replace() if message is not a string for some reason
-                        cmdStr += `${key}=${escape(`${val || ''}`)}`;
+                        cmdStr += `${key}=${escapeProperty(val)}`;
                     }
                 }
             }
         }
-        cmdStr += CMD_STRING;
-        // safely append the message - avoid blowing up when attempting to
-        // call .replace() if message is not a string for some reason
-        const message = `${this.message || ''}`;
-        cmdStr += escapeData(message);
+        cmdStr += `${CMD_STRING}${escapeData(this.message)}`;
         return cmdStr;
     }
 }
 function escapeData(s) {
-    return s.replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+    return (s || '')
+        .replace(/%/g, '%25')
+        .replace(/\r/g, '%0D')
+        .replace(/\n/g, '%0A');
 }
-function escape(s) {
-    return s
+function escapeProperty(s) {
+    return (s || '')
+        .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A')
-        .replace(/]/g, '%5D')
-        .replace(/;/g, '%3B');
+        .replace(/:/g, '%3A')
+        .replace(/,/g, '%2C');
 }
 //# sourceMappingURL=command.js.map
 
@@ -1351,10 +1356,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const command_1 = __webpack_require__(431);
-const os = __webpack_require__(87);
-const path = __webpack_require__(622);
+const os = __importStar(__webpack_require__(87));
+const path = __importStar(__webpack_require__(622));
 /**
  * The code to exit an action
  */
@@ -1791,6 +1803,35 @@ function getDeployerUrl(version) {
 }
 exports.getDeployerUrl = getDeployerUrl;
 /**
+ * Function to get the Deployer url
+ *
+ * @param version
+ * @param os_version
+ */
+function getSymfonyUri(version, os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let filename = '';
+        switch (os_version) {
+            case 'linux':
+            case 'darwin':
+                filename = 'symfony_' + os_version + '_amd64';
+                break;
+            case 'win32':
+                filename = 'symfony_windows_amd64.exe';
+                break;
+            default:
+                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+        }
+        switch (version) {
+            case 'latest':
+                return 'releases/latest/download/' + filename;
+            default:
+                return 'releases/download/v' + version + '/' + filename;
+        }
+    });
+}
+exports.getSymfonyUri = getSymfonyUri;
+/**
  * Function to add/move composer in the tools list
  *
  * @param tools
@@ -1964,6 +2005,12 @@ function addTools(tools_csv, php_version, os_version) {
                     case 'phpize':
                         script += yield addDevTools(tool, os_version);
                         break;
+                    case 'symfony':
+                    case 'symfony-cli':
+                        uri = yield getSymfonyUri(version, os_version);
+                        url = github + 'symfony/cli/' + uri;
+                        script += yield addArchive('symfony', version, url, os_version);
+                        break;
                     default:
                         script += yield utils.addLog('$cross', tool, 'Tool ' + tool + ' is not supported', os_version);
                         break;
@@ -2116,7 +2163,7 @@ exports.disableCoverage = disableCoverage;
  */
 function addCoverage(coverage_driver, version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
-        coverage_driver.toLowerCase();
+        coverage_driver = coverage_driver.toLowerCase();
         const script = '\n' + (yield utils.stepLog('Setup Coverage', os_version));
         const pipe = yield utils.suppressOutput(os_version);
         switch (coverage_driver) {
@@ -2278,13 +2325,15 @@ function build(filename, version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
         // taking inputs
         const extension_csv = (yield utils.getInput('extensions', false)) ||
+            (yield utils.getInput('extension', false)) ||
             (yield utils.getInput('extension-csv', false));
         const ini_values_csv = (yield utils.getInput('ini-values', false)) ||
             (yield utils.getInput('ini-values-csv', false));
         const coverage_driver = yield utils.getInput('coverage', false);
         const pecl = yield utils.getInput('pecl', false);
         let tools_csv = yield utils.getInput('tools', false);
-        if (pecl == 'true') {
+        if (pecl == 'true' ||
+            /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv)) {
             tools_csv = 'pecl, ' + tools_csv;
         }
         let script = yield utils.readScript(filename, version, os_version);
@@ -2593,23 +2642,26 @@ function addExtensionDarwin(extension_csv, version, pipe) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
                 const version_extension = version + extension;
-                // add script to enable extension is already installed along with php
                 let install_command = '';
                 switch (true) {
+                    // match pre-release versions
+                    case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+                        install_command = 'install_extension ' + extension + pipe;
+                        break;
                     case /5\.6xdebug/.test(version_extension):
-                        install_command = 'sudo pecl install xdebug-2.5.5' + pipe;
+                        install_command = 'sudo pecl install -f xdebug-2.5.5' + pipe;
                         break;
                     case /7\.0xdebug/.test(version_extension):
-                        install_command = 'sudo pecl install xdebug-2.9.0' + pipe;
+                        install_command = 'sudo pecl install -f xdebug-2.9.0' + pipe;
                         break;
                     case /5\.6redis/.test(version_extension):
-                        install_command = 'sudo pecl install redis-2.2.8' + pipe;
+                        install_command = 'sudo pecl install -f redis-2.2.8' + pipe;
                         break;
                     case /[5-9]\.\dimagick/.test(version_extension):
                         install_command =
                             'brew install pkg-config imagemagick' +
                                 pipe +
-                                ' && sudo pecl install imagick' +
+                                ' && sudo pecl install -f imagick' +
                                 pipe;
                         break;
                     case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
@@ -2623,7 +2675,7 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                                 pipe;
                         break;
                     default:
-                        install_command = 'sudo pecl install ' + extension + pipe;
+                        install_command = 'sudo pecl install -f ' + extension + pipe;
                         break;
                 }
                 script +=
@@ -2652,9 +2704,14 @@ function addExtensionWindows(extension_csv, version, pipe) {
         let script = '\n';
         yield utils.asyncForEach(extensions, function (extension) {
             return __awaiter(this, void 0, void 0, function* () {
-                // add script to enable extension is already installed along with php
+                extension = extension.toLowerCase();
+                const [extension_name, stability] = extension.split('-');
                 const version_extension = version + extension;
                 switch (true) {
+                    // match pre-release versions
+                    case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+                        script += '\nAdd-Extension ' + extension_name + ' ' + stability;
+                        break;
                     // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
                     case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
                         script +=
@@ -2690,10 +2747,13 @@ function addExtensionLinux(extension_csv, version, pipe) {
         yield utils.asyncForEach(extensions, function (extension) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
-                // add script to enable extension is already installed along with php
                 const version_extension = version + extension;
                 let install_command = '';
                 switch (true) {
+                    // match pre-release versions
+                    case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+                        install_command = 'install_extension ' + extension + pipe;
+                        break;
                     // match 5.6gearman..7.4gearman
                     case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
                         install_command =
@@ -2728,7 +2788,7 @@ function addExtensionLinux(extension_csv, version, pipe) {
                                 '-' +
                                 extension.replace('pdo_', '').replace('pdo-', '') +
                                 pipe +
-                                ' || sudo pecl install ' +
+                                ' || sudo pecl install -f ' +
                                 extension +
                                 pipe;
                         break;

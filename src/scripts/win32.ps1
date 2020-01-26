@@ -35,7 +35,7 @@ Function Add-Extension {
   )
   try {
     $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
-    if ($null -ne $extension_info) {
+    if ($null -ne $extension_info -and $mininum_stability -eq 'stable') {
       switch ($extension_info.State) {
         'Builtin' {
           Add-Log $tick $extension "Enabled"
@@ -51,7 +51,11 @@ Function Add-Extension {
     }
     else {
       Install-PhpExtension -Extension $extension -MinimumStability $mininum_stability -Path $php_dir
-      Add-Log $tick $extension "Installed and enabled"
+      if($mininum_stability -ne 'stable') {
+        Add-Log $tick "$extension-$mininum_stability" "Installed and enabled"
+      } else {
+        Add-Log $tick $extension "Installed and enabled"
+      }
     }
   }
   catch {
@@ -75,7 +79,6 @@ Function Remove-Extension() {
   }
 }
 
-# Function to setup a remote tool
 Function Add-Tool() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -89,14 +92,16 @@ Function Add-Tool() {
     [string]
     $tool
   )
-  if($tool -eq "composer") {
+  if (Test-Path $php_dir\$tool) {
+    Remove-Item $php_dir\$tool
+  }
+  if ($tool -eq "composer") {
     Install-Composer -Scope System -Path $php_dir -PhpPath $php_dir
     composer -q global config process-timeout 0
-    Add-Log $tick $tool "Added"
+  } elseif ($tool -eq "symfony") {
+    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool.exe
+    Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.exe" > $null 2>&1
   } else {
-    if (Test-Path $php_dir\$tool) {
-      Remove-Item $php_dir\$tool
-    }
     try {
       Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool
       $bat_content = @()
@@ -106,19 +111,17 @@ Function Add-Tool() {
       $bat_content += "php %BIN_TARGET% %*"
       Set-Content -Path $php_dir\$tool.bat -Value $bat_content
       Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.bat" > $null 2>&1
-      if (Test-Path $php_dir\$tool) {
-          Add-Log $tick $tool "Added"
-      } else {
-          Add-Log $cross $tool "Could not add $tool"
-      }
-    } catch {
-      Add-Log $cross $tool "Could not add $tool"
-    }
+    } catch { }
   }
   if($tool -eq "phive") {
     Add-Extension curl >$null 2>&1
     Add-Extension mbstring >$null 2>&1
     Add-Extension xml >$null 2>&1
+  }
+  if (((Get-ChildItem -Path $php_dir/* | Where-Object Name -Match "^$tool(.exe|.phar)*$").Count -gt 0)) {
+    Add-Log $tick $tool "Added"
+  } else {
+    Add-Log $cross $tool "Could not add $tool"
   }
 }
 
@@ -151,7 +154,7 @@ Function Add-Composer-Tool() {
 }
 
 Function Add-PECL() {
-  Add-Log $tick "PECL" "Use extensions input or Install-PhpExtension to setup PECL extensions on windows"
+  Add-Log $tick "PECL" "Use extensions input to setup PECL extensions on windows"
 }
 
 # Variables

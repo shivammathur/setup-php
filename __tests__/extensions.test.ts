@@ -3,13 +3,14 @@ import * as extensions from '../src/extensions';
 describe('Extension tests', () => {
   it('checking addExtensionOnWindows', async () => {
     let win32: string = await extensions.addExtension(
-      'xdebug, pcov, phalcon4',
+      'xdebug, pcov, phalcon4, ast-beta',
       '7.4',
       'win32'
     );
     expect(win32).toContain('Add-Extension xdebug');
     expect(win32).toContain('Add-Extension pcov');
     expect(win32).toContain('phalcon.ps1 phalcon4');
+    expect(win32).toContain('Add-Extension ast beta');
 
     win32 = await extensions.addExtension(
       'phalcon3, does_not_exist',
@@ -26,7 +27,7 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnLinux', async () => {
     let linux: string = await extensions.addExtension(
-      'xdebug, pcov',
+      'xdebug, pcov, ast-beta',
       '7.4',
       'linux'
     );
@@ -34,7 +35,8 @@ describe('Extension tests', () => {
     expect(linux).toContain(
       'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-pcov'
     );
-    expect(linux).toContain('pecl install pcov');
+    expect(linux).toContain('pecl install -f pcov');
+    expect(linux).toContain('install_extension ast-beta');
 
     linux = await extensions.addExtension('gearman', '7.0', 'linux');
     expect(linux).toContain('gearman.sh 7.0');
@@ -60,12 +62,13 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'xdebug, pcov',
+      'xdebug, pcov, ast-beta',
       '7.2',
       'darwin'
     );
-    expect(darwin).toContain('sudo pecl install xdebug');
-    expect(darwin).toContain('sudo pecl install pcov');
+    expect(darwin).toContain('sudo pecl install -f xdebug');
+    expect(darwin).toContain('sudo pecl install -f pcov');
+    expect(darwin).toContain('install_extension ast-beta');
 
     darwin = await extensions.addExtension('phalcon3', '7.0', 'darwin');
     expect(darwin).toContain('phalcon_darwin.sh phalcon3 7.0');
@@ -74,33 +77,33 @@ describe('Extension tests', () => {
     expect(darwin).toContain('phalcon_darwin.sh phalcon4 7.3');
 
     darwin = await extensions.addExtension('pcov', '5.6', 'darwin');
-    expect(darwin).toContain('sudo pecl install pcov');
+    expect(darwin).toContain('sudo pecl install -f pcov');
 
     darwin = await extensions.addExtension('pcov', '7.2', 'darwin');
-    expect(darwin).toContain('sudo pecl install pcov');
+    expect(darwin).toContain('sudo pecl install -f pcov');
 
     darwin = await extensions.addExtension('xdebug', '5.6', 'darwin');
-    expect(darwin).toContain('sudo pecl install xdebug-2.5.5');
+    expect(darwin).toContain('sudo pecl install -f xdebug-2.5.5');
 
     darwin = await extensions.addExtension('xdebug', '7.0', 'darwin');
-    expect(darwin).toContain('sudo pecl install xdebug-2.9.0');
+    expect(darwin).toContain('sudo pecl install -f xdebug-2.9.0');
 
     darwin = await extensions.addExtension('xdebug', '7.2', 'darwin');
-    expect(darwin).toContain('sudo pecl install xdebug');
+    expect(darwin).toContain('sudo pecl install -f xdebug');
 
     darwin = await extensions.addExtension('redis', '5.6', 'darwin');
-    expect(darwin).toContain('sudo pecl install redis-2.2.8');
+    expect(darwin).toContain('sudo pecl install -f redis-2.2.8');
 
     darwin = await extensions.addExtension('redis', '7.2', 'darwin');
-    expect(darwin).toContain('sudo pecl install redis');
+    expect(darwin).toContain('sudo pecl install -f redis');
 
     darwin = await extensions.addExtension('imagick', '5.6', 'darwin');
     expect(darwin).toContain('brew install pkg-config imagemagick');
-    expect(darwin).toContain('sudo pecl install imagick');
+    expect(darwin).toContain('sudo pecl install -f imagick');
 
     darwin = await extensions.addExtension('imagick', '7.4', 'darwin');
     expect(darwin).toContain('brew install pkg-config imagemagick');
-    expect(darwin).toContain('sudo pecl install imagick');
+    expect(darwin).toContain('sudo pecl install -f imagick');
 
     darwin = await extensions.addExtension(
       'does_not_exist',

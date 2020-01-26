@@ -244,6 +244,40 @@ export async function getDeployerUrl(version: string): Promise<string> {
 }
 
 /**
+ * Function to get the Deployer url
+ *
+ * @param version
+ * @param os_version
+ */
+export async function getSymfonyUri(
+  version: string,
+  os_version: string
+): Promise<string> {
+  let filename = '';
+  switch (os_version) {
+    case 'linux':
+    case 'darwin':
+      filename = 'symfony_' + os_version + '_amd64';
+      break;
+    case 'win32':
+      filename = 'symfony_windows_amd64.exe';
+      break;
+    default:
+      return await utils.log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
+  }
+  switch (version) {
+    case 'latest':
+      return 'releases/latest/download/' + filename;
+    default:
+      return 'releases/download/v' + version + '/' + filename;
+  }
+}
+
+/**
  * Function to add/move composer in the tools list
  *
  * @param tools
@@ -439,6 +473,12 @@ export async function addTools(
       case 'php-config':
       case 'phpize':
         script += await addDevTools(tool, os_version);
+        break;
+      case 'symfony':
+      case 'symfony-cli':
+        uri = await getSymfonyUri(version, os_version);
+        url = github + 'symfony/cli/' + uri;
+        script += await addArchive('symfony', version, url, os_version);
         break;
       default:
         script += await utils.addLog(

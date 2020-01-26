@@ -8,7 +8,7 @@ jest.mock('../src/extensions', () => ({
 
 describe('Config tests', () => {
   it('checking addCoverage with PCOV on windows', async () => {
-    let win32: string = await coverage.addCoverage('pcov', '7.4', 'win32');
+    let win32: string = await coverage.addCoverage('PCOV', '7.4', 'win32');
     expect(win32).toContain('add_extension pcov');
     expect(win32).toContain('Remove-Extension xdebug');
 

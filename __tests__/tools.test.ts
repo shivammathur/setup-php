@@ -206,6 +206,30 @@ describe('Tools tests', () => {
     ).toStrictEqual(['composer', 'a', 'b']);
   });
 
+  it('checking getSymfonyUri', async () => {
+    expect(await tools.getSymfonyUri('latest', 'linux')).toContain(
+      'releases/latest/download/symfony_linux_amd64'
+    );
+    expect(await tools.getSymfonyUri('1.2.3', 'linux')).toContain(
+      'releases/download/v1.2.3/symfony_linux_amd64'
+    );
+    expect(await tools.getSymfonyUri('latest', 'darwin')).toContain(
+      'releases/latest/download/symfony_darwin_amd64'
+    );
+    expect(await tools.getSymfonyUri('1.2.3', 'darwin')).toContain(
+      'releases/download/v1.2.3/symfony_darwin_amd64'
+    );
+    expect(await tools.getSymfonyUri('latest', 'win32')).toContain(
+      'releases/latest/download/symfony_windows_amd64'
+    );
+    expect(await tools.getSymfonyUri('1.2.3', 'win32')).toContain(
+      'releases/download/v1.2.3/symfony_windows_amd64'
+    );
+    expect(await tools.getSymfonyUri('1.2.3', 'fedora')).toContain(
+      'Platform fedora is not supported'
+    );
+  });
+
   it('checking getCleanedToolsList', async () => {
     const tools_list: string[] = await tools.getCleanedToolsList(
       'tool, composer:1.2.3, robmorgan/phinx, hirak/prestissimo, narrowspark/automatic-composer-prefetcher'
@@ -301,7 +325,7 @@ describe('Tools tests', () => {
 
   it('checking addTools on linux', async () => {
     const script: string = await tools.addTools(
-      'php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize',
+      'php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, symfony',
       '7.4',
       'linux'
     );
@@ -320,6 +344,9 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'add_tool https://phar.phpunit.de/phpunit.phar phpunit'
     );
+    expect(script).toContain(
+      'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_linux_amd64 symfony'
+    );
     expect(script).toContain('add_pecl');
     expect(script).toContain('add_composer_tool phinx phinx robmorgan/');
     expect(script).toContain('add_composer_tool phinx phinx:1.2.3 robmorgan/');
@@ -329,7 +356,7 @@ describe('Tools tests', () => {
   });
   it('checking addTools on darwin', async () => {
     const script: string = await tools.addTools(
-      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, composer-prefetcher:1.2.3, phpize, php-config',
+      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3',
       '7.4',
       'darwin'
     );
@@ -358,12 +385,18 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'add_composer_tool composer-prefetcher composer-prefetcher:1.2.3 narrowspark/automatic-'
     );
+    expect(script).toContain(
+      'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_darwin_amd64 symfony'
+    );
+    expect(script).toContain(
+      'add_tool https://github.com/symfony/cli/releases/download/v1.2.3/symfony_darwin_amd64 symfony'
+    );
     expect(script).toContain('add_log "$tick" "phpize" "Added"');
     expect(script).toContain('add_log "$tick" "php-config" "Added"');
   });
   it('checking addTools on windows', async () => {
     const script: string = await tools.addTools(
-      'codeception, deployer, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, does_not_exit',
+      'codeception, deployer, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, does_not_exit',
       '7.4',
       'win32'
     );
@@ -382,6 +415,9 @@ describe('Tools tests', () => {
     expect(script).toContain('Add-Composer-Tool phinx phinx robmorgan/');
     expect(script).toContain(
       'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.2/phive-0.13.2.phar phive'
+    );
+    expect(script).toContain(
+      'Add-Tool https://github.com/symfony/cli/releases/latest/download/symfony_windows_amd64.exe symfony'
     );
     expect(script).toContain('phpize is not a windows tool');
     expect(script).toContain('php-config is not a windows tool');

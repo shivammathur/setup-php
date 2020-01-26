@@ -38,6 +38,17 @@ add_extension() {
     (update_ppa && eval "$install_command" && add_log "$tick" "$extension" "Installed and enabled") ||
     add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi
+  sudo chmod 777 "$ini_file"
+}
+
+# Function to force install extensions using PECL
+install_extension() {
+  extension=$1
+  extension_name="$(echo "$extension" | cut -d'-' -f 1)"
+  sudo sed -i "/$extension_name/d" "$ini_file"
+  sudo rm -rf /etc/php/"$version"/cli/conf.d/*"$extension_name"* >/dev/null 2>&1
+  sudo rm -rf "$ext_dir"/"$extension_name".so >/dev/null 2>&1
+  sudo pecl install -f "$extension" >/dev/null 2>&1
 }
 
 # Function to remove extensions
@@ -125,14 +136,12 @@ setup_master() {
 
 # Function to setup PECL
 add_pecl() {
-  update_ppa
   add_devtools
-  wget https://github.com/pear/pearweb_phars/raw/master/install-pear-nozlib.phar >/dev/null 2>&1
-  sudo php install-pear-nozlib.phar >/dev/null 2>&1
-  sudo rm -rf install-pear-nozlib.phar >/dev/null 2>&1
+  $apt_install php-pear >/dev/null 2>&1
   sudo pear config-set php_ini "$ini_file" >/dev/null 2>&1
   sudo pear config-set auto_discover 1 >/dev/null 2>&1
   sudo pear channel-update pear.php.net >/dev/null 2>&1
+  sudo pecl channel-update pecl.php.net >/dev/null 2>&1
   add_log "$tick" "PECL" "Added"
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "setup-php",
-  "version": "1.7.4",
+  "version": "1.8.0",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
   "main": "dist/index.js",
@@ -50,7 +50,7 @@
   "husky": {
     "skipCI": true,
     "hooks": {
-      "pre-commit": "npm run build && npm run format && npm run release"
+      "pre-commit": "npm run format && npm run lint && npm run build && npm run release"
     }
   }
 }

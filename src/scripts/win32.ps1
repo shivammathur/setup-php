@@ -79,7 +79,6 @@ Function Remove-Extension() {
   }
 }
 
-# Function to setup a remote tool
 Function Add-Tool() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -93,14 +92,16 @@ Function Add-Tool() {
     [string]
     $tool
   )
-  if($tool -eq "composer") {
+  if (Test-Path $php_dir\$tool) {
+    Remove-Item $php_dir\$tool
+  }
+  if ($tool -eq "composer") {
     Install-Composer -Scope System -Path $php_dir -PhpPath $php_dir
     composer -q global config process-timeout 0
-    Add-Log $tick $tool "Added"
+  } elseif ($tool -eq "symfony") {
+    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool.exe
+    Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.exe" > $null 2>&1
   } else {
-    if (Test-Path $php_dir\$tool) {
-      Remove-Item $php_dir\$tool
-    }
     try {
       Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool
       $bat_content = @()
@@ -110,19 +111,17 @@ Function Add-Tool() {
       $bat_content += "php %BIN_TARGET% %*"
       Set-Content -Path $php_dir\$tool.bat -Value $bat_content
       Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.bat" > $null 2>&1
-      if (Test-Path $php_dir\$tool) {
-          Add-Log $tick $tool "Added"
-      } else {
-          Add-Log $cross $tool "Could not add $tool"
-      }
-    } catch {
-      Add-Log $cross $tool "Could not add $tool"
-    }
+    } catch { }
   }
   if($tool -eq "phive") {
     Add-Extension curl >$null 2>&1
     Add-Extension mbstring >$null 2>&1
     Add-Extension xml >$null 2>&1
+  }
+  if (Test-Path $php_dir\$tool) {
+    Add-Log $tick $tool "Added"
+  } else {
+    Add-Log $cross $tool "Could not add $tool"
   }
 }
 

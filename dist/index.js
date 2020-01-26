@@ -1791,6 +1791,35 @@ function getDeployerUrl(version) {
 }
 exports.getDeployerUrl = getDeployerUrl;
 /**
+ * Function to get the Deployer url
+ *
+ * @param version
+ * @param os_version
+ */
+function getSymfonyUri(version, os_version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let filename = '';
+        switch (os_version) {
+            case 'linux':
+            case 'darwin':
+                filename = 'symfony_' + os_version + '_amd64';
+                break;
+            case 'win32':
+                filename = 'symfony_windows_amd64.exe';
+                break;
+            default:
+                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+        }
+        switch (version) {
+            case 'latest':
+                return 'releases/latest/download/' + filename;
+            default:
+                return 'releases/download/v' + version + '/' + filename;
+        }
+    });
+}
+exports.getSymfonyUri = getSymfonyUri;
+/**
  * Function to add/move composer in the tools list
  *
  * @param tools
@@ -1963,6 +1992,12 @@ function addTools(tools_csv, php_version, os_version) {
                     case 'php-config':
                     case 'phpize':
                         script += yield addDevTools(tool, os_version);
+                        break;
+                    case 'symfony':
+                    case 'symfony-cli':
+                        uri = yield getSymfonyUri(version, os_version);
+                        url = github + 'symfony/cli/' + uri;
+                        script += yield addArchive('symfony', version, url, os_version);
                         break;
                     default:
                         script += yield utils.addLog('$cross', tool, 'Tool ' + tool + ' is not supported', os_version);

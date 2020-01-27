@@ -47,7 +47,7 @@ add_extension() {
   elif ! php -m | grep -i -q -w "$extension"; then
     (eval "$install_command" && add_log "$tick" "$extension" "Installed and enabled") ||
     (update_ppa && eval "$install_command" && add_log "$tick" "$extension" "Installed and enabled") ||
-    (sudo pecl install -f "$extension" && add_log "$tick" "$extension" "Installed and enabled") ||
+    (sudo pecl install -f "$extension" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
     add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi
   sudo chmod 777 "$ini_file"

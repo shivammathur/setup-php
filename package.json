@@ -1,6 +1,6 @@
 {
   "name": "setup-php",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
   "main": "dist/index.js",

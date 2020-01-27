@@ -2787,9 +2787,6 @@ function addExtensionLinux(extension_csv, version, pipe) {
                                 version +
                                 '-' +
                                 extension.replace('pdo_', '').replace('pdo-', '') +
-                                pipe +
-                                ' || sudo pecl install -f ' +
-                                extension +
                                 pipe;
                         break;
                 }

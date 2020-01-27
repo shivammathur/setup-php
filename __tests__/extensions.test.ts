@@ -35,7 +35,6 @@ describe('Extension tests', () => {
     expect(linux).toContain(
       'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-pcov'
     );
-    expect(linux).toContain('pecl install -f pcov');
     expect(linux).toContain('install_extension ast-beta');
 
     linux = await extensions.addExtension('gearman', '7.0', 'linux');

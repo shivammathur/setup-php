@@ -163,9 +163,6 @@ export async function addExtensionLinux(
           version +
           '-' +
           extension.replace('pdo_', '').replace('pdo-', '') +
-          pipe +
-          ' || sudo pecl install -f ' +
-          extension +
           pipe;
         break;
     }

@@ -24,6 +24,17 @@ update_ppa() {
   fi
 }
 
+configure_pecl() {
+  if [ "$pecl_config" = "false" ] && [ -e /usr/bin/pecl ]; then
+    for tool in pear pecl; do
+      sudo $tool config-set php_ini "$ini_file" >/dev/null 2>&1
+      sudo $tool config-set auto_discover 1 >/dev/null 2>&1
+      sudo $tool channel-update $tool.php.net >/dev/null 2>&1
+    done
+    pecl_config="true"
+  fi
+}
+
 # Function to setup extensions
 add_extension() {
   extension=$1
@@ -36,6 +47,7 @@ add_extension() {
   elif ! php -m | grep -i -q -w "$extension"; then
     (eval "$install_command" && add_log "$tick" "$extension" "Installed and enabled") ||
     (update_ppa && eval "$install_command" && add_log "$tick" "$extension" "Installed and enabled") ||
+    (sudo pecl install -f "$extension" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
     add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi
   sudo chmod 777 "$ini_file"
@@ -119,6 +131,7 @@ add_devtools() {
   fi
   sudo update-alternatives --set php-config /usr/bin/php-config"$version" >/dev/null 2>&1
   sudo update-alternatives --set phpize /usr/bin/phpize"$version" >/dev/null 2>&1
+  configure_pecl
 }
 
 # Function to setup the nightly build from master branch
@@ -138,10 +151,7 @@ setup_master() {
 add_pecl() {
   add_devtools
   $apt_install php-pear >/dev/null 2>&1
-  sudo pear config-set php_ini "$ini_file" >/dev/null 2>&1
-  sudo pear config-set auto_discover 1 >/dev/null 2>&1
-  sudo pear channel-update pear.php.net >/dev/null 2>&1
-  sudo pecl channel-update pecl.php.net >/dev/null 2>&1
+  configure_pecl
   add_log "$tick" "PECL" "Added"
 }
 
@@ -158,6 +168,7 @@ switch_version() {
 tick="✓"
 cross="✗"
 ppa_updated="false"
+pecl_config="false"
 version=$1
 apt_install="sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y"
 existing_version=$(php-config --version | cut -c 1-3)
@@ -171,7 +182,6 @@ sudo mkdir -p /run/php
 if [ "$existing_version" != "$version" ]; then
   if [ ! -e "/usr/bin/php$version" ]; then
     update_ppa
-    ppa_updated=1
     if [ "$version" = "7.4" ]; then
       $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml php"$version"-phpdbg >/dev/null 2>&1
     elif [ "$version" = "8.0" ]; then

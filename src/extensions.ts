@@ -18,12 +18,20 @@ export async function addExtensionDarwin(
   await utils.asyncForEach(extensions, async function(extension: string) {
     extension = extension.toLowerCase();
     const version_extension: string = version + extension;
+    const [extension_name, stability]: string[] = extension.split('-');
+    const prefix = await utils.getExtensionPrefix(extension_name);
     let install_command = '';
     switch (true) {
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-        install_command = 'install_extension ' + extension + pipe;
-        break;
+        script +=
+          '\nadd_unstable_extension ' +
+          extension_name +
+          ' ' +
+          stability +
+          ' ' +
+          prefix;
+        return;
       case /5\.6xdebug/.test(version_extension):
         install_command = 'sudo pecl install -f xdebug-2.5.5' + pipe;
         break;
@@ -124,12 +132,20 @@ export async function addExtensionLinux(
   await utils.asyncForEach(extensions, async function(extension: string) {
     extension = extension.toLowerCase();
     const version_extension: string = version + extension;
+    const [extension_name, stability]: string[] = extension.split('-');
+    const prefix = await utils.getExtensionPrefix(extension_name);
     let install_command = '';
     switch (true) {
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-        install_command = 'install_extension ' + extension + pipe;
-        break;
+        script +=
+          '\nadd_unstable_extension ' +
+          extension_name +
+          ' ' +
+          stability +
+          ' ' +
+          prefix;
+        return;
       // match 5.6gearman..7.4gearman
       case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
         install_command =
@@ -167,12 +183,7 @@ export async function addExtensionLinux(
         break;
     }
     script +=
-      '\nadd_extension ' +
-      extension +
-      ' "' +
-      install_command +
-      '" ' +
-      (await utils.getExtensionPrefix(extension));
+      '\nadd_extension ' + extension + ' "' + install_command + '" ' + prefix;
   });
   return script;
 }

@@ -54,6 +54,8 @@ add_extension() {
   install_command=$2
   prefix=$3
   if ! php -m | grep -i -q -w "$extension" && [ -e "$ext_dir/$extension.so" ]; then
+    # shellcheck disable=SC2046
+    $apt_install $(apt-cache depends php"$version"-"$extension" | awk '/Depends:/{print$2}') >/dev/null 2>&1
     echo "$prefix=$extension" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
   elif php -m | grep -i -q -w "$extension"; then
     add_log "$tick" "$extension" "Enabled"

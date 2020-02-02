@@ -22,7 +22,7 @@ Function Install-Phalcon() {
         $zip_file = $match.Matches[0].Groups[1].Value
         Invoke-WebRequest -UseBasicParsing -Uri $domain/$zip_file -OutFile $ENV:RUNNER_TOOL_CACHE\phalcon.zip > $null 2>&1
         Expand-Archive -Path $ENV:RUNNER_TOOL_CACHE\phalcon.zip -DestinationPath $ENV:RUNNER_TOOL_CACHE\phalcon -Force > $null 2>&1
-        New-Item -ItemType SymbolicLink -Path $ext_dir\php_phalcon.dll -Target $ENV:RUNNER_TOOL_CACHE\phalcon\php_phalcon.dll > $null 2>&1
+        Copy-Item -Path "$ENV:RUNNER_TOOL_CACHE\phalcon\php_phalcon.dll" -Destination "$ext_dir\php_phalcon.dll"
         Enable-PhpExtension -Extension phalcon -Path $php_dir
     }
     printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "32" $tick $extension "Installed and enabled"

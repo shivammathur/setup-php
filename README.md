@@ -74,7 +74,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 These tools can be setup globally using the `tools` input.
 
-`codeception`, `composer`, `composer-prefetcher`, `deployer`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`
+`codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`
 
 ```yaml
 uses: shivammathur/setup-php@v1
@@ -115,7 +115,7 @@ with:
 
 ### PCOV
 
-Specify `coverage: pcov` to use `PCOV`.  
+Specify `coverage: pcov` to use `PCOV` and disable `Xdebug`.  
 It is much faster than `Xdebug`.  
 `PCOV` needs `PHP >= 7.1`.  
 If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.  
@@ -281,11 +281,31 @@ key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
 
 ### Problem Matchers
 
+#### PHPUnit
+
 You can setup problem matchers for your `PHPUnit` output by adding this step after the `setup-php` step. This will scan the logs for failing tests and surface that information prominently in the GitHub Actions UI by creating annotations and log file decorations.
 
 ```yaml
 - name: Setup Problem Matchers for PHPUnit
   run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+```
+
+#### Other tools
+
+For tools that support `checkstyle` reporting like `phpstan`, `psalm`, `php-cs-fixer` and `phpcs` you can use `cs2pr` to annotate your code.  
+For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-pull-request-from-checkstyle).  
+
+> Here is an example with `phpstan`.
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v1
+  with:
+    php-version: '7.4'
+    tools: cs2pr, phpstan
+
+- name: PHPStan
+  run: phpstan analyse src --error-format=checkstyle | cs2pr
 ```
 
 ### Examples

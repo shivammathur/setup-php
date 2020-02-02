@@ -27,14 +27,7 @@ install_phalcon() {
   add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
 }
 
-# Function to remove an extensions
-remove_extension() {
-  extension=$1
-  sudo sed -i "/$extension/d" "$ini_file"
-  rm -rf "$ext_dir/$extension.so"
-}
-
-ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
+ini_file="/etc/php/$2/cli/conf.d/50-phalcon.ini"
 ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
 extension_major_version=$(echo "$1" | grep -i -Po '\d')
@@ -44,18 +37,16 @@ cross="✗"
 
 if [ "$extension_major_version" = "4" ]; then
   if [ -e "$ext_dir/psr.so" ]; then
-    echo "extension=psr" >>"$ini_file"
+    echo "extension=psr.so" | sudo tee -a "$ini_file" >/dev/null 2>&1
   fi
 
   if [ -e "$ext_dir/phalcon.so" ]; then
     if php -m | grep -i -q -w psr; then
-      echo "extension=phalcon" >>"$ini_file"
-      phalcon_version=$(php -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
+      phalcon_version=$(php -d="extension=phalcon" -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
       if [ "$phalcon_version" != "$extension_major_version" ]; then
-        remove_extension "psr" >/dev/null 2>&1
-        remove_extension "phalcon" >/dev/null 2>&1
         install_phalcon "$1" "$2"
       else
+        echo "extension=phalcon.so" | sudo tee -a "$ini_file" >/dev/null 2>&1
         add_log "$tick" "$1" "Enabled"
       fi
     else
@@ -68,12 +59,11 @@ fi
 
 if [ "$extension_major_version" = "3" ]; then
   if [ -e "$ext_dir/phalcon.so" ]; then
-    echo "extension=phalcon" >>"$ini_file"
-    phalcon_version=$(php -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
+    phalcon_version=$(php -d="extension=phalcon.so" -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
     if [ "$phalcon_version" != "$extension_major_version" ]; then
-      remove_extension "phalcon" >/dev/null 2>&1
       install_phalcon "$1" "$2"
     else
+      echo "extension=phalcon.so" | sudo tee -a "$ini_file" >/dev/null 2>&1
       add_log "$tick" "$1" "Enabled"
     fi
   else

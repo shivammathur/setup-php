@@ -116,6 +116,7 @@ export async function parseTool(
  */
 export async function getUri(
   tool: string,
+  extension: string,
   version: string,
   prefix: string,
   version_prefix: string,
@@ -123,9 +124,11 @@ export async function getUri(
 ): Promise<string> {
   switch (version) {
     case 'latest':
-      return [prefix, version, verb, tool + '.phar'].filter(Boolean).join('/');
+      return [prefix, version, verb, tool + extension]
+        .filter(Boolean)
+        .join('/');
     default:
-      return [prefix, verb, version_prefix + version, tool + '.phar']
+      return [prefix, verb, version_prefix + version, tool + extension]
         .filter(Boolean)
         .join('/');
   }
@@ -404,12 +407,24 @@ export async function addTools(
     const tool: string = tool_data.name;
     const version: string = tool_data.version;
     const github = 'https://github.com/';
-    let uri: string = await getUri(tool, version, 'releases', '', 'download');
+    let uri: string = await getUri(
+      tool,
+      '.phar',
+      version,
+      'releases',
+      '',
+      'download'
+    );
     script += '\n';
     let url = '';
     switch (tool) {
+      case 'cs2pr':
+        uri = await getUri(tool, '', version, 'releases', '', 'download');
+        url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
+        script += await addArchive(tool, version, url, os_version);
+        break;
       case 'php-cs-fixer':
-        uri = await getUri(tool, version, 'releases', 'v', 'download');
+        uri = await getUri(tool, '.phar', version, 'releases', 'v', 'download');
         url = github + 'FriendsOfPHP/PHP-CS-Fixer/' + uri;
         script += await addArchive(tool, version, url, os_version);
         break;

@@ -27,7 +27,7 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnLinux', async () => {
     let linux: string = await extensions.addExtension(
-      'xdebug, pcov, ast-beta',
+      'xdebug, pcov, ast-beta, xdebug-alpha',
       '7.4',
       'linux'
     );
@@ -35,7 +35,10 @@ describe('Extension tests', () => {
     expect(linux).toContain(
       'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-pcov'
     );
-    expect(linux).toContain('install_extension ast-beta');
+    expect(linux).toContain('add_unstable_extension ast beta extension');
+    expect(linux).toContain(
+      'add_unstable_extension xdebug alpha zend_extension'
+    );
 
     linux = await extensions.addExtension('gearman', '7.0', 'linux');
     expect(linux).toContain('gearman.sh 7.0');
@@ -67,7 +70,7 @@ describe('Extension tests', () => {
     );
     expect(darwin).toContain('sudo pecl install -f xdebug');
     expect(darwin).toContain('sudo pecl install -f pcov');
-    expect(darwin).toContain('install_extension ast-beta');
+    expect(darwin).toContain('add_unstable_extension ast beta extension');
 
     darwin = await extensions.addExtension('phalcon3', '7.0', 'darwin');
     expect(darwin).toContain('phalcon_darwin.sh phalcon3 7.0');

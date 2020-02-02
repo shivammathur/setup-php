@@ -96,13 +96,13 @@ describe('Tools tests', () => {
 
   it('checking getUri', async () => {
     expect(
-      await tools.getUri('tool', 'latest', 'releases', '', 'download')
+      await tools.getUri('tool', '.phar', 'latest', 'releases', '', 'download')
     ).toBe('releases/latest/download/tool.phar');
     expect(
-      await tools.getUri('tool', '1.2.3', 'releases', '', 'download')
+      await tools.getUri('tool', '.phar', '1.2.3', 'releases', '', 'download')
     ).toBe('releases/download/1.2.3/tool.phar');
     expect(
-      await tools.getUri('tool', '1.2.3', 'releases', 'v', 'download')
+      await tools.getUri('tool', '.phar', '1.2.3', 'releases', 'v', 'download')
     ).toBe('releases/download/v1.2.3/tool.phar');
   });
 
@@ -325,12 +325,15 @@ describe('Tools tests', () => {
 
   it('checking addTools on linux', async () => {
     const script: string = await tools.addTools(
-      'php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, symfony',
+      'cs2pr, php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, symfony',
       '7.4',
       'linux'
     );
     expect(script).toContain(
       'add_tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
+    );
+    expect(script).toContain(
+      'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
     );
     expect(script).toContain(
       'add_tool https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/latest/download/php-cs-fixer.phar php-cs-fixer'
@@ -356,12 +359,15 @@ describe('Tools tests', () => {
   });
   it('checking addTools on darwin', async () => {
     const script: string = await tools.addTools(
-      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3',
+      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, cs2pr:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3',
       '7.4',
       'darwin'
     );
     expect(script).toContain(
       'add_tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
+    );
+    expect(script).toContain(
+      'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr'
     );
     expect(script).toContain(
       'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar phpcs'
@@ -396,12 +402,15 @@ describe('Tools tests', () => {
   });
   it('checking addTools on windows', async () => {
     const script: string = await tools.addTools(
-      'codeception, deployer, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, does_not_exit',
+      'codeception, cs2pr, deployer, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, does_not_exit',
       '7.4',
       'win32'
     );
     expect(script).toContain(
       'Add-Tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
+    );
+    expect(script).toContain(
+      'Add-Tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
     );
     expect(script).toContain(
       'Add-Tool https://deployer.org/deployer.phar deployer'

@@ -114,6 +114,9 @@ Function Add-Tool() {
     Add-Extension mbstring >$null 2>&1
     Add-Extension xml >$null 2>&1
   }
+  if($tool -eq "cs2pr") {
+    (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr
+  }
   if (((Get-ChildItem -Path $php_dir/* | Where-Object Name -Match "^$tool(.exe|.phar)*$").Count -gt 0)) {
     Add-Log $tick $tool "Added"
   } else {

@@ -1684,13 +1684,15 @@ exports.parseTool = parseTool;
  * @param version_prefix
  * @param verb
  */
-function getUri(tool, version, prefix, version_prefix, verb) {
+function getUri(tool, extension, version, prefix, version_prefix, verb) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (version) {
             case 'latest':
-                return [prefix, version, verb, tool + '.phar'].filter(Boolean).join('/');
+                return [prefix, version, verb, tool + extension]
+                    .filter(Boolean)
+                    .join('/');
             default:
-                return [prefix, verb, version_prefix + version, tool + '.phar']
+                return [prefix, verb, version_prefix + version, tool + extension]
                     .filter(Boolean)
                     .join('/');
         }
@@ -1940,12 +1942,17 @@ function addTools(tools_csv, php_version, os_version) {
                 const tool = tool_data.name;
                 const version = tool_data.version;
                 const github = 'https://github.com/';
-                let uri = yield getUri(tool, version, 'releases', '', 'download');
+                let uri = yield getUri(tool, '.phar', version, 'releases', '', 'download');
                 script += '\n';
                 let url = '';
                 switch (tool) {
+                    case 'cs2pr':
+                        uri = yield getUri(tool, '', version, 'releases', '', 'download');
+                        url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
+                        script += yield addArchive(tool, version, url, os_version);
+                        break;
                     case 'php-cs-fixer':
-                        uri = yield getUri(tool, version, 'releases', 'v', 'download');
+                        uri = yield getUri(tool, '.phar', version, 'releases', 'v', 'download');
                         url = github + 'FriendsOfPHP/PHP-CS-Fixer/' + uri;
                         script += yield addArchive(tool, version, url, os_version);
                         break;

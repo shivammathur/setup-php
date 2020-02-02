@@ -87,21 +87,26 @@ add_tool() {
     composer -q global config process-timeout 0
     add_log "$tick" "$tool" "Added"
   else
-    if [ ! -e /usr/local/bin/"$tool" ]; then
-      rm -rf /usr/local/bin/"${tool:?}"
+    tool_path=/usr/local/bin/"$tool"
+    if [ ! -e "$tool_path" ]; then
+      rm -rf "$tool_path"
     fi
-    status_code=$(sudo curl -s -w "%{http_code}" -o /usr/local/bin/"$tool" -L "$url")
+
+    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" -L "$url")
     if [ "$status_code" = "200" ]; then
-      sudo chmod a+x /usr/local/bin/"$tool"
+      sudo chmod a+x "$tool_path"
+      if [ "$tool" = "phive" ]; then
+        add_extension curl >/dev/null 2>&1
+        add_extension mbstring >/dev/null 2>&1
+        add_extension xml >/dev/null 2>&1
+      elif [ "$tool" = "cs2pr" ]; then
+        sudo sed -i '' 's/exit(9)/exit(0)/' "$tool_path"
+        tr -d '\r' < "$tool_path" | sudo tee "$tool_path" >/dev/null 2>&1
+      fi
       add_log "$tick" "$tool" "Added"
     else
       add_log "$cross" "$tool" "Could not setup $tool"
     fi
-  fi
-  if [ "$tool" = "phive" ]; then
-    add_extension curl >/dev/null 2>&1
-    add_extension mbstring >/dev/null 2>&1
-    add_extension xml >/dev/null 2>&1
   fi
 }
 

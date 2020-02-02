@@ -140,14 +140,17 @@ update_extension() {
 add_tool() {
   url=$1
   tool=$2
-  if [ ! -e /usr/local/bin/"$tool" ]; then
-    rm -rf /usr/local/bin/"${tool:?}"
+  tool_path=/usr/local/bin/"$tool"
+  if [ ! -e "$tool_path" ]; then
+    rm -rf "$tool_path"
   fi
-  status_code=$(sudo curl -s -w "%{http_code}" -o /usr/local/bin/"$tool" -L "$url")
+  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" -L "$url")
   if [ "$status_code" = "200" ]; then
-    sudo chmod a+x /usr/local/bin/"$tool"
+    sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
       composer -q global config process-timeout 0
+    elif [ "$tool" = "cs2pr" ]; then
+      sudo sed -i 's/\r$//; s/exit(9)/exit(0)/' "$tool_path"
     elif [ "$tool" = "phive" ]; then
       add_extension curl >/dev/null 2>&1
       add_extension mbstring >/dev/null 2>&1

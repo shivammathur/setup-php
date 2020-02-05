@@ -84,6 +84,15 @@ describe('Extension tests', () => {
     darwin = await extensions.addExtension('pcov', '7.2', 'darwin');
     expect(darwin).toContain('sudo pecl install -f pcov');
 
+    darwin = await extensions.addExtension('xdebug', '5.3', 'darwin');
+    expect(darwin).toContain('sudo pecl install -f xdebug-2.2.7');
+
+    darwin = await extensions.addExtension('xdebug', '5.4', 'darwin');
+    expect(darwin).toContain('sudo pecl install -f xdebug-2.4.1');
+
+    darwin = await extensions.addExtension('xdebug', '5.5', 'darwin');
+    expect(darwin).toContain('sudo pecl install -f xdebug-2.5.5');
+
     darwin = await extensions.addExtension('xdebug', '5.6', 'darwin');
     expect(darwin).toContain('sudo pecl install -f xdebug-2.5.5');
 

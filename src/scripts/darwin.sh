@@ -29,12 +29,18 @@ add_extension() {
   install_command=$2
   prefix=$3
   if ! php -m | grep -i -q -w "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    echo "$prefix=$extension" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
+    echo "$prefix=$ext_dir/$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
   elif php -m | grep -i -q -w "$extension"; then
     add_log "$tick" "$extension" "Enabled"
   elif ! php -m | grep -i -q -w "$extension"; then
-    (eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
-    add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
+    if [[ "$version" =~ $old_versions ]]; then
+      (eval "$install_command" >/dev/null 2>&1 && echo "$prefix=$ext_dir/$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Installed and enabled") ||
+      (sudo port install php"$nodot_version"-"$extension" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
+      add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
+    else
+      (eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
+      add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
+    fi
   fi
 }
 
@@ -101,7 +107,7 @@ add_tool() {
         add_extension xml >/dev/null 2>&1
       elif [ "$tool" = "cs2pr" ]; then
         sudo sed -i '' 's/exit(9)/exit(0)/' "$tool_path"
-        tr -d '\r' < "$tool_path" | sudo tee "$tool_path" >/dev/null 2>&1
+        tr -d '\r' < "$tool_path" | sudo tee "$tool_path.tmp" >/dev/null 2>&1 && sudo mv "$tool_path.tmp" "$tool_path"
       fi
       add_log "$tick" "$tool" "Added"
     else
@@ -124,11 +130,13 @@ add_composer_tool() {
 
 # Function to configure PECL
 configure_pecl() {
-  for tool in pear pecl; do
-    sudo "$tool" config-set php_ini "$ini_file" >/dev/null 2>&1
-    sudo "$tool" config-set auto_discover 1 >/dev/null 2>&1
-    sudo "$tool" channel-update "$tool".php.net >/dev/null 2>&1
-  done
+  if [[ ! "$version" =~ $old_versions ]]; then
+    for tool in pear pecl; do
+      sudo "$tool" config-set php_ini "$ini_file" >/dev/null 2>&1
+      sudo "$tool" config-set auto_discover 1 >/dev/null 2>&1
+      sudo "$tool" channel-update "$tool".php.net >/dev/null 2>&1
+    done
+  fi
 }
 
 # Function to log PECL, it is installed along with PHP
@@ -136,27 +144,81 @@ add_pecl() {
   add_log "$tick" "PECL" "Added"
 }
 
-# Function to setup PHP and composer
-setup_php_and_composer() {
-  export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
-  brew tap shivammathur/homebrew-php >/dev/null 2>&1
-  brew install shivammathur/php/php@"$version" >/dev/null 2>&1
-  brew link --force --overwrite php@"$version" >/dev/null 2>&1
+# Function to add PECL when macports is used
+add_pecl_old() {
+  pecl_version='master'
+  if [ "$1" = "53" ]; then
+    pecl_version='v1.9.5'
+  fi
+  curl -o pear.phar -sSL https://github.com/pear/pearweb_phars/raw/$pecl_version/install-pear-nozlib.phar
+  sudo php pear.phar -d /opt/local/lib/php$1 -b /usr/local/bin && rm -rf pear.phar
+}
+
+add_macports() {
+  uri=$(curl -sSL https://github.com/macports/macports-base/releases | grep -Eo "(\/.*Catalina.pkg)" | head -n 1)
+  curl -o port.pkg -sSL https://github.com"$uri"
+  sudo installer -pkg port.pkg -target / && rm -rf port.pkg
+}
+
+sync_macports() {
+  while true; do
+    status=0
+    sudo port sync || status=$?
+    if [[ "$status" -eq 0 ]]; then
+      break
+    fi
+    sleep 2
+  done
+}
+
+port_setup_php() {
+  sudo port install php$1 php$1-curl php$1-mbstring php$1-xmlrpc php$1-openssl php$1-opcache
+  sudo cp /opt/local/etc/php$1/php.ini-development /opt/local/etc/php$1/php.ini
+  sudo port select --set php php$1
+  sudo ln -sf /opt/local/bin/* /usr/local/bin
+  add_pecl_old "$1"
+}
+
+# Function to setup PHP
+setup_php() {
+  if [[ "$version" =~ $old_versions ]]; then
+    step_log "Setup Macports"
+    add_macports >/dev/null 2>&1
+    add_log "$tick" "Macports" "Installed"
+    sync_macports >/dev/null 2>&1
+    add_log "$tick" "Macports" "Synced"
+
+    step_log "Setup PHP"
+    port_setup_php $nodot_version >/dev/null 2>&1
+  else
+    step_log "Setup PHP"
+    export HOMEBREW_NO_INSTALL_CLEANUP=TRUE >/dev/null 2>&1
+    brew tap shivammathur/homebrew-php >/dev/null 2>&1
+    brew install shivammathur/php/php@"$version" >/dev/null 2>&1
+    brew link --force --overwrite php@"$version" >/dev/null 2>&1
+  fi
 }
 
 # Variables
 tick="✓"
 cross="✗"
 version=$1
+nodot_version=${1/./}
+old_versions="5.[3-5]"
 
-# Setup PHP and composer
-step_log "Setup PHP"
-setup_php_and_composer
+# Setup Environment
+if [[ "$version" =~ $old_versions ]]; then
+  export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
+  export TERM=xterm
+fi
+
+# Setup PHP
+setup_php
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
-echo "date.timezone=UTC" >>"$ini_file"
-ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
 sudo chmod 777 "$ini_file"
-mkdir -p "$(pecl config-get ext_dir)"
+echo "date.timezone=UTC" >>"$ini_file"
+ext_dir=$(php -i | grep -Ei "extension_dir => /(usr|opt)" | sed -e "s|.*=> s*||")
+sudo mkdir -p "$ext_dir"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
-add_log "$tick" "PHP" "Installed PHP $semver"
 configure_pecl
+add_log "$tick" "PHP" "Installed PHP $semver"

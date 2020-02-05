@@ -2663,7 +2663,13 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                                 ' ' +
                                 prefix;
                         return;
-                    case /5\.6xdebug/.test(version_extension):
+                    case /5\.3xdebug/.test(version_extension):
+                        install_command = 'sudo pecl install -f xdebug-2.2.7' + pipe;
+                        break;
+                    case /5\.4xdebug/.test(version_extension):
+                        install_command = 'sudo pecl install -f xdebug-2.4.1' + pipe;
+                        break;
+                    case /5\.[5-6]xdebug/.test(version_extension):
                         install_command = 'sudo pecl install -f xdebug-2.5.5' + pipe;
                         break;
                     case /7\.0xdebug/.test(version_extension):

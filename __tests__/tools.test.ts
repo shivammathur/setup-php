@@ -107,22 +107,13 @@ describe('Tools tests', () => {
   });
 
   it('checking getCodeceptionUriBuilder', async () => {
-    expect(await tools.getCodeceptionUriBuilder('3.2.1', '5.6', 'php56')).toBe(
+    expect(await tools.getCodeceptionUriBuilder('3.2.1', 'php56')).toBe(
       'releases/3.2.1/php56/codecept.phar'
     );
-    expect(await tools.getCodeceptionUriBuilder('3.2.1', '7.0', 'php54')).toBe(
+    expect(await tools.getCodeceptionUriBuilder('3.2.1', 'php54')).toBe(
       'releases/3.2.1/php54/codecept.phar'
     );
-    expect(await tools.getCodeceptionUriBuilder('3.2.1', '7.1', 'php56')).toBe(
-      'releases/3.2.1/php56/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUriBuilder('3.2.1', '7.2', 'php56')).toBe(
-      'releases/3.2.1/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUriBuilder('3.2.1', '7.3', 'php56')).toBe(
-      'releases/3.2.1/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUriBuilder('3.2.1', '7.4', 'php56')).toBe(
+    expect(await tools.getCodeceptionUriBuilder('3.2.1', '')).toBe(
       'releases/3.2.1/codecept.phar'
     );
   });
@@ -146,17 +137,59 @@ describe('Tools tests', () => {
     expect(await tools.getCodeceptionUri('latest', '7.4')).toBe(
       'codecept.phar'
     );
-    expect(await tools.getCodeceptionUri('3.2.1', '5.6')).toBe(
-      'releases/3.2.1/php54/codecept.phar'
+    expect(await tools.getCodeceptionUri('4.0.0', '7.4')).toBe(
+      'releases/4.0.0/codecept.phar'
     );
-    expect(await tools.getCodeceptionUri('4.3.2', '5.6')).toBe(
-      'releases/4.3.2/php56/codecept.phar'
+    expect(await tools.getCodeceptionUri('4.0.0', '5.6')).toBe(
+      'releases/4.0.0/php56/codecept.phar'
     );
-    expect(await tools.getCodeceptionUri('3.2.1', '7.4')).toBe(
-      'releases/3.2.1/codecept.phar'
+    expect(await tools.getCodeceptionUri('4.0.0', '7.1')).toBe(
+      'releases/4.0.0/php56/codecept.phar'
     );
-    expect(await tools.getCodeceptionUri('4.3.2', '7.4')).toBe(
-      'releases/4.3.2/codecept.phar'
+    expect(await tools.getCodeceptionUri('3.1.0', '7.4')).toBe(
+      'releases/3.1.0/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('3.1.0', '5.6')).toBe(
+      'releases/3.1.0/php54/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('2.5.4', '7.4')).toBe(
+      'releases/2.5.4/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('2.5.4', '5.6')).toBe(
+      'releases/2.5.4/php54/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('2.3.4', '7.4')).toBe(
+      'releases/2.3.4/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('2.3.4', '5.4')).toBe(
+      'releases/2.3.4/php54/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('2.2.4', '5.6')).toBe(
+      'releases/2.2.4/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('2.2.4', '7.4')).toBe(
+      'releases/2.2.4/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('2.2.4', '5.4')).toBe(
+      'releases/2.2.4/php54/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('2.1.7', '5.6')).toBe(
+      'releases/2.1.7/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('2.1.7', '5.4')).toBe(
+      'releases/2.1.7/php54/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('2.1.5', '5.4')).toBe(
+      'releases/2.1.5/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('2.1.5', '7.4')).toBe(
+      'releases/2.1.5/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('1.6.9', '7.4')).toBe(
+      'releases/1.6.9/codecept.phar'
+    );
+    expect(await tools.getCodeceptionUri('1.5.0', '7.4')).toBe(
+      'releases/1.5.0/codecept.phar'
     );
   });
 

@@ -1703,20 +1703,13 @@ exports.getUri = getUri;
  * Helper function to get the codeception url
  *
  * @param version
- * @param php_version
  * @param suffix
  */
-function getCodeceptionUriBuilder(version, php_version, suffix) {
+function getCodeceptionUriBuilder(version, suffix) {
     return __awaiter(this, void 0, void 0, function* () {
-        switch (true) {
-            case /^5\.6$|^7\.[0|1]$/.test(php_version):
-                return ['releases', version, suffix, 'codecept.phar']
-                    .filter(Boolean)
-                    .join('/');
-            case /^7\.[2-4]$/.test(php_version):
-            default:
-                return ['releases', version, 'codecept.phar'].filter(Boolean).join('/');
-        }
+        return ['releases', version, suffix, 'codecept.phar']
+            .filter(Boolean)
+            .join('/');
     });
 }
 exports.getCodeceptionUriBuilder = getCodeceptionUriBuilder;
@@ -1728,19 +1721,55 @@ exports.getCodeceptionUriBuilder = getCodeceptionUriBuilder;
  */
 function getCodeceptionUri(version, php_version) {
     return __awaiter(this, void 0, void 0, function* () {
+        const codecept = yield getCodeceptionUriBuilder(version, '');
+        const codecept54 = yield getCodeceptionUriBuilder(version, 'php54');
+        const codecept56 = yield getCodeceptionUriBuilder(version, 'php56');
+        // Refer to https://codeception.com/builds
         switch (true) {
             case /latest/.test(version):
                 switch (true) {
-                    case /^5\.6$|^7\.[0|1]$/.test(php_version):
+                    case /5\.6|7\.[0|1]/.test(php_version):
                         return 'php56/codecept.phar';
-                    case /^7\.[2-4]$/.test(php_version):
+                    case /7\.[2-4]/.test(php_version):
                     default:
                         return 'codecept.phar';
                 }
-            case /([4-9]|\d{2,})\..*/.test(version):
-                return yield getCodeceptionUriBuilder(version, php_version, 'php56');
+            case /(^[4-9]|\d{2,})\..*/.test(version):
+                switch (true) {
+                    case /5\.6|7\.[0|1]/.test(php_version):
+                        return codecept56;
+                    case /7\.[2-4]/.test(php_version):
+                    default:
+                        return codecept;
+                }
+            case /(^2\.[4-5]\.\d+|^3\.[0-1]\.\d+).*/.test(version):
+                switch (true) {
+                    case /5\.6/.test(php_version):
+                        return codecept54;
+                    case /7\.[0-4]/.test(php_version):
+                    default:
+                        return codecept;
+                }
+            case /^2\.3\.\d+.*/.test(version):
+                switch (true) {
+                    case /5\.[4-6]/.test(php_version):
+                        return codecept54;
+                    case /^7\.[0-4]$/.test(php_version):
+                    default:
+                        return codecept;
+                }
+            case /(^2\.(1\.([6-9]|\d{2,}))|^2\.2\.\d+).*/.test(version):
+                switch (true) {
+                    case /5\.[4-5]/.test(php_version):
+                        return codecept54;
+                    case /5.6|7\.[0-4]/.test(php_version):
+                    default:
+                        return codecept;
+                }
+            case /(^2\.(1\.[0-5]|0\.\d+)|^1\.[6-8]\.\d+).*/.test(version):
+                return codecept;
             default:
-                return yield getCodeceptionUriBuilder(version, php_version, 'php54');
+                return yield codecept;
         }
     });
 }
@@ -2104,7 +2133,7 @@ exports.addCoverageXdebug = addCoverageXdebug;
 function addCoveragePCOV(version, os_version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         let script = '\n';
-        switch (version) {
+        switch (true) {
             default:
                 script +=
                     (yield extensions.addExtension('pcov', version, os_version, true)) +
@@ -2126,8 +2155,7 @@ function addCoveragePCOV(version, os_version, pipe) {
                 script += yield utils.addLog('$tick', 'coverage: pcov', 'PCOV enabled as coverage driver', os_version);
                 // version is not supported
                 break;
-            case '5.6':
-            case '7.0':
+            case /5\.[3-6]|7\.0/.test(version):
                 script += yield utils.addLog('$cross', 'pcov', 'PHP 7.1 or newer is required', os_version);
                 break;
         }
@@ -2373,7 +2401,7 @@ function run() {
                 case 'darwin':
                 case 'linux':
                     script_path = yield build(os_version + '.sh', version, os_version);
-                    yield exec_1.exec('sh ' + script_path + ' ' + version + ' ' + __dirname);
+                    yield exec_1.exec('bash ' + script_path + ' ' + version + ' ' + __dirname);
                     break;
                 case 'win32':
                     script_path = yield build('win32.ps1', version, os_version);
@@ -2805,7 +2833,7 @@ function addExtensionLinux(extension_csv, version, pipe) {
                     // match 7.0xdebug..7.4xdebug
                     case /^7\.[0-4]xdebug$/.test(version_extension):
                         script +=
-                            '\nupdate_extension xdebug 2.9.0' +
+                            '\nupdate_extension xdebug 2.9.1' +
                                 pipe +
                                 '\n' +
                                 (yield utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));

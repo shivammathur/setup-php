@@ -138,23 +138,15 @@ export async function getUri(
  * Helper function to get the codeception url
  *
  * @param version
- * @param php_version
  * @param suffix
  */
 export async function getCodeceptionUriBuilder(
   version: string,
-  php_version: string,
   suffix: string
 ): Promise<string> {
-  switch (true) {
-    case /^5\.6$|^7\.[0|1]$/.test(php_version):
-      return ['releases', version, suffix, 'codecept.phar']
-        .filter(Boolean)
-        .join('/');
-    case /^7\.[2-4]$/.test(php_version):
-    default:
-      return ['releases', version, 'codecept.phar'].filter(Boolean).join('/');
-  }
+  return ['releases', version, suffix, 'codecept.phar']
+    .filter(Boolean)
+    .join('/');
 }
 
 /**
@@ -167,19 +159,55 @@ export async function getCodeceptionUri(
   version: string,
   php_version: string
 ): Promise<string> {
+  const codecept: string = await getCodeceptionUriBuilder(version, '');
+  const codecept54: string = await getCodeceptionUriBuilder(version, 'php54');
+  const codecept56: string = await getCodeceptionUriBuilder(version, 'php56');
+  // Refer to https://codeception.com/builds
   switch (true) {
     case /latest/.test(version):
       switch (true) {
-        case /^5\.6$|^7\.[0|1]$/.test(php_version):
+        case /5\.6|7\.[0|1]/.test(php_version):
           return 'php56/codecept.phar';
-        case /^7\.[2-4]$/.test(php_version):
+        case /7\.[2-4]/.test(php_version):
         default:
           return 'codecept.phar';
       }
-    case /([4-9]|\d{2,})\..*/.test(version):
-      return await getCodeceptionUriBuilder(version, php_version, 'php56');
+    case /(^[4-9]|\d{2,})\..*/.test(version):
+      switch (true) {
+        case /5\.6|7\.[0|1]/.test(php_version):
+          return codecept56;
+        case /7\.[2-4]/.test(php_version):
+        default:
+          return codecept;
+      }
+    case /(^2\.[4-5]\.\d+|^3\.[0-1]\.\d+).*/.test(version):
+      switch (true) {
+        case /5\.6/.test(php_version):
+          return codecept54;
+        case /7\.[0-4]/.test(php_version):
+        default:
+          return codecept;
+      }
+    case /^2\.3\.\d+.*/.test(version):
+      switch (true) {
+        case /5\.[4-6]/.test(php_version):
+          return codecept54;
+        case /^7\.[0-4]$/.test(php_version):
+        default:
+          return codecept;
+      }
+    case /(^2\.(1\.([6-9]|\d{2,}))|^2\.2\.\d+).*/.test(version):
+      switch (true) {
+        case /5\.[4-5]/.test(php_version):
+          return codecept54;
+        case /5.6|7\.[0-4]/.test(php_version):
+        default:
+          return codecept;
+      }
+    case /(^2\.(1\.[0-5]|0\.\d+)|^1\.[6-8]\.\d+).*/.test(version):
+      return codecept;
     default:
-      return await getCodeceptionUriBuilder(version, php_version, 'php54');
+      return await codecept;
   }
 }
 

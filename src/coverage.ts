@@ -54,7 +54,7 @@ export async function addCoveragePCOV(
   pipe: string
 ): Promise<string> {
   let script = '\n';
-  switch (version) {
+  switch (true) {
     default:
       script +=
         (await extensions.addExtension('pcov', version, os_version, true)) +
@@ -83,8 +83,8 @@ export async function addCoveragePCOV(
       );
       // version is not supported
       break;
-    case '5.6':
-    case '7.0':
+
+    case /5\.[3-6]|7\.0/.test(version):
       script += await utils.addLog(
         '$cross',
         'pcov',

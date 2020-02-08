@@ -34,8 +34,8 @@ add_extension() {
     add_log "$tick" "$extension" "Enabled"
   elif ! php -m | grep -i -q -w "$extension"; then
     if [[ "$version" =~ $old_versions ]]; then
-      (eval "$install_command" >/dev/null 2>&1 && echo "$prefix=$ext_dir/$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Installed and enabled") ||
       (sudo port install php"$nodot_version"-"$extension" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
+      (eval "$install_command" >/dev/null 2>&1 && echo "$prefix=$ext_dir/$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Installed and enabled") ||
       add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
     else
       (eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
@@ -102,12 +102,13 @@ add_tool() {
     if [ "$status_code" = "200" ]; then
       sudo chmod a+x "$tool_path"
       if [ "$tool" = "phive" ]; then
-        add_extension curl >/dev/null 2>&1
-        add_extension mbstring >/dev/null 2>&1
-        add_extension xml >/dev/null 2>&1
+        add_extension curl "sudo pecl install -f curl" extension >/dev/null 2>&1
+        add_extension mbstring "sudo pecl install -f mbstring" extension >/dev/null 2>&1
+        add_extension xml "sudo pecl install -f xml" extension >/dev/null 2>&1
       elif [ "$tool" = "cs2pr" ]; then
         sudo sed -i '' 's/exit(9)/exit(0)/' "$tool_path"
         tr -d '\r' < "$tool_path" | sudo tee "$tool_path.tmp" >/dev/null 2>&1 && sudo mv "$tool_path.tmp" "$tool_path"
+        sudo chmod a+x "$tool_path"
       fi
       add_log "$tick" "$tool" "Added"
     else

@@ -24,11 +24,12 @@ update_ppa() {
     else
       ppa="ondrej-ubuntu-php*.list"
     fi
-    find /etc/apt/sources.list.d -type f -name "$ppa" -exec sudo DEBIAN_FRONTEND=noninteractive apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
+    find /etc/apt/sources.list.d -type f -name "$ppa" -exec sudo "$debconf_fix" apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
     echo "true"
   fi
 }
 
+# Function to configure PECL
 configure_pecl() {
   if [ "$pecl_config" = "false" ] && [ -e /usr/bin/pecl ]; then
     for tool in pear pecl; do
@@ -247,7 +248,8 @@ ppa_updated="false"
 pecl_config="false"
 version=$1
 old_versions="5.[4-5]"
-apt_install="sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y"
+debconf_fix="DEBIAN_FRONTEND=noninteractive"
+apt_install="sudo $debconf_fix apt-fast install -y"
 existing_version=$(php-config --version | cut -c 1-3)
 
 # Setup PHP
@@ -267,33 +269,37 @@ if [ "$existing_version" != "$version" ]; then
       fi
       $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml >/dev/null 2>&1
     fi
-    status="installed"
+    status="Installed"
   else
-    status="switched"
+    if [ "$update" = "true" ]; then
+      $apt_install php"$version" >/dev/null 2>&1
+      status="Updated to"
+    else
+      status="Switched to"
+    fi
   fi
 
+  # PHP 5.3 is switched by install script, for rest switch_version
   if [ "$version" != "5.3" ]; then
     switch_version
   fi
 
-  if [ "$version" = "8.0" ]; then
-    semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
-  else
-    semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
-  fi
-
-  if [ "$status" != "switched" ]; then
-    status="Installed PHP $semver"
-  else
-    status="Switched to PHP $semver"
-  fi
 else
-  semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
-  status="PHP $semver Found"
+  if [ "$update" = "true" ]; then
+    $apt_install php"$version" >/dev/null 2>&1
+    status="Updated to"
+  else
+    status="Found"
+  fi
+fi
+
+semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
+if [ ! "$version" = "8.0" ]; then
+  semver=$(echo "$semver" | cut -f 1 -d '-')
 fi
 
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo chmod 777 "$ini_file"
-add_log "$tick" "PHP" "$status"
+add_log "$tick" "PHP" "$status PHP $semver"

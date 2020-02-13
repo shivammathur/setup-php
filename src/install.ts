@@ -32,7 +32,8 @@ export async function build(
   let tools_csv: string = await utils.getInput('tools', false);
   if (
     pecl == 'true' ||
-    /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv)
+    /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv) ||
+    /.*-(\d+\.\d+\.\d+).*/.test(extension_csv)
   ) {
     tools_csv = 'pecl, ' + tools_csv;
   }
@@ -58,9 +59,10 @@ export async function build(
  */
 export async function run(): Promise<void> {
   try {
-    const os_version: string = process.platform;
     let version: string = await utils.getInput('php-version', true);
     version = version.length > 1 ? version.slice(0, 3) : version + '.0';
+    const os_version: string = process.platform;
+
     // check the os version and run the respective script
     let script_path = '';
     switch (os_version) {

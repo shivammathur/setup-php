@@ -20,6 +20,9 @@ inputs:
   tools:
     description: 'Setup popular tools globally.'
     required: false
+  update:
+    description: 'Update PHP if already installed.'
+    required: false
   # Deprecated options, do not use. Will not be supported in v2 which will be released around February 1, 2020.
   extension-csv:
     description: 'Deprecated! Use extensions instead.'

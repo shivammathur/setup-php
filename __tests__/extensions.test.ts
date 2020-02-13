@@ -3,7 +3,7 @@ import * as extensions from '../src/extensions';
 describe('Extension tests', () => {
   it('checking addExtensionOnWindows', async () => {
     let win32: string = await extensions.addExtension(
-      'xdebug, pcov, phalcon4, ast-beta',
+      'xdebug, pcov, phalcon4, ast-beta, grpc-1.2.3',
       '7.4',
       'win32'
     );
@@ -11,6 +11,7 @@ describe('Extension tests', () => {
     expect(win32).toContain('Add-Extension pcov');
     expect(win32).toContain('phalcon.ps1 phalcon4');
     expect(win32).toContain('Add-Extension ast beta');
+    expect(win32).toContain('Add-Extension grpc stable 1.2.3');
 
     win32 = await extensions.addExtension(
       'phalcon3, does_not_exist',
@@ -27,7 +28,7 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnLinux', async () => {
     let linux: string = await extensions.addExtension(
-      'xdebug, pcov, ast-beta, xdebug-alpha',
+      'xdebug, pcov, ast-beta, xdebug-alpha, grpc-1.2.3',
       '7.4',
       'linux'
     );
@@ -36,6 +37,7 @@ describe('Extension tests', () => {
       'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-pcov'
     );
     expect(linux).toContain('add_unstable_extension ast beta extension');
+    expect(linux).toContain('add_pecl_extension grpc 1.2.3');
     expect(linux).toContain(
       'add_unstable_extension xdebug alpha zend_extension'
     );
@@ -64,13 +66,14 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'xdebug, pcov, ast-beta',
+      'xdebug, pcov, ast-beta, grpc-1.2.3',
       '7.2',
       'darwin'
     );
     expect(darwin).toContain('sudo pecl install -f xdebug');
     expect(darwin).toContain('sudo pecl install -f pcov');
     expect(darwin).toContain('add_unstable_extension ast beta extension');
+    expect(darwin).toContain('sudo pecl install -f grpc-1.2.3');
 
     darwin = await extensions.addExtension('phalcon3', '7.0', 'darwin');
     expect(darwin).toContain('phalcon_darwin.sh phalcon3 7.0');

@@ -2368,7 +2368,8 @@ function build(filename, version, os_version) {
         const pecl = yield utils.getInput('pecl', false);
         let tools_csv = yield utils.getInput('tools', false);
         if (pecl == 'true' ||
-            /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv)) {
+            /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv) ||
+            /.*-(\d+\.\d+\.\d+).*/.test(extension_csv)) {
             tools_csv = 'pecl, ' + tools_csv;
         }
         let script = yield utils.readScript(filename, version, os_version);
@@ -2392,9 +2393,9 @@ exports.build = build;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const os_version = process.platform;
             let version = yield utils.getInput('php-version', true);
             version = version.length > 1 ? version.slice(0, 3) : version + '.0';
+            const os_version = process.platform;
             // check the os version and run the respective script
             let script_path = '';
             switch (os_version) {
@@ -2761,6 +2762,16 @@ function addExtensionWindows(extension_csv, version, pipe) {
                     case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
                         script += '\nAdd-Extension ' + extension_name + ' ' + stability;
                         break;
+                    // match exact versions
+                    case /.*-\d+\.\d+\.\d+/.test(version_extension):
+                        script +=
+                            '\nAdd-Extension ' +
+                                extension_name +
+                                ' ' +
+                                'stable' +
+                                ' ' +
+                                stability;
+                        return;
                     // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
                     case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
                         script +=
@@ -2810,6 +2821,10 @@ function addExtensionLinux(extension_csv, version, pipe) {
                                 stability +
                                 ' ' +
                                 prefix;
+                        return;
+                    // match exact versions
+                    case /.*-\d+\.\d+\.\d+/.test(version_extension):
+                        script += '\nadd_pecl_extension ' + extension_name + ' ' + stability;
                         return;
                     // match 5.6gearman..7.4gearman
                     case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):

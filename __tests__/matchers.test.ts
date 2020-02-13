@@ -18,10 +18,10 @@ describe('Matchers', () => {
     process.env['RUNNER_TOOL_CACHE'] = __dirname;
     await matchers.addMatchers();
     const spy = jest.spyOn(io, 'cp');
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 
-  it('Test Regex', async () => {
+  it('Test PHPUnit Regex', async () => {
     const regex1 = /^\d+\)\s.*$/;
     const regex2 = /^(.*Failed\sasserting\sthat.*)$/;
     const regex3 = /^\s*$/;
@@ -30,5 +30,22 @@ describe('Matchers', () => {
     expect(regex2.test('Failed asserting that false is true')).toBe(true);
     expect(regex3.test('\n')).toBe(true);
     expect(regex4.test('/path/to/file.php:42')).toBe(true);
+  });
+
+  it('Test PHP Regex', async () => {
+    const regex1 = /^(.*error):\s+\s+(.+) in (.+) on line (\d+)$/;
+    const regex2 = /^(.*Warning|.*Deprecated|.*Notice):\s+\s+(.+) in (.+) on line (\d+)$/;
+    expect(
+      regex1.test('PHP Parse error:  error_message in file.php on line 10')
+    ).toBe(true);
+    expect(
+      regex2.test('PHP Notice:  info_message in file.php on line 10')
+    ).toBe(true);
+    expect(
+      regex2.test('PHP Warning:  warning_message in file.php on line 10')
+    ).toBe(true);
+    expect(
+      regex2.test('PHP Deprecated:  deprecated_message in file.php on line 10')
+    ).toBe(true);
   });
 });

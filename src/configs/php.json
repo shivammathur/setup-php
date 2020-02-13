@@ -1,0 +1,29 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "php_native_error",
+      "severity": "error",
+      "pattern": [
+        {
+          "regexp": "^(.*error):\\s+\\s+(.+) in (.+) on line (\\d+)$",
+          "code": 1,
+          "message": 2,
+          "file": 3,
+          "line": 4
+        }
+      ]
+    }, {
+      "owner": "php_native_warning",
+      "severity": "warning",
+      "pattern": [
+        {
+          "regexp": "^(.*Warning|.*Deprecated|.*Notice):\\s+\\s+(.+) in (.+) on line (\\d+)$",
+          "code": 1,
+          "message": 2,
+          "file": 3,
+          "line": 4
+        }
+      ]
+    }
+  ]
+}

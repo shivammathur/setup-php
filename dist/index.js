@@ -964,9 +964,10 @@ const io = __importStar(__webpack_require__(1));
  */
 function addMatchers() {
     return __awaiter(this, void 0, void 0, function* () {
-        const config_path = path.join(__dirname, '..', 'src', 'configs', 'phpunit.json');
+        const config_path = path.join(__dirname, '..', 'src', 'configs');
         const runner_dir = yield utils.getInput('RUNNER_TOOL_CACHE', false);
-        yield io.cp(config_path, runner_dir);
+        yield io.cp(path.join(config_path, 'phpunit.json'), runner_dir);
+        yield io.cp(path.join(config_path, 'php.json'), runner_dir);
     });
 }
 exports.addMatchers = addMatchers;

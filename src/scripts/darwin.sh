@@ -180,41 +180,40 @@ port_setup_php() {
   add_pecl_old "$1"
 }
 
-# Function to setup PHP
-setup_php() {
-  if [[ "$version" =~ $old_versions ]]; then
-    step_log "Setup Macports"
-    add_macports >/dev/null 2>&1
-    add_log "$tick" "Macports" "Installed"
-    sync_macports >/dev/null 2>&1
-    add_log "$tick" "Macports" "Synced"
-
-    step_log "Setup PHP"
-    port_setup_php $nodot_version >/dev/null 2>&1
-  else
-    step_log "Setup PHP"
-    export HOMEBREW_NO_INSTALL_CLEANUP=TRUE >/dev/null 2>&1
-    brew tap shivammathur/homebrew-php >/dev/null 2>&1
-    brew install shivammathur/php/php@"$version" >/dev/null 2>&1
-    brew link --force --overwrite php@"$version" >/dev/null 2>&1
-  fi
-}
-
 # Variables
 tick="✓"
 cross="✗"
 version=$1
 nodot_version=${1/./}
 old_versions="5.[3-5]"
+existing_version=$(php-config --version | cut -c 1-3)
 
-# Setup Environment
+# Setup PHP
+step_log "Setup PHP"
 if [[ "$version" =~ $old_versions ]]; then
   export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
   export TERM=xterm
+  step_log "Setup Macports"
+  add_macports >/dev/null 2>&1
+  add_log "$tick" "Macports" "Installed"
+  sync_macports >/dev/null 2>&1
+  add_log "$tick" "Macports" "Synced"
+  step_log "Setup PHP"
+  port_setup_php $nodot_version >/dev/null 2>&1
+  status="Installed"
+elif [ "$existing_version" != "$version" ] || [ "$update" = "true" ]; then
+  export HOMEBREW_NO_INSTALL_CLEANUP=TRUE >/dev/null 2>&1
+  brew tap shivammathur/homebrew-php >/dev/null 2>&1
+  brew install shivammathur/php/php@"$version" >/dev/null 2>&1
+  brew link --force --overwrite php@"$version" >/dev/null 2>&1
+  if [ "$update" = "true" ]; then
+    status="Updated to"
+  else
+    status="Installed"
+  fi
+else
+  status="Found"
 fi
-
-# Setup PHP
-setup_php
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 sudo chmod 777 "$ini_file"
 echo "date.timezone=UTC" >>"$ini_file"
@@ -222,4 +221,4 @@ ext_dir=$(php -i | grep -Ei "extension_dir => /(usr|opt)" | sed -e "s|.*=> s*||"
 sudo mkdir -p "$ext_dir"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
 configure_pecl
-add_log "$tick" "PHP" "Installed PHP $semver"
+add_log "$tick" "PHP" "$status PHP $semver"

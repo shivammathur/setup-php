@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup PHP
-        uses: shivammathur/setup-php@v1 #https://github.com/shivammathur/setup-php
+        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, intl, pdo_sqlite, pdo_mysql
@@ -43,7 +43,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup PHP
-        uses: shivammathur/setup-php@v1
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '7.3'
           extensions: mbstring, intl
@@ -70,7 +70,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup PHP
-        uses: shivammathur/setup-php@v1
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '7.3'
           extensions: mbstring, intl

@@ -10,7 +10,7 @@
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
   <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://codecov.io/gh/shivammathur/setup-php/branch/master/graph/badge.svg"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg"></a>
-  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg"></a>
+  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.3-8892BF.svg"></a>
 </p>
 
 Setup PHP with required extensions, php.ini configuration, code-coverage support and various tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross platform interface to setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
@@ -24,25 +24,32 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 - [Coverage support](#signal_strength-coverage-support)
   - [Xdebug](#xdebug)
   - [PCOV](#pcov)
-  - [Disable coverage](#disable-coverage)
+  - [Disable Coverage](#disable-coverage)
 - [Usage](#memo-usage)
+  - [Inputs](#inputs)
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
-  - [Experimental Setup](#experimental-setup)
-  - [Thread Safe Setup](#thread-safe-setup)  
-  - [Cache dependencies](#cache-dependencies)
+  - [Experimental Setup](#experimental-setup)  
+  - [Thread Safe Setup](#thread-safe-setup)
+  - [Force Update](#force-update)
+  - [Verbose Setup](#verbose-setup)
+  - [Cache Extensions](#cache-extensions)
+  - [Cache Composer Dependencies](#cache-composer-dependencies)
   - [Problem Matchers](#problem-matchers)
   - [Examples](#examples)
 - [License](#scroll-license)
 - [Contributions](#1-contributions)
-- [Support this project](#sparkling_heart-support-this-project)
-- [This action uses the following works](#bookmark-this-action-uses-the-following-works)
+- [Support This Project](#sparkling_heart-support-this-project)
+- [Dependencies](#bookmark-dependencies)
 - [Further Reading](#bookmark_tabs-further-reading)
 
 ## :tada: PHP Support
 
 |PHP Version|Stability|Release Support|
 |--- |--- |--- |
+|5.3|`Stable`|`End of life`|
+|5.4|`Stable`|`End of life`|
+|5.5|`Stable`|`End of life`|
 |5.6|`Stable`|`End of life`|
 |7.0|`Stable`|`End of life`|
 |7.1|`Stable`|`End of life`|
@@ -64,10 +71,41 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 ## :heavy_plus_sign: PHP Extension Support
 - On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl` in the tools input.
+
+```yaml
+uses: shivammathur/setup-php@v2
+with:
+  php-version: '7.4'
+  tools: pecl
+  extensions: swoole
+```
+
 - On `windows` extensions which have `windows` binary on `PECL` can be installed.
+
 - On `macOS` extensions which are on `PECL` can be installed.
+
 - Extensions which are installed along with PHP if specified are enabled.
-- Extensions on `PECL` which do not have a latest stable version, their pre-release versions can be installed by suffixing the extension with its state i.e `alpha`, `beta`, `devel` or `snapshot` separated by a `-` like `msgpack-beta`.
+
+- Specific versions of PECL extensions can be installed by suffixing the extension with the version. This is useful for installing old versions of extensions which support end of life PHP versions.
+
+```yaml
+uses: shivammathur/setup-php@v2
+with:
+  php-version: '7.4'
+  tools: pecl
+  extensions: pcov-1.0.6
+```
+
+- Pre-release versions of PECL extensions can be installed by suffixing the extension with its state i.e `alpha`, `beta`, `devel` or `snapshot`.
+
+```yaml
+uses: shivammathur/setup-php@v2
+with:
+  php-version: '7.4'
+  tools: pecl
+  extensions: xdebug-beta
+```
+
 - Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
 
 ## :wrench: Tools Support
@@ -77,7 +115,7 @@ These tools can be setup globally using the `tools` input.
 `codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`
 
 ```yaml
-uses: shivammathur/setup-php@v1
+uses: shivammathur/setup-php@v2
 with:
   php-version: '7.4'
   tools: php-cs-fixer, phpunit
@@ -87,7 +125,7 @@ To setup a particular version of a tool, specify it in the form `tool:version`.
 Version should be in semver format and a valid release of the tool.
 
 ```yaml
-uses: shivammathur/setup-php@v1
+uses: shivammathur/setup-php@v2
 with:
   php-version: '7.4'
   tools: php-cs-fixer:2.15.5, phpunit:8.5.1
@@ -95,7 +133,7 @@ with:
 
 **Note**
 - `composer` is setup by default.
-- Specifying version for `composer` and `pecl` has no effect, latest version of both tools will be setup.
+- Specifying version for `composer` and `pecl` has no effect, latest versions of both tools which are compatible with the PHP version will be setup.
 - If the version specified for the tool is not in semver format, latest version of the tool will be setup.
 - Tools which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
 
@@ -107,7 +145,7 @@ Specify `coverage: xdebug` to use `Xdebug`.
 Runs on all [PHP versions supported](#tada-php-support "List of PHP versions supported on this GitHub Action") except `8.0`.
 
 ```yaml
-uses: shivammathur/setup-php@v1
+uses: shivammathur/setup-php@v2
 with:
   php-version: '7.4'
   coverage: xdebug
@@ -120,18 +158,17 @@ It is much faster than `Xdebug`.
 `PCOV` needs `PHP >= 7.1`.  
 If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.  
 
-
 ```yaml
-uses: shivammathur/setup-php@v1
+uses: shivammathur/setup-php@v2
 with:
   php-version: '7.4'
   ini-values: pcov.directory=api #optional, see above for usage.
   coverage: pcov
 ```
 
-### Disable coverage
+### Disable Coverage
 
-Specify `coverage: none` to disable both `Xdebug` and `PCOV`.  
+Specify `coverage: none` to remove both `Xdebug` and `PCOV`.  
 Consider disabling the coverage using this PHP action for these reasons.
 
 - You are not generating coverage reports while testing.
@@ -139,7 +176,7 @@ Consider disabling the coverage using this PHP action for these reasons.
 - You are using `phpdbg` for running your tests.
 
 ```yaml
-uses: shivammathur/setup-php@v1
+uses: shivammathur/setup-php@v2
 with:
   php-version: '7.4'
   coverage: none
@@ -147,15 +184,38 @@ with:
 
 ## :memo: Usage
 
-Inputs supported by this GitHub Action.
+### Inputs
 
-- php-version `required`
-- extensions `optional`
-- ini-values `optional`
-- coverage `optional`
-- tools `optional`
+#### `php-version` (required)
 
-See [action.yml](action.yml "Metadata for this GitHub Action") and usage below for more info.
+- Specify the PHP version you want to setup.
+- Accepts a `string`. For example `'7.4'`.
+- See [PHP support](#tada-php-support) for supported PHP versions.
+
+#### `extensions` (optional)
+
+- Specify the extensions you want to setup.
+- Accepts a `string` in csv-format. For example `mbstring, zip`.
+- See [PHP extension support](#heavy_plus_sign-php-extension-support) for more info.
+
+#### `ini-values` (optional)
+
+- Specify the values you want to add to `php.ini`.
+- Accepts a `string` in csv-format. For example `post_max_size=256M, short_open_tag=On`.
+
+#### `coverage` (optional)
+
+- Specify the code coverage driver you want to setup.
+- Accepts `xdebug`, `pcov` or `none`.
+- See [coverage support](#signal_strength-coverage-support) for more info.
+
+#### `tools` (optional)
+
+- Specify the tools you want to setup.
+- Accepts a `string` in csv-format. For example `phpunit, phpcs`
+- See [tools Support](#wrench-tools-support) for tools supported.
+
+See below for more info.
 
 ### Basic Setup
 
@@ -167,13 +227,13 @@ steps:
   uses: actions/checkout@v2
 
 - name: Setup PHP
-  uses: shivammathur/setup-php@v1
+  uses: shivammathur/setup-php@v2
   with:
     php-version: '7.4'
-    extensions: mbstring, intl #optional, setup extensions
-    ini-values: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
-    coverage: xdebug #optional, setup coverage driver
-    tools: php-cs-fixer, phpunit #optional, setup tools globally
+    extensions: mbstring, intl
+    ini-values: post_max_size=256M, short_open_tag=On
+    coverage: xdebug    
+    tools: php-cs-fixer, phpunit
 ```
 
 ### Matrix Setup
@@ -194,13 +254,13 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@v1
+      uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        extensions: mbstring, intl #optional, setup extensions
-        ini-values: post_max_size=256M, short_open_tag=On #optional, setup php.ini configuration
-        coverage: xdebug #optional, setup coverage driver
-        tools: php-cs-fixer, phpunit #optional, setup tools globally
+        extensions: mbstring, intl
+        ini-values: post_max_size=256M, short_open_tag=On
+        coverage: xdebug        
+        tools: php-cs-fixer, phpunit
 ```
 
 ### Experimental Setup
@@ -219,13 +279,13 @@ steps:
   uses: actions/checkout@v2
 
 - name: Setup PHP
-  uses: shivammathur/setup-php@v1
+  uses: shivammathur/setup-php@v2
   with:
     php-version: '8.0'
-    extensions: mbstring #optional, setup extensions
-    ini-values: opcache.jit_buffer_size=256M, opcache.jit=1235, pcre.jit=1 #optional, setup php.ini configuration
-    coverage: pcov #optional, setup PCOV, Xdebug does not support this version yet.
-    tools: php-cs-fixer, phpunit #optional, setup tools globally    
+    extensions: mbstring
+    ini-values: opcache.jit_buffer_size=256M, opcache.jit=1235, pcre.jit=1
+    coverage: pcov
+    tools: php-cs-fixer, phpunit
 ```
 
 ### Thread Safe Setup
@@ -244,14 +304,79 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Setup PHP
-      uses: shivammathur/setup-php@v1
+      uses: shivammathur/setup-php@v2
       with:
         php-version: '7.4'
       env:
         PHPTS: ts # specify ts or nts
 ```
 
-### Cache dependencies
+### Force Update
+
+- PHP versions which are pre-installed on the GitHub Actions runner are not updated to their latest patch release by default.
+- You can specify the `update` environment variable to `true` to force update to the latest release.
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+  env:
+    update: true # specify true or false
+```
+
+### Verbose Setup
+
+- To debug any issues, you can use the `verbose` tag instead of `v2`.
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@verbose
+  with:
+    php-version: '7.4'
+```
+
+### Cache Extensions
+
+You can persist PHP extensions you setup using the [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") and [`action/cache`](https://github.com/actions/cache "GitHub Action to cache files") GitHub Actions. Extensions which take very long to setup if cached are available in the next workflow run and enabled directly which reduces the workflow execution time.  
+
+```yaml
+runs-on: ${{ matrix.operating-system }}
+strategy:
+  matrix:
+    operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    php-versions: ['7.2', '7.3', '7.4']
+name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
+env:
+  extensions: intl, pcov
+  key: cache-v1 # can be any string, change to clear the extension cache.
+steps:
+- name: Checkout
+  uses: actions/checkout@v2
+
+- name: Setup cache environment
+  id: cache-env
+  uses: shivammathur/cache-extensions@v1
+  with:
+    php-version: ${{ matrix.php-versions }}
+    extensions: ${{ env.extensions }}
+    key: ${{ env.key }}
+
+- name: Cache extensions
+  uses: actions/cache@v1
+  with:
+    path: ${{ steps.cache-env.outputs.dir }}
+    key: ${{ steps.cache-env.outputs.key }}
+    restore-keys: ${{ steps.cache-env.outputs.key }}
+
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: ${{ matrix.php-versions }}
+    extensions: ${{ env.extensions }}
+```
+
+### Cache Composer Dependencies
 
 You can persist composer's internal cache directory using the [`action/cache`](https://github.com/actions/cache "GitHub Action to cache files") GitHub Action. Dependencies cached are loaded directly instead of downloading them while installation. The files cached are available across check-runs and will reduce the workflow execution time.
 
@@ -281,16 +406,25 @@ key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
 
 ### Problem Matchers
 
+#### PHP
+
+Setup problem matchers for your `PHP` output by adding this step after the `setup-php` step. This will scan the logs for PHP errors and warnings, and surface them prominently in the GitHub Actions UI by creating annotations and log file decorations.
+
+```yaml
+- name: Setup Problem Matchers for PHP
+  run: echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+```
+
 #### PHPUnit
 
-You can setup problem matchers for your `PHPUnit` output by adding this step after the `setup-php` step. This will scan the logs for failing tests and surface that information prominently in the GitHub Actions UI by creating annotations and log file decorations.
+Setup problem matchers for your `PHPUnit` output by adding this step after the `setup-php` step. This will scan the logs for failing tests and surface that information prominently in the GitHub Actions UI by creating annotations and log file decorations.
 
 ```yaml
 - name: Setup Problem Matchers for PHPUnit
   run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 ```
 
-#### Other tools
+#### Other Tools
 
 For tools that support `checkstyle` reporting like `phpstan`, `psalm`, `php-cs-fixer` and `phpcs` you can use `cs2pr` to annotate your code.  
 For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-pull-request-from-checkstyle).  
@@ -299,7 +433,7 @@ For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-p
 
 ```yaml
 - name: Setup PHP
-  uses: shivammathur/setup-php@v1
+  uses: shivammathur/setup-php@v2
   with:
     php-version: '7.4'
     tools: cs2pr, phpstan
@@ -338,13 +472,13 @@ Examples for setting up this GitHub Action with different PHP Frameworks/Package
 
 ## :scroll: License
 
-The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). This project has multiple [dependencies](https://github.com/shivammathur/setup-php/network/dependencies "Dependencies for this PHP Action") and uses [various works](#bookmark-this-action-uses-the-following-works "Tools used by this action"). Their licenses can be found in their respective repositories.
+The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). This project has multiple [dependencies](#dependencies "Dependencies for this PHP Action"). Their licenses can be found in their respective repositories.
 
 ## :+1: Contributions
 
 Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "shivammathur/setup-php contribution guide"). If you face any issues while using this or want to suggest a feature/improvement, create an issue [here](https://github.com/shivammathur/setup-php/issues "Issues reported").
 
-## :sparkling_heart: Support this project
+## :sparkling_heart: Support This Project
 
 If this action helped you.
 
@@ -353,12 +487,16 @@ If this action helped you.
 - I maintain this in my free time, please support me with a [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") subscription or a one time contribution using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal").
 - If you need any help using this, please contact me using [Codementor](https://www.codementor.io/shivammathur "Shivam Mathur Codementor")
 
-## :bookmark: This action uses the following works
+## :bookmark: Dependencies
 
-- [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Pre-compiled ubuntu packages")
-- [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Pre-compiled nightly PHP builds")
+- [Node.js dependencies](https://github.com/shivammathur/setup-php/network/dependencies "Node.js dependencies")
+- [gplessis/dotdeb-php](https://github.com/gplessis/dotdeb-php "Packaging for end of life PHP versions")
 - [mlocati/powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager "Package to handle PHP on windows")
+- [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Packaging active PHP packages")
+- [shivammathur/cache-extensions](https://github.com/shivammathur/cache-extensions "GitHub action to help with caching PHP extensions")
 - [shivammathur/homebrew-php](https://github.com/shivammathur/homebrew-php "Tap for PHP builds for MacOS")
+- [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Nightly PHP package")
+- [shivammathur/php5-ubuntu](https://github.com/shivammathur/php5-ubuntu "Scripts to setup PHP5 versions")
 
 ## :bookmark_tabs: Further Reading
 

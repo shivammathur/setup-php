@@ -2716,15 +2716,14 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                                 pipe;
                         break;
                     case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-                        install_command =
+                        script +=
                             'sh ' +
                                 path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
                                 ' ' +
                                 extension +
                                 ' ' +
-                                version +
-                                pipe;
-                        break;
+                                version;
+                        return;
                     default:
                         install_command = 'sudo pecl install -f ' + extension + pipe;
                         break;

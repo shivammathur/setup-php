@@ -56,9 +56,11 @@ Function Add-Extension {
     }
     else {
       if($extension_version -ne '') {
-        $extension = "$extension -Version $extension_version"
+        Install-PhpExtension -Extension $extension -Version $extension_version -MinimumStability $mininum_stability -Path $php_dir
+      } else {
+        Install-PhpExtension -Extension $extension -MinimumStability $mininum_stability -Path $php_dir
       }
-      Install-PhpExtension -Extension $extension -MinimumStability $mininum_stability -Path $php_dir
+
       Add-Log $tick $extension "Installed and enabled"
     }
   }

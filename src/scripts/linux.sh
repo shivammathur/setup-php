@@ -98,6 +98,7 @@ remove_extension() {
 add_pecl_extension() {
   extension=$1
   pecl_version=$2
+  delete_extension "$extension"
   (sudo pecl install -f "$extension-$pecl_version" >/dev/null 2>&1 &&
   add_log "$tick" "$extension" "Installed and enabled") ||
   add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"
@@ -251,6 +252,7 @@ old_versions="5.[4-5]"
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y"
 existing_version=$(php-config --version | cut -c 1-3)
+[[ -z "${update}" ]] && update='false' || update="${update}"
 
 # Setup PHP
 step_log "Setup PHP"

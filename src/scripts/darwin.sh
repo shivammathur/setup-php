@@ -187,6 +187,7 @@ version=$1
 nodot_version=${1/./}
 old_versions="5.[3-5]"
 existing_version=$(php-config --version | cut -c 1-3)
+[[ -z "${update}" ]] && update='false' || update="${update}"
 
 # Setup PHP
 step_log "Setup PHP"

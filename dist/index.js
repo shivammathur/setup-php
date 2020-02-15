@@ -2679,17 +2679,17 @@ function addExtensionDarwin(extension_csv, version, pipe) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
                 const version_extension = version + extension;
-                const [extension_name, stability] = extension.split('-');
-                const prefix = yield utils.getExtensionPrefix(extension_name);
+                const [ext_name, ext_version] = extension.split('-');
+                const prefix = yield utils.getExtensionPrefix(ext_name);
                 let install_command = '';
                 switch (true) {
                     // match pre-release versions
                     case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
                         script +=
                             '\nadd_unstable_extension ' +
-                                extension_name +
+                                ext_name +
                                 ' ' +
-                                stability +
+                                ext_version +
                                 ' ' +
                                 prefix;
                         return;
@@ -2755,16 +2755,22 @@ function addExtensionWindows(extension_csv, version, pipe) {
         yield utils.asyncForEach(extensions, function (extension) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
-                const [extension_name, stability] = extension.split('-');
+                const [ext_name, ext_version] = extension.split('-');
                 const version_extension = version + extension;
+                let matches;
                 switch (true) {
                     // match pre-release versions
                     case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-                        script += '\nAdd-Extension ' + extension_name + ' ' + stability;
+                        script += '\nAdd-Extension ' + ext_name + ' ' + ext_version;
                         break;
                     // match exact versions
-                    case /.*-\d+\.\d+\.\d+/.test(version_extension):
-                        script += '\nAdd-Extension ' + extension_name + ' stable ' + stability;
+                    case /.*-\d+\.\d+\.\d+$/.test(version_extension):
+                        script += '\nAdd-Extension ' + ext_name + ' stable ' + ext_version;
+                        return;
+                    case /.*-(\d+\.\d+\.\d)+(beta|alpha|devel|snapshot)\d*/.test(version_extension):
+                        matches = /.*-(\d+\.\d+\.\d)+(beta|alpha|devel|snapshot)\d*/.exec(version_extension);
+                        script +=
+                            '\nAdd-Extension ' + ext_name + ' ' + matches[2] + ' ' + matches[1];
                         return;
                     // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
                     case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
@@ -2802,23 +2808,23 @@ function addExtensionLinux(extension_csv, version, pipe) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
                 const version_extension = version + extension;
-                const [extension_name, stability] = extension.split('-');
-                const prefix = yield utils.getExtensionPrefix(extension_name);
+                const [ext_name, ext_version] = extension.split('-');
+                const prefix = yield utils.getExtensionPrefix(ext_name);
                 let install_command = '';
                 switch (true) {
                     // match pre-release versions
                     case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
                         script +=
                             '\nadd_unstable_extension ' +
-                                extension_name +
+                                ext_name +
                                 ' ' +
-                                stability +
+                                ext_version +
                                 ' ' +
                                 prefix;
                         return;
                     // match exact versions
-                    case /.*-\d+\.\d+\.\d+/.test(version_extension):
-                        script += '\nadd_pecl_extension ' + extension_name + ' ' + stability;
+                    case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
+                        script += '\nadd_pecl_extension ' + ext_name + ' ' + ext_version;
                         return;
                     // match 5.6gearman..7.4gearman
                     case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):

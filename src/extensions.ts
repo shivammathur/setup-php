@@ -18,17 +18,17 @@ export async function addExtensionDarwin(
   await utils.asyncForEach(extensions, async function(extension: string) {
     extension = extension.toLowerCase();
     const version_extension: string = version + extension;
-    const [extension_name, stability]: string[] = extension.split('-');
-    const prefix = await utils.getExtensionPrefix(extension_name);
+    const [ext_name, ext_version]: string[] = extension.split('-');
+    const prefix = await utils.getExtensionPrefix(ext_name);
     let install_command = '';
     switch (true) {
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
         script +=
           '\nadd_unstable_extension ' +
-          extension_name +
+          ext_name +
           ' ' +
-          stability +
+          ext_version +
           ' ' +
           prefix;
         return;
@@ -94,16 +94,26 @@ export async function addExtensionWindows(
   let script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     extension = extension.toLowerCase();
-    const [extension_name, stability]: string[] = extension.split('-');
+    const [ext_name, ext_version]: string[] = extension.split('-');
     const version_extension: string = version + extension;
+    let matches: RegExpExecArray;
     switch (true) {
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-        script += '\nAdd-Extension ' + extension_name + ' ' + stability;
+        script += '\nAdd-Extension ' + ext_name + ' ' + ext_version;
         break;
       // match exact versions
-      case /.*-\d+\.\d+\.\d+/.test(version_extension):
-        script += '\nAdd-Extension ' + extension_name + ' stable ' + stability;
+      case /.*-\d+\.\d+\.\d+$/.test(version_extension):
+        script += '\nAdd-Extension ' + ext_name + ' stable ' + ext_version;
+        return;
+      case /.*-(\d+\.\d+\.\d)+(beta|alpha|devel|snapshot)\d*/.test(
+        version_extension
+      ):
+        matches = /.*-(\d+\.\d+\.\d)+(beta|alpha|devel|snapshot)\d*/.exec(
+          version_extension
+        ) as RegExpExecArray;
+        script +=
+          '\nAdd-Extension ' + ext_name + ' ' + matches[2] + ' ' + matches[1];
         return;
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
@@ -141,23 +151,23 @@ export async function addExtensionLinux(
   await utils.asyncForEach(extensions, async function(extension: string) {
     extension = extension.toLowerCase();
     const version_extension: string = version + extension;
-    const [extension_name, stability]: string[] = extension.split('-');
-    const prefix = await utils.getExtensionPrefix(extension_name);
+    const [ext_name, ext_version]: string[] = extension.split('-');
+    const prefix = await utils.getExtensionPrefix(ext_name);
     let install_command = '';
     switch (true) {
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
         script +=
           '\nadd_unstable_extension ' +
-          extension_name +
+          ext_name +
           ' ' +
-          stability +
+          ext_version +
           ' ' +
           prefix;
         return;
       // match exact versions
-      case /.*-\d+\.\d+\.\d+/.test(version_extension):
-        script += '\nadd_pecl_extension ' + extension_name + ' ' + stability;
+      case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
+        script += '\nadd_pecl_extension ' + ext_name + ' ' + ext_version;
         return;
       // match 5.6gearman..7.4gearman
       case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):

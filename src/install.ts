@@ -22,11 +22,8 @@ export async function build(
   // taking inputs
   const extension_csv: string =
     (await utils.getInput('extensions', false)) ||
-    (await utils.getInput('extension', false)) ||
-    (await utils.getInput('extension-csv', false));
-  const ini_values_csv: string =
-    (await utils.getInput('ini-values', false)) ||
-    (await utils.getInput('ini-values-csv', false));
+    (await utils.getInput('extension', false));
+  const ini_values_csv: string = await utils.getInput('ini-values', false);
   const coverage_driver: string = await utils.getInput('coverage', false);
   const pecl: string = await utils.getInput('pecl', false);
   let tools_csv: string = await utils.getInput('tools', false);

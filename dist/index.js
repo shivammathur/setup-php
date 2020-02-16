@@ -964,9 +964,10 @@ const io = __importStar(__webpack_require__(1));
  */
 function addMatchers() {
     return __awaiter(this, void 0, void 0, function* () {
-        const config_path = path.join(__dirname, '..', 'src', 'configs', 'phpunit.json');
+        const config_path = path.join(__dirname, '..', 'src', 'configs');
         const runner_dir = yield utils.getInput('RUNNER_TOOL_CACHE', false);
-        yield io.cp(config_path, runner_dir);
+        yield io.cp(path.join(config_path, 'phpunit.json'), runner_dir);
+        yield io.cp(path.join(config_path, 'php.json'), runner_dir);
     });
 }
 exports.addMatchers = addMatchers;
@@ -1703,20 +1704,13 @@ exports.getUri = getUri;
  * Helper function to get the codeception url
  *
  * @param version
- * @param php_version
  * @param suffix
  */
-function getCodeceptionUriBuilder(version, php_version, suffix) {
+function getCodeceptionUriBuilder(version, suffix) {
     return __awaiter(this, void 0, void 0, function* () {
-        switch (true) {
-            case /^5\.6$|^7\.[0|1]$/.test(php_version):
-                return ['releases', version, suffix, 'codecept.phar']
-                    .filter(Boolean)
-                    .join('/');
-            case /^7\.[2-4]$/.test(php_version):
-            default:
-                return ['releases', version, 'codecept.phar'].filter(Boolean).join('/');
-        }
+        return ['releases', version, suffix, 'codecept.phar']
+            .filter(Boolean)
+            .join('/');
     });
 }
 exports.getCodeceptionUriBuilder = getCodeceptionUriBuilder;
@@ -1728,19 +1722,55 @@ exports.getCodeceptionUriBuilder = getCodeceptionUriBuilder;
  */
 function getCodeceptionUri(version, php_version) {
     return __awaiter(this, void 0, void 0, function* () {
+        const codecept = yield getCodeceptionUriBuilder(version, '');
+        const codecept54 = yield getCodeceptionUriBuilder(version, 'php54');
+        const codecept56 = yield getCodeceptionUriBuilder(version, 'php56');
+        // Refer to https://codeception.com/builds
         switch (true) {
             case /latest/.test(version):
                 switch (true) {
-                    case /^5\.6$|^7\.[0|1]$/.test(php_version):
+                    case /5\.6|7\.[0|1]/.test(php_version):
                         return 'php56/codecept.phar';
-                    case /^7\.[2-4]$/.test(php_version):
+                    case /7\.[2-4]/.test(php_version):
                     default:
                         return 'codecept.phar';
                 }
-            case /([4-9]|\d{2,})\..*/.test(version):
-                return yield getCodeceptionUriBuilder(version, php_version, 'php56');
+            case /(^[4-9]|\d{2,})\..*/.test(version):
+                switch (true) {
+                    case /5\.6|7\.[0|1]/.test(php_version):
+                        return codecept56;
+                    case /7\.[2-4]/.test(php_version):
+                    default:
+                        return codecept;
+                }
+            case /(^2\.[4-5]\.\d+|^3\.[0-1]\.\d+).*/.test(version):
+                switch (true) {
+                    case /5\.6/.test(php_version):
+                        return codecept54;
+                    case /7\.[0-4]/.test(php_version):
+                    default:
+                        return codecept;
+                }
+            case /^2\.3\.\d+.*/.test(version):
+                switch (true) {
+                    case /5\.[4-6]/.test(php_version):
+                        return codecept54;
+                    case /^7\.[0-4]$/.test(php_version):
+                    default:
+                        return codecept;
+                }
+            case /(^2\.(1\.([6-9]|\d{2,}))|^2\.2\.\d+).*/.test(version):
+                switch (true) {
+                    case /5\.[4-5]/.test(php_version):
+                        return codecept54;
+                    case /5.6|7\.[0-4]/.test(php_version):
+                    default:
+                        return codecept;
+                }
+            case /(^2\.(1\.[0-5]|0\.\d+)|^1\.[6-8]\.\d+).*/.test(version):
+                return codecept;
             default:
-                return yield getCodeceptionUriBuilder(version, php_version, 'php54');
+                return yield codecept;
         }
     });
 }
@@ -2104,7 +2134,7 @@ exports.addCoverageXdebug = addCoverageXdebug;
 function addCoveragePCOV(version, os_version, pipe) {
     return __awaiter(this, void 0, void 0, function* () {
         let script = '\n';
-        switch (version) {
+        switch (true) {
             default:
                 script +=
                     (yield extensions.addExtension('pcov', version, os_version, true)) +
@@ -2126,8 +2156,7 @@ function addCoveragePCOV(version, os_version, pipe) {
                 script += yield utils.addLog('$tick', 'coverage: pcov', 'PCOV enabled as coverage driver', os_version);
                 // version is not supported
                 break;
-            case '5.6':
-            case '7.0':
+            case /5\.[3-6]|7\.0/.test(version):
                 script += yield utils.addLog('$cross', 'pcov', 'PHP 7.1 or newer is required', os_version);
                 break;
         }
@@ -2332,15 +2361,14 @@ function build(filename, version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
         // taking inputs
         const extension_csv = (yield utils.getInput('extensions', false)) ||
-            (yield utils.getInput('extension', false)) ||
-            (yield utils.getInput('extension-csv', false));
-        const ini_values_csv = (yield utils.getInput('ini-values', false)) ||
-            (yield utils.getInput('ini-values-csv', false));
+            (yield utils.getInput('extension', false));
+        const ini_values_csv = yield utils.getInput('ini-values', false);
         const coverage_driver = yield utils.getInput('coverage', false);
         const pecl = yield utils.getInput('pecl', false);
         let tools_csv = yield utils.getInput('tools', false);
         if (pecl == 'true' ||
-            /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv)) {
+            /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv) ||
+            /.*-(\d+\.\d+\.\d+).*/.test(extension_csv)) {
             tools_csv = 'pecl, ' + tools_csv;
         }
         let script = yield utils.readScript(filename, version, os_version);
@@ -2364,16 +2392,16 @@ exports.build = build;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const os_version = process.platform;
             let version = yield utils.getInput('php-version', true);
             version = version.length > 1 ? version.slice(0, 3) : version + '.0';
+            const os_version = process.platform;
             // check the os version and run the respective script
             let script_path = '';
             switch (os_version) {
                 case 'darwin':
                 case 'linux':
                     script_path = yield build(os_version + '.sh', version, os_version);
-                    yield exec_1.exec('sh ' + script_path + ' ' + version + ' ' + __dirname);
+                    yield exec_1.exec('bash ' + script_path + ' ' + version + ' ' + __dirname);
                     break;
                 case 'win32':
                     script_path = yield build('win32.ps1', version, os_version);
@@ -2649,21 +2677,27 @@ function addExtensionDarwin(extension_csv, version, pipe) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
                 const version_extension = version + extension;
-                const [extension_name, stability] = extension.split('-');
-                const prefix = yield utils.getExtensionPrefix(extension_name);
+                const [ext_name, ext_version] = extension.split('-');
+                const prefix = yield utils.getExtensionPrefix(ext_name);
                 let install_command = '';
                 switch (true) {
                     // match pre-release versions
                     case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
                         script +=
                             '\nadd_unstable_extension ' +
-                                extension_name +
+                                ext_name +
                                 ' ' +
-                                stability +
+                                ext_version +
                                 ' ' +
                                 prefix;
                         return;
-                    case /5\.6xdebug/.test(version_extension):
+                    case /5\.3xdebug/.test(version_extension):
+                        install_command = 'sudo pecl install -f xdebug-2.2.7' + pipe;
+                        break;
+                    case /5\.4xdebug/.test(version_extension):
+                        install_command = 'sudo pecl install -f xdebug-2.4.1' + pipe;
+                        break;
+                    case /5\.[5-6]xdebug/.test(version_extension):
                         install_command = 'sudo pecl install -f xdebug-2.5.5' + pipe;
                         break;
                     case /7\.0xdebug/.test(version_extension):
@@ -2680,15 +2714,14 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                                 pipe;
                         break;
                     case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-                        install_command =
+                        script +=
                             'sh ' +
                                 path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
                                 ' ' +
                                 extension +
                                 ' ' +
-                                version +
-                                pipe;
-                        break;
+                                version;
+                        return;
                     default:
                         install_command = 'sudo pecl install -f ' + extension + pipe;
                         break;
@@ -2720,13 +2753,23 @@ function addExtensionWindows(extension_csv, version, pipe) {
         yield utils.asyncForEach(extensions, function (extension) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
-                const [extension_name, stability] = extension.split('-');
+                const [ext_name, ext_version] = extension.split('-');
                 const version_extension = version + extension;
+                let matches;
                 switch (true) {
                     // match pre-release versions
                     case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-                        script += '\nAdd-Extension ' + extension_name + ' ' + stability;
+                        script += '\nAdd-Extension ' + ext_name + ' ' + ext_version;
                         break;
+                    // match exact versions
+                    case /.*-\d+\.\d+\.\d+$/.test(version_extension):
+                        script += '\nAdd-Extension ' + ext_name + ' stable ' + ext_version;
+                        return;
+                    case /.*-(\d+\.\d+\.\d)+(beta|alpha|devel|snapshot)\d*/.test(version_extension):
+                        matches = /.*-(\d+\.\d+\.\d)+(beta|alpha|devel|snapshot)\d*/.exec(version_extension);
+                        script +=
+                            '\nAdd-Extension ' + ext_name + ' ' + matches[2] + ' ' + matches[1];
+                        return;
                     // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
                     case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
                         script +=
@@ -2763,19 +2806,23 @@ function addExtensionLinux(extension_csv, version, pipe) {
             return __awaiter(this, void 0, void 0, function* () {
                 extension = extension.toLowerCase();
                 const version_extension = version + extension;
-                const [extension_name, stability] = extension.split('-');
-                const prefix = yield utils.getExtensionPrefix(extension_name);
+                const [ext_name, ext_version] = extension.split('-');
+                const prefix = yield utils.getExtensionPrefix(ext_name);
                 let install_command = '';
                 switch (true) {
                     // match pre-release versions
                     case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
                         script +=
                             '\nadd_unstable_extension ' +
-                                extension_name +
+                                ext_name +
                                 ' ' +
-                                stability +
+                                ext_version +
                                 ' ' +
                                 prefix;
+                        return;
+                    // match exact versions
+                    case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
+                        script += '\nadd_pecl_extension ' + ext_name + ' ' + ext_version;
                         return;
                     // match 5.6gearman..7.4gearman
                     case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
@@ -2799,7 +2846,7 @@ function addExtensionLinux(extension_csv, version, pipe) {
                     // match 7.0xdebug..7.4xdebug
                     case /^7\.[0-4]xdebug$/.test(version_extension):
                         script +=
-                            '\nupdate_extension xdebug 2.9.0' +
+                            '\nupdate_extension xdebug 2.9.1' +
                                 pipe +
                                 '\n' +
                                 (yield utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));

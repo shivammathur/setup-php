@@ -1,17 +1,43 @@
+# Function to log result of a operation
+add_log() {
+  mark=$1
+  subject=$2
+  message=$3
+  if [ "$mark" = "$tick" ]; then
+    printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
+  else
+    printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
+  fi
+}
+
+# Function to install phalcon
+install_phalcon() {
+  (
+    brew tap shivammathur/homebrew-phalcon >/dev/null 2>&1
+    brew install phalcon@"$php_version"_"$extension_major" >/dev/null 2>&1
+    sudo cp /usr/local/opt/psr@"$php_version"/psr.so "$ext_dir" >/dev/null 2>&1
+    sudo cp /usr/local/opt/phalcon@"$php_version"_"$extension_major"/phalcon.so "$ext_dir" >/dev/null 2>&1
+    add_log "$tick" "$extension" "Installed and enabled"
+  ) || add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
+}
+
+tick="✓"
+cross="✗"
 extension=$1
 extension_major=${extension: -1}
 php_version=$2
+semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
 if [ -e "$ext_dir/psr.so" ] && [ -e "$ext_dir/phalcon.so" ]; then
-  echo "extension=psr" >>"$ini_file"
-  echo "extension=phalcon" >>"$ini_file"
-  phalcon_version=$(php -d="extension=phalcon" -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
+  phalcon_version=$(php -d="extension=psr.so" -d="extension=phalcon.so" -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
   if [ "$phalcon_version" != "$extension_major" ]; then
-    brew tap shivammathur/homebrew-phalcon
-    brew install phalcon@"$php_version"_"$extension_major"
+    install_phalcon
+  else
+    echo "extension=psr.so" >>"$ini_file"
+    echo "extension=phalcon.so" >>"$ini_file"
+    add_log "$tick" "$extension" "Enabled"
   fi
 else
-  brew tap shivammathur/homebrew-phalcon
-  brew install phalcon@"$php_version"_"$extension_major"
+  install_phalcon
 fi

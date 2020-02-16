@@ -31,7 +31,12 @@ Function Add-Extension {
     [ValidateNotNull()]
     [ValidateSet('stable', 'beta', 'alpha', 'devel', 'snapshot')]
     [string]
-    $mininum_stability = 'stable'
+    $mininum_stability = 'stable',
+    [Parameter(Position = 2, Mandatory = $false)]
+    [ValidateNotNull()]
+    [ValidatePattern('^\d+(\.\d+){0,2}$')]
+    [string]
+    $extension_version = ''
   )
   try {
     $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
@@ -50,7 +55,12 @@ Function Add-Extension {
       }
     }
     else {
-      Install-PhpExtension -Extension $extension -MinimumStability $mininum_stability -Path $php_dir
+      if($extension_version -ne '') {
+        Install-PhpExtension -Extension $extension -Version $extension_version -MinimumStability $mininum_stability -Path $php_dir
+      } else {
+        Install-PhpExtension -Extension $extension -MinimumStability $mininum_stability -Path $php_dir
+      }
+
       Add-Log $tick $extension "Installed and enabled"
     }
   }
@@ -91,10 +101,7 @@ Function Add-Tool() {
   if (Test-Path $php_dir\$tool) {
     Remove-Item $php_dir\$tool
   }
-  if ($tool -eq "composer") {
-    Install-Composer -Scope System -Path $php_dir -PhpPath $php_dir
-    composer -q global config process-timeout 0
-  } elseif ($tool -eq "symfony") {
+  if ($tool -eq "symfony") {
     Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool.exe
     Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.exe" > $null 2>&1
   } else {
@@ -113,9 +120,10 @@ Function Add-Tool() {
     Add-Extension curl >$null 2>&1
     Add-Extension mbstring >$null 2>&1
     Add-Extension xml >$null 2>&1
-  }
-  if($tool -eq "cs2pr") {
+  } elseif($tool -eq "cs2pr") {
     (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr
+  } elseif($tool -eq "composer") {
+    composer -q global config process-timeout 0
   }
   if (((Get-ChildItem -Path $php_dir/* | Where-Object Name -Match "^$tool(.exe|.phar)*$").Count -gt 0)) {
     Add-Log $tick $tool "Added"
@@ -194,15 +202,22 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 
   Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
 } else {
-  $updated = Update-Php $php_dir >$null 2>&1
-  if($updated -eq $False) {
+  if((Test-Path env:update) -and $env:update -eq 'true') {
+    Update-Php $php_dir > $null 2>&1
+    $status = "Updated to"
+  } else {
     $status = "Found"
   }
 }
 
 $installed = Get-Php -Path $php_dir
 Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
-Enable-PhpExtension -Extension openssl, curl, opcache -Path $php_dir
+if($version -lt "5.5") {
+  Add-Extension openssl >$null 2>&1
+  Add-Extension curl >$null 2>&1
+} else {
+  Enable-PhpExtension -Extension openssl, curl, opcache -Path $php_dir
+}
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
 if ($version -eq 'master') {
   if($installed.ThreadSafe) {

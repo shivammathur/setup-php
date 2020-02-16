@@ -22,17 +22,15 @@ export async function build(
   // taking inputs
   const extension_csv: string =
     (await utils.getInput('extensions', false)) ||
-    (await utils.getInput('extension', false)) ||
-    (await utils.getInput('extension-csv', false));
-  const ini_values_csv: string =
-    (await utils.getInput('ini-values', false)) ||
-    (await utils.getInput('ini-values-csv', false));
+    (await utils.getInput('extension', false));
+  const ini_values_csv: string = await utils.getInput('ini-values', false);
   const coverage_driver: string = await utils.getInput('coverage', false);
   const pecl: string = await utils.getInput('pecl', false);
   let tools_csv: string = await utils.getInput('tools', false);
   if (
     pecl == 'true' ||
-    /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv)
+    /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv) ||
+    /.*-(\d+\.\d+\.\d+).*/.test(extension_csv)
   ) {
     tools_csv = 'pecl, ' + tools_csv;
   }
@@ -58,16 +56,17 @@ export async function build(
  */
 export async function run(): Promise<void> {
   try {
-    const os_version: string = process.platform;
     let version: string = await utils.getInput('php-version', true);
     version = version.length > 1 ? version.slice(0, 3) : version + '.0';
+    const os_version: string = process.platform;
+
     // check the os version and run the respective script
     let script_path = '';
     switch (os_version) {
       case 'darwin':
       case 'linux':
         script_path = await build(os_version + '.sh', version, os_version);
-        await exec('sh ' + script_path + ' ' + version + ' ' + __dirname);
+        await exec('bash ' + script_path + ' ' + version + ' ' + __dirname);
         break;
       case 'win32':
         script_path = await build('win32.ps1', version, os_version);

@@ -2,19 +2,13 @@ name: Experimental workflow
 on:
   pull_request:
     branches:
-      - nightly
-      - master
-      - develop
-      - verbose
+      - releases/v1
     paths-ignore:
       - '**.md'
       - 'examples/**'
   push:
     branches:
-      - nightly
-      - master
-      - develop
-      - verbose
+      - releases/v1
     paths-ignore:
       - '**.md'
       - 'examples/**'

@@ -96,12 +96,13 @@ add_tool() {
     if [ "$status_code" = "200" ]; then
       sudo chmod a+x "$tool_path"
       if [ "$tool" = "phive" ]; then
-        add_extension curl >/dev/null 2>&1
-        add_extension mbstring >/dev/null 2>&1
-        add_extension xml >/dev/null 2>&1
+        add_extension curl "sudo pecl install -f curl" extension >/dev/null 2>&1
+        add_extension mbstring "sudo pecl install -f mbstring" extension >/dev/null 2>&1
+        add_extension xml "sudo pecl install -f xml" extension >/dev/null 2>&1
       elif [ "$tool" = "cs2pr" ]; then
         sudo sed -i '' 's/exit(9)/exit(0)/' "$tool_path"
-        tr -d '\r' < "$tool_path" | sudo tee "$tool_path" >/dev/null 2>&1
+        tr -d '\r' < "$tool_path" | sudo tee "$tool_path.tmp" >/dev/null 2>&1 && sudo mv "$tool_path.tmp" "$tool_path"
+        sudo chmod a+x "$tool_path"
       fi
       add_log "$tick" "$tool" "Added"
     else
@@ -148,15 +149,24 @@ setup_php_and_composer() {
 tick="✓"
 cross="✗"
 version=$1
+existing_version=$(php-config --version | cut -c 1-3)
 
-# Setup PHP and composer
+# Setup PHP
 step_log "Setup PHP"
-setup_php_and_composer
+if [ "$existing_version" != "$version" ]; then
+  export HOMEBREW_NO_INSTALL_CLEANUP=TRUE >/dev/null 2>&1
+  brew tap shivammathur/homebrew-php >/dev/null 2>&1
+  brew install shivammathur/php/php@"$version" >/dev/null 2>&1
+  brew link --force --overwrite php@"$version" >/dev/null 2>&1
+  status="Installed"
+else
+  status="Found"
+fi
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
-echo "date.timezone=UTC" >>"$ini_file"
-ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
 sudo chmod 777 "$ini_file"
-mkdir -p "$(pecl config-get ext_dir)"
+echo "date.timezone=UTC" >>"$ini_file"
+ext_dir=$(php -i | grep -Ei "extension_dir => /(usr|opt)" | sed -e "s|.*=> s*||")
+sudo mkdir -p "$ext_dir"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
-add_log "$tick" "PHP" "Installed PHP $semver"
 configure_pecl
+add_log "$tick" "PHP" "$status PHP $semver"

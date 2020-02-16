@@ -2,17 +2,13 @@ name: Main workflow
 on:
   pull_request:
     branches:
-      - master
-      - develop
-      - verbose
+      - releases/v1
     paths-ignore:
       - '**.md'
       - 'examples/**'
   push:
     branches:
-      - master
-      - develop
-      - verbose
+      - releases/v1
     paths-ignore:
       - '**.md'
       - 'examples/**'

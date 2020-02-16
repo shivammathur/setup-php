@@ -177,6 +177,7 @@ if((Test-Path env:PHPTS) -and $env:PHPTS -eq 'ts') {
   $ts = $true
 }
 
+Remove-Item $php_dir\* -Recurse
 Step-Log "Setup PhpManager"
 Install-Module -Name PhpManager -Force -Scope CurrentUser
 Add-Log $tick "PhpManager" "Installed"
@@ -192,15 +193,20 @@ if (Test-Path -LiteralPath $php_dir -PathType Container) {
 Step-Log "Setup PHP"
 $status = "Installed"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
-  if ($version -lt '7.0') {
-    Install-Module -Name VcRedist -Force
-    $arch='x86'
+  if ($version -lt "5.5"){
+    $bintray = "https://dl.bintray.com/shivammathur/php"
+    Invoke-WebRequest -UseBasicParsing -Uri $bintray/php$version.7z -OutFile C:\tools\php$version.7z > $null 2>&1
+    7z x C:\tools\php$version.7z -oC:\tools\ > $null 2>&1
+  } else {
+    if ($version -lt '7.0') {
+      Install-Module -Name VcRedist -Force
+      $arch='x86'
+    }
+    if ($version -eq $master_version) { $version = 'master' }
+    Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
+    Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
+    Enable-PhpExtension -Extension openssl, curl, opcache -Path $php_dir
   }
-  if ($version -eq $master_version) {
-    $version = 'master'
-  }
-
-  Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
 } else {
   if((Test-Path env:update) -and $env:update -eq 'true') {
     Update-Php $php_dir > $null 2>&1
@@ -211,13 +217,6 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 }
 
 $installed = Get-Php -Path $php_dir
-Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
-if($version -lt "5.5") {
-  Add-Extension openssl >$null 2>&1
-  Add-Extension curl >$null 2>&1
-} else {
-  Enable-PhpExtension -Extension openssl, curl, opcache -Path $php_dir
-}
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
 if ($version -eq 'master') {
   if($installed.ThreadSafe) {

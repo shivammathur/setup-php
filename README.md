@@ -292,7 +292,7 @@ steps:
 
 - `NTS` versions are setup by default.
 - On `ubuntu` and `macOS` only NTS versions are supported.
-- On `windows` both `TS` and `NTS` versions are supported.
+- On `windows` both `TS` and `NTS` versions are supported for PHP 5.5 and above.
 
 ```yaml
 jobs:

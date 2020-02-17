@@ -20,9 +20,6 @@ inputs:
   tools:
     description: 'Setup popular tools globally.'
     required: false
-  update:
-    description: 'Update PHP if already installed.'
-    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'

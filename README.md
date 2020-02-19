@@ -472,7 +472,7 @@ Examples for setting up this GitHub Action with different PHP Frameworks/Package
 
 ## :scroll: License
 
-The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). This project has multiple [dependencies](#dependencies "Dependencies for this PHP Action"). Their licenses can be found in their respective repositories.
+The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). This project has multiple [dependencies](#bookmark-dependencies "Dependencies for this PHP Action"). Their licenses can be found in their respective repositories.
 
 ## :+1: Contributions
 

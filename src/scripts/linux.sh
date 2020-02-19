@@ -25,7 +25,6 @@ update_ppa() {
       ppa="ondrej-ubuntu-php*.list"
     fi
     find /etc/apt/sources.list.d -type f -name "$ppa" -exec sudo "$debconf_fix" apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
-    echo "true"
   fi
 }
 
@@ -60,7 +59,7 @@ add_extension() {
   install_command=$2
   prefix=$3
   if [[ "$version" =~ $old_versions ]]; then
-    install_command="ppa_updated=$(update_ppa) && ${install_command/5\.[4-5]-$extension/5-$extension=$release_version}"
+    install_command="update_ppa && ${install_command/5\.[4-5]-$extension/5-$extension=$release_version} && ppa_updated='true'"
   fi
   if ! php -m | grep -i -q -w "$extension" && [ -e "$ext_dir/$extension.so" ]; then
     # shellcheck disable=SC2046
@@ -70,7 +69,7 @@ add_extension() {
     add_log "$tick" "$extension" "Enabled"
   elif ! php -m | grep -i -q -w "$extension"; then
     (eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
-    (ppa_updated=$(update_ppa) && eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
+    (update_ppa && eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled" && ppa_updated="true") ||
     (sudo pecl install -f "$extension" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
     add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi
@@ -88,7 +87,7 @@ delete_extension() {
 # Function to disable and delete extensions
 remove_extension() {
   extension=$1
-  if [ -e /etc/php/"$version"/mods-available/"$extension".ini ]; then
+  if [[ ! "$version" =~ $old_versions ]] && [ -e /etc/php/"$version"/mods-available/"$extension".ini ]; then
     sudo phpdismod -v "$version" "$extension"
   fi
   delete_extension "$extension"
@@ -140,7 +139,8 @@ update_extension() {
   if [ "$final_version" != "$current_version"  ]; then
     version_exists=$(apt-cache policy -- *"$extension" | grep "$final_version")
     if [ -z "$version_exists" ]; then
-      ppa_updated=$(update_ppa)
+      update_ppa
+      ppa_updated="true"
     fi
     $apt_install php"$version"-"$extension"
   fi
@@ -267,7 +267,8 @@ if [ "$existing_version" != "$version" ]; then
     else
       version_exists=$(apt-cache policy -- php"$version" | grep "$version")
       if [ -z "$version_exists" ]; then
-        ppa_updated=$(update_ppa)
+        update_ppa
+        ppa_updated="true"
       fi
       $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml >/dev/null 2>&1
     fi

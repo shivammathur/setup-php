@@ -1,6 +1,6 @@
 {
   "name": "setup-php",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
   "main": "dist/index.js",
@@ -31,9 +31,9 @@
   },
   "devDependencies": {
     "@types/jest": "^25.1.2",
-    "@types/node": "^13.7.1",
-    "@typescript-eslint/eslint-plugin": "^2.19.2",
-    "@typescript-eslint/parser": "^2.19.2",
+    "@types/node": "^13.7.2",
+    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/parser": "^2.20.0",
     "@zeit/ncc": "^0.21.1",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.0",

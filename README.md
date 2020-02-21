@@ -35,6 +35,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Verbose Setup](#verbose-setup)
   - [Cache Extensions](#cache-extensions)
   - [Cache Composer Dependencies](#cache-composer-dependencies)
+  - [Cache Node.js Dependencies](#cache-nodejs-dependencies)
   - [Problem Matchers](#problem-matchers)
   - [Examples](#examples)
 - [License](#scroll-license)
@@ -338,7 +339,7 @@ jobs:
 
 ### Cache Extensions
 
-You can persist PHP extensions you setup using the [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") and [`action/cache`](https://github.com/actions/cache "GitHub Action to cache files") GitHub Actions. Extensions which take very long to setup if cached are available in the next workflow run and enabled directly which reduces the workflow execution time.  
+You can cache PHP extensions using [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") and [`action/cache`](https://github.com/actions/cache "GitHub Action to cache files") GitHub Actions. Extensions which take very long to setup if cached are available in the next workflow run and enabled directly which reduces the workflow execution time.
 
 ```yaml
 runs-on: ${{ matrix.operating-system }}
@@ -378,12 +379,12 @@ steps:
 
 ### Cache Composer Dependencies
 
-You can persist composer's internal cache directory using the [`action/cache`](https://github.com/actions/cache "GitHub Action to cache files") GitHub Action. Dependencies cached are loaded directly instead of downloading them while installation. The files cached are available across check-runs and will reduce the workflow execution time.
+If your project uses composer, you can persist composer's internal cache directory. Dependencies cached are loaded directly instead of downloading them while installation. The files cached are available across check-runs and will reduce the workflow execution time.
 
 **Note:** Please do not cache `vendor` directory using `action/cache` as that will have side-effects.
 
 ```yaml
-- name: Get Composer Cache Directory
+- name: Get composer cache directory
   id: composer-cache
   run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
@@ -394,15 +395,34 @@ You can persist composer's internal cache directory using the [`action/cache`](h
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
     restore-keys: ${{ runner.os }}-composer-
 
-- name: Install Dependencies
+- name: Install dependencies
   run: composer install --prefer-dist
 ```
 
 In the above example, if you support a range of `composer` dependencies and do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
 
 ```yaml
-key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }} 
-``` 
+key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+```
+
+### Cache Node.js Dependencies
+
+If you project has node.js dependencies, you can persist npm's or yarn's internal cache directory. Dependencies cached install faster. The files cached are available across check-runs and will reduce the workflow execution time.
+
+**Note:** Please do not cache `node_modules` directory as that will have side-effects.
+
+```yaml
+- name: Get node.js cache directory
+  id: node-cache-dir
+  run: echo "::set-output name=dir::$(npm config get cache)" # Use $(yarn cache dir) for yarn
+
+- name: Cache dependencies
+  uses: actions/cache@v1
+  with:
+    path: ${{ steps.node-cache-dir.outputs.dir }}
+    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # Use '**/yarn.lock' for yarn
+    restore-keys: ${{ runner.os }}-node-
+```
 
 ### Problem Matchers
 
@@ -411,7 +431,7 @@ key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
 Setup problem matchers for your `PHP` output by adding this step after the `setup-php` step. This will scan the logs for PHP errors and warnings, and surface them prominently in the GitHub Actions UI by creating annotations and log file decorations.
 
 ```yaml
-- name: Setup Problem Matchers for PHP
+- name: Setup problem matchers for PHP
   run: echo "::add-matcher::${{ runner.tool_cache }}/php.json"
 ```
 
@@ -420,7 +440,7 @@ Setup problem matchers for your `PHP` output by adding this step after the `setu
 Setup problem matchers for your `PHPUnit` output by adding this step after the `setup-php` step. This will scan the logs for failing tests and surface that information prominently in the GitHub Actions UI by creating annotations and log file decorations.
 
 ```yaml
-- name: Setup Problem Matchers for PHPUnit
+- name: Setup problem matchers for PHPUnit
   run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 ```
 
@@ -483,8 +503,8 @@ Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "sh
 If this action helped you.
 
 - Please star the project and share it with the community.
-- If you blog, write about your experience while using this action.
-- I maintain this in my free time, please support me with a [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") subscription or a one time contribution using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal").
+- If you blog, write about your experience of using this action.
+- Please support me with a [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") subscription or a contribution using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal") so that I'm able to actively maintain this project.
 - If you need any help using this, please contact me using [Codementor](https://www.codementor.io/shivammathur "Shivam Mathur Codementor")
 
 ## :bookmark: Dependencies

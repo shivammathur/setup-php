@@ -180,6 +180,15 @@ port_setup_php() {
   add_pecl_old "$1"
 }
 
+setup_php() {
+  action=$1
+  step_log "Setup PHP"
+  export HOMEBREW_NO_INSTALL_CLEANUP=TRUE >/dev/null 2>&1
+  brew tap shivammathur/homebrew-php >/dev/null 2>&1
+  brew "$action" shivammathur/php/php@"$version" >/dev/null 2>&1
+  brew link --force --overwrite php@"$version" >/dev/null 2>&1
+}
+
 # Variables
 tick="✓"
 cross="✗"
@@ -190,7 +199,6 @@ existing_version=$(php-config --version | cut -c 1-3)
 [[ -z "${update}" ]] && update='false' || update="${update}"
 
 # Setup PHP
-step_log "Setup PHP"
 if [[ "$version" =~ $old_versions ]]; then
   export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
   export TERM=xterm
@@ -202,17 +210,14 @@ if [[ "$version" =~ $old_versions ]]; then
   step_log "Setup PHP"
   port_setup_php $nodot_version >/dev/null 2>&1
   status="Installed"
-elif [ "$existing_version" != "$version" ] || [ "$update" = "true" ]; then
-  export HOMEBREW_NO_INSTALL_CLEANUP=TRUE >/dev/null 2>&1
-  brew tap shivammathur/homebrew-php >/dev/null 2>&1
-  brew install shivammathur/php/php@"$version" >/dev/null 2>&1
-  brew link --force --overwrite php@"$version" >/dev/null 2>&1
-  if [ "$update" = "true" ]; then
-    status="Updated to"
-  else
-    status="Installed"
-  fi
+elif [ "$existing_version" != "$version" ]; then
+  setup_php "install"
+  status="Installed"
+elif [ "$existing_version" = "$version" ] && [ "$update" = "true" ]; then
+  setup_php "upgrade"
+  status="Updated to"
 else
+  step_log "Setup PHP"
   status="Found"
 fi
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")

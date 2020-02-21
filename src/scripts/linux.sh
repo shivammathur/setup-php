@@ -25,6 +25,7 @@ update_ppa() {
       ppa="ondrej-ubuntu-php*.list"
     fi
     find /etc/apt/sources.list.d -type f -name "$ppa" -exec sudo "$debconf_fix" apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
+    ppa_updated="true"
   fi
 }
 
@@ -59,7 +60,7 @@ add_extension() {
   install_command=$2
   prefix=$3
   if [[ "$version" =~ $old_versions ]]; then
-    install_command="update_ppa && ${install_command/5\.[4-5]-$extension/5-$extension=$release_version} && ppa_updated='true'"
+    install_command="update_ppa && ${install_command/5\.[4-5]-$extension/5-$extension=$release_version}"
   fi
   if ! php -m | grep -i -q -w "$extension" && [ -e "$ext_dir/$extension.so" ]; then
     # shellcheck disable=SC2046
@@ -69,7 +70,7 @@ add_extension() {
     add_log "$tick" "$extension" "Enabled"
   elif ! php -m | grep -i -q -w "$extension"; then
     (eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
-    (update_ppa && eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled" && ppa_updated="true") ||
+    (update_ppa && eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
     (sudo pecl install -f "$extension" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
     add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi
@@ -140,7 +141,6 @@ update_extension() {
     version_exists=$(apt-cache policy -- *"$extension" | grep "$final_version")
     if [ -z "$version_exists" ]; then
       update_ppa
-      ppa_updated="true"
     fi
     $apt_install php"$version"-"$extension"
   fi
@@ -242,6 +242,28 @@ switch_version() {
   done
 }
 
+# Function to get PHP version in semver format
+php_semver() {
+  if [ ! "$version" = "8.0" ]; then
+    php"$version" -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-'
+  else
+    php -v | head -n 1 | cut -f 2 -d ' '
+  fi
+}
+
+# Function to update PHP
+update_php() {
+  update_ppa
+  initial_version=$(php_semver)
+  $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml >/dev/null 2>&1
+  updated_version=$(php_semver)
+  if [ "$updated_version" != "$initial_version" ]; then
+    status="Updated to"
+  else
+    status="Switched to"
+  fi
+}
+
 # Variables
 tick="✓"
 cross="✗"
@@ -268,15 +290,13 @@ if [ "$existing_version" != "$version" ]; then
       version_exists=$(apt-cache policy -- php"$version" | grep "$version")
       if [ -z "$version_exists" ]; then
         update_ppa
-        ppa_updated="true"
       fi
       $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml >/dev/null 2>&1
     fi
     status="Installed"
   else
     if [ "$update" = "true" ]; then
-      $apt_install php"$version" >/dev/null 2>&1
-      status="Updated to"
+      update_php
     else
       status="Switched to"
     fi
@@ -289,18 +309,13 @@ if [ "$existing_version" != "$version" ]; then
 
 else
   if [ "$update" = "true" ]; then
-    $apt_install php"$version" >/dev/null 2>&1
-    status="Updated to"
+    update_php
   else
     status="Found"
   fi
 fi
 
-semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
-if [ ! "$version" = "8.0" ]; then
-  semver=$(echo "$semver" | cut -f 1 -d '-')
-fi
-
+semver=$(php_semver)
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")

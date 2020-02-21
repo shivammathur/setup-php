@@ -287,10 +287,7 @@ if [ "$existing_version" != "$version" ]; then
     elif [[ "$version" =~ $old_versions ]] || [ "$version" = "5.3" ]; then
       setup_old_versions
     else
-      version_exists=$(apt-cache policy -- php"$version" | grep "$version")
-      if [ -z "$version_exists" ]; then
-        update_ppa
-      fi
+      update_ppa
       $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml >/dev/null 2>&1
     fi
     status="Installed"

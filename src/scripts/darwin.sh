@@ -93,7 +93,8 @@ add_tool() {
     composer -q global config process-timeout 0
     add_log "$tick" "$tool" "Added"
   else
-    tool_path=/usr/local/bin/"$tool"
+    tool_path_dir=/usr/local/bin
+    tool_path="$tool_path_dir/$tool"
     if [ ! -e "$tool_path" ]; then
       rm -rf "$tool_path"
     fi
@@ -110,7 +111,7 @@ add_tool() {
         tr -d '\r' < "$tool_path" | sudo tee "$tool_path.tmp" >/dev/null 2>&1 && sudo mv "$tool_path.tmp" "$tool_path"
         sudo chmod a+x "$tool_path"
       elif [ "$tool" = "wp-cli" ]; then
-        sudo cp "$tool_path" /usr/local/bin/wp
+        sudo cp -p "$tool_path" "$tool_path_dir"/wp
       fi
       add_log "$tick" "$tool" "Added"
     else

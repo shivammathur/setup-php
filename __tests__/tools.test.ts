@@ -278,10 +278,10 @@ describe('Tools tests', () => {
 
   it('checking getWpCliUri', async () => {
     expect(await tools.getWpCliUrl('latest')).toBe(
-      'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar'
+      'wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true'
     );
     expect(await tools.getWpCliUrl('2.4.0')).toBe(
-      'https://github.com/wp-cli/wp-cli/releases/download/v2.4.0/wp-cli-2.4.0.phar'
+      'wp-cli/wp-cli/releases/download/v2.4.0/wp-cli-2.4.0.phar'
     );
   });
 
@@ -393,7 +393,7 @@ describe('Tools tests', () => {
       'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_linux_amd64 symfony'
     );
     expect(script).toContain(
-      'add_tool https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar wp-cli'
+      'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli'
     );
     expect(script).toContain('add_pecl');
     expect(script).toContain('add_composer_tool phinx phinx robmorgan/');
@@ -443,7 +443,7 @@ describe('Tools tests', () => {
       'add_tool https://github.com/symfony/cli/releases/download/v1.2.3/symfony_darwin_amd64 symfony'
     );
     expect(script).toContain(
-      'add_tool https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar wp-cli'
+      'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli'
     );
     expect(script).toContain('add_log "$tick" "phpize" "Added"');
     expect(script).toContain('add_log "$tick" "php-config" "Added"');
@@ -477,7 +477,7 @@ describe('Tools tests', () => {
       'Add-Tool https://github.com/symfony/cli/releases/latest/download/symfony_windows_amd64.exe symfony'
     );
     expect(script).toContain(
-      'Add-Tool https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar wp-cli'
+      'Add-Tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli'
     );
     expect(script).toContain('phpize is not a windows tool');
     expect(script).toContain('php-config is not a windows tool');

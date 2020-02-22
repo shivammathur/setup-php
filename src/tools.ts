@@ -316,14 +316,15 @@ export async function getSymfonyUri(
 export async function getWpCliUrl(version: string): Promise<string> {
   switch (version) {
     case 'latest':
-      return 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar';
+      return 'wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true';
     default:
-      return (
-        'https://github.com/wp-cli/wp-cli/releases/download/v' +
-        version +
-        '/wp-cli-' +
-        version +
-        '.phar'
+      return await getUri(
+        'wp-cli',
+        '-' + version + '.phar',
+        version,
+        'wp-cli/wp-cli/releases',
+        'v',
+        'download'
       );
   }
 }
@@ -544,7 +545,7 @@ export async function addTools(
         script += await addArchive('symfony', version, url, os_version);
         break;
       case 'wp-cli':
-        url = await getWpCliUrl(version);
+        url = github + (await getWpCliUrl(version));
         script += await addArchive(tool, version, url, os_version);
         break;
       default:

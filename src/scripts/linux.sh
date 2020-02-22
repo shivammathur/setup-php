@@ -150,7 +150,8 @@ update_extension() {
 add_tool() {
   url=$1
   tool=$2
-  tool_path=/usr/local/bin/"$tool"
+  tool_path_dir=/usr/local/bin
+  tool_path="$tool_path_dir/$tool"
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
   fi
@@ -166,7 +167,7 @@ add_tool() {
       add_extension mbstring "$apt_install php$version-mbstring" extension >/dev/null 2>&1
       add_extension xml "$apt_install php$version-xml" extension >/dev/null 2>&1
     elif [ "$tool" = "wp-cli" ]; then
-      sudo cp "$tool_path" /usr/local/bin/wp
+      sudo cp -p "$tool_path" "$tool_path_dir"/wp
     fi
     add_log "$tick" "$tool" "Added"
   else

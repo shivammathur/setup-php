@@ -124,6 +124,8 @@ Function Add-Tool() {
     (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr
   } elseif($tool -eq "composer") {
     composer -q global config process-timeout 0
+  } elseif($tool -eq "wp-cli") {
+    Copy-Item $php_dir\wp-cli.bat -Destination $php_dir\wp.bat
   }
   if (((Get-ChildItem -Path $php_dir/* | Where-Object Name -Match "^$tool(.exe|.phar)*$").Count -gt 0)) {
     Add-Log $tick $tool "Added"

@@ -202,7 +202,7 @@ setup_master() {
   tar_file=php_"$version"%2Bubuntu"$(lsb_release -r -s)".tar.xz
   install_dir=~/php/"$version"
   sudo mkdir -m 777 -p ~/php
-  update_ppa && $apt_install libicu64 libicu-dev >/dev/null 2>&1
+  update_ppa && $apt_install libicu-dev >/dev/null 2>&1
   curl -SLO https://dl.bintray.com/shivammathur/php/"$tar_file" >/dev/null 2>&1
   sudo tar xf "$tar_file" -C ~/php >/dev/null 2>&1
   rm -rf "$tar_file"

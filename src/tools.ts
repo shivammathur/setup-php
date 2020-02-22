@@ -309,6 +309,26 @@ export async function getSymfonyUri(
 }
 
 /**
+ * Function to get the WP-CLI url
+ *
+ * @param version
+ */
+export async function getWpCliUrl(version: string): Promise<string> {
+  switch (version) {
+    case 'latest':
+      return 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar';
+    default:
+      return (
+        'https://github.com/wp-cli/wp-cli/releases/download/v' +
+        version +
+        '/wp-cli-' +
+        version +
+        '.phar'
+      );
+  }
+}
+
+/**
  * Function to add/move composer in the tools list
  *
  * @param tools
@@ -522,6 +542,10 @@ export async function addTools(
         uri = await getSymfonyUri(version, os_version);
         url = github + 'symfony/cli/' + uri;
         script += await addArchive('symfony', version, url, os_version);
+        break;
+      case 'wp-cli':
+        url = await getWpCliUrl(version);
+        script += await addArchive(tool, version, url, os_version);
         break;
       default:
         script += await utils.addLog(

@@ -165,6 +165,8 @@ add_tool() {
       add_extension curl "$apt_install php$version-curl" extension >/dev/null 2>&1
       add_extension mbstring "$apt_install php$version-mbstring" extension >/dev/null 2>&1
       add_extension xml "$apt_install php$version-xml" extension >/dev/null 2>&1
+    elif [ "$tool" = "wp-cli" ]; then
+      sudo cp "$tool_path" /usr/local/bin/wp
     fi
     add_log "$tick" "$tool" "Added"
   else

@@ -1864,6 +1864,26 @@ function getSymfonyUri(version, os_version) {
 }
 exports.getSymfonyUri = getSymfonyUri;
 /**
+ * Function to get the WP-CLI url
+ *
+ * @param version
+ */
+function getWpCliUrl(version) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (version) {
+            case 'latest':
+                return 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar';
+            default:
+                return ('https://github.com/wp-cli/wp-cli/releases/download/v' +
+                    version +
+                    '/wp-cli-' +
+                    version +
+                    '.phar');
+        }
+    });
+}
+exports.getWpCliUrl = getWpCliUrl;
+/**
  * Function to add/move composer in the tools list
  *
  * @param tools
@@ -2047,6 +2067,10 @@ function addTools(tools_csv, php_version, os_version) {
                         uri = yield getSymfonyUri(version, os_version);
                         url = github + 'symfony/cli/' + uri;
                         script += yield addArchive('symfony', version, url, os_version);
+                        break;
+                    case 'wp-cli':
+                        url = yield getWpCliUrl(version);
+                        script += yield addArchive(tool, version, url, os_version);
                         break;
                     default:
                         script += yield utils.addLog('$cross', tool, 'Tool ' + tool + ' is not supported', os_version);

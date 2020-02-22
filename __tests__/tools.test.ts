@@ -276,6 +276,15 @@ describe('Tools tests', () => {
     ]);
   });
 
+  it('checking getWpCliUri', async () => {
+    expect(await tools.getWpCliUrl('latest')).toBe(
+      'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar'
+    );
+    expect(await tools.getWpCliUrl('2.4.0')).toBe(
+      'https://github.com/wp-cli/wp-cli/releases/download/v2.4.0/wp-cli-2.4.0.phar'
+    );
+  });
+
   it('checking addArchive', async () => {
     let script: string = await tools.addArchive(
       'tool',
@@ -358,7 +367,7 @@ describe('Tools tests', () => {
 
   it('checking addTools on linux', async () => {
     const script: string = await tools.addTools(
-      'cs2pr, php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, symfony',
+      'cs2pr, php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, symfony, wp-cli',
       '7.4',
       'linux'
     );
@@ -383,6 +392,9 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_linux_amd64 symfony'
     );
+    expect(script).toContain(
+      'add_tool https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar wp-cli'
+    );
     expect(script).toContain('add_pecl');
     expect(script).toContain('add_composer_tool phinx phinx robmorgan/');
     expect(script).toContain('add_composer_tool phinx phinx:1.2.3 robmorgan/');
@@ -392,7 +404,7 @@ describe('Tools tests', () => {
   });
   it('checking addTools on darwin', async () => {
     const script: string = await tools.addTools(
-      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, cs2pr:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3',
+      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, cs2pr:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3, wp-cli',
       '7.4',
       'darwin'
     );
@@ -430,12 +442,15 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'add_tool https://github.com/symfony/cli/releases/download/v1.2.3/symfony_darwin_amd64 symfony'
     );
+    expect(script).toContain(
+      'add_tool https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar wp-cli'
+    );
     expect(script).toContain('add_log "$tick" "phpize" "Added"');
     expect(script).toContain('add_log "$tick" "php-config" "Added"');
   });
   it('checking addTools on windows', async () => {
     const script: string = await tools.addTools(
-      'codeception, cs2pr, deployer, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, does_not_exit',
+      'codeception, cs2pr, deployer, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, wp-cli, does_not_exit',
       '7.4',
       'win32'
     );
@@ -460,6 +475,9 @@ describe('Tools tests', () => {
     );
     expect(script).toContain(
       'Add-Tool https://github.com/symfony/cli/releases/latest/download/symfony_windows_amd64.exe symfony'
+    );
+    expect(script).toContain(
+      'Add-Tool https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar wp-cli'
     );
     expect(script).toContain('phpize is not a windows tool');
     expect(script).toContain('php-config is not a windows tool');

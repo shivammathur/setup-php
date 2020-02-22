@@ -109,6 +109,8 @@ add_tool() {
         sudo sed -i '' 's/exit(9)/exit(0)/' "$tool_path"
         tr -d '\r' < "$tool_path" | sudo tee "$tool_path.tmp" >/dev/null 2>&1 && sudo mv "$tool_path.tmp" "$tool_path"
         sudo chmod a+x "$tool_path"
+      elif [ "$tool" = "wp-cli" ]; then
+        sudo cp "$tool_path" /usr/local/bin/wp
       fi
       add_log "$tick" "$tool" "Added"
     else

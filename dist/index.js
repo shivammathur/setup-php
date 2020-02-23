@@ -2711,6 +2711,11 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                                 ' ' +
                                 prefix;
                         return;
+                    // match exact versions
+                    case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
+                        script +=
+                            '\nadd_pecl_extension ' + ext_name + ' ' + ext_version + ' ' + prefix;
+                        return;
                     case /5\.3xdebug/.test(version_extension):
                         install_command = 'sudo pecl install -f xdebug-2.2.7' + pipe;
                         break;
@@ -2748,7 +2753,7 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                 }
                 script +=
                     '\nadd_extension ' +
-                        ext_name +
+                        extension +
                         ' "' +
                         install_command +
                         '" ' +
@@ -2842,7 +2847,8 @@ function addExtensionLinux(extension_csv, version, pipe) {
                         return;
                     // match exact versions
                     case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
-                        script += '\nadd_pecl_extension ' + ext_name + ' ' + ext_version;
+                        script +=
+                            '\nadd_pecl_extension ' + ext_name + ' ' + ext_version + ' ' + prefix;
                         return;
                     // match 5.6gearman..7.4gearman
                     case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):

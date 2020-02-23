@@ -38,7 +38,7 @@ describe('Extension tests', () => {
       'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-pcov'
     );
     expect(linux).toContain('add_unstable_extension ast beta extension');
-    expect(linux).toContain('add_pecl_extension grpc 1.2.3');
+    expect(linux).toContain('add_pecl_extension grpc 1.2.3 extension');
     expect(linux).toContain(
       'add_unstable_extension xdebug alpha zend_extension'
     );
@@ -74,7 +74,7 @@ describe('Extension tests', () => {
     expect(darwin).toContain('sudo pecl install -f xdebug');
     expect(darwin).toContain('sudo pecl install -f pcov');
     expect(darwin).toContain('add_unstable_extension ast beta extension');
-    expect(darwin).toContain('sudo pecl install -f grpc-1.2.3');
+    expect(darwin).toContain('add_pecl_extension grpc 1.2.3 extension');
 
     darwin = await extensions.addExtension('phalcon3', '7.0', 'darwin');
     expect(darwin).toContain('phalcon_darwin.sh phalcon3 7.0');

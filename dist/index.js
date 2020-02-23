@@ -2748,7 +2748,7 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                 }
                 script +=
                     '\nadd_extension ' +
-                        extension +
+                        ext_name +
                         ' "' +
                         install_command +
                         '" ' +

@@ -69,7 +69,7 @@ export async function addExtensionDarwin(
     }
     script +=
       '\nadd_extension ' +
-      extension +
+      ext_name +
       ' "' +
       install_command +
       '" ' +

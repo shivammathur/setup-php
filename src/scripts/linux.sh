@@ -86,8 +86,6 @@ add_extension() {
     install_command="update_ppa && ${install_command/5\.[4-5]-$extension/5-$extension=$release_version}"
   fi
   if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    # shellcheck disable=SC2046
-    $apt_install $(apt-cache depends php"$version"-"$extension" 2>/dev/null | awk '/Depends:/{print$2}') >/dev/null 2>&1
     echo "$prefix=$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
   elif check_extension "$extension"; then
     add_log "$tick" "$extension" "Enabled"

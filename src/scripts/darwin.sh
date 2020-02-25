@@ -95,7 +95,6 @@ add_unstable_extension() {
 add_tool() {
   url=$1
   tool=$2
-  tool_path_dir=/usr/local/bin
   tool_path="$tool_path_dir/$tool"
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
@@ -186,7 +185,8 @@ tick="✓"
 cross="✗"
 version=$1
 old_versions="5.[3-5]"
-php5=/usr/local/php5
+php5="/usr/local/php5"
+tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version | cut -c 1-3)
 [[ -z "${update}" ]] && update='false' || update="${update}"
 
@@ -205,7 +205,7 @@ else
   status="Found"
 fi
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
-sudo chmod 777 "$ini_file"
+sudo chmod 777 "$ini_file" "$tool_path_dir"
 echo "date.timezone=UTC" >>"$ini_file"
 echo "detect_unicode=Off" >>"$ini_file"
 ext_dir=$(php -i | grep -Ei "extension_dir => /usr" | sed -e "s|.*=> s*||")

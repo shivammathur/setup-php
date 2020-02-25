@@ -148,7 +148,6 @@ update_extension() {
 add_tool() {
   url=$1
   tool=$2
-  tool_path_dir=/usr/local/bin
   tool_path="$tool_path_dir/$tool"
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
@@ -274,6 +273,7 @@ version=$1
 old_versions="5.[4-5]"
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y"
+tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version | cut -c 1-3)
 [[ -z "${update}" ]] && update='false' || update="${update}"
 
@@ -317,5 +317,5 @@ semver=$(php_semver)
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
-sudo chmod 777 "$ini_file"
+sudo chmod 777 "$ini_file" "$tool_path_dir"
 add_log "$tick" "PHP" "$status PHP $semver"

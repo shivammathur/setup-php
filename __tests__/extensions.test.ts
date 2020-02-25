@@ -63,6 +63,12 @@ describe('Extension tests', () => {
     linux = await extensions.addExtension('phalcon3, phalcon4', '7.3', 'linux');
     expect(linux).toContain('phalcon.sh phalcon3 7.3');
     expect(linux).toContain('phalcon.sh phalcon4 7.3');
+
+    linux = await extensions.addExtension('blackfire', '7.3', 'linux');
+    expect(linux).toContain('blackfire.sh 7.3 73');
+
+    linux = await extensions.addExtension('blackfire-1.31.0', '7.3', 'linux');
+    expect(linux).toContain('blackfire.sh 7.3 73 1.31.0');
   });
 
   it('checking addExtensionOnDarwin', async () => {

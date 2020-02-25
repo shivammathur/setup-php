@@ -367,7 +367,7 @@ describe('Tools tests', () => {
 
   it('checking addTools on linux', async () => {
     const script: string = await tools.addTools(
-      'cs2pr, php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, symfony, wp-cli',
+      'cs2pr, flex, php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, symfony, wp-cli',
       '7.4',
       'linux'
     );
@@ -396,6 +396,7 @@ describe('Tools tests', () => {
       'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli'
     );
     expect(script).toContain('add_pecl');
+    expect(script).toContain('add_composer_tool flex flex symfony/');
     expect(script).toContain('add_composer_tool phinx phinx robmorgan/');
     expect(script).toContain('add_composer_tool phinx phinx:1.2.3 robmorgan/');
     expect(script).toContain('add_devtools');
@@ -404,7 +405,7 @@ describe('Tools tests', () => {
   });
   it('checking addTools on darwin', async () => {
     const script: string = await tools.addTools(
-      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, cs2pr:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3, wp-cli',
+      'flex, phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, cs2pr:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3, wp-cli',
       '7.4',
       'darwin'
     );
@@ -429,6 +430,7 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar psalm'
     );
+    expect(script).toContain('add_composer_tool flex flex symfony/');
     expect(script).toContain('add_composer_tool phinx phinx robmorgan/');
     expect(script).toContain(
       'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'
@@ -450,7 +452,7 @@ describe('Tools tests', () => {
   });
   it('checking addTools on windows', async () => {
     const script: string = await tools.addTools(
-      'codeception, cs2pr, deployer, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, wp-cli, does_not_exit',
+      'codeception, cs2pr, deployer, flex, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, wp-cli, does_not_exit',
       '7.4',
       'win32'
     );
@@ -460,6 +462,7 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'Add-Tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
     );
+    expect(script).toContain('Add-Composer-Tool flex flex symfony/');
     expect(script).toContain(
       'Add-Tool https://deployer.org/deployer.phar deployer'
     );

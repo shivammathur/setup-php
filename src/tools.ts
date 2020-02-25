@@ -517,6 +517,9 @@ export async function addTools(
         url = await getDeployerUrl(version);
         script += await addArchive(tool, version, url, os_version);
         break;
+      case 'flex':
+        script += await addPackage(tool, release, 'symfony/', os_version);
+        break;
       case 'phinx':
         script += await addPackage(tool, release, 'robmorgan/', os_version);
         break;

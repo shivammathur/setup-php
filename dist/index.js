@@ -2042,6 +2042,9 @@ function addTools(tools_csv, php_version, os_version) {
                         url = yield getDeployerUrl(version);
                         script += yield addArchive(tool, version, url, os_version);
                         break;
+                    case 'flex':
+                        script += yield addPackage(tool, release, 'symfony/', os_version);
+                        break;
                     case 'phinx':
                         script += yield addPackage(tool, release, 'robmorgan/', os_version);
                         break;

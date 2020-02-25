@@ -372,7 +372,7 @@ describe('Tools tests', () => {
       'linux'
     );
     expect(script).toContain(
-      'add_tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
+      'add_tool https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
@@ -410,7 +410,7 @@ describe('Tools tests', () => {
       'darwin'
     );
     expect(script).toContain(
-      'add_tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
+      'add_tool https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr'
@@ -457,7 +457,7 @@ describe('Tools tests', () => {
       'win32'
     );
     expect(script).toContain(
-      'Add-Tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
+      'Add-Tool https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'Add-Tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
@@ -494,7 +494,7 @@ describe('Tools tests', () => {
       'win32'
     );
     expect(script).toContain(
-      'Add-Tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
+      'Add-Tool https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'Add-Composer-Tool prestissimo prestissimo hirak/'

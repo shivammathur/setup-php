@@ -498,8 +498,10 @@ export async function addTools(
         script += await addArchive(tool, version, url, os_version);
         break;
       case 'composer':
-        url =
-          github + 'composer/composer/releases/latest/download/composer.phar';
+        // If RC is released as latest release, switch to getcomposer.
+        // Prefered source is GitHub as it is faster.
+        // url = github + 'composer/composer/releases/latest/download/composer.phar';
+        url = 'https://getcomposer.org/composer-stable.phar';
         script += await addArchive(tool, version, url, os_version);
         break;
       case 'codeception':

@@ -223,7 +223,7 @@ describe('Tools tests', () => {
     );
   });
 
-  it('checking getDeployerUri', async () => {
+  it('checking addComposer', async () => {
     expect(await tools.addComposer(['a', 'b'])).toStrictEqual([
       'composer',
       'a',

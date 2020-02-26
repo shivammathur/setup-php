@@ -2733,6 +2733,18 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                                 ' ' +
                                 version;
                         return;
+                    case /^blackfire(-\d+\.\d+\.\d+)?$/.test(extension):
+                        script +=
+                            '\nsh ' +
+                                path.join(__dirname, '../src/scripts/ext/blackfire_darwin.sh') +
+                                ' ' +
+                                version +
+                                ' ' +
+                                (yield utils.getMinorVersion(version)).replace('.', '');
+                        if (ext_version) {
+                            script += ' ' + ext_version;
+                        }
+                        return;
                     default:
                         install_command = 'sudo pecl install -f ' + extension + pipe;
                         break;
@@ -2768,6 +2780,19 @@ function addExtensionWindows(extension_csv, version, pipe) {
                 const version_extension = version + extension;
                 let matches;
                 switch (true) {
+                    // match blackfire...blackfire-1.31.0
+                    case /^blackfire(-\d+\.\d+\.\d+)?$/.test(extension):
+                        script +=
+                            '\nsh ' +
+                                path.join(__dirname, '../src/scripts/ext/blackfire.ps1') +
+                                ' ' +
+                                version +
+                                ' ' +
+                                (yield utils.getMinorVersion(version)).replace('.', '');
+                        if (ext_version) {
+                            script += ' ' + ext_version;
+                        }
+                        return;
                     // match pre-release versions
                     case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
                         script += '\nAdd-Extension ' + ext_name + ' ' + ext_version;

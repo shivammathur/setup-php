@@ -1,0 +1,32 @@
+# GitHub Action for blackfire
+name: Profiling with blackfire
+on: [push, pull_request]
+jobs:
+  bedrock:
+    name: Blackfire (PHP ${{ matrix.php-versions }})
+    runs-on: ${{ matrix.operating-system }}
+    services:
+      blackfire:
+        image: blackfire/blackfire
+        ports:
+          - 8707:8707
+        env:
+          BLACKFIRE_SERVER_ID: "<id>"
+          BLACKFIRE_SERVER_TOKEN: "<token>"
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        php-versions: ['7.1', '7.2', '7.3', '7.4']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP, with composer and extensions
+        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: blackfire-1.30.0
+          ini-values: blackfire.agent_socket=tcp://localhost:8707
+      - name: Profile
+        # Note that blackfire agent is not installed. So an implementation with the sdk is required!
+        run: php your-blackfire-sdk-script.php

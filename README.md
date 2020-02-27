@@ -107,6 +107,8 @@ with:
   extensions: xdebug-beta
 ```
 
+- Blackfire PHP extension is available for install.
+
 - Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
 
 ## :wrench: Tools Support
@@ -489,6 +491,7 @@ Examples for setting up this GitHub Action with different PHP Frameworks/Package
 |Yii2 Starter Kit with `MySQL`|`ubuntu`|[yii2-mysql.yml](./examples/yii2-mysql.yml "GitHub Action for Yii2 Starter Kit with MySQL")|
 |Yii2 Starter Kit with `PostgreSQL`|`ubuntu`|[yii2-postgres.yml](./examples/yii2-postgres.yml "GitHub Action for Yii2 Starter Kit with PostgreSQL")|
 |Zend Framework|`macOS`, `ubuntu` and `windows`|[zend-framework.yml](./examples/zend-framework.yml "GitHub Action for Zend Framework")|
+|Blackfire|`macOS`, `ubuntu` and `windows`|[blackfire.yml](./examples/blackfire.yml "GitHub Action using blackfire")|
 
 ## :scroll: License
 

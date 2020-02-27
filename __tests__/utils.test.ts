@@ -161,4 +161,11 @@ describe('Utils tests', () => {
       'Platform fedora is not supported'
     );
   });
+
+  it('checking getMinorVersion', async () => {
+    expect(await utils.getMinorVersion('7.14.0')).toEqual('7.14');
+    expect(await utils.getMinorVersion('7.4')).toEqual('7.4');
+    expect(await utils.getMinorVersion('7.4.1')).toEqual('7.4');
+    expect(await utils.getMinorVersion('7.aa')).toEqual('7.aa');
+  });
 });

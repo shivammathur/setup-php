@@ -261,3 +261,14 @@ export async function suppressOutput(os_version: string): Promise<string> {
       );
   }
 }
+
+export async function getMinorVersion(version: string): Promise<string> {
+  const regex = /^\d+\.\d+/;
+  const match = version.match(regex);
+
+  if (match === null) {
+    return version;
+  }
+
+  return match[0];
+}

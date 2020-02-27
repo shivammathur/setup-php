@@ -262,13 +262,20 @@ export async function suppressOutput(os_version: string): Promise<string> {
   }
 }
 
-export async function getMinorVersion(version: string): Promise<string> {
-  const regex = /^\d+\.\d+/;
-  const match = version.match(regex);
-
-  if (match === null) {
-    return version;
+/**
+ * Function to get Blackfire version
+ *
+ * @param blackfire_version
+ */
+export async function getBlackfireVersion(
+  blackfire_version: null | undefined | string
+): Promise<string> {
+  switch (blackfire_version) {
+    case null:
+    case undefined:
+    case '':
+      return '1.31.0';
+    default:
+      return blackfire_version;
   }
-
-  return match[0];
 }

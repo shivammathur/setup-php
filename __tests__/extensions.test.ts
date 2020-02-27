@@ -27,10 +27,10 @@ describe('Extension tests', () => {
     expect(win32).toContain('Platform fedora is not supported');
 
     win32 = await extensions.addExtension('blackfire', '7.3', 'win32');
-    expect(win32).toContain('blackfire.ps1 73');
+    expect(win32).toContain('blackfire.ps1 7.3 1.31.0');
 
     win32 = await extensions.addExtension('blackfire-1.31.0', '7.3', 'win32');
-    expect(win32).toContain('blackfire.ps1 73 1.31.0');
+    expect(win32).toContain('blackfire.ps1 7.3 1.31.0');
   });
 
   it('checking addExtensionOnLinux', async () => {
@@ -71,10 +71,10 @@ describe('Extension tests', () => {
     expect(linux).toContain('phalcon.sh phalcon4 7.3');
 
     linux = await extensions.addExtension('blackfire', '7.3', 'linux');
-    expect(linux).toContain('blackfire.sh 7.3 73');
+    expect(linux).toContain('blackfire.sh 7.3 1.31.0');
 
     linux = await extensions.addExtension('blackfire-1.31.0', '7.3', 'linux');
-    expect(linux).toContain('blackfire.sh 7.3 73 1.31.0');
+    expect(linux).toContain('blackfire.sh 7.3 1.31.0');
   });
 
   it('checking addExtensionOnDarwin', async () => {
@@ -133,10 +133,10 @@ describe('Extension tests', () => {
     expect(darwin).toContain('sudo pecl install -f imagick');
 
     darwin = await extensions.addExtension('blackfire', '7.3', 'darwin');
-    expect(darwin).toContain('blackfire_darwin.sh 7.3 73');
+    expect(darwin).toContain('blackfire_darwin.sh 7.3 1.31.0');
 
     darwin = await extensions.addExtension('blackfire-1.31.0', '7.3', 'darwin');
-    expect(darwin).toContain('blackfire_darwin.sh 7.3 73 1.31.0');
+    expect(darwin).toContain('blackfire_darwin.sh 7.3 1.31.0');
 
     darwin = await extensions.addExtension(
       'does_not_exist',

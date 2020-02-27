@@ -1247,17 +1247,24 @@ function suppressOutput(os_version) {
     });
 }
 exports.suppressOutput = suppressOutput;
-function getMinorVersion(version) {
+/**
+ * Function to get Blackfire version
+ *
+ * @param blackfire_version
+ */
+function getBlackfireVersion(blackfire_version) {
     return __awaiter(this, void 0, void 0, function* () {
-        const regex = /^\d+\.\d+/;
-        const match = version.match(regex);
-        if (match === null) {
-            return version;
+        switch (blackfire_version) {
+            case null:
+            case undefined:
+            case '':
+                return '1.31.0';
+            default:
+                return blackfire_version;
         }
-        return match[0];
     });
 }
-exports.getMinorVersion = getMinorVersion;
+exports.getBlackfireVersion = getBlackfireVersion;
 
 
 /***/ }),
@@ -2717,18 +2724,15 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                 const prefix = yield utils.getExtensionPrefix(ext_name);
                 let install_command = '';
                 switch (true) {
-                    case /^blackfire(-\d+\.\d+\.\d+)?$/.test(extension):
-                        script +=
-                            '\nsh ' +
+                    case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
+                        install_command =
+                            'bash ' +
                                 path.join(__dirname, '../src/scripts/ext/blackfire_darwin.sh') +
                                 ' ' +
                                 version +
                                 ' ' +
-                                (yield utils.getMinorVersion(version)).replace('.', '');
-                        if (ext_version) {
-                            script += ' ' + ext_version;
-                        }
-                        return;
+                                (yield utils.getBlackfireVersion(ext_version));
+                        break;
                     // match pre-release versions
                     case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
                         script +=
@@ -2811,15 +2815,14 @@ function addExtensionWindows(extension_csv, version, pipe) {
                 let matches;
                 switch (true) {
                     // match blackfire...blackfire-1.31.0
-                    case /^blackfire(-\d+\.\d+\.\d+)?$/.test(extension):
+                    case /^(5\.[4-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
                         script +=
                             '\n& ' +
                                 path.join(__dirname, '../src/scripts/ext/blackfire.ps1') +
                                 ' ' +
-                                (yield utils.getMinorVersion(version)).replace('.', '');
-                        if (ext_version) {
-                            script += ' ' + ext_version;
-                        }
+                                version +
+                                ' ' +
+                                (yield utils.getBlackfireVersion(ext_version));
                         return;
                     // match pre-release versions
                     case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
@@ -2875,18 +2878,15 @@ function addExtensionLinux(extension_csv, version, pipe) {
                 let install_command = '';
                 switch (true) {
                     // match blackfire... blackfire-1.31.0
-                    case /^blackfire(-\d+\.\d+\.\d+)?$/.test(extension):
-                        script +=
-                            '\nsh ' +
+                    case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
+                        install_command =
+                            'bash ' +
                                 path.join(__dirname, '../src/scripts/ext/blackfire.sh') +
                                 ' ' +
                                 version +
                                 ' ' +
-                                (yield utils.getMinorVersion(version)).replace('.', '');
-                        if (ext_version) {
-                            script += ' ' + ext_version;
-                        }
-                        return;
+                                (yield utils.getBlackfireVersion(ext_version));
+                        break;
                     // match pre-release versions
                     case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
                         script +=

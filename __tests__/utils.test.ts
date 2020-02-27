@@ -162,10 +162,10 @@ describe('Utils tests', () => {
     );
   });
 
-  it('checking getMinorVersion', async () => {
-    expect(await utils.getMinorVersion('7.14.0')).toEqual('7.14');
-    expect(await utils.getMinorVersion('7.4')).toEqual('7.4');
-    expect(await utils.getMinorVersion('7.4.1')).toEqual('7.4');
-    expect(await utils.getMinorVersion('7.aa')).toEqual('7.aa');
+  it('checking getBlackfireVersion', async () => {
+    expect(await utils.getBlackfireVersion('')).toEqual('1.31.0');
+    expect(await utils.getBlackfireVersion(undefined)).toEqual('1.31.0');
+    expect(await utils.getBlackfireVersion(null)).toEqual('1.31.0');
+    expect(await utils.getBlackfireVersion('1.32.0')).toEqual('1.32.0');
   });
 });

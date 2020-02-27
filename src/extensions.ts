@@ -22,19 +22,17 @@ export async function addExtensionDarwin(
     const prefix = await utils.getExtensionPrefix(ext_name);
     let install_command = '';
     switch (true) {
-      case /^blackfire(-\d+\.\d+\.\d+)?$/.test(extension):
-        script +=
-          '\nsh ' +
+      case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
+        version_extension
+      ):
+        install_command =
+          'bash ' +
           path.join(__dirname, '../src/scripts/ext/blackfire_darwin.sh') +
           ' ' +
           version +
           ' ' +
-          (await utils.getMinorVersion(version)).replace('.', '');
-
-        if (ext_version) {
-          script += ' ' + ext_version;
-        }
-        return;
+          (await utils.getBlackfireVersion(ext_version));
+        break;
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
         script +=
@@ -117,16 +115,16 @@ export async function addExtensionWindows(
     let matches: RegExpExecArray;
     switch (true) {
       // match blackfire...blackfire-1.31.0
-      case /^blackfire(-\d+\.\d+\.\d+)?$/.test(extension):
+      case /^(5\.[4-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
+        version_extension
+      ):
         script +=
           '\n& ' +
           path.join(__dirname, '../src/scripts/ext/blackfire.ps1') +
           ' ' +
-          (await utils.getMinorVersion(version)).replace('.', '');
-
-        if (ext_version) {
-          script += ' ' + ext_version;
-        }
+          version +
+          ' ' +
+          (await utils.getBlackfireVersion(ext_version));
         return;
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
@@ -186,19 +184,17 @@ export async function addExtensionLinux(
     let install_command = '';
     switch (true) {
       // match blackfire... blackfire-1.31.0
-      case /^blackfire(-\d+\.\d+\.\d+)?$/.test(extension):
-        script +=
-          '\nsh ' +
+      case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
+        version_extension
+      ):
+        install_command =
+          'bash ' +
           path.join(__dirname, '../src/scripts/ext/blackfire.sh') +
           ' ' +
           version +
           ' ' +
-          (await utils.getMinorVersion(version)).replace('.', '');
-
-        if (ext_version) {
-          script += ' ' + ext_version;
-        }
-        return;
+          (await utils.getBlackfireVersion(ext_version));
+        break;
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
         script +=

@@ -27,10 +27,10 @@ describe('Extension tests', () => {
     expect(win32).toContain('Platform fedora is not supported');
 
     win32 = await extensions.addExtension('blackfire', '7.3', 'win32');
-    expect(win32).toContain('blackfire.ps1 7.3 73');
+    expect(win32).toContain('blackfire.ps1 73');
 
     win32 = await extensions.addExtension('blackfire-1.31.0', '7.3', 'win32');
-    expect(win32).toContain('blackfire.ps1 7.3 73 1.31.0');
+    expect(win32).toContain('blackfire.ps1 73 1.31.0');
   });
 
   it('checking addExtensionOnLinux', async () => {

@@ -115,7 +115,7 @@ with:
 
 These tools can be setup globally using the `tools` input.
 
-`codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`
+`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`
 
 ```yaml
 uses: shivammathur/setup-php@v2
@@ -137,6 +137,7 @@ with:
 **Note**
 - `composer` is setup by default.
 - Specifying version for `composer` and `pecl` has no effect, latest versions of both tools which are compatible with the PHP version will be setup.
+- Both agent and client will be setup when `blackfire` is specified.
 - If the version specified for the tool is not in semver format, latest version of the tool will be setup.
 - Tools which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
 

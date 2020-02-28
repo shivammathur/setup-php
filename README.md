@@ -521,7 +521,8 @@ If this action helped you.
 - [shivammathur/cache-extensions](https://github.com/shivammathur/cache-extensions "GitHub action to help with caching PHP extensions")
 - [shivammathur/homebrew-php](https://github.com/shivammathur/homebrew-php "Tap for PHP builds for MacOS")
 - [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Nightly PHP package")
-- [shivammathur/php5-ubuntu](https://github.com/shivammathur/php5-ubuntu "Scripts to setup PHP5 versions")
+- [shivammathur/php5-ubuntu](https://github.com/shivammathur/php5-ubuntu "Scripts to setup PHP5 versions on ubuntu")
+- [shivammathur/php5-darwin](https://github.com/shivammathur/php5-ubuntu "Scripts to setup PHP5 versions on darwin")
 
 ## :bookmark_tabs: Further Reading
 

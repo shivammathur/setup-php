@@ -158,29 +158,6 @@ add_pecl() {
   add_log "$tick" "PECL" "Added"
 }
 
-# Function to get api version for PHP 5.3, 5.4 and 5.5
-get_old_apiv() {
-  case $version in
-    5.3) echo "20090626" ;;
-    5.4) echo "20100525" ;;
-    5.5) echo "20121212" ;;
-  esac
-}
-
-# Function to setup PHP 5.3, 5.4 and 5.5
-setup_php_old() {
-  ext_dir_parent="$php5"/lib/php/extensions
-  ext_dir_name=no-debug-non-zts-$(get_old_apiv)
-  ext_dir="$ext_dir_parent/$ext_dir_name"
-  sudo mv "$ext_dir" /tmp >/dev/null 2>&1 && sudo rm -rf "$php5"
-  sudo curl -s https://php-osx.liip.ch/install.sh | bash -s "$version" >/dev/null 2>&1
-  sudo rsync -a /tmp/"$ext_dir_name"/ "$ext_dir" >/dev/null 2>&1
-  sudo rm -rf "$php5"/php.d/*developer.ini "$php5"/php.d/*xdebug.ini /tmp/"$ext_dir_name"
-  for tool in pear peardev pecl php php-config phpize; do
-    sudo ln -sf "$php5"/bin/"$tool" /usr/local/bin/"$tool"
-  done
-}
-
 # Function to setup PHP >=5.6
 setup_php() {
   action=$1
@@ -195,7 +172,6 @@ tick="✓"
 cross="✗"
 version=$1
 old_versions="5.[3-5]"
-php5="/usr/local/php5"
 tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version | cut -c 1-3)
 [[ -z "${update}" ]] && update='false' || update="${update}"
@@ -203,7 +179,8 @@ existing_version=$(php-config --version | cut -c 1-3)
 # Setup PHP
 step_log "Setup PHP"
 if [[ "$version" =~ $old_versions ]]; then
-  setup_php_old
+  script="https://github.com/shivammathur/php5-darwin/releases/latest/download/install.sh"
+  curl -sSL "$script" | bash -s "$version" >/dev/null 2>&1 &&
   status="Installed"
 elif [ "$existing_version" != "$version" ]; then
   setup_php "install"

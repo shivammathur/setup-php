@@ -123,7 +123,7 @@ add_tool() {
 }
 
 # Function to add a tool using composer
-add_composer_tool() {
+add_composertool() {
   tool=$1
   release=$2
   prefix=$3
@@ -132,6 +132,16 @@ add_composer_tool() {
     sudo ln -sf "$(composer -q global config home)"/vendor/bin/"$tool" /usr/local/bin/"$tool" &&
     add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
+}
+
+add_blackfire() {
+  sudo mkdir -p usr/local/var/run
+  brew tap blackfireio/homebrew-blackfire >/dev/null 2>&1
+  brew install blackfire-agent >/dev/null 2>&1
+  sudo blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
+  brew services start blackfire-agent >/dev/null 2>&1
+  sudo blackfire --config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
+
 }
 
 # Function to configure PECL

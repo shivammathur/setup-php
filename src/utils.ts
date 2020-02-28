@@ -279,3 +279,10 @@ export async function getBlackfireVersion(
       return blackfire_version;
   }
 }
+
+/**
+ * Function to get Blackfire Agent version
+ */
+export async function getBlackfireAgentVersion(): Promise<string> {
+  return '1.32.0';
+}

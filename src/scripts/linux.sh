@@ -173,7 +173,7 @@ add_tool() {
 }
 
 # Function to setup a tool using composer
-add_composer_tool() {
+add_composertool() {
   tool=$1
   release=$2
   prefix=$3
@@ -192,6 +192,18 @@ add_devtools() {
   sudo update-alternatives --set php-config /usr/bin/php-config"$version" >/dev/null 2>&1
   sudo update-alternatives --set phpize /usr/bin/phpize"$version" >/dev/null 2>&1
   configure_pecl
+}
+
+add_blackfire() {
+  sudo mkdir -p /var/run/blackfire
+  sudo curl -o /tmp/blackfire-gpg.key -sSL https://packages.blackfire.io/gpg.key >/dev/null 2>&1
+  sudo apt-key add /tmp/blackfire-gpg.key >/dev/null 2>&1
+  echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list >/dev/null 2>&1
+  find /etc/apt/sources.list.d -type f -name blackfire.list -exec sudo "$debconf_fix" apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
+  $apt_install blackfire-agent >/dev/null 2>&1
+  sudo blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
+  sudo /etc/init.d/blackfire-agent restart >/dev/null 2>&1
+  sudo blackfire --config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
 }
 
 # Function to setup the nightly build from master branch

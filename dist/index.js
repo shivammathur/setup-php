@@ -1265,6 +1265,15 @@ function getBlackfireVersion(blackfire_version) {
     });
 }
 exports.getBlackfireVersion = getBlackfireVersion;
+/**
+ * Function to get Blackfire Agent version
+ */
+function getBlackfireAgentVersion() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return '1.32.0';
+    });
+}
+exports.getBlackfireAgentVersion = getBlackfireAgentVersion;
 
 
 /***/ }),
@@ -1594,63 +1603,24 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils = __importStar(__webpack_require__(163));
 /**
- * Function to get command to setup tool
+ * Function to get command to setup tools
  *
  * @param os_version
  */
-function getArchiveCommand(os_version) {
+function getCommand(os_version, suffix) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (os_version) {
             case 'linux':
             case 'darwin':
-                return 'add_tool ';
+                return 'add_' + suffix + ' ';
             case 'win32':
-                return 'Add-Tool ';
+                return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
             default:
                 return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
         }
     });
 }
-exports.getArchiveCommand = getArchiveCommand;
-/**
- * Function to get command to setup tools using composer
- *
- * @param os_version
- */
-function getPackageCommand(os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (os_version) {
-            case 'linux':
-            case 'darwin':
-                return 'add_composer_tool ';
-            case 'win32':
-                return 'Add-Composer-Tool ';
-            default:
-                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
-        }
-    });
-}
-exports.getPackageCommand = getPackageCommand;
-/**
- *
- * Function to get command to setup PECL
- *
- * @param os_version
- */
-function getPECLCommand(os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (os_version) {
-            case 'linux':
-            case 'darwin':
-                return 'add_pecl ';
-            case 'win32':
-                return 'Add-PECL ';
-            default:
-                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
-        }
-    });
-}
-exports.getPECLCommand = getPECLCommand;
+exports.getCommand = getCommand;
 /**
  * Function to get tool version
  *
@@ -1805,10 +1775,10 @@ function addPhive(version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (version) {
             case 'latest':
-                return ((yield getArchiveCommand(os_version)) +
+                return ((yield getCommand(os_version, 'tool')) +
                     'https://phar.io/releases/phive.phar phive');
             default:
-                return ((yield getArchiveCommand(os_version)) +
+                return ((yield getCommand(os_version, 'tool')) +
                     'https://github.com/phar-io/phive/releases/download/' +
                     version +
                     '/phive-' +
@@ -1819,22 +1789,21 @@ function addPhive(version, os_version) {
 }
 exports.addPhive = addPhive;
 /**
- * Function to get the PHPUnit url
+ * Function to get the phar url in domain/tool-version.phar format
  *
  * @param version
  */
-function getPhpunitUrl(tool, version) {
+function getPharUrl(domain, tool, prefix, version) {
     return __awaiter(this, void 0, void 0, function* () {
-        const phpunit = 'https://phar.phpunit.de';
         switch (version) {
             case 'latest':
-                return phpunit + '/' + tool + '.phar';
+                return domain + '/' + tool + '.phar';
             default:
-                return phpunit + '/' + tool + '-' + version + '.phar';
+                return domain + '/' + tool + '-' + prefix + version + '.phar';
         }
     });
 }
-exports.getPhpunitUrl = getPhpunitUrl;
+exports.getPharUrl = getPharUrl;
 /**
  * Function to get the Deployer url
  *
@@ -1948,7 +1917,7 @@ exports.getCleanedToolsList = getCleanedToolsList;
  */
 function addArchive(tool, version, url, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
-        return (yield getArchiveCommand(os_version)) + url + ' ' + tool;
+        return (yield getCommand(os_version, 'tool')) + url + ' ' + tool;
     });
 }
 exports.addArchive = addArchive;
@@ -1985,7 +1954,7 @@ exports.addDevTools = addDevTools;
  */
 function addPackage(tool, release, prefix, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
-        const tool_command = yield getPackageCommand(os_version);
+        const tool_command = yield getCommand(os_version, 'composertool');
         return tool_command + tool + ' ' + release + ' ' + prefix;
     });
 }
@@ -2010,6 +1979,14 @@ function addTools(tools_csv, php_version, os_version) {
                 script += '\n';
                 let url = '';
                 switch (tool) {
+                    case 'blackfire':
+                    case 'blackfire-agent':
+                        script += yield getCommand(os_version, 'blackfire ' + (yield utils.getBlackfireAgentVersion()));
+                        break;
+                    case 'blackfire-player':
+                        url = yield getPharUrl('https://get.blackfire.io', tool, 'v', version);
+                        script += yield addArchive(tool, version, url, os_version);
+                        break;
                     case 'cs2pr':
                         uri = yield getUri(tool, '', version, 'releases', '', 'download');
                         url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
@@ -2055,7 +2032,7 @@ function addTools(tools_csv, php_version, os_version) {
                         break;
                     case 'phpcpd':
                     case 'phpunit':
-                        url = yield getPhpunitUrl(tool, version);
+                        url = yield getPharUrl('https://phar.phpunit.de', tool, '', version);
                         script += yield addArchive(tool, version, url, os_version);
                         break;
                     case 'deployer':
@@ -2075,7 +2052,7 @@ function addTools(tools_csv, php_version, os_version) {
                         script += yield addPackage(tool, release, 'narrowspark/automatic-', os_version);
                         break;
                     case 'pecl':
-                        script += yield getPECLCommand(os_version);
+                        script += yield getCommand(os_version, 'pecl');
                         break;
                     case 'php-config':
                     case 'phpize':
@@ -2724,6 +2701,8 @@ function addExtensionDarwin(extension_csv, version, pipe) {
                 const prefix = yield utils.getExtensionPrefix(ext_name);
                 let install_command = '';
                 switch (true) {
+                    // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+                    // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
                     case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
                         install_command =
                             'bash ' +
@@ -2814,7 +2793,8 @@ function addExtensionWindows(extension_csv, version, pipe) {
                 const version_extension = version + extension;
                 let matches;
                 switch (true) {
-                    // match blackfire...blackfire-1.31.0
+                    // match 5.4blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+                    // match 5.4blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
                     case /^(5\.[4-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
                         script +=
                             '\n& ' +
@@ -2877,7 +2857,8 @@ function addExtensionLinux(extension_csv, version, pipe) {
                 const prefix = yield utils.getExtensionPrefix(ext_name);
                 let install_command = '';
                 switch (true) {
-                    // match blackfire... blackfire-1.31.0
+                    // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+                    // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
                     case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
                         install_command =
                             'bash ' +

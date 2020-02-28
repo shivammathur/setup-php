@@ -22,6 +22,8 @@ export async function addExtensionDarwin(
     const prefix = await utils.getExtensionPrefix(ext_name);
     let install_command = '';
     switch (true) {
+      // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+      // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
       case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
@@ -114,7 +116,8 @@ export async function addExtensionWindows(
     const version_extension: string = version + extension;
     let matches: RegExpExecArray;
     switch (true) {
-      // match blackfire...blackfire-1.31.0
+      // match 5.4blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+      // match 5.4blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
       case /^(5\.[4-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
@@ -183,7 +186,8 @@ export async function addExtensionLinux(
     const prefix = await utils.getExtensionPrefix(ext_name);
     let install_command = '';
     switch (true) {
-      // match blackfire... blackfire-1.31.0
+      // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+      // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
       case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):

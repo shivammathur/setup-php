@@ -1900,7 +1900,7 @@ function getCleanedToolsList(tools_csv) {
             .map(function (extension) {
             return extension
                 .trim()
-                .replace(/robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
+                .replace(/symfony\/|robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
         })
             .filter(Boolean);
         return [...new Set(tools_list)];

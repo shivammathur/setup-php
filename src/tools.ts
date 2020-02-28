@@ -323,7 +323,7 @@ export async function getCleanedToolsList(
     .map(function(extension: string) {
       return extension
         .trim()
-        .replace(/robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
+        .replace(/symfony\/|robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
     })
     .filter(Boolean);
   return [...new Set(tools_list)];

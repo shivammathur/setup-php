@@ -1,8 +1,8 @@
-# GitHub Action for Blackfire
-name: Profiling with blackfire
+# GitHub Action for Blackfire Player
+name: Play a Blackfire Scenario
 on: [push, pull_request]
 jobs:
-  blackfire:
+  blackfire-player:
     name: Blackfire (PHP ${{ matrix.php-versions }})
     # Add your Blackfire credentials securely using GitHub Secrets
     env:
@@ -16,7 +16,7 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
         php-versions: ['7.2', '7.3', '7.4']
-        # Blackfire supports PHP >= 5.3 on ubuntu and macos and PHP >= 5.4 on windows
+        # blackfire-player supports PHP >= 5.5
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -25,7 +25,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: blackfire
-          tools: blackfire #Setup Blackfire client and agent
+          tools: blackfire, blackfire-player #Setup Blackfire client, agent and player
           coverage: none
-      - name: Profile
-        run: blackfire run php my-script.php # Refer to https://blackfire.io/docs/cookbooks/profiling-cli
+      - name: Play the scenario
+        run: blackfire-player run scenario.bkf # Refer to https://blackfire.io/docs/player/index#usage

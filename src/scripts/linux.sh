@@ -54,27 +54,10 @@ get_pecl_version() {
   echo "$pecl_version"
 }
 
-# Function to setup extensions
-add_extension() {
+# Function to test if extension is loaded
+check_extension() {
   extension=$1
-  install_command=$2
-  prefix=$3
-  if [[ "$version" =~ $old_versions ]]; then
-    install_command="update_ppa && ${install_command/5\.[4-5]-$extension/5-$extension=$release_version}"
-  fi
-  if ! php -m | grep -i -q -w "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    # shellcheck disable=SC2046
-    $apt_install $(apt-cache depends php"$version"-"$extension" 2>/dev/null | awk '/Depends:/{print$2}') >/dev/null 2>&1
-    echo "$prefix=$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
-  elif php -m | grep -i -q -w "$extension"; then
-    add_log "$tick" "$extension" "Enabled"
-  elif ! php -m | grep -i -q -w "$extension"; then
-    (eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
-    (update_ppa && eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
-    (sudo pecl install -f "$extension" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
-    add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
-  fi
-  sudo chmod 777 "$ini_file"
+  php -m | grep -i -q -w "$extension"
 }
 
 # Function to delete extensions
@@ -94,14 +77,47 @@ remove_extension() {
   delete_extension "$extension"
 }
 
+# Function to setup extensions
+add_extension() {
+  extension=$1
+  install_command=$2
+  prefix=$3
+  if [[ "$version" =~ $old_versions ]]; then
+    install_command="update_ppa && ${install_command/5\.[4-5]-$extension/5-$extension=$release_version}"
+  fi
+  if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
+    echo "$prefix=$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
+  elif check_extension "$extension"; then
+    add_log "$tick" "$extension" "Enabled"
+  elif ! check_extension "$extension"; then
+    eval "$install_command" >/dev/null 2>&1 ||
+    (update_ppa && eval "$install_command" >/dev/null 2>&1) ||
+    sudo pecl install -f "$extension" >/dev/null 2>&1
+    (check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled") ||
+    add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
+  fi
+  sudo chmod 777 "$ini_file"
+}
+
 # Function to install a PECL version
 add_pecl_extension() {
   extension=$1
   pecl_version=$2
-  delete_extension "$extension"
-  (sudo pecl install -f "$extension-$pecl_version" >/dev/null 2>&1 &&
-  add_log "$tick" "$extension" "Installed and enabled") ||
-  add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"
+  prefix=$3
+  if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
+    echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"
+  fi
+  ext_version=$(php -r "echo phpversion('$extension');")
+  if [ "$ext_version" = "$pecl_version" ]; then
+    add_log "$tick" "$extension" "Enabled"
+  else
+    delete_extension "$extension"
+    (
+      sudo pecl install -f "$extension-$pecl_version" >/dev/null 2>&1 &&
+      check_extension "$extension" &&
+      add_log "$tick" "$extension" "Installed and enabled"
+    ) || add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"
+  fi
 }
 
 # Function to pre-release extensions using PECL
@@ -110,25 +126,7 @@ add_unstable_extension() {
   stability=$2
   prefix=$3
   pecl_version=$(get_pecl_version "$extension" "$stability")
-  if ! php -m | grep -i -q -w "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    extension_version=$(php -d="$prefix=$extension" -r "echo phpversion('$extension');")
-    if [ "$extension_version" = "$pecl_version" ]; then
-      echo "$prefix=$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
-    else
-      delete_extension "$extension"
-      add_pecl_extension "$extension" "$pecl_version"
-    fi
-  elif php -m | grep -i -q -w "$extension"; then
-    extension_version=$(php -r "echo phpversion('$extension');")
-    if [ "$extension_version" = "$pecl_version" ]; then
-      add_log "$tick" "$extension" "Enabled"
-    else
-      delete_extension "$extension"
-      add_pecl_extension "$extension" "$pecl_version"
-    fi
-  else
-    add_pecl_extension "$extension" "$pecl_version"
-  fi
+  add_pecl_extension "$extension" "$pecl_version" "$prefix"
 }
 
 # Function to update extension
@@ -150,7 +148,7 @@ update_extension() {
 add_tool() {
   url=$1
   tool=$2
-  tool_path=/usr/local/bin/"$tool"
+  tool_path="$tool_path_dir/$tool"
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
   fi
@@ -165,6 +163,8 @@ add_tool() {
       add_extension curl "$apt_install php$version-curl" extension >/dev/null 2>&1
       add_extension mbstring "$apt_install php$version-mbstring" extension >/dev/null 2>&1
       add_extension xml "$apt_install php$version-xml" extension >/dev/null 2>&1
+    elif [ "$tool" = "wp-cli" ]; then
+      sudo cp -p "$tool_path" "$tool_path_dir"/wp
     fi
     add_log "$tick" "$tool" "Added"
   else
@@ -173,7 +173,7 @@ add_tool() {
 }
 
 # Function to setup a tool using composer
-add_composer_tool() {
+add_composertool() {
   tool=$1
   release=$2
   prefix=$3
@@ -194,12 +194,24 @@ add_devtools() {
   configure_pecl
 }
 
+add_blackfire() {
+  sudo mkdir -p /var/run/blackfire
+  sudo curl -o /tmp/blackfire-gpg.key -sSL https://packages.blackfire.io/gpg.key >/dev/null 2>&1
+  sudo apt-key add /tmp/blackfire-gpg.key >/dev/null 2>&1
+  echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list >/dev/null 2>&1
+  find /etc/apt/sources.list.d -type f -name blackfire.list -exec sudo "$debconf_fix" apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
+  $apt_install blackfire-agent >/dev/null 2>&1
+  sudo blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
+  sudo /etc/init.d/blackfire-agent restart >/dev/null 2>&1
+  sudo blackfire --config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
+}
+
 # Function to setup the nightly build from master branch
 setup_master() {
   tar_file=php_"$version"%2Bubuntu"$(lsb_release -r -s)".tar.xz
   install_dir=~/php/"$version"
   sudo mkdir -m 777 -p ~/php
-  update_ppa && $apt_install libicu64 libicu-dev >/dev/null 2>&1
+  update_ppa && $apt_install libicu-dev >/dev/null 2>&1
   curl -SLO https://dl.bintray.com/shivammathur/php/"$tar_file" >/dev/null 2>&1
   sudo tar xf "$tar_file" -C ~/php >/dev/null 2>&1
   rm -rf "$tar_file"
@@ -273,6 +285,7 @@ version=$1
 old_versions="5.[4-5]"
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y"
+tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version | cut -c 1-3)
 [[ -z "${update}" ]] && update='false' || update="${update}"
 
@@ -316,5 +329,5 @@ semver=$(php_semver)
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
-sudo chmod 777 "$ini_file"
+sudo chmod 777 "$ini_file" "$tool_path_dir"
 add_log "$tick" "PHP" "$status PHP $semver"

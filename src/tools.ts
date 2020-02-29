@@ -1,60 +1,20 @@
 import * as utils from './utils';
 
 /**
- * Function to get command to setup tool
+ * Function to get command to setup tools
  *
  * @param os_version
  */
-export async function getArchiveCommand(os_version: string): Promise<string> {
+export async function getCommand(
+  os_version: string,
+  suffix: string
+): Promise<string> {
   switch (os_version) {
     case 'linux':
     case 'darwin':
-      return 'add_tool ';
+      return 'add_' + suffix + ' ';
     case 'win32':
-      return 'Add-Tool ';
-    default:
-      return await utils.log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
-  }
-}
-
-/**
- * Function to get command to setup tools using composer
- *
- * @param os_version
- */
-export async function getPackageCommand(os_version: string): Promise<string> {
-  switch (os_version) {
-    case 'linux':
-    case 'darwin':
-      return 'add_composer_tool ';
-    case 'win32':
-      return 'Add-Composer-Tool ';
-    default:
-      return await utils.log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
-  }
-}
-
-/**
- *
- * Function to get command to setup PECL
- *
- * @param os_version
- */
-export async function getPECLCommand(os_version: string): Promise<string> {
-  switch (os_version) {
-    case 'linux':
-    case 'darwin':
-      return 'add_pecl ';
-    case 'win32':
-      return 'Add-PECL ';
+      return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
     default:
       return await utils.log(
         'Platform ' + os_version + ' is not supported',
@@ -226,12 +186,12 @@ export async function addPhive(
   switch (version) {
     case 'latest':
       return (
-        (await getArchiveCommand(os_version)) +
+        (await getCommand(os_version, 'tool')) +
         'https://phar.io/releases/phive.phar phive'
       );
     default:
       return (
-        (await getArchiveCommand(os_version)) +
+        (await getCommand(os_version, 'tool')) +
         'https://github.com/phar-io/phive/releases/download/' +
         version +
         '/phive-' +
@@ -242,20 +202,21 @@ export async function addPhive(
 }
 
 /**
- * Function to get the PHPUnit url
+ * Function to get the phar url in domain/tool-version.phar format
  *
  * @param version
  */
-export async function getPhpunitUrl(
+export async function getPharUrl(
+  domain: string,
   tool: string,
+  prefix: string,
   version: string
 ): Promise<string> {
-  const phpunit = 'https://phar.phpunit.de';
   switch (version) {
     case 'latest':
-      return phpunit + '/' + tool + '.phar';
+      return domain + '/' + tool + '.phar';
     default:
-      return phpunit + '/' + tool + '-' + version + '.phar';
+      return domain + '/' + tool + '-' + prefix + version + '.phar';
   }
 }
 
@@ -309,6 +270,27 @@ export async function getSymfonyUri(
 }
 
 /**
+ * Function to get the WP-CLI url
+ *
+ * @param version
+ */
+export async function getWpCliUrl(version: string): Promise<string> {
+  switch (version) {
+    case 'latest':
+      return 'wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true';
+    default:
+      return await getUri(
+        'wp-cli',
+        '-' + version + '.phar',
+        version,
+        'wp-cli/wp-cli/releases',
+        'v',
+        'download'
+      );
+  }
+}
+
+/**
  * Function to add/move composer in the tools list
  *
  * @param tools
@@ -341,7 +323,7 @@ export async function getCleanedToolsList(
     .map(function(extension: string) {
       return extension
         .trim()
-        .replace(/robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
+        .replace(/symfony\/|robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
     })
     .filter(Boolean);
   return [...new Set(tools_list)];
@@ -361,7 +343,7 @@ export async function addArchive(
   url: string,
   os_version: string
 ): Promise<string> {
-  return (await getArchiveCommand(os_version)) + url + ' ' + tool;
+  return (await getCommand(os_version, 'tool')) + url + ' ' + tool;
 }
 
 /**
@@ -413,7 +395,7 @@ export async function addPackage(
   prefix: string,
   os_version: string
 ): Promise<string> {
-  const tool_command = await getPackageCommand(os_version);
+  const tool_command = await getCommand(os_version, 'composertool');
   return tool_command + tool + ' ' + release + ' ' + prefix;
 }
 
@@ -446,6 +428,17 @@ export async function addTools(
     script += '\n';
     let url = '';
     switch (tool) {
+      case 'blackfire':
+      case 'blackfire-agent':
+        script += await getCommand(
+          os_version,
+          'blackfire ' + (await utils.getBlackfireAgentVersion())
+        );
+        break;
+      case 'blackfire-player':
+        url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
+        script += await addArchive(tool, version, url, os_version);
+        break;
       case 'cs2pr':
         uri = await getUri(tool, '', version, 'releases', '', 'download');
         url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
@@ -477,8 +470,10 @@ export async function addTools(
         script += await addArchive(tool, version, url, os_version);
         break;
       case 'composer':
-        url =
-          github + 'composer/composer/releases/latest/download/composer.phar';
+        // If RC is released as latest release, switch to getcomposer.
+        // Prefered source is GitHub as it is faster.
+        // url = github + 'composer/composer/releases/latest/download/composer.phar';
+        url = 'https://getcomposer.org/composer-stable.phar';
         script += await addArchive(tool, version, url, os_version);
         break;
       case 'codeception':
@@ -489,12 +484,15 @@ export async function addTools(
         break;
       case 'phpcpd':
       case 'phpunit':
-        url = await getPhpunitUrl(tool, version);
+        url = await getPharUrl('https://phar.phpunit.de', tool, '', version);
         script += await addArchive(tool, version, url, os_version);
         break;
       case 'deployer':
         url = await getDeployerUrl(version);
         script += await addArchive(tool, version, url, os_version);
+        break;
+      case 'flex':
+        script += await addPackage(tool, release, 'symfony/', os_version);
         break;
       case 'phinx':
         script += await addPackage(tool, release, 'robmorgan/', os_version);
@@ -511,7 +509,7 @@ export async function addTools(
         );
         break;
       case 'pecl':
-        script += await getPECLCommand(os_version);
+        script += await getCommand(os_version, 'pecl');
         break;
       case 'php-config':
       case 'phpize':
@@ -522,6 +520,10 @@ export async function addTools(
         uri = await getSymfonyUri(version, os_version);
         url = github + 'symfony/cli/' + uri;
         script += await addArchive('symfony', version, url, os_version);
+        break;
+      case 'wp-cli':
+        url = github + (await getWpCliUrl(version));
+        script += await addArchive(tool, version, url, os_version);
         break;
       default:
         script += await utils.addLog(

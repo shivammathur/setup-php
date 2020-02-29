@@ -2,28 +2,10 @@ import * as tools from '../src/tools';
 
 describe('Tools tests', () => {
   it('checking getCommand', async () => {
-    expect(await tools.getArchiveCommand('linux')).toBe('add_tool ');
-    expect(await tools.getArchiveCommand('darwin')).toBe('add_tool ');
-    expect(await tools.getArchiveCommand('win32')).toBe('Add-Tool ');
-    expect(await tools.getArchiveCommand('fedora')).toContain(
-      'Platform fedora is not supported'
-    );
-  });
-
-  it('checking getCommand', async () => {
-    expect(await tools.getPackageCommand('linux')).toBe('add_composer_tool ');
-    expect(await tools.getPackageCommand('darwin')).toBe('add_composer_tool ');
-    expect(await tools.getPackageCommand('win32')).toBe('Add-Composer-Tool ');
-    expect(await tools.getPackageCommand('fedora')).toContain(
-      'Platform fedora is not supported'
-    );
-  });
-
-  it('checking getPECLCommand', async () => {
-    expect(await tools.getPECLCommand('linux')).toBe('add_pecl ');
-    expect(await tools.getPECLCommand('darwin')).toBe('add_pecl ');
-    expect(await tools.getPECLCommand('win32')).toBe('Add-PECL ');
-    expect(await tools.getPECLCommand('fedora')).toContain(
+    expect(await tools.getCommand('linux', 'tool')).toBe('add_tool ');
+    expect(await tools.getCommand('darwin', 'tool')).toBe('add_tool ');
+    expect(await tools.getCommand('win32', 'tool')).toBe('Add-Tool ');
+    expect(await tools.getCommand('fedora', 'tool')).toContain(
       'Platform fedora is not supported'
     );
   });
@@ -205,12 +187,12 @@ describe('Tools tests', () => {
     );
   });
 
-  it('checking getPhpunitUri', async () => {
-    expect(await tools.getPhpunitUrl('tool', 'latest')).toBe(
-      'https://phar.phpunit.de/tool.phar'
+  it('checking getPharUri', async () => {
+    expect(await tools.getPharUrl('domain', 'tool', '', 'latest')).toBe(
+      'domain/tool.phar'
     );
-    expect(await tools.getPhpunitUrl('tool', '1.2.3')).toBe(
-      'https://phar.phpunit.de/tool-1.2.3.phar'
+    expect(await tools.getPharUrl('domain', 'tool', 'v', '1.2.3')).toBe(
+      'domain/tool-v1.2.3.phar'
     );
   });
 
@@ -223,7 +205,7 @@ describe('Tools tests', () => {
     );
   });
 
-  it('checking getDeployerUri', async () => {
+  it('checking addComposer', async () => {
     expect(await tools.addComposer(['a', 'b'])).toStrictEqual([
       'composer',
       'a',
@@ -274,6 +256,15 @@ describe('Tools tests', () => {
       'prestissimo',
       'composer-prefetcher'
     ]);
+  });
+
+  it('checking getWpCliUri', async () => {
+    expect(await tools.getWpCliUrl('latest')).toBe(
+      'wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true'
+    );
+    expect(await tools.getWpCliUrl('2.4.0')).toBe(
+      'wp-cli/wp-cli/releases/download/v2.4.0/wp-cli-2.4.0.phar'
+    );
   });
 
   it('checking addArchive', async () => {
@@ -344,13 +335,13 @@ describe('Tools tests', () => {
       'user/',
       'linux'
     );
-    expect(script).toContain('add_composer_tool tool tool:1.2.3 user/');
+    expect(script).toContain('add_composertool tool tool:1.2.3 user/');
 
     script = await tools.addPackage('tool', 'tool:1.2.3', 'user/', 'darwin');
-    expect(script).toContain('add_composer_tool tool tool:1.2.3 user/');
+    expect(script).toContain('add_composertool tool tool:1.2.3 user/');
 
     script = await tools.addPackage('tool', 'tool:1.2.3', 'user/', 'win32');
-    expect(script).toContain('Add-Composer-Tool tool tool:1.2.3 user/');
+    expect(script).toContain('Add-Composertool tool tool:1.2.3 user/');
 
     script = await tools.addPackage('tool', 'tool:1.2.3', 'user/', 'fedora');
     expect(script).toContain('Platform fedora is not supported');
@@ -358,12 +349,16 @@ describe('Tools tests', () => {
 
   it('checking addTools on linux', async () => {
     const script: string = await tools.addTools(
-      'cs2pr, php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, symfony',
+      'blackfire, blackfire-player, cs2pr, flex, php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, symfony, wp-cli',
       '7.4',
       'linux'
     );
+    expect(script).toContain('add_blackfire');
     expect(script).toContain(
-      'add_tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
+      'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player'
+    );
+    expect(script).toContain(
+      'add_tool https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
@@ -383,21 +378,29 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_linux_amd64 symfony'
     );
+    expect(script).toContain(
+      'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli'
+    );
     expect(script).toContain('add_pecl');
-    expect(script).toContain('add_composer_tool phinx phinx robmorgan/');
-    expect(script).toContain('add_composer_tool phinx phinx:1.2.3 robmorgan/');
+    expect(script).toContain('add_composertool flex flex symfony/');
+    expect(script).toContain('add_composertool phinx phinx robmorgan/');
+    expect(script).toContain('add_composertool phinx phinx:1.2.3 robmorgan/');
     expect(script).toContain('add_devtools');
     expect(script).toContain('add_log "$tick" "php-config" "Added"');
     expect(script).toContain('add_log "$tick" "phpize" "Added"');
   });
   it('checking addTools on darwin', async () => {
     const script: string = await tools.addTools(
-      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, cs2pr:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3',
+      'blackfire, blackfire-player, flex, phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, cs2pr:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3, wp-cli',
       '7.4',
       'darwin'
     );
+    expect(script).toContain('add_blackfire');
     expect(script).toContain(
-      'add_tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
+      'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player'
+    );
+    expect(script).toContain(
+      'add_tool https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr'
@@ -417,12 +420,13 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar psalm'
     );
-    expect(script).toContain('add_composer_tool phinx phinx robmorgan/');
+    expect(script).toContain('add_composertool flex flex symfony/');
+    expect(script).toContain('add_composertool phinx phinx robmorgan/');
     expect(script).toContain(
       'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'
     );
     expect(script).toContain(
-      'add_composer_tool composer-prefetcher composer-prefetcher:1.2.3 narrowspark/automatic-'
+      'add_composertool composer-prefetcher composer-prefetcher:1.2.3 narrowspark/automatic-'
     );
     expect(script).toContain(
       'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_darwin_amd64 symfony'
@@ -430,36 +434,45 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'add_tool https://github.com/symfony/cli/releases/download/v1.2.3/symfony_darwin_amd64 symfony'
     );
+    expect(script).toContain(
+      'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli'
+    );
     expect(script).toContain('add_log "$tick" "phpize" "Added"');
     expect(script).toContain('add_log "$tick" "php-config" "Added"');
   });
   it('checking addTools on windows', async () => {
     const script: string = await tools.addTools(
-      'codeception, cs2pr, deployer, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, does_not_exit',
+      'blackfire, blackfire-player:1.8.1, codeception, cs2pr, deployer, flex, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, wp-cli, does_not_exit',
       '7.4',
       'win32'
     );
+    expect(script).toContain('Add-Blackfire 1.32.0');
     expect(script).toContain(
-      'Add-Tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
+      'Add-Tool https://get.blackfire.io/blackfire-player-v1.8.1.phar blackfire-player'
+    );
+    expect(script).toContain(
+      'Add-Tool https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'Add-Tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
     );
+    expect(script).toContain('Add-Composertool flex flex symfony/');
     expect(script).toContain(
       'Add-Tool https://deployer.org/deployer.phar deployer'
     );
-    expect(script).toContain(
-      'Add-Composer-Tool prestissimo prestissimo hirak/'
-    );
+    expect(script).toContain('Add-Composertool prestissimo prestissimo hirak/');
     expect(script).toContain(
       'Add-Tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd'
     );
-    expect(script).toContain('Add-Composer-Tool phinx phinx robmorgan/');
+    expect(script).toContain('Add-Composertool phinx phinx robmorgan/');
     expect(script).toContain(
       'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.2/phive-0.13.2.phar phive'
     );
     expect(script).toContain(
       'Add-Tool https://github.com/symfony/cli/releases/latest/download/symfony_windows_amd64.exe symfony'
+    );
+    expect(script).toContain(
+      'Add-Tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli'
     );
     expect(script).toContain('phpize is not a windows tool');
     expect(script).toContain('php-config is not a windows tool');
@@ -473,14 +486,12 @@ describe('Tools tests', () => {
       'win32'
     );
     expect(script).toContain(
-      'Add-Tool https://github.com/composer/composer/releases/latest/download/composer.phar composer'
+      'Add-Tool https://getcomposer.org/composer-stable.phar composer'
     );
+    expect(script).toContain('Add-Composertool prestissimo prestissimo hirak/');
+    expect(script).toContain('Add-Composertool phinx phinx robmorgan/');
     expect(script).toContain(
-      'Add-Composer-Tool prestissimo prestissimo hirak/'
-    );
-    expect(script).toContain('Add-Composer-Tool phinx phinx robmorgan/');
-    expect(script).toContain(
-      'Add-Composer-Tool composer-prefetcher composer-prefetcher narrowspark/automatic-'
+      'Add-Composertool composer-prefetcher composer-prefetcher narrowspark/automatic-'
     );
   });
 });

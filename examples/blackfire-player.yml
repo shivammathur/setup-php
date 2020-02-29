@@ -1,0 +1,31 @@
+# GitHub Action for Blackfire Player
+name: Play a Blackfire Scenario
+on: [push, pull_request]
+jobs:
+  blackfire-player:
+    name: Blackfire (PHP ${{ matrix.php-versions }})
+    # Add your Blackfire credentials securely using GitHub Secrets
+    env:
+      BLACKFIRE_SERVER_ID: ${{ secrets.BLACKFIRE_SERVER_ID }}
+      BLACKFIRE_SERVER_TOKEN: ${{ secrets.BLACKFIRE_SERVER_TOKEN }}
+      BLACKFIRE_CLIENT_ID: ${{ secrets.BLACKFIRE_CLIENT_ID }}
+      BLACKFIRE_CLIENT_TOKEN: ${{ secrets.BLACKFIRE_CLIENT_TOKEN }}
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        php-versions: ['7.2', '7.3', '7.4']
+        # blackfire-player supports PHP >= 5.5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP, with composer and extensions
+        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: blackfire
+          tools: blackfire, blackfire-player #Setup Blackfire client, agent and player
+          coverage: none
+      - name: Play the scenario
+        run: blackfire-player run scenario.bkf # Refer to https://blackfire.io/docs/player/index#usage

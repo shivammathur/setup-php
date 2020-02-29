@@ -22,6 +22,19 @@ export async function addExtensionDarwin(
     const prefix = await utils.getExtensionPrefix(ext_name);
     let install_command = '';
     switch (true) {
+      // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+      // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+      case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
+        version_extension
+      ):
+        install_command =
+          'bash ' +
+          path.join(__dirname, '../src/scripts/ext/blackfire_darwin.sh') +
+          ' ' +
+          version +
+          ' ' +
+          (await utils.getBlackfireVersion(ext_version));
+        break;
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
         script +=
@@ -31,6 +44,11 @@ export async function addExtensionDarwin(
           ext_version +
           ' ' +
           prefix;
+        return;
+      // match exact versions
+      case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
+        script +=
+          '\nadd_pecl_extension ' + ext_name + ' ' + ext_version + ' ' + prefix;
         return;
       case /5\.3xdebug/.test(version_extension):
         install_command = 'sudo pecl install -f xdebug-2.2.7' + pipe;
@@ -98,6 +116,19 @@ export async function addExtensionWindows(
     const version_extension: string = version + extension;
     let matches: RegExpExecArray;
     switch (true) {
+      // match 5.4blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+      // match 5.4blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+      case /^(5\.[4-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
+        version_extension
+      ):
+        script +=
+          '\n& ' +
+          path.join(__dirname, '../src/scripts/ext/blackfire.ps1') +
+          ' ' +
+          version +
+          ' ' +
+          (await utils.getBlackfireVersion(ext_version));
+        return;
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
         script += '\nAdd-Extension ' + ext_name + ' ' + ext_version;
@@ -155,6 +186,19 @@ export async function addExtensionLinux(
     const prefix = await utils.getExtensionPrefix(ext_name);
     let install_command = '';
     switch (true) {
+      // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+      // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+      case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
+        version_extension
+      ):
+        install_command =
+          'bash ' +
+          path.join(__dirname, '../src/scripts/ext/blackfire.sh') +
+          ' ' +
+          version +
+          ' ' +
+          (await utils.getBlackfireVersion(ext_version));
+        break;
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
         script +=
@@ -167,7 +211,8 @@ export async function addExtensionLinux(
         return;
       // match exact versions
       case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
-        script += '\nadd_pecl_extension ' + ext_name + ' ' + ext_version;
+        script +=
+          '\nadd_pecl_extension ' + ext_name + ' ' + ext_version + ' ' + prefix;
         return;
       // match 5.6gearman..7.4gearman
       case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):

@@ -1,0 +1,31 @@
+# GitHub Action for Blackfire
+name: Profiling with blackfire
+on: [push, pull_request]
+jobs:
+  blackfire:
+    name: Blackfire (PHP ${{ matrix.php-versions }})
+    # Add your Blackfire credentials securely using GitHub Secrets
+    env:
+      BLACKFIRE_SERVER_ID: ${{ secrets.BLACKFIRE_SERVER_ID }}
+      BLACKFIRE_SERVER_TOKEN: ${{ secrets.BLACKFIRE_SERVER_TOKEN }}
+      BLACKFIRE_CLIENT_ID: ${{ secrets.BLACKFIRE_CLIENT_ID }}
+      BLACKFIRE_CLIENT_TOKEN: ${{ secrets.BLACKFIRE_CLIENT_TOKEN }}
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        php-versions: ['7.2', '7.3', '7.4']
+        # Blackfire supports PHP >= 5.3 on ubuntu and macos and PHP >= 5.4 on windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP, with composer and extensions
+        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: blackfire
+          tools: blackfire #Setup Blackfire client and agent
+          coverage: none
+      - name: Profile
+        run: blackfire run php my-script.php # Refer to https://blackfire.io/docs/cookbooks/profiling-cli

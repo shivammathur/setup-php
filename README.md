@@ -71,7 +71,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |macOS X Catalina 10.15|`macos-latest` or `macOS-10.15`|
 
 ## :heavy_plus_sign: PHP Extension Support
-- On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl` in the tools input.
+- On `ubuntu` by default extensions which are available as a package can be installed. PECL extensions if not available as a package can be installed by specifying `pecl` in the tools input.
 
 ```yaml
 uses: shivammathur/setup-php@v2
@@ -81,23 +81,23 @@ with:
   extensions: swoole
 ```
 
-- On `windows` extensions which have `windows` binary on `PECL` can be installed.
+- On `windows` PECL extensions which have the `DLL` binary can be installed.
 
-- On `macOS` extensions which are on `PECL` can be installed.
+- On `macOS` PECL extensions can be installed.
 
-- Extensions which are installed along with PHP if specified are enabled.
+- Extensions installed along with PHP if specified are enabled.
 
-- Specific versions of PECL extensions can be installed by suffixing the extension with the version. This is useful for installing old versions of extensions which support end of life PHP versions.
+- Specific versions of PECL extensions can be installed by suffixing the version. This is useful for installing old versions of extensions which support end of life PHP versions.
 
 ```yaml
 uses: shivammathur/setup-php@v2
 with:
-  php-version: '7.4'
+  php-version: '5.4'
   tools: pecl
-  extensions: pcov-1.0.6
+  extensions: swoole-1.9.3
 ```
 
-- Pre-release versions of PECL extensions can be installed by suffixing the extension with its state i.e `alpha`, `beta`, `devel` or `snapshot`.
+- Pre-release versions of PECL extensions can be setup by suffixing the extension with its state i.e `alpha`, `beta`, `devel` or `snapshot`.
 
 ```yaml
 uses: shivammathur/setup-php@v2
@@ -107,15 +107,15 @@ with:
   extensions: xdebug-beta
 ```
 
-- Blackfire PHP extension is available for install.
+- Extensions which cannot be setup gracefully leave an error message in the logs, the action is not interrupted.
 
-- Extensions which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
+- These extensions have custom support - `gearman` on ubuntu, `blackfire`, `phalcon3` and `phalcon4` on all supported OS.
 
 ## :wrench: Tools Support
 
 These tools can be setup globally using the `tools` input.
 
-`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`
+`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `flex`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`
 
 ```yaml
 uses: shivammathur/setup-php@v2
@@ -124,7 +124,7 @@ with:
   tools: php-cs-fixer, phpunit
 ```
 
-To setup a particular version of a tool, specify it in the form `tool:version`.  
+To setup a particular version of a tool, specify it in this form `tool:version`.  
 Version should be in semver format and a valid release of the tool.
 
 ```yaml
@@ -134,7 +134,7 @@ with:
   tools: php-cs-fixer:2.15.5, phpunit:8.5.1
 ``` 
 
-**Note**
+**Notes**
 - `composer` is setup by default.
 - Specifying version for `composer` and `pecl` has no effect, latest versions of both tools which are compatible with the PHP version will be setup.
 - Both agent and client will be setup when `blackfire` is specified.
@@ -178,6 +178,7 @@ Consider disabling the coverage using this PHP action for these reasons.
 - You are not generating coverage reports while testing.
 - It will remove `Xdebug`, which will have a positive impact on PHP performance.
 - You are using `phpdbg` for running your tests.
+- You are profiling your code using `blackfire`.
 
 ```yaml
 uses: shivammathur/setup-php@v2
@@ -295,7 +296,7 @@ steps:
 ### Thread Safe Setup
 
 - `NTS` versions are setup by default.
-- On `ubuntu` and `macOS` only NTS versions are supported.
+- On `ubuntu` and `macOS` only `NTS` versions are supported.
 - On `windows` both `TS` and `NTS` versions are supported.
 
 ```yaml
@@ -317,7 +318,7 @@ jobs:
 
 ### Force Update
 
-- PHP versions which are pre-installed on the GitHub Actions runner are not updated to their latest patch release by default.
+- Pre-installed PHP versions on the GitHub Actions runner are not updated to their latest patch release by default.
 - You can specify the `update` environment variable to `true` to force update to the latest release.
 
 ```yaml
@@ -331,7 +332,7 @@ jobs:
 
 ### Verbose Setup
 
-- To debug any issues, you can use the `verbose` tag instead of `v2`.
+To debug any issues, you can use the `verbose` tag instead of `v2`.
 
 ```yaml
 - name: Setup PHP
@@ -380,11 +381,11 @@ steps:
     extensions: ${{ env.extensions }}
 ```
 
+**Note:** If you setup both `TS` and `NTS` PHP versions on `windows`, add `${{ env.PHPTS }}` to `key` and `restore-keys` inputs in `actions/cache` step.
+
 ### Cache Composer Dependencies
 
 If your project uses composer, you can persist composer's internal cache directory. Dependencies cached are loaded directly instead of downloading them while installation. The files cached are available across check-runs and will reduce the workflow execution time.
-
-**Note:** Please do not cache `vendor` directory using `action/cache` as that will have side-effects.
 
 ```yaml
 - name: Get composer cache directory
@@ -402,7 +403,9 @@ If your project uses composer, you can persist composer's internal cache directo
   run: composer install --prefer-dist
 ```
 
-In the above example, if you support a range of `composer` dependencies and do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
+**Notes**
+- Please do not cache `vendor` directory using `action/cache` as that will have side-effects.
+- In the above example, if you support a range of `composer` dependencies and do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
 
 ```yaml
 key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
@@ -410,9 +413,7 @@ key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
 
 ### Cache Node.js Dependencies
 
-If you project has node.js dependencies, you can persist npm's or yarn's internal cache directory. Dependencies cached install faster. The files cached are available across check-runs and will reduce the workflow execution time.
-
-**Note:** Please do not cache `node_modules` directory as that will have side-effects.
+If your project has node.js dependencies, you can persist npm's or yarn's cache directory. The cached files are available across check-runs and will reduce the workflow execution time.
 
 ```yaml
 - name: Get node.js cache directory
@@ -426,6 +427,8 @@ If you project has node.js dependencies, you can persist npm's or yarn's interna
     key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # Use '**/yarn.lock' for yarn
     restore-keys: ${{ runner.os }}-node-
 ```
+
+**Note:** Please do not cache `node_modules` directory as that will have side-effects.
 
 ### Problem Matchers
 
@@ -507,9 +510,9 @@ Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "sh
 
 If this action helped you.
 
+- To support this project subscribe on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") or sponsor using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal").
 - Please star the project and share it with the community.
 - If you blog, write about your experience of using this action.
-- Please support me with a [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") subscription or a contribution using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal") so that I'm able to actively maintain this project.
 - If you need any help using this, please contact me using [Codementor](https://www.codementor.io/shivammathur "Shivam Mathur Codementor")
 
 ## :bookmark: Dependencies
@@ -521,8 +524,8 @@ If this action helped you.
 - [shivammathur/cache-extensions](https://github.com/shivammathur/cache-extensions "GitHub action to help with caching PHP extensions")
 - [shivammathur/homebrew-php](https://github.com/shivammathur/homebrew-php "Tap for PHP builds for MacOS")
 - [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Nightly PHP package")
+- [shivammathur/php5-darwin](https://github.com/shivammathur/php5-darwin "Scripts to setup PHP5 versions on darwin")
 - [shivammathur/php5-ubuntu](https://github.com/shivammathur/php5-ubuntu "Scripts to setup PHP5 versions on ubuntu")
-- [shivammathur/php5-darwin](https://github.com/shivammathur/php5-ubuntu "Scripts to setup PHP5 versions on darwin")
 
 ## :bookmark_tabs: Further Reading
 

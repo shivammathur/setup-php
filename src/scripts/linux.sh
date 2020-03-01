@@ -48,31 +48,17 @@ get_pecl_version() {
   echo "$pecl_version"
 }
 
-# Function to setup extensions
-add_extension() {
+# Function to test if extension is loaded
+check_extension() {
   extension=$1
-  install_command=$2
-  prefix=$3
-  if ! php -m | grep -i -q -w "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    # shellcheck disable=SC2046
-    $apt_install $(apt-cache depends php"$version"-"$extension" | awk '/Depends:/{print$2}') >/dev/null 2>&1
-    echo "$prefix=$extension" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
-  elif php -m | grep -i -q -w "$extension"; then
-    add_log "$tick" "$extension" "Enabled"
-  elif ! php -m | grep -i -q -w "$extension"; then
-    (eval "$install_command" && add_log "$tick" "$extension" "Installed and enabled") ||
-    (update_ppa && eval "$install_command" && add_log "$tick" "$extension" "Installed and enabled") ||
-    (sudo pecl install -f "$extension" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
-    add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
-  fi
-  sudo chmod 777 "$ini_file"
+  php -m | grep -i -q -w "$extension"
 }
 
 # Function to delete extensions
 delete_extension() {
   extension=$1
   sudo sed -i "/$extension/d" "$ini_file"
-  sudo rm -rf /etc/php/"$version"/cli/conf.d/*"$extension"* >/dev/null 2>&1
+  sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
 }
 
@@ -85,13 +71,44 @@ remove_extension() {
   delete_extension "$extension"
 }
 
+# Function to setup extensions
+add_extension() {
+  extension=$1
+  install_command=$2
+  prefix=$3
+  if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
+    echo "$prefix=$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
+  elif check_extension "$extension"; then
+    add_log "$tick" "$extension" "Enabled"
+  elif ! check_extension "$extension"; then
+    eval "$install_command" >/dev/null 2>&1 ||
+    (update_ppa && eval "$install_command" >/dev/null 2>&1) ||
+    sudo pecl install -f "$extension" >/dev/null 2>&1
+    (check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled") ||
+    add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
+  fi
+  sudo chmod 777 "$ini_file"
+}
+
 # Function to install a PECL version
 add_pecl_extension() {
   extension=$1
   pecl_version=$2
-  (sudo pecl install -f "$extension-$pecl_version" >/dev/null 2>&1 &&
-  add_log "$tick" "$extension" "Installed and enabled") ||
-  add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"
+  prefix=$3
+  if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
+    echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"
+  fi
+  ext_version=$(php -r "echo phpversion('$extension');")
+  if [ "$ext_version" = "$pecl_version" ]; then
+    add_log "$tick" "$extension" "Enabled"
+  else
+    delete_extension "$extension"
+    (
+      sudo pecl install -f "$extension-$pecl_version" >/dev/null 2>&1 &&
+      check_extension "$extension" &&
+      add_log "$tick" "$extension" "Installed and enabled"
+    ) || add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"
+  fi
 }
 
 # Function to pre-release extensions using PECL
@@ -100,25 +117,7 @@ add_unstable_extension() {
   stability=$2
   prefix=$3
   pecl_version=$(get_pecl_version "$extension" "$stability")
-  if ! php -m | grep -i -q -w "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    extension_version=$(php -d="$prefix=$extension" -r "echo phpversion('$extension');")
-    if [ "$extension_version" = "$pecl_version" ]; then
-      echo "$prefix=$extension" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
-    else
-      delete_extension "$extension"
-      add_pecl_extension "$extension" "$pecl_version"
-    fi
-  elif php -m | grep -i -q -w "$extension"; then
-    extension_version=$(php -r "echo phpversion('$extension');")
-    if [ "$extension_version" = "$pecl_version" ]; then
-      add_log "$tick" "$extension" "Enabled"
-    else
-      delete_extension "$extension"
-      add_pecl_extension "$extension" "$pecl_version"
-    fi
-  else
-    add_pecl_extension "$extension" "$pecl_version"
-  fi
+  add_pecl_extension "$extension" "$pecl_version" "$prefix"
 }
 
 # Function to update extension
@@ -140,7 +139,7 @@ update_extension() {
 add_tool() {
   url=$1
   tool=$2
-  tool_path=/usr/local/bin/"$tool"
+  tool_path="$tool_path_dir/$tool"
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
   fi
@@ -152,9 +151,9 @@ add_tool() {
     elif [ "$tool" = "cs2pr" ]; then
       sudo sed -i 's/\r$//; s/exit(9)/exit(0)/' "$tool_path"
     elif [ "$tool" = "phive" ]; then
-      add_extension curl >/dev/null 2>&1
-      add_extension mbstring >/dev/null 2>&1
-      add_extension xml >/dev/null 2>&1
+      add_extension curl "$apt_install php$version-curl" extension >/dev/null 2>&1
+      add_extension mbstring "$apt_install php$version-mbstring" extension >/dev/null 2>&1
+      add_extension xml "$apt_install php$version-xml" extension >/dev/null 2>&1
     fi
     add_log "$tick" "$tool" "Added"
   else
@@ -163,7 +162,7 @@ add_tool() {
 }
 
 # Function to setup a tool using composer
-add_composer_tool() {
+add_composertool() {
   tool=$1
   release=$2
   prefix=$3
@@ -189,8 +188,8 @@ setup_master() {
   tar_file=php_"$version"%2Bubuntu"$(lsb_release -r -s)".tar.xz
   install_dir=~/php/"$version"
   sudo mkdir -m 777 -p ~/php
-  $apt_install libicu-dev >/dev/null 2>&1
-  curl -o "$tar_file" -L https://bintray.com/shivammathur/php/download_file?file_path="$tar_file" >/dev/null 2>&1
+  update_ppa && $apt_install libicu64 libicu-dev >/dev/null 2>&1
+  curl -SLO https://dl.bintray.com/shivammathur/php/"$tar_file" >/dev/null 2>&1
   sudo tar xf "$tar_file" -C ~/php >/dev/null 2>&1
   rm -rf "$tar_file"
   sudo ln -sf -S "$version" "$install_dir"/bin/* /usr/bin/
@@ -216,13 +215,24 @@ switch_version() {
   done
 }
 
+# Function to get PHP version in semver format
+php_semver() {
+  if [ ! "$version" = "8.0" ]; then
+    php"$version" -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-'
+  else
+    php -v | head -n 1 | cut -f 2 -d ' '
+  fi
+}
+
 # Variables
 tick="✓"
 cross="✗"
 ppa_updated="false"
 pecl_config="false"
 version=$1
-apt_install="sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y"
+debconf_fix="DEBIAN_FRONTEND=noninteractive"
+apt_install="sudo $debconf_fix apt-fast install -y"
+tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version | cut -c 1-3)
 
 # Setup PHP
@@ -232,36 +242,25 @@ sudo mkdir -p /run/php
 
 if [ "$existing_version" != "$version" ]; then
   if [ ! -e "/usr/bin/php$version" ]; then
-    update_ppa
     if [ "$version" = "8.0" ]; then
       setup_master
     else
+      update_ppa
       $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml >/dev/null 2>&1
     fi
-    status="installed"
+    status="Installed"
   else
-    status="switched"
+    status="Switched to"
   fi
 
   switch_version
-
-  if [ "$version" = "8.0" ]; then
-    semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
-  else
-    semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
-  fi
-
-  if [ "$status" != "switched" ]; then
-    status="Installed PHP $semver"
-  else
-    status="Switched to PHP $semver"
-  fi
 else
-  semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
-  status="PHP $semver Found"
+  status="Found"
 fi
 
+semver=$(php_semver)
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
-ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
-sudo chmod 777 "$ini_file"
-add_log "$tick" "PHP" "$status"
+ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
+scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
+sudo chmod 777 "$ini_file" "$tool_path_dir"
+add_log "$tick" "PHP" "$status PHP $semver"

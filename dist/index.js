@@ -1453,6 +1453,13 @@ exports.setFailed = setFailed;
 // Logging Commands
 //-----------------------------------------------------------------------
 /**
+ * Gets whether Actions Step Debug is on or not
+ */
+function isDebug() {
+    return process.env['RUNNER_DEBUG'] === '1';
+}
+exports.isDebug = isDebug;
+/**
  * Writes debug message to user log
  * @param message debug message
  */
@@ -1575,63 +1582,24 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils = __importStar(__webpack_require__(163));
 /**
- * Function to get command to setup tool
+ * Function to get command to setup tools
  *
  * @param os_version
  */
-function getArchiveCommand(os_version) {
+function getCommand(os_version, suffix) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (os_version) {
             case 'linux':
             case 'darwin':
-                return 'add_tool ';
+                return 'add_' + suffix + ' ';
             case 'win32':
-                return 'Add-Tool ';
+                return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
             default:
                 return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
         }
     });
 }
-exports.getArchiveCommand = getArchiveCommand;
-/**
- * Function to get command to setup tools using composer
- *
- * @param os_version
- */
-function getPackageCommand(os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (os_version) {
-            case 'linux':
-            case 'darwin':
-                return 'add_composer_tool ';
-            case 'win32':
-                return 'Add-Composer-Tool ';
-            default:
-                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
-        }
-    });
-}
-exports.getPackageCommand = getPackageCommand;
-/**
- *
- * Function to get command to setup PECL
- *
- * @param os_version
- */
-function getPECLCommand(os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (os_version) {
-            case 'linux':
-            case 'darwin':
-                return 'add_pecl ';
-            case 'win32':
-                return 'Add-PECL ';
-            default:
-                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
-        }
-    });
-}
-exports.getPECLCommand = getPECLCommand;
+exports.getCommand = getCommand;
 /**
  * Function to get tool version
  *
@@ -1703,20 +1671,13 @@ exports.getUri = getUri;
  * Helper function to get the codeception url
  *
  * @param version
- * @param php_version
  * @param suffix
  */
-function getCodeceptionUriBuilder(version, php_version, suffix) {
+function getCodeceptionUriBuilder(version, suffix) {
     return __awaiter(this, void 0, void 0, function* () {
-        switch (true) {
-            case /^5\.6$|^7\.[0|1]$/.test(php_version):
-                return ['releases', version, suffix, 'codecept.phar']
-                    .filter(Boolean)
-                    .join('/');
-            case /^7\.[2-4]$/.test(php_version):
-            default:
-                return ['releases', version, 'codecept.phar'].filter(Boolean).join('/');
-        }
+        return ['releases', version, suffix, 'codecept.phar']
+            .filter(Boolean)
+            .join('/');
     });
 }
 exports.getCodeceptionUriBuilder = getCodeceptionUriBuilder;
@@ -1728,19 +1689,55 @@ exports.getCodeceptionUriBuilder = getCodeceptionUriBuilder;
  */
 function getCodeceptionUri(version, php_version) {
     return __awaiter(this, void 0, void 0, function* () {
+        const codecept = yield getCodeceptionUriBuilder(version, '');
+        const codecept54 = yield getCodeceptionUriBuilder(version, 'php54');
+        const codecept56 = yield getCodeceptionUriBuilder(version, 'php56');
+        // Refer to https://codeception.com/builds
         switch (true) {
             case /latest/.test(version):
                 switch (true) {
-                    case /^5\.6$|^7\.[0|1]$/.test(php_version):
+                    case /5\.6|7\.[0|1]/.test(php_version):
                         return 'php56/codecept.phar';
-                    case /^7\.[2-4]$/.test(php_version):
+                    case /7\.[2-4]/.test(php_version):
                     default:
                         return 'codecept.phar';
                 }
-            case /([4-9]|\d{2,})\..*/.test(version):
-                return yield getCodeceptionUriBuilder(version, php_version, 'php56');
+            case /(^[4-9]|\d{2,})\..*/.test(version):
+                switch (true) {
+                    case /5\.6|7\.[0|1]/.test(php_version):
+                        return codecept56;
+                    case /7\.[2-4]/.test(php_version):
+                    default:
+                        return codecept;
+                }
+            case /(^2\.[4-5]\.\d+|^3\.[0-1]\.\d+).*/.test(version):
+                switch (true) {
+                    case /5\.6/.test(php_version):
+                        return codecept54;
+                    case /7\.[0-4]/.test(php_version):
+                    default:
+                        return codecept;
+                }
+            case /^2\.3\.\d+.*/.test(version):
+                switch (true) {
+                    case /5\.[4-6]/.test(php_version):
+                        return codecept54;
+                    case /^7\.[0-4]$/.test(php_version):
+                    default:
+                        return codecept;
+                }
+            case /(^2\.(1\.([6-9]|\d{2,}))|^2\.2\.\d+).*/.test(version):
+                switch (true) {
+                    case /5\.[4-5]/.test(php_version):
+                        return codecept54;
+                    case /5.6|7\.[0-4]/.test(php_version):
+                    default:
+                        return codecept;
+                }
+            case /(^2\.(1\.[0-5]|0\.\d+)|^1\.[6-8]\.\d+).*/.test(version):
+                return codecept;
             default:
-                return yield getCodeceptionUriBuilder(version, php_version, 'php54');
+                return yield codecept;
         }
     });
 }
@@ -1757,10 +1754,10 @@ function addPhive(version, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (version) {
             case 'latest':
-                return ((yield getArchiveCommand(os_version)) +
+                return ((yield getCommand(os_version, 'tool')) +
                     'https://phar.io/releases/phive.phar phive');
             default:
-                return ((yield getArchiveCommand(os_version)) +
+                return ((yield getCommand(os_version, 'tool')) +
                     'https://github.com/phar-io/phive/releases/download/' +
                     version +
                     '/phive-' +
@@ -1771,22 +1768,21 @@ function addPhive(version, os_version) {
 }
 exports.addPhive = addPhive;
 /**
- * Function to get the PHPUnit url
+ * Function to get the phar url in domain/tool-version.phar format
  *
  * @param version
  */
-function getPhpunitUrl(tool, version) {
+function getPharUrl(domain, tool, prefix, version) {
     return __awaiter(this, void 0, void 0, function* () {
-        const phpunit = 'https://phar.phpunit.de';
         switch (version) {
             case 'latest':
-                return phpunit + '/' + tool + '.phar';
+                return domain + '/' + tool + '.phar';
             default:
-                return phpunit + '/' + tool + '-' + version + '.phar';
+                return domain + '/' + tool + '-' + prefix + version + '.phar';
         }
     });
 }
-exports.getPhpunitUrl = getPhpunitUrl;
+exports.getPharUrl = getPharUrl;
 /**
  * Function to get the Deployer url
  *
@@ -1884,7 +1880,7 @@ exports.getCleanedToolsList = getCleanedToolsList;
  */
 function addArchive(tool, version, url, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
-        return (yield getArchiveCommand(os_version)) + url + ' ' + tool;
+        return (yield getCommand(os_version, 'tool')) + url + ' ' + tool;
     });
 }
 exports.addArchive = addArchive;
@@ -1921,7 +1917,7 @@ exports.addDevTools = addDevTools;
  */
 function addPackage(tool, release, prefix, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
-        const tool_command = yield getPackageCommand(os_version);
+        const tool_command = yield getCommand(os_version, 'composertool');
         return tool_command + tool + ' ' + release + ' ' + prefix;
     });
 }
@@ -1977,8 +1973,10 @@ function addTools(tools_csv, php_version, os_version) {
                         script += yield addArchive(tool, version, url, os_version);
                         break;
                     case 'composer':
-                        url =
-                            github + 'composer/composer/releases/latest/download/composer.phar';
+                        // If RC is released as latest release, switch to getcomposer.
+                        // Prefered source is GitHub as it is faster.
+                        // url = github + 'composer/composer/releases/latest/download/composer.phar';
+                        url = 'https://getcomposer.org/composer-stable.phar';
                         script += yield addArchive(tool, version, url, os_version);
                         break;
                     case 'codeception':
@@ -1989,7 +1987,7 @@ function addTools(tools_csv, php_version, os_version) {
                         break;
                     case 'phpcpd':
                     case 'phpunit':
-                        url = yield getPhpunitUrl(tool, version);
+                        url = yield getPharUrl('https://phar.phpunit.de', tool, '', version);
                         script += yield addArchive(tool, version, url, os_version);
                         break;
                     case 'deployer':
@@ -2006,7 +2004,7 @@ function addTools(tools_csv, php_version, os_version) {
                         script += yield addPackage(tool, release, 'narrowspark/automatic-', os_version);
                         break;
                     case 'pecl':
-                        script += yield getPECLCommand(os_version);
+                        script += yield getCommand(os_version, 'pecl');
                         break;
                     case 'php-config':
                     case 'phpize':

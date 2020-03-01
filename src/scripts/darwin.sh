@@ -20,22 +20,14 @@ add_log() {
 remove_extension() {
   extension=$1
   sudo sed -i '' "/$extension/d" "$ini_file"
+  sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
 }
 
-# Function to setup extensions
-add_extension() {
+# Function to test if extension is loaded
+check_extension() {
   extension=$1
-  install_command=$2
-  prefix=$3
-  if ! php -m | grep -i -q -w "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    echo "$prefix=$extension" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
-  elif php -m | grep -i -q -w "$extension"; then
-    add_log "$tick" "$extension" "Enabled"
-  elif ! php -m | grep -i -q -w "$extension"; then
-    (eval "$install_command" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
-    add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
-  fi
+  php -m | grep -i -q -w "$extension"
 }
 
 # Fuction to get the PECL version
@@ -51,68 +43,83 @@ get_pecl_version() {
   echo "$pecl_version"
 }
 
+# Function to install a PECL version
+add_pecl_extension() {
+  extension=$1
+  pecl_version=$2
+  prefix=$3
+  if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
+    echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"
+  fi
+  ext_version=$(php -r "echo phpversion('$extension');")
+  if [ "$ext_version" = "$pecl_version" ]; then
+    add_log "$tick" "$extension" "Enabled"
+  else
+    remove_extension "$extension"
+    (
+      sudo pecl install -f "$extension-$pecl_version" >/dev/null 2>&1 &&
+      check_extension "$extension" &&
+      add_log "$tick" "$extension" "Installed and enabled"
+    ) || add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"
+  fi
+}
+
+# Function to setup extensions
+add_extension() {
+  extension=$1
+  install_command=$2
+  prefix=$3
+  if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
+    echo "$prefix=$ext_dir/$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
+  elif check_extension "$extension"; then
+    add_log "$tick" "$extension" "Enabled"
+  elif ! check_extension "$extension"; then
+    (
+      eval "$install_command" >/dev/null 2>&1 &&
+      check_extension "$extension" &&
+      add_log "$tick" "$extension" "Installed and enabled"
+    ) || add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
+  fi
+}
+
 # Function to pre-release extensions using PECL
 add_unstable_extension() {
   extension=$1
   stability=$2
   prefix=$3
   pecl_version=$(get_pecl_version "$extension" "$stability")
-  if ! php -m | grep -i -q -w "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    extension_version=$(php -d="$prefix=$extension" -r "echo phpversion('$extension');")
-    if [ "$extension_version" = "$pecl_version" ]; then
-      echo "$prefix=$extension" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
-    else
-      remove_extension "$extension"
-      add_extension "$extension" "sudo pecl install -f $extension-$pecl_version" "$prefix"
-    fi
-  elif php -m | grep -i -q -w "$extension"; then
-    extension_version=$(php -r "echo phpversion('$extension');")
-    if [ "$extension_version" = "$pecl_version" ]; then
-      add_log "$tick" "$extension" "Enabled"
-    else
-      remove_extension "$extension"
-      add_extension "$extension" "sudo pecl install -f $extension-$pecl_version" "$prefix"
-    fi
-  else
-    add_extension "$extension" "sudo pecl install -f $extension-$pecl_version" "$prefix"
-  fi
+  add_pecl_extension "$extension" "$pecl_version" "$prefix"
 }
 
 # Function to setup a remote tool
 add_tool() {
   url=$1
   tool=$2
-  if [ "$tool" = "composer" ]; then
-    brew install composer >/dev/null 2>&1
-    composer -q global config process-timeout 0
+  tool_path="$tool_path_dir/$tool"
+  if [ ! -e "$tool_path" ]; then
+    rm -rf "$tool_path"
+  fi
+
+  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" -L "$url")
+  if [ "$status_code" = "200" ]; then
+    sudo chmod a+x "$tool_path"
+    if [ "$tool" = "phive" ]; then
+      add_extension curl "sudo pecl install -f curl" extension >/dev/null 2>&1
+      add_extension mbstring "sudo pecl install -f mbstring" extension >/dev/null 2>&1
+      add_extension xml "sudo pecl install -f xml" extension >/dev/null 2>&1
+    elif [ "$tool" = "cs2pr" ]; then
+      sudo sed -i '' 's/exit(9)/exit(0)/' "$tool_path"
+      tr -d '\r' < "$tool_path" | sudo tee "$tool_path.tmp" >/dev/null 2>&1 && sudo mv "$tool_path.tmp" "$tool_path"
+      sudo chmod a+x "$tool_path"
+    fi
     add_log "$tick" "$tool" "Added"
   else
-    tool_path=/usr/local/bin/"$tool"
-    if [ ! -e "$tool_path" ]; then
-      rm -rf "$tool_path"
-    fi
-
-    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" -L "$url")
-    if [ "$status_code" = "200" ]; then
-      sudo chmod a+x "$tool_path"
-      if [ "$tool" = "phive" ]; then
-        add_extension curl "sudo pecl install -f curl" extension >/dev/null 2>&1
-        add_extension mbstring "sudo pecl install -f mbstring" extension >/dev/null 2>&1
-        add_extension xml "sudo pecl install -f xml" extension >/dev/null 2>&1
-      elif [ "$tool" = "cs2pr" ]; then
-        sudo sed -i '' 's/exit(9)/exit(0)/' "$tool_path"
-        tr -d '\r' < "$tool_path" | sudo tee "$tool_path.tmp" >/dev/null 2>&1 && sudo mv "$tool_path.tmp" "$tool_path"
-        sudo chmod a+x "$tool_path"
-      fi
-      add_log "$tick" "$tool" "Added"
-    else
-      add_log "$cross" "$tool" "Could not setup $tool"
-    fi
+    add_log "$cross" "$tool" "Could not setup $tool"
   fi
 }
 
 # Function to add a tool using composer
-add_composer_tool() {
+add_composertool() {
   tool=$1
   release=$2
   prefix=$3
@@ -149,6 +156,7 @@ setup_php_and_composer() {
 tick="✓"
 cross="✗"
 version=$1
+tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version | cut -c 1-3)
 
 # Setup PHP
@@ -163,9 +171,10 @@ else
   status="Found"
 fi
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
-sudo chmod 777 "$ini_file"
+sudo chmod 777 "$ini_file" "$tool_path_dir"
 echo "date.timezone=UTC" >>"$ini_file"
 ext_dir=$(php -i | grep -Ei "extension_dir => /(usr|opt)" | sed -e "s|.*=> s*||")
+scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo mkdir -p "$ext_dir"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
 configure_pecl

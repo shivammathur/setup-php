@@ -1,60 +1,20 @@
 import * as utils from './utils';
 
 /**
- * Function to get command to setup tool
+ * Function to get command to setup tools
  *
  * @param os_version
  */
-export async function getArchiveCommand(os_version: string): Promise<string> {
+export async function getCommand(
+  os_version: string,
+  suffix: string
+): Promise<string> {
   switch (os_version) {
     case 'linux':
     case 'darwin':
-      return 'add_tool ';
+      return 'add_' + suffix + ' ';
     case 'win32':
-      return 'Add-Tool ';
-    default:
-      return await utils.log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
-  }
-}
-
-/**
- * Function to get command to setup tools using composer
- *
- * @param os_version
- */
-export async function getPackageCommand(os_version: string): Promise<string> {
-  switch (os_version) {
-    case 'linux':
-    case 'darwin':
-      return 'add_composer_tool ';
-    case 'win32':
-      return 'Add-Composer-Tool ';
-    default:
-      return await utils.log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
-  }
-}
-
-/**
- *
- * Function to get command to setup PECL
- *
- * @param os_version
- */
-export async function getPECLCommand(os_version: string): Promise<string> {
-  switch (os_version) {
-    case 'linux':
-    case 'darwin':
-      return 'add_pecl ';
-    case 'win32':
-      return 'Add-PECL ';
+      return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
     default:
       return await utils.log(
         'Platform ' + os_version + ' is not supported',
@@ -138,23 +98,15 @@ export async function getUri(
  * Helper function to get the codeception url
  *
  * @param version
- * @param php_version
  * @param suffix
  */
 export async function getCodeceptionUriBuilder(
   version: string,
-  php_version: string,
   suffix: string
 ): Promise<string> {
-  switch (true) {
-    case /^5\.6$|^7\.[0|1]$/.test(php_version):
-      return ['releases', version, suffix, 'codecept.phar']
-        .filter(Boolean)
-        .join('/');
-    case /^7\.[2-4]$/.test(php_version):
-    default:
-      return ['releases', version, 'codecept.phar'].filter(Boolean).join('/');
-  }
+  return ['releases', version, suffix, 'codecept.phar']
+    .filter(Boolean)
+    .join('/');
 }
 
 /**
@@ -167,19 +119,55 @@ export async function getCodeceptionUri(
   version: string,
   php_version: string
 ): Promise<string> {
+  const codecept: string = await getCodeceptionUriBuilder(version, '');
+  const codecept54: string = await getCodeceptionUriBuilder(version, 'php54');
+  const codecept56: string = await getCodeceptionUriBuilder(version, 'php56');
+  // Refer to https://codeception.com/builds
   switch (true) {
     case /latest/.test(version):
       switch (true) {
-        case /^5\.6$|^7\.[0|1]$/.test(php_version):
+        case /5\.6|7\.[0|1]/.test(php_version):
           return 'php56/codecept.phar';
-        case /^7\.[2-4]$/.test(php_version):
+        case /7\.[2-4]/.test(php_version):
         default:
           return 'codecept.phar';
       }
-    case /([4-9]|\d{2,})\..*/.test(version):
-      return await getCodeceptionUriBuilder(version, php_version, 'php56');
+    case /(^[4-9]|\d{2,})\..*/.test(version):
+      switch (true) {
+        case /5\.6|7\.[0|1]/.test(php_version):
+          return codecept56;
+        case /7\.[2-4]/.test(php_version):
+        default:
+          return codecept;
+      }
+    case /(^2\.[4-5]\.\d+|^3\.[0-1]\.\d+).*/.test(version):
+      switch (true) {
+        case /5\.6/.test(php_version):
+          return codecept54;
+        case /7\.[0-4]/.test(php_version):
+        default:
+          return codecept;
+      }
+    case /^2\.3\.\d+.*/.test(version):
+      switch (true) {
+        case /5\.[4-6]/.test(php_version):
+          return codecept54;
+        case /^7\.[0-4]$/.test(php_version):
+        default:
+          return codecept;
+      }
+    case /(^2\.(1\.([6-9]|\d{2,}))|^2\.2\.\d+).*/.test(version):
+      switch (true) {
+        case /5\.[4-5]/.test(php_version):
+          return codecept54;
+        case /5.6|7\.[0-4]/.test(php_version):
+        default:
+          return codecept;
+      }
+    case /(^2\.(1\.[0-5]|0\.\d+)|^1\.[6-8]\.\d+).*/.test(version):
+      return codecept;
     default:
-      return await getCodeceptionUriBuilder(version, php_version, 'php54');
+      return await codecept;
   }
 }
 
@@ -198,12 +186,12 @@ export async function addPhive(
   switch (version) {
     case 'latest':
       return (
-        (await getArchiveCommand(os_version)) +
+        (await getCommand(os_version, 'tool')) +
         'https://phar.io/releases/phive.phar phive'
       );
     default:
       return (
-        (await getArchiveCommand(os_version)) +
+        (await getCommand(os_version, 'tool')) +
         'https://github.com/phar-io/phive/releases/download/' +
         version +
         '/phive-' +
@@ -214,20 +202,21 @@ export async function addPhive(
 }
 
 /**
- * Function to get the PHPUnit url
+ * Function to get the phar url in domain/tool-version.phar format
  *
  * @param version
  */
-export async function getPhpunitUrl(
+export async function getPharUrl(
+  domain: string,
   tool: string,
+  prefix: string,
   version: string
 ): Promise<string> {
-  const phpunit = 'https://phar.phpunit.de';
   switch (version) {
     case 'latest':
-      return phpunit + '/' + tool + '.phar';
+      return domain + '/' + tool + '.phar';
     default:
-      return phpunit + '/' + tool + '-' + version + '.phar';
+      return domain + '/' + tool + '-' + prefix + version + '.phar';
   }
 }
 
@@ -333,7 +322,7 @@ export async function addArchive(
   url: string,
   os_version: string
 ): Promise<string> {
-  return (await getArchiveCommand(os_version)) + url + ' ' + tool;
+  return (await getCommand(os_version, 'tool')) + url + ' ' + tool;
 }
 
 /**
@@ -385,7 +374,7 @@ export async function addPackage(
   prefix: string,
   os_version: string
 ): Promise<string> {
-  const tool_command = await getPackageCommand(os_version);
+  const tool_command = await getCommand(os_version, 'composertool');
   return tool_command + tool + ' ' + release + ' ' + prefix;
 }
 
@@ -449,8 +438,10 @@ export async function addTools(
         script += await addArchive(tool, version, url, os_version);
         break;
       case 'composer':
-        url =
-          github + 'composer/composer/releases/latest/download/composer.phar';
+        // If RC is released as latest release, switch to getcomposer.
+        // Prefered source is GitHub as it is faster.
+        // url = github + 'composer/composer/releases/latest/download/composer.phar';
+        url = 'https://getcomposer.org/composer-stable.phar';
         script += await addArchive(tool, version, url, os_version);
         break;
       case 'codeception':
@@ -461,7 +452,7 @@ export async function addTools(
         break;
       case 'phpcpd':
       case 'phpunit':
-        url = await getPhpunitUrl(tool, version);
+        url = await getPharUrl('https://phar.phpunit.de', tool, '', version);
         script += await addArchive(tool, version, url, os_version);
         break;
       case 'deployer':
@@ -483,7 +474,7 @@ export async function addTools(
         );
         break;
       case 'pecl':
-        script += await getPECLCommand(os_version);
+        script += await getCommand(os_version, 'pecl');
         break;
       case 'php-config':
       case 'phpize':

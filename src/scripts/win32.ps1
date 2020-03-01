@@ -124,7 +124,7 @@ Function Add-Tool() {
   }
 }
 
-Function Add-Composer-Tool() {
+Function Add-Composertool() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     [ValidateNotNull()]
@@ -152,7 +152,7 @@ Function Add-Composer-Tool() {
   }
 }
 
-Function Add-PECL() {
+Function Add-Pecl() {
   Add-Log $tick "PECL" "Use extensions input to setup PECL extensions on windows"
 }
 
@@ -194,10 +194,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 
   Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
 } else {
-  $updated = Update-Php $php_dir >$null 2>&1
-  if($updated -eq $False) {
-    $status = "Found"
-  }
+  $status = "Found"
 }
 
 $installed = Get-Php -Path $php_dir

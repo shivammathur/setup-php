@@ -204,6 +204,8 @@ add_blackfire() {
   sudo blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
   sudo /etc/init.d/blackfire-agent restart >/dev/null 2>&1
   sudo blackfire --config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
+  add_log "$tick" "blackfire" "Added"
+  add_log "$tick" "blackfire-agent" "Added"
 }
 
 # Function to setup the nightly build from master branch

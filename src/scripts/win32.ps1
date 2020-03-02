@@ -185,6 +185,8 @@ Function Add-Blackfire() {
   if ((Test-Path env:BLACKFIRE_CLIENT_ID) -and (Test-Path env:BLACKFIRE_CLIENT_TOKEN)) {
     blackfire --config --client-id=$env:BLACKFIRE_CLIENT_ID --client-token=$env:BLACKFIRE_CLIENT_TOKEN --ca-cert=$php_dir\ssl\cacert.pem >$null 2>&1
   }
+  Add-Log $tick "blackfire" "Added"
+  Add-Log $tick "blackfire-agent" "Added"
 }
 
 # Variables

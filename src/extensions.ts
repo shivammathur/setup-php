@@ -241,12 +241,18 @@ export async function addExtensionLinux(
           '\n' +
           (await utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));
         return;
+      // match pdo extensions
+      case /.*pdo[_-].*/.test(version_extension):
+        script +=
+          '\nadd_pdo_extension ' +
+          extension.replace('pdo_', '').replace('pdo-', '');
+        return;
       default:
         install_command =
-          'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php' +
+          'sudo $debconf_fix apt-get install -y php' +
           version +
           '-' +
-          extension.replace('pdo_', '').replace('pdo-', '') +
+          extension +
           pipe;
         break;
     }

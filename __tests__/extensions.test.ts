@@ -35,15 +35,15 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnLinux', async () => {
     let linux: string = await extensions.addExtension(
-      'xdebug, pcov, ast-beta, xdebug-alpha, grpc-1.2.3',
+      'xdebug, pcov, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
       '7.4',
       'linux'
     );
     expect(linux).toContain('update_extension xdebug 2.9.1');
-    expect(linux).toContain(
-      'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php7.4-pcov'
-    );
+    expect(linux).toContain('sudo $debconf_fix apt-get install -y php7.4-pcov');
     expect(linux).toContain('add_unstable_extension ast beta extension');
+    expect(linux).toContain('add_pdo_extension mysql');
+    expect(linux).toContain('add_pdo_extension odbc');
     expect(linux).toContain('add_pecl_extension grpc 1.2.3 extension');
     expect(linux).toContain(
       'add_unstable_extension xdebug alpha zend_extension'

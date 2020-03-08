@@ -56,8 +56,7 @@ get_pecl_version() {
 
 # Function to test if extension is loaded
 check_extension() {
-  extension=$1
-  php -m | grep -i -q -w "$extension"
+  php -m | grep -i -q -w "$1"
 }
 
 # Function to delete extensions
@@ -77,6 +76,32 @@ remove_extension() {
   delete_extension "$extension"
 }
 
+# Function to enable existing extension
+enable_extension() {
+  if ! check_extension "$1" && [ -e "$ext_dir/$1.so" ]; then
+    echo "$2=$1.so" >>"$ini_file"
+  fi
+}
+
+# Funcion to add PDO extension
+add_pdo_extension() {
+  pdo_ext="pdo_$1"
+  if check_extension "$pdo_ext"; then
+    add_log "$tick" "$pdo_ext" "Enabled"
+  else
+    read -r ext ext_name <<< "$1 $1"
+    sudo rm -rf "$scan_dir"/*pdo.ini >/dev/null 2>&1 && enable_extension "pdo" "extension" >/dev/null 2>&1
+    if [ "$ext" = "mysql" ]; then
+      enable_extension "mysqlnd" "extension"
+      ext_name="mysqli"
+    fi
+    add_extension "$ext_name" "$apt_install php$version-$ext" "extension" >/dev/null 2>&1
+    enable_extension "$pdo_ext" "extension"
+    (check_extension "$pdo_ext" && add_log "$tick" "$pdo_ext" "Enabled") ||
+    add_log "$cross" "$pdo_ext" "Could not install $pdo_ext on PHP $semver"
+  fi
+}
+
 # Function to setup extensions
 add_extension() {
   extension=$1
@@ -85,11 +110,10 @@ add_extension() {
   if [[ "$version" =~ $old_versions ]]; then
     install_command="update_ppa && ${install_command/5\.[4-5]-$extension/5-$extension=$release_version}"
   fi
-  if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    echo "$prefix=$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
-  elif check_extension "$extension"; then
+  enable_extension "$extension" "$prefix"
+  if check_extension "$extension"; then
     add_log "$tick" "$extension" "Enabled"
-  elif ! check_extension "$extension"; then
+  else
     eval "$install_command" >/dev/null 2>&1 ||
     (update_ppa && eval "$install_command" >/dev/null 2>&1) ||
     sudo pecl install -f "$extension" >/dev/null 2>&1

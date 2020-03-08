@@ -74,11 +74,10 @@ add_extension() {
   elif check_extension "$extension"; then
     add_log "$tick" "$extension" "Enabled"
   elif ! check_extension "$extension"; then
-    (
-      eval "$install_command" >/dev/null 2>&1 &&
-      check_extension "$extension" &&
-      add_log "$tick" "$extension" "Installed and enabled"
-    ) || add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
+    eval "$install_command" >/dev/null 2>&1 &&
+    if [[ "$version" =~ $old_versions ]]; then echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"; fi
+    (check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled") ||
+    add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi
 }
 
@@ -172,6 +171,7 @@ setup_php() {
 tick="✓"
 cross="✗"
 version=$1
+nodot_version=${1/./}
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version | cut -c 1-3)
@@ -180,8 +180,7 @@ existing_version=$(php-config --version | cut -c 1-3)
 # Setup PHP
 step_log "Setup PHP"
 if [[ "$version" =~ $old_versions ]]; then
-  script="https://github.com/shivammathur/php5-darwin/releases/latest/download/install.sh"
-  curl -sSL "$script" | bash -s "$version" >/dev/null 2>&1 &&
+  curl -sSL https://github.com/shivammathur/php5-darwin/releases/latest/download/install.sh | bash -s "$nodot_version" >/dev/null 2>&1 &&
   status="Installed"
 elif [ "$existing_version" != "$version" ]; then
   setup_php "install"
@@ -195,10 +194,9 @@ fi
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 sudo chmod 777 "$ini_file" "$tool_path_dir"
 echo "date.timezone=UTC" >>"$ini_file"
-echo "detect_unicode=Off" >>"$ini_file"
-ext_dir=$(php -i | grep -Ei "extension_dir => /usr" | sed -e "s|.*=> s*||")
+ext_dir=$(php -i | grep -Ei "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo mkdir -p "$ext_dir"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
-configure_pecl
+if [[ ! "$version" =~ $old_versions ]]; then configure_pecl; fi
 add_log "$tick" "PHP" "$status PHP $semver"

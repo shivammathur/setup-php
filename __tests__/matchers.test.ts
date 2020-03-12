@@ -1,15 +1,5 @@
 import * as io from '@actions/io';
-import * as path from 'path';
-import * as fs from 'fs';
 import * as matchers from '../src/matchers';
-
-async function cleanup(path: string): Promise<void> {
-  fs.unlink(path, error => {
-    if (error) {
-      console.log(error);
-    }
-  });
-}
 
 jest.mock('@actions/io');
 

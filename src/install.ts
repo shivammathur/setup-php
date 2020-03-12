@@ -35,7 +35,7 @@ export async function build(
     tools_csv = 'pecl, ' + tools_csv;
   }
 
-  let script: string = await utils.readScript(filename, version, os_version);
+  let script: string = await utils.readScript(filename);
   script += await tools.addTools(tools_csv, version, os_version);
 
   if (extension_csv) {

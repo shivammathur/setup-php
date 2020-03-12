@@ -1073,7 +1073,6 @@ exports.color = color;
  * @param message
  * @param os_version
  * @param log_type
- * @param prefix
  */
 function log(message, os_version, log_type) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -1117,6 +1116,7 @@ exports.stepLog = stepLog;
  * @param mark
  * @param subject
  * @param message
+ * @param os_version
  */
 function addLog(mark, subject, message, os_version) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -1136,10 +1136,8 @@ exports.addLog = addLog;
  * Read the scripts
  *
  * @param filename
- * @param version
- * @param os_version
  */
-function readScript(filename, version, os_version) {
+function readScript(filename) {
     return __awaiter(this, void 0, void 0, function* () {
         return fs.readFileSync(path.join(__dirname, '../src/scripts/' + filename), 'utf8');
     });
@@ -1149,7 +1147,6 @@ exports.readScript = readScript;
  * Write final script which runs
  *
  * @param filename
- * @param version
  * @param script
  */
 function writeScript(filename, script) {
@@ -1614,6 +1611,7 @@ const utils = __importStar(__webpack_require__(163));
  * Function to get command to setup tools
  *
  * @param os_version
+ * @param suffix
  */
 function getCommand(os_version, suffix) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -1676,6 +1674,8 @@ exports.parseTool = parseTool;
 /**
  * Function to get the url of tool with the given version
  *
+ * @param tool
+ * @param extension
  * @param version
  * @param prefix
  * @param version_prefix
@@ -1766,7 +1766,7 @@ function getCodeceptionUri(version, php_version) {
             case /(^2\.(1\.[0-5]|0\.\d+)|^1\.[6-8]\.\d+).*/.test(version):
                 return codecept;
             default:
-                return yield codecept;
+                return codecept;
         }
     });
 }
@@ -1774,9 +1774,7 @@ exports.getCodeceptionUri = getCodeceptionUri;
 /**
  * Helper function to get script to setup phive
  *
- * @param tool
  * @param version
- * @param url
  * @param os_version
  */
 function addPhive(version, os_version) {
@@ -1799,6 +1797,9 @@ exports.addPhive = addPhive;
 /**
  * Function to get the phar url in domain/tool-version.phar format
  *
+ * @param domain
+ * @param tool
+ * @param prefix
  * @param version
  */
 function getPharUrl(domain, tool, prefix, version) {
@@ -1877,7 +1878,7 @@ exports.getWpCliUrl = getWpCliUrl;
 /**
  * Function to add/move composer in the tools list
  *
- * @param tools
+ * @param tools_list
  */
 function addComposer(tools_list) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -1970,7 +1971,8 @@ exports.addPackage = addPackage;
 /**
  * Setup tools
  *
- * @param tool_csv
+ * @param tools_csv
+ * @param php_version
  * @param os_version
  */
 function addTools(tools_csv, php_version, os_version) {
@@ -2316,6 +2318,7 @@ exports.addINIValuesWindows = addINIValuesWindows;
  *
  * @param ini_values_csv
  * @param os_version
+ * @param no_step
  */
 function addINIValues(ini_values_csv, os_version, no_step = false) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -2399,7 +2402,7 @@ function build(filename, version, os_version) {
             /.*-(\d+\.\d+\.\d+).*/.test(extension_csv)) {
             tools_csv = 'pecl, ' + tools_csv;
         }
-        let script = yield utils.readScript(filename, version, os_version);
+        let script = yield utils.readScript(filename);
         script += yield tools.addTools(tools_csv, version, os_version);
         if (extension_csv) {
             script += yield extensions.addExtension(extension_csv, version, os_version);
@@ -2802,9 +2805,8 @@ exports.addExtensionDarwin = addExtensionDarwin;
  *
  * @param extension_csv
  * @param version
- * @param pipe
  */
-function addExtensionWindows(extension_csv, version, pipe) {
+function addExtensionWindows(extension_csv, version) {
     return __awaiter(this, void 0, void 0, function* () {
         const extensions = yield utils.extensionArray(extension_csv);
         let script = '\n';
@@ -2987,7 +2989,7 @@ function addExtension(extension_csv, version, os_version, no_step = false) {
         }
         switch (os_version) {
             case 'win32':
-                return script + (yield addExtensionWindows(extension_csv, version, pipe));
+                return script + (yield addExtensionWindows(extension_csv, version));
             case 'darwin':
                 return script + (yield addExtensionDarwin(extension_csv, version, pipe));
             case 'linux':

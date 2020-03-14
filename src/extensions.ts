@@ -16,11 +16,11 @@ export async function addExtensionDarwin(
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
-    extension = extension.toLowerCase();
     const version_extension: string = version + extension;
     const [extension_name, stability]: string[] = extension.split('-');
-    const prefix = await utils.getExtensionPrefix(extension_name);
-    let install_command = '';
+    const ext_prefix = await utils.getExtensionPrefix(extension_name);
+    const command_prefix = 'sudo pecl install -f ';
+    let command = '';
     switch (true) {
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
@@ -30,24 +30,36 @@ export async function addExtensionDarwin(
           ' ' +
           stability +
           ' ' +
-          prefix;
+          ext_prefix;
         return;
+      // match 5.6xdebug
       case /5\.6xdebug/.test(version_extension):
-        install_command = 'sudo pecl install -f xdebug-2.5.5' + pipe;
+        command = command_prefix + 'xdebug-2.5.5' + pipe;
         break;
+      // match 7.0xdebug
       case /7\.0xdebug/.test(version_extension):
-        install_command = 'sudo pecl install -f xdebug-2.9.0' + pipe;
+        command = command_prefix + 'xdebug-2.9.0' + pipe;
         break;
+      // match 5.6redis
       case /5\.6redis/.test(version_extension):
-        install_command = 'sudo pecl install -f redis-2.2.8' + pipe;
+        command = command_prefix + 'redis-2.2.8' + pipe;
         break;
-      case /[5-9]\.\dimagick/.test(version_extension):
-        install_command =
+      // match imagick
+      case /imagick/.test(extension):
+        command =
           'brew install pkg-config imagemagick' +
           pipe +
-          ' && sudo pecl install -f imagick' +
+          ' && ' +
+          command_prefix +
+          'imagick' +
           pipe;
         break;
+      // match sqlite
+      case /sqlite/.test(extension):
+        extension = 'sqlite3';
+        command = command_prefix + extension + pipe;
+        break;
+      // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
         script +=
           'sh ' +
@@ -58,14 +70,14 @@ export async function addExtensionDarwin(
           version;
         return;
       default:
-        install_command = 'sudo pecl install -f ' + extension + pipe;
+        command = command_prefix + extension + pipe;
         break;
     }
     script +=
       '\nadd_extension ' +
       extension +
       ' "' +
-      install_command +
+      command +
       '" ' +
       (await utils.getExtensionPrefix(extension));
   });
@@ -87,13 +99,17 @@ export async function addExtensionWindows(
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
-    extension = extension.toLowerCase();
     const [extension_name, stability]: string[] = extension.split('-');
     const version_extension: string = version + extension;
     switch (true) {
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
         script += '\nAdd-Extension ' + extension_name + ' ' + stability;
+        break;
+      // match sqlite
+      case /sqlite/.test(extension):
+        extension = 'sqlite3';
+        script += '\nAdd-Extension ' + extension;
         break;
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
@@ -129,11 +145,11 @@ export async function addExtensionLinux(
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
-    extension = extension.toLowerCase();
     const version_extension: string = version + extension;
     const [extension_name, stability]: string[] = extension.split('-');
-    const prefix = await utils.getExtensionPrefix(extension_name);
-    let install_command = '';
+    const ext_prefix = await utils.getExtensionPrefix(extension_name);
+    const command_prefix = 'sudo $debconf_fix apt-get install -y php';
+    let command = '';
     switch (true) {
       // match pre-release versions
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
@@ -143,11 +159,11 @@ export async function addExtensionLinux(
           ' ' +
           stability +
           ' ' +
-          prefix;
+          ext_prefix;
         return;
       // match 5.6gearman..7.4gearman
       case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
-        install_command =
+        command =
           'sh ' +
           path.join(__dirname, '../src/scripts/ext/gearman.sh') +
           ' ' +
@@ -167,14 +183,18 @@ export async function addExtensionLinux(
       // match 7.0xdebug..7.4xdebug
       case /^7\.[0-4]xdebug$/.test(version_extension):
         script +=
-          '\nupdate_extension xdebug 2.9.0' +
+          '\nupdate_extension xdebug 2.9.2' +
           pipe +
           '\n' +
           (await utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));
         return;
+      case /sqlite/.test(extension):
+        extension = 'sqlite3';
+        command = command_prefix + version + '-' + extension + pipe;
+        break;
       default:
-        install_command =
-          'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y php' +
+        command =
+          command_prefix +
           version +
           '-' +
           extension.replace('pdo_', '').replace('pdo-', '') +
@@ -182,7 +202,7 @@ export async function addExtensionLinux(
         break;
     }
     script +=
-      '\nadd_extension ' + extension + ' "' + install_command + '" ' + prefix;
+      '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
   });
   return script;
 }
@@ -193,7 +213,7 @@ export async function addExtensionLinux(
  * @param extension_csv
  * @param version
  * @param os_version
- * @param log_prefix
+ * @param no_step
  */
 export async function addExtension(
   extension_csv: string,

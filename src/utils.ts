@@ -196,6 +196,7 @@ export async function extensionArray(
         .map(function(extension: string) {
           return extension
             .trim()
+            .toLowerCase()
             .replace('php-', '')
             .replace('php_', '');
         })

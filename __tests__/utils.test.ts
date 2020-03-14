@@ -55,12 +55,12 @@ describe('Utils tests', () => {
       path.join(__dirname, '../src/scripts/win32.ps1'),
       'utf8'
     );
-    expect(await utils.readScript('darwin.sh', '7.4', 'darwin')).toBe(darwin);
-    expect(await utils.readScript('darwin.sh', '7.3', 'darwin')).toBe(darwin);
-    expect(await utils.readScript('linux.sh', '7.4', 'linux')).toBe(linux);
-    expect(await utils.readScript('linux.sh', '7.3', 'linux')).toBe(linux);
-    expect(await utils.readScript('win32.ps1', '7.4', 'win32')).toBe(win32);
-    expect(await utils.readScript('win32.ps1', '7.3', 'win32')).toBe(win32);
+    expect(await utils.readScript('darwin.sh')).toBe(darwin);
+    expect(await utils.readScript('darwin.sh')).toBe(darwin);
+    expect(await utils.readScript('linux.sh')).toBe(linux);
+    expect(await utils.readScript('linux.sh')).toBe(linux);
+    expect(await utils.readScript('win32.ps1')).toBe(win32);
+    expect(await utils.readScript('win32.ps1')).toBe(win32);
   });
 
   it('checking writeScripts', async () => {

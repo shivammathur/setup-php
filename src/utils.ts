@@ -65,7 +65,6 @@ export async function color(type: string): Promise<string> {
  * @param message
  * @param os_version
  * @param log_type
- * @param prefix
  */
 export async function log(
   message: string,
@@ -121,6 +120,7 @@ export async function stepLog(
  * @param mark
  * @param subject
  * @param message
+ * @param os_version
  */
 export async function addLog(
   mark: string,
@@ -147,14 +147,8 @@ export async function addLog(
  * Read the scripts
  *
  * @param filename
- * @param version
- * @param os_version
  */
-export async function readScript(
-  filename: string,
-  version: string,
-  os_version: string
-): Promise<string> {
+export async function readScript(filename: string): Promise<string> {
   return fs.readFileSync(
     path.join(__dirname, '../src/scripts/' + filename),
     'utf8'
@@ -165,7 +159,6 @@ export async function readScript(
  * Write final script which runs
  *
  * @param filename
- * @param version
  * @param script
  */
 export async function writeScript(

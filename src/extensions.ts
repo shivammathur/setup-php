@@ -89,12 +89,10 @@ export async function addExtensionDarwin(
  *
  * @param extension_csv
  * @param version
- * @param pipe
  */
 export async function addExtensionWindows(
   extension_csv: string,
-  version: string,
-  pipe: string
+  version: string
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script = '\n';
@@ -235,7 +233,7 @@ export async function addExtension(
 
   switch (os_version) {
     case 'win32':
-      return script + (await addExtensionWindows(extension_csv, version, pipe));
+      return script + (await addExtensionWindows(extension_csv, version));
     case 'darwin':
       return script + (await addExtensionDarwin(extension_csv, version, pipe));
     case 'linux':

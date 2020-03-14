@@ -69,6 +69,8 @@ jest.mock('../src/install', () => ({
  * @param extension_csv
  * @param ini_values_csv
  * @param coverage_driver
+ * @param tools
+ * @param pecl
  */
 function setEnv(
   version: string | number,

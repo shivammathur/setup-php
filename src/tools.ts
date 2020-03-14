@@ -4,6 +4,7 @@ import * as utils from './utils';
  * Function to get command to setup tools
  *
  * @param os_version
+ * @param suffix
  */
 export async function getCommand(
   os_version: string,
@@ -69,6 +70,8 @@ export async function parseTool(
 /**
  * Function to get the url of tool with the given version
  *
+ * @param tool
+ * @param extension
  * @param version
  * @param prefix
  * @param version_prefix
@@ -167,16 +170,14 @@ export async function getCodeceptionUri(
     case /(^2\.(1\.[0-5]|0\.\d+)|^1\.[6-8]\.\d+).*/.test(version):
       return codecept;
     default:
-      return await codecept;
+      return codecept;
   }
 }
 
 /**
  * Helper function to get script to setup phive
  *
- * @param tool
  * @param version
- * @param url
  * @param os_version
  */
 export async function addPhive(
@@ -204,6 +205,9 @@ export async function addPhive(
 /**
  * Function to get the phar url in domain/tool-version.phar format
  *
+ * @param domain
+ * @param tool
+ * @param prefix
  * @param version
  */
 export async function getPharUrl(
@@ -293,7 +297,7 @@ export async function getWpCliUrl(version: string): Promise<string> {
 /**
  * Function to add/move composer in the tools list
  *
- * @param tools
+ * @param tools_list
  */
 export async function addComposer(tools_list: string[]): Promise<string[]> {
   const regex = /^composer($|:.*)/;
@@ -402,7 +406,8 @@ export async function addPackage(
 /**
  * Setup tools
  *
- * @param tool_csv
+ * @param tools_csv
+ * @param php_version
  * @param os_version
  */
 export async function addTools(

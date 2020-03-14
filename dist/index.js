@@ -939,15 +939,6 @@ class ExecState extends events.EventEmitter {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -962,13 +953,11 @@ const io = __importStar(__webpack_require__(1));
 /**
  * Cache json files for problem matchers
  */
-function addMatchers() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const config_path = path.join(__dirname, '..', 'src', 'configs');
-        const runner_dir = yield utils.getInput('RUNNER_TOOL_CACHE', false);
-        yield io.cp(path.join(config_path, 'phpunit.json'), runner_dir);
-        yield io.cp(path.join(config_path, 'php.json'), runner_dir);
-    });
+async function addMatchers() {
+    const config_path = path.join(__dirname, '..', 'src', 'configs');
+    const runner_dir = await utils.getInput('RUNNER_TOOL_CACHE', false);
+    await io.cp(path.join(config_path, 'phpunit.json'), runner_dir);
+    await io.cp(path.join(config_path, 'php.json'), runner_dir);
 }
 exports.addMatchers = addMatchers;
 
@@ -994,15 +983,6 @@ module.exports = require("child_process");
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -1020,17 +1000,15 @@ const core = __importStar(__webpack_require__(470));
  * @param name
  * @param mandatory
  */
-function getInput(name, mandatory) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const input = process.env[name];
-        switch (input) {
-            case '':
-            case undefined:
-                return core.getInput(name, { required: mandatory });
-            default:
-                return input;
-        }
-    });
+async function getInput(name, mandatory) {
+    const input = process.env[name];
+    switch (input) {
+        case '':
+        case undefined:
+            return core.getInput(name, { required: mandatory });
+        default:
+            return input;
+    }
 }
 exports.getInput = getInput;
 /**
@@ -1040,12 +1018,10 @@ exports.getInput = getInput;
  * @param array
  * @param callback
  */
-function asyncForEach(array, callback) {
-    return __awaiter(this, void 0, void 0, function* () {
-        for (let index = 0; index < array.length; index++) {
-            yield callback(array[index], index, array);
-        }
-    });
+async function asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
+    }
 }
 exports.asyncForEach = asyncForEach;
 /**
@@ -1053,18 +1029,16 @@ exports.asyncForEach = asyncForEach;
  *
  * @param type
  */
-function color(type) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (type) {
-            case 'error':
-                return '31';
-            default:
-            case 'success':
-                return '32';
-            case 'warning':
-                return '33';
-        }
-    });
+async function color(type) {
+    switch (type) {
+        case 'error':
+            return '31';
+        default:
+        case 'success':
+            return '32';
+        case 'warning':
+            return '33';
+    }
 }
 exports.color = color;
 /**
@@ -1073,23 +1047,20 @@ exports.color = color;
  * @param message
  * @param os_version
  * @param log_type
- * @param prefix
  */
-function log(message, os_version, log_type) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (os_version) {
-            case 'win32':
-                return ('printf "\\033[' +
-                    (yield color(log_type)) +
-                    ';1m' +
-                    message +
-                    ' \\033[0m"');
-            case 'linux':
-            case 'darwin':
-            default:
-                return ('echo "\\033[' + (yield color(log_type)) + ';1m' + message + '\\033[0m"');
-        }
-    });
+async function log(message, os_version, log_type) {
+    switch (os_version) {
+        case 'win32':
+            return ('printf "\\033[' +
+                (await color(log_type)) +
+                ';1m' +
+                message +
+                ' \\033[0m"');
+        case 'linux':
+        case 'darwin':
+        default:
+            return ('echo "\\033[' + (await color(log_type)) + ';1m' + message + '\\033[0m"');
+    }
 }
 exports.log = log;
 /**
@@ -1098,18 +1069,16 @@ exports.log = log;
  * @param message
  * @param os_version
  */
-function stepLog(message, os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (os_version) {
-            case 'win32':
-                return 'Step-Log "' + message + '"';
-            case 'linux':
-            case 'darwin':
-                return 'step_log "' + message + '"';
-            default:
-                return yield log('Platform ' + os_version + ' is not supported', os_version, 'error');
-        }
-    });
+async function stepLog(message, os_version) {
+    switch (os_version) {
+        case 'win32':
+            return 'Step-Log "' + message + '"';
+        case 'linux':
+        case 'darwin':
+            return 'step_log "' + message + '"';
+        default:
+            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+    }
 }
 exports.stepLog = stepLog;
 /**
@@ -1117,48 +1086,40 @@ exports.stepLog = stepLog;
  * @param mark
  * @param subject
  * @param message
+ * @param os_version
  */
-function addLog(mark, subject, message, os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (os_version) {
-            case 'win32':
-                return 'Add-Log "' + mark + '" "' + subject + '" "' + message + '"';
-            case 'linux':
-            case 'darwin':
-                return 'add_log "' + mark + '" "' + subject + '" "' + message + '"';
-            default:
-                return yield log('Platform ' + os_version + ' is not supported', os_version, 'error');
-        }
-    });
+async function addLog(mark, subject, message, os_version) {
+    switch (os_version) {
+        case 'win32':
+            return 'Add-Log "' + mark + '" "' + subject + '" "' + message + '"';
+        case 'linux':
+        case 'darwin':
+            return 'add_log "' + mark + '" "' + subject + '" "' + message + '"';
+        default:
+            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+    }
 }
 exports.addLog = addLog;
 /**
  * Read the scripts
  *
  * @param filename
- * @param version
- * @param os_version
  */
-function readScript(filename, version, os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return fs.readFileSync(path.join(__dirname, '../src/scripts/' + filename), 'utf8');
-    });
+async function readScript(filename) {
+    return fs.readFileSync(path.join(__dirname, '../src/scripts/' + filename), 'utf8');
 }
 exports.readScript = readScript;
 /**
  * Write final script which runs
  *
  * @param filename
- * @param version
  * @param script
  */
-function writeScript(filename, script) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const runner_dir = yield getInput('RUNNER_TOOL_CACHE', false);
-        const script_path = path.join(runner_dir, filename);
-        fs.writeFileSync(script_path, script, { mode: 0o755 });
-        return script_path;
-    });
+async function writeScript(filename, script) {
+    const runner_dir = await getInput('RUNNER_TOOL_CACHE', false);
+    const script_path = path.join(runner_dir, filename);
+    fs.writeFileSync(script_path, script, { mode: 0o755 });
+    return script_path;
 }
 exports.writeScript = writeScript;
 /**
@@ -1166,24 +1127,23 @@ exports.writeScript = writeScript;
  *
  * @param extension_csv
  */
-function extensionArray(extension_csv) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (extension_csv) {
-            case '':
-            case ' ':
-                return [];
-            default:
-                return extension_csv
-                    .split(',')
-                    .map(function (extension) {
-                    return extension
-                        .trim()
-                        .replace('php-', '')
-                        .replace('php_', '');
-                })
-                    .filter(Boolean);
-        }
-    });
+async function extensionArray(extension_csv) {
+    switch (extension_csv) {
+        case '':
+        case ' ':
+            return [];
+        default:
+            return extension_csv
+                .split(',')
+                .map(function (extension) {
+                return extension
+                    .trim()
+                    .toLowerCase()
+                    .replace('php-', '')
+                    .replace('php_', '');
+            })
+                .filter(Boolean);
+    }
 }
 exports.extensionArray = extensionArray;
 /**
@@ -1192,21 +1152,19 @@ exports.extensionArray = extensionArray;
  * @param values_csv
  * @constructor
  */
-function CSVArray(values_csv) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (values_csv) {
-            case '':
-            case ' ':
-                return [];
-            default:
-                return values_csv
-                    .split(',')
-                    .map(function (value) {
-                    return value.trim();
-                })
-                    .filter(Boolean);
-        }
-    });
+async function CSVArray(values_csv) {
+    switch (values_csv) {
+        case '':
+        case ' ':
+            return [];
+        default:
+            return values_csv
+                .split(',')
+                .map(function (value) {
+                return value.trim();
+            })
+                .filter(Boolean);
+    }
 }
 exports.CSVArray = CSVArray;
 /**
@@ -1214,18 +1172,16 @@ exports.CSVArray = CSVArray;
  *
  * @param extension
  */
-function getExtensionPrefix(extension) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const zend = ['xdebug', 'opcache', 'ioncube', 'eaccelerator'];
-        switch (zend.indexOf(extension)) {
-            case 0:
-            case 1:
-                return 'zend_extension';
-            case -1:
-            default:
-                return 'extension';
-        }
-    });
+async function getExtensionPrefix(extension) {
+    const zend = ['xdebug', 'opcache', 'ioncube', 'eaccelerator'];
+    switch (zend.indexOf(extension)) {
+        case 0:
+        case 1:
+            return 'zend_extension';
+        case -1:
+        default:
+            return 'extension';
+    }
 }
 exports.getExtensionPrefix = getExtensionPrefix;
 /**
@@ -1233,18 +1189,16 @@ exports.getExtensionPrefix = getExtensionPrefix;
  *
  * @param os_version
  */
-function suppressOutput(os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (os_version) {
-            case 'win32':
-                return ' >$null 2>&1';
-            case 'linux':
-            case 'darwin':
-                return ' >/dev/null 2>&1';
-            default:
-                return yield log('Platform ' + os_version + ' is not supported', os_version, 'error');
-        }
-    });
+async function suppressOutput(os_version) {
+    switch (os_version) {
+        case 'win32':
+            return ' >$null 2>&1';
+        case 'linux':
+        case 'darwin':
+            return ' >/dev/null 2>&1';
+        default:
+            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+    }
 }
 exports.suppressOutput = suppressOutput;
 /**
@@ -1252,26 +1206,22 @@ exports.suppressOutput = suppressOutput;
  *
  * @param blackfire_version
  */
-function getBlackfireVersion(blackfire_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (blackfire_version) {
-            case null:
-            case undefined:
-            case '':
-                return '1.31.0';
-            default:
-                return blackfire_version;
-        }
-    });
+async function getBlackfireVersion(blackfire_version) {
+    switch (blackfire_version) {
+        case null:
+        case undefined:
+        case '':
+            return '1.31.0';
+        default:
+            return blackfire_version;
+    }
 }
 exports.getBlackfireVersion = getBlackfireVersion;
 /**
  * Function to get Blackfire Agent version
  */
-function getBlackfireAgentVersion() {
-    return __awaiter(this, void 0, void 0, function* () {
-        return '1.32.0';
-    });
+async function getBlackfireAgentVersion() {
+    return '1.32.0';
 }
 exports.getBlackfireAgentVersion = getBlackfireAgentVersion;
 
@@ -1591,15 +1541,6 @@ exports.getState = getState;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -1613,19 +1554,18 @@ const utils = __importStar(__webpack_require__(163));
  * Function to get command to setup tools
  *
  * @param os_version
+ * @param suffix
  */
-function getCommand(os_version, suffix) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (os_version) {
-            case 'linux':
-            case 'darwin':
-                return 'add_' + suffix + ' ';
-            case 'win32':
-                return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
-            default:
-                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
-        }
-    });
+async function getCommand(os_version, suffix) {
+    switch (os_version) {
+        case 'linux':
+        case 'darwin':
+            return 'add_' + suffix + ' ';
+        case 'win32':
+            return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
+        default:
+            return await utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+    }
 }
 exports.getCommand = getCommand;
 /**
@@ -1633,18 +1573,16 @@ exports.getCommand = getCommand;
  *
  * @param version
  */
-function getToolVersion(version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // semver_regex - https://semver.org/
-        const semver_regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
-        version = version.replace(/[><=^]*/, '');
-        switch (true) {
-            case semver_regex.test(version):
-                return version;
-            default:
-                return 'latest';
-        }
-    });
+async function getToolVersion(version) {
+    // semver_regex - https://semver.org/
+    const semver_regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+    version = version.replace(/[><=^]*/, '');
+    switch (true) {
+        case semver_regex.test(version):
+            return version;
+        default:
+            return 'latest';
+    }
 }
 exports.getToolVersion = getToolVersion;
 /**
@@ -1652,47 +1590,45 @@ exports.getToolVersion = getToolVersion;
  *
  * @param release
  */
-function parseTool(release) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const parts = release.split(':');
-        const tool = parts[0];
-        const version = parts[1];
-        switch (version) {
-            case undefined:
-                return {
-                    name: tool,
-                    version: 'latest'
-                };
-            default:
-                return {
-                    name: tool,
-                    version: yield getToolVersion(parts[1])
-                };
-        }
-    });
+async function parseTool(release) {
+    const parts = release.split(':');
+    const tool = parts[0];
+    const version = parts[1];
+    switch (version) {
+        case undefined:
+            return {
+                name: tool,
+                version: 'latest'
+            };
+        default:
+            return {
+                name: tool,
+                version: await getToolVersion(parts[1])
+            };
+    }
 }
 exports.parseTool = parseTool;
 /**
  * Function to get the url of tool with the given version
  *
+ * @param tool
+ * @param extension
  * @param version
  * @param prefix
  * @param version_prefix
  * @param verb
  */
-function getUri(tool, extension, version, prefix, version_prefix, verb) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (version) {
-            case 'latest':
-                return [prefix, version, verb, tool + extension]
-                    .filter(Boolean)
-                    .join('/');
-            default:
-                return [prefix, verb, version_prefix + version, tool + extension]
-                    .filter(Boolean)
-                    .join('/');
-        }
-    });
+async function getUri(tool, extension, version, prefix, version_prefix, verb) {
+    switch (version) {
+        case 'latest':
+            return [prefix, version, verb, tool + extension]
+                .filter(Boolean)
+                .join('/');
+        default:
+            return [prefix, verb, version_prefix + version, tool + extension]
+                .filter(Boolean)
+                .join('/');
+    }
 }
 exports.getUri = getUri;
 /**
@@ -1701,12 +1637,10 @@ exports.getUri = getUri;
  * @param version
  * @param suffix
  */
-function getCodeceptionUriBuilder(version, suffix) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return ['releases', version, suffix, 'codecept.phar']
-            .filter(Boolean)
-            .join('/');
-    });
+async function getCodeceptionUriBuilder(version, suffix) {
+    return ['releases', version, suffix, 'codecept.phar']
+        .filter(Boolean)
+        .join('/');
 }
 exports.getCodeceptionUriBuilder = getCodeceptionUriBuilder;
 /**
@@ -1715,100 +1649,95 @@ exports.getCodeceptionUriBuilder = getCodeceptionUriBuilder;
  * @param version
  * @param php_version
  */
-function getCodeceptionUri(version, php_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const codecept = yield getCodeceptionUriBuilder(version, '');
-        const codecept54 = yield getCodeceptionUriBuilder(version, 'php54');
-        const codecept56 = yield getCodeceptionUriBuilder(version, 'php56');
-        // Refer to https://codeception.com/builds
-        switch (true) {
-            case /latest/.test(version):
-                switch (true) {
-                    case /5\.6|7\.[0|1]/.test(php_version):
-                        return 'php56/codecept.phar';
-                    case /7\.[2-4]/.test(php_version):
-                    default:
-                        return 'codecept.phar';
-                }
-            case /(^[4-9]|\d{2,})\..*/.test(version):
-                switch (true) {
-                    case /5\.6|7\.[0|1]/.test(php_version):
-                        return codecept56;
-                    case /7\.[2-4]/.test(php_version):
-                    default:
-                        return codecept;
-                }
-            case /(^2\.[4-5]\.\d+|^3\.[0-1]\.\d+).*/.test(version):
-                switch (true) {
-                    case /5\.6/.test(php_version):
-                        return codecept54;
-                    case /7\.[0-4]/.test(php_version):
-                    default:
-                        return codecept;
-                }
-            case /^2\.3\.\d+.*/.test(version):
-                switch (true) {
-                    case /5\.[4-6]/.test(php_version):
-                        return codecept54;
-                    case /^7\.[0-4]$/.test(php_version):
-                    default:
-                        return codecept;
-                }
-            case /(^2\.(1\.([6-9]|\d{2,}))|^2\.2\.\d+).*/.test(version):
-                switch (true) {
-                    case /5\.[4-5]/.test(php_version):
-                        return codecept54;
-                    case /5.6|7\.[0-4]/.test(php_version):
-                    default:
-                        return codecept;
-                }
-            case /(^2\.(1\.[0-5]|0\.\d+)|^1\.[6-8]\.\d+).*/.test(version):
-                return codecept;
-            default:
-                return yield codecept;
-        }
-    });
+async function getCodeceptionUri(version, php_version) {
+    const codecept = await getCodeceptionUriBuilder(version, '');
+    const codecept54 = await getCodeceptionUriBuilder(version, 'php54');
+    const codecept56 = await getCodeceptionUriBuilder(version, 'php56');
+    // Refer to https://codeception.com/builds
+    switch (true) {
+        case /latest/.test(version):
+            switch (true) {
+                case /5\.6|7\.[0|1]/.test(php_version):
+                    return 'php56/codecept.phar';
+                case /7\.[2-4]/.test(php_version):
+                default:
+                    return 'codecept.phar';
+            }
+        case /(^[4-9]|\d{2,})\..*/.test(version):
+            switch (true) {
+                case /5\.6|7\.[0|1]/.test(php_version):
+                    return codecept56;
+                case /7\.[2-4]/.test(php_version):
+                default:
+                    return codecept;
+            }
+        case /(^2\.[4-5]\.\d+|^3\.[0-1]\.\d+).*/.test(version):
+            switch (true) {
+                case /5\.6/.test(php_version):
+                    return codecept54;
+                case /7\.[0-4]/.test(php_version):
+                default:
+                    return codecept;
+            }
+        case /^2\.3\.\d+.*/.test(version):
+            switch (true) {
+                case /5\.[4-6]/.test(php_version):
+                    return codecept54;
+                case /^7\.[0-4]$/.test(php_version):
+                default:
+                    return codecept;
+            }
+        case /(^2\.(1\.([6-9]|\d{2,}))|^2\.2\.\d+).*/.test(version):
+            switch (true) {
+                case /5\.[4-5]/.test(php_version):
+                    return codecept54;
+                case /5.6|7\.[0-4]/.test(php_version):
+                default:
+                    return codecept;
+            }
+        case /(^2\.(1\.[0-5]|0\.\d+)|^1\.[6-8]\.\d+).*/.test(version):
+            return codecept;
+        default:
+            return codecept;
+    }
 }
 exports.getCodeceptionUri = getCodeceptionUri;
 /**
  * Helper function to get script to setup phive
  *
- * @param tool
  * @param version
- * @param url
  * @param os_version
  */
-function addPhive(version, os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (version) {
-            case 'latest':
-                return ((yield getCommand(os_version, 'tool')) +
-                    'https://phar.io/releases/phive.phar phive');
-            default:
-                return ((yield getCommand(os_version, 'tool')) +
-                    'https://github.com/phar-io/phive/releases/download/' +
-                    version +
-                    '/phive-' +
-                    version +
-                    '.phar phive');
-        }
-    });
+async function addPhive(version, os_version) {
+    switch (version) {
+        case 'latest':
+            return ((await getCommand(os_version, 'tool')) +
+                'https://phar.io/releases/phive.phar phive');
+        default:
+            return ((await getCommand(os_version, 'tool')) +
+                'https://github.com/phar-io/phive/releases/download/' +
+                version +
+                '/phive-' +
+                version +
+                '.phar phive');
+    }
 }
 exports.addPhive = addPhive;
 /**
  * Function to get the phar url in domain/tool-version.phar format
  *
+ * @param domain
+ * @param tool
+ * @param prefix
  * @param version
  */
-function getPharUrl(domain, tool, prefix, version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (version) {
-            case 'latest':
-                return domain + '/' + tool + '.phar';
-            default:
-                return domain + '/' + tool + '-' + prefix + version + '.phar';
-        }
-    });
+async function getPharUrl(domain, tool, prefix, version) {
+    switch (version) {
+        case 'latest':
+            return domain + '/' + tool + '.phar';
+        default:
+            return domain + '/' + tool + '-' + prefix + version + '.phar';
+    }
 }
 exports.getPharUrl = getPharUrl;
 /**
@@ -1816,16 +1745,14 @@ exports.getPharUrl = getPharUrl;
  *
  * @param version
  */
-function getDeployerUrl(version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const deployer = 'https://deployer.org';
-        switch (version) {
-            case 'latest':
-                return deployer + '/deployer.phar';
-            default:
-                return deployer + '/releases/v' + version + '/deployer.phar';
-        }
-    });
+async function getDeployerUrl(version) {
+    const deployer = 'https://deployer.org';
+    switch (version) {
+        case 'latest':
+            return deployer + '/deployer.phar';
+        default:
+            return deployer + '/releases/v' + version + '/deployer.phar';
+    }
 }
 exports.getDeployerUrl = getDeployerUrl;
 /**
@@ -1834,27 +1761,25 @@ exports.getDeployerUrl = getDeployerUrl;
  * @param version
  * @param os_version
  */
-function getSymfonyUri(version, os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let filename = '';
-        switch (os_version) {
-            case 'linux':
-            case 'darwin':
-                filename = 'symfony_' + os_version + '_amd64';
-                break;
-            case 'win32':
-                filename = 'symfony_windows_amd64.exe';
-                break;
-            default:
-                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
-        }
-        switch (version) {
-            case 'latest':
-                return 'releases/latest/download/' + filename;
-            default:
-                return 'releases/download/v' + version + '/' + filename;
-        }
-    });
+async function getSymfonyUri(version, os_version) {
+    let filename = '';
+    switch (os_version) {
+        case 'linux':
+        case 'darwin':
+            filename = 'symfony_' + os_version + '_amd64';
+            break;
+        case 'win32':
+            filename = 'symfony_windows_amd64.exe';
+            break;
+        default:
+            return await utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+    }
+    switch (version) {
+        case 'latest':
+            return 'releases/latest/download/' + filename;
+        default:
+            return 'releases/download/v' + version + '/' + filename;
+    }
 }
 exports.getSymfonyUri = getSymfonyUri;
 /**
@@ -1862,36 +1787,32 @@ exports.getSymfonyUri = getSymfonyUri;
  *
  * @param version
  */
-function getWpCliUrl(version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (version) {
-            case 'latest':
-                return 'wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true';
-            default:
-                return yield getUri('wp-cli', '-' + version + '.phar', version, 'wp-cli/wp-cli/releases', 'v', 'download');
-        }
-    });
+async function getWpCliUrl(version) {
+    switch (version) {
+        case 'latest':
+            return 'wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true';
+        default:
+            return await getUri('wp-cli', '-' + version + '.phar', version, 'wp-cli/wp-cli/releases', 'v', 'download');
+    }
 }
 exports.getWpCliUrl = getWpCliUrl;
 /**
  * Function to add/move composer in the tools list
  *
- * @param tools
+ * @param tools_list
  */
-function addComposer(tools_list) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const regex = /^composer($|:.*)/;
-        const composer = tools_list.filter(tool => regex.test(tool))[0];
-        switch (composer) {
-            case undefined:
-                break;
-            default:
-                tools_list = tools_list.filter(tool => !regex.test(tool));
-                break;
-        }
-        tools_list.unshift('composer');
-        return tools_list;
-    });
+async function addComposer(tools_list) {
+    const regex = /^composer($|:.*)/;
+    const composer = tools_list.filter(tool => regex.test(tool))[0];
+    switch (composer) {
+        case undefined:
+            break;
+        default:
+            tools_list = tools_list.filter(tool => !regex.test(tool));
+            break;
+    }
+    tools_list.unshift('composer');
+    return tools_list;
 }
 exports.addComposer = addComposer;
 /**
@@ -1899,19 +1820,17 @@ exports.addComposer = addComposer;
  *
  * @param tools_csv
  */
-function getCleanedToolsList(tools_csv) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let tools_list = yield utils.CSVArray(tools_csv);
-        tools_list = yield addComposer(tools_list);
-        tools_list = tools_list
-            .map(function (extension) {
-            return extension
-                .trim()
-                .replace(/symfony\/|robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
-        })
-            .filter(Boolean);
-        return [...new Set(tools_list)];
-    });
+async function getCleanedToolsList(tools_csv) {
+    let tools_list = await utils.CSVArray(tools_csv);
+    tools_list = await addComposer(tools_list);
+    tools_list = tools_list
+        .map(function (extension) {
+        return extension
+            .trim()
+            .replace(/symfony\/|robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
+    })
+        .filter(Boolean);
+    return [...new Set(tools_list)];
 }
 exports.getCleanedToolsList = getCleanedToolsList;
 /**
@@ -1922,10 +1841,8 @@ exports.getCleanedToolsList = getCleanedToolsList;
  * @param url
  * @param os_version
  */
-function addArchive(tool, version, url, os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return (yield getCommand(os_version, 'tool')) + url + ' ' + tool;
-    });
+async function addArchive(tool, version, url, os_version) {
+    return (await getCommand(os_version, 'tool')) + url + ' ' + tool;
 }
 exports.addArchive = addArchive;
 /**
@@ -1934,21 +1851,19 @@ exports.addArchive = addArchive;
  * @param tool
  * @param os_version
  */
-function addDevTools(tool, os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (os_version) {
-            case 'linux':
-                return ('add_devtools' +
-                    '\n' +
-                    (yield utils.addLog('$tick', tool, 'Added', 'linux')));
-            case 'darwin':
-                return yield utils.addLog('$tick', tool, 'Added', 'darwin');
-            case 'win32':
-                return yield utils.addLog('$cross', tool, tool + ' is not a windows tool', 'win32');
-            default:
-                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
-        }
-    });
+async function addDevTools(tool, os_version) {
+    switch (os_version) {
+        case 'linux':
+            return ('add_devtools' +
+                '\n' +
+                (await utils.addLog('$tick', tool, 'Added', 'linux')));
+        case 'darwin':
+            return await utils.addLog('$tick', tool, 'Added', 'darwin');
+        case 'win32':
+            return await utils.addLog('$cross', tool, tool + ' is not a windows tool', 'win32');
+        default:
+            return await utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+    }
 }
 exports.addDevTools = addDevTools;
 /**
@@ -1959,130 +1874,125 @@ exports.addDevTools = addDevTools;
  * @param prefix
  * @param os_version
  */
-function addPackage(tool, release, prefix, os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const tool_command = yield getCommand(os_version, 'composertool');
-        return tool_command + tool + ' ' + release + ' ' + prefix;
-    });
+async function addPackage(tool, release, prefix, os_version) {
+    const tool_command = await getCommand(os_version, 'composertool');
+    return tool_command + tool + ' ' + release + ' ' + prefix;
 }
 exports.addPackage = addPackage;
 /**
  * Setup tools
  *
- * @param tool_csv
+ * @param tools_csv
+ * @param php_version
  * @param os_version
  */
-function addTools(tools_csv, php_version, os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let script = '\n' + (yield utils.stepLog('Setup Tools', os_version));
-        const tools_list = yield getCleanedToolsList(tools_csv);
-        yield utils.asyncForEach(tools_list, function (release) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const tool_data = yield parseTool(release);
-                const tool = tool_data.name;
-                const version = tool_data.version;
-                const github = 'https://github.com/';
-                let uri = yield getUri(tool, '.phar', version, 'releases', '', 'download');
-                script += '\n';
-                let url = '';
-                switch (tool) {
-                    case 'blackfire':
-                    case 'blackfire-agent':
-                        script += yield getCommand(os_version, 'blackfire ' + (yield utils.getBlackfireAgentVersion()));
-                        break;
-                    case 'blackfire-player':
-                        url = yield getPharUrl('https://get.blackfire.io', tool, 'v', version);
-                        script += yield addArchive(tool, version, url, os_version);
-                        break;
-                    case 'cs2pr':
-                        uri = yield getUri(tool, '', version, 'releases', '', 'download');
-                        url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
-                        script += yield addArchive(tool, version, url, os_version);
-                        break;
-                    case 'php-cs-fixer':
-                        uri = yield getUri(tool, '.phar', version, 'releases', 'v', 'download');
-                        url = github + 'FriendsOfPHP/PHP-CS-Fixer/' + uri;
-                        script += yield addArchive(tool, version, url, os_version);
-                        break;
-                    case 'phpcs':
-                    case 'phpcbf':
-                        url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
-                        script += yield addArchive(tool, version, url, os_version);
-                        break;
-                    case 'phive':
-                        script += yield addPhive(version, os_version);
-                        break;
-                    case 'phpstan':
-                        url = github + 'phpstan/phpstan/' + uri;
-                        script += yield addArchive(tool, version, url, os_version);
-                        break;
-                    case 'phpmd':
-                        url = github + 'phpmd/phpmd/' + uri;
-                        script += yield addArchive(tool, version, url, os_version);
-                        break;
-                    case 'psalm':
-                        url = github + 'vimeo/psalm/' + uri;
-                        script += yield addArchive(tool, version, url, os_version);
-                        break;
-                    case 'composer':
-                        // If RC is released as latest release, switch to getcomposer.
-                        // Prefered source is GitHub as it is faster.
-                        // url = github + 'composer/composer/releases/latest/download/composer.phar';
-                        url = 'https://getcomposer.org/composer-stable.phar';
-                        script += yield addArchive(tool, version, url, os_version);
-                        break;
-                    case 'codeception':
-                        url =
-                            'https://codeception.com/' +
-                                (yield getCodeceptionUri(version, php_version));
-                        script += yield addArchive(tool, version, url, os_version);
-                        break;
-                    case 'phpcpd':
-                    case 'phpunit':
-                        url = yield getPharUrl('https://phar.phpunit.de', tool, '', version);
-                        script += yield addArchive(tool, version, url, os_version);
-                        break;
-                    case 'deployer':
-                        url = yield getDeployerUrl(version);
-                        script += yield addArchive(tool, version, url, os_version);
-                        break;
-                    case 'flex':
-                        script += yield addPackage(tool, release, 'symfony/', os_version);
-                        break;
-                    case 'phinx':
-                        script += yield addPackage(tool, release, 'robmorgan/', os_version);
-                        break;
-                    case 'prestissimo':
-                        script += yield addPackage(tool, release, 'hirak/', os_version);
-                        break;
-                    case 'composer-prefetcher':
-                        script += yield addPackage(tool, release, 'narrowspark/automatic-', os_version);
-                        break;
-                    case 'pecl':
-                        script += yield getCommand(os_version, 'pecl');
-                        break;
-                    case 'php-config':
-                    case 'phpize':
-                        script += yield addDevTools(tool, os_version);
-                        break;
-                    case 'symfony':
-                    case 'symfony-cli':
-                        uri = yield getSymfonyUri(version, os_version);
-                        url = github + 'symfony/cli/' + uri;
-                        script += yield addArchive('symfony', version, url, os_version);
-                        break;
-                    case 'wp-cli':
-                        url = github + (yield getWpCliUrl(version));
-                        script += yield addArchive(tool, version, url, os_version);
-                        break;
-                    default:
-                        script += yield utils.addLog('$cross', tool, 'Tool ' + tool + ' is not supported', os_version);
-                        break;
-                }
-            });
-        });
-        return script;
+async function addTools(tools_csv, php_version, os_version) {
+    let script = '\n' + (await utils.stepLog('Setup Tools', os_version));
+    const tools_list = await getCleanedToolsList(tools_csv);
+    await utils.asyncForEach(tools_list, async function (release) {
+        const tool_data = await parseTool(release);
+        const tool = tool_data.name;
+        const version = tool_data.version;
+        const github = 'https://github.com/';
+        let uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
+        script += '\n';
+        let url = '';
+        switch (tool) {
+            case 'blackfire':
+            case 'blackfire-agent':
+                script += await getCommand(os_version, 'blackfire ' + (await utils.getBlackfireAgentVersion()));
+                break;
+            case 'blackfire-player':
+                url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            case 'cs2pr':
+                uri = await getUri(tool, '', version, 'releases', '', 'download');
+                url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            case 'php-cs-fixer':
+                uri = await getUri(tool, '.phar', version, 'releases', 'v', 'download');
+                url = github + 'FriendsOfPHP/PHP-CS-Fixer/' + uri;
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            case 'phpcs':
+            case 'phpcbf':
+                url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            case 'phive':
+                script += await addPhive(version, os_version);
+                break;
+            case 'phpstan':
+                url = github + 'phpstan/phpstan/' + uri;
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            case 'phpmd':
+                url = github + 'phpmd/phpmd/' + uri;
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            case 'psalm':
+                url = github + 'vimeo/psalm/' + uri;
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            case 'composer':
+                // If RC is released as latest release, switch to getcomposer.
+                // Prefered source is GitHub as it is faster.
+                // url = github + 'composer/composer/releases/latest/download/composer.phar';
+                url = 'https://getcomposer.org/composer-stable.phar';
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            case 'codeception':
+                url =
+                    'https://codeception.com/' +
+                        (await getCodeceptionUri(version, php_version));
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            case 'phpcpd':
+            case 'phpunit':
+                url = await getPharUrl('https://phar.phpunit.de', tool, '', version);
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            case 'deployer':
+                url = await getDeployerUrl(version);
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            case 'flex':
+                script += await addPackage(tool, release, 'symfony/', os_version);
+                break;
+            case 'phinx':
+                script += await addPackage(tool, release, 'robmorgan/', os_version);
+                break;
+            case 'prestissimo':
+                script += await addPackage(tool, release, 'hirak/', os_version);
+                break;
+            case 'composer-prefetcher':
+                script += await addPackage(tool, release, 'narrowspark/automatic-', os_version);
+                break;
+            case 'pecl':
+                script += await getCommand(os_version, 'pecl');
+                break;
+            case 'php-config':
+            case 'phpize':
+                script += await addDevTools(tool, os_version);
+                break;
+            case 'symfony':
+            case 'symfony-cli':
+                uri = await getSymfonyUri(version, os_version);
+                url = github + 'symfony/cli/' + uri;
+                script += await addArchive('symfony', version, url, os_version);
+                break;
+            case 'wp-cli':
+                url = github + (await getWpCliUrl(version));
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            default:
+                script += await utils.addLog('$cross', tool, 'Tool ' + tool + ' is not supported', os_version);
+                break;
+        }
     });
+    return script;
 }
 exports.addTools = addTools;
 
@@ -2108,15 +2018,6 @@ module.exports = require("path");
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -2135,20 +2036,18 @@ const config = __importStar(__webpack_require__(641));
  * @param os_version
  * @param pipe
  */
-function addCoverageXdebug(version, os_version, pipe) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (version) {
-            case '8.0':
-                return ('\n' +
-                    (yield utils.addLog('$cross', 'xdebug', 'Xdebug currently only supports PHP 7.4 or lower', os_version)));
-            case '7.4':
-            default:
-                return ((yield extensions.addExtension('xdebug', version, os_version, true)) +
-                    pipe +
-                    '\n' +
-                    (yield utils.addLog('$tick', 'xdebug', 'Xdebug enabled as coverage driver', os_version)));
-        }
-    });
+async function addCoverageXdebug(version, os_version, pipe) {
+    switch (version) {
+        case '8.0':
+            return ('\n' +
+                (await utils.addLog('$cross', 'xdebug', 'Xdebug currently only supports PHP 7.4 or lower', os_version)));
+        case '7.4':
+        default:
+            return ((await extensions.addExtension('xdebug', version, os_version, true)) +
+                pipe +
+                '\n' +
+                (await utils.addLog('$tick', 'xdebug', 'Xdebug enabled as coverage driver', os_version)));
+    }
 }
 exports.addCoverageXdebug = addCoverageXdebug;
 /**
@@ -2158,37 +2057,35 @@ exports.addCoverageXdebug = addCoverageXdebug;
  * @param os_version
  * @param pipe
  */
-function addCoveragePCOV(version, os_version, pipe) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let script = '\n';
-        switch (true) {
-            default:
-                script +=
-                    (yield extensions.addExtension('pcov', version, os_version, true)) +
-                        pipe +
-                        '\n';
-                script +=
-                    (yield config.addINIValues('pcov.enabled=1', os_version, true)) + '\n';
-                // add command to disable xdebug and enable pcov
-                switch (os_version) {
-                    case 'linux':
-                    case 'darwin':
-                        script += 'remove_extension xdebug' + pipe + '\n';
-                        break;
-                    case 'win32':
-                        script += 'Remove-Extension xdebug' + pipe + '\n';
-                        break;
-                }
-                // success
-                script += yield utils.addLog('$tick', 'coverage: pcov', 'PCOV enabled as coverage driver', os_version);
-                // version is not supported
-                break;
-            case /5\.[3-6]|7\.0/.test(version):
-                script += yield utils.addLog('$cross', 'pcov', 'PHP 7.1 or newer is required', os_version);
-                break;
-        }
-        return script;
-    });
+async function addCoveragePCOV(version, os_version, pipe) {
+    let script = '\n';
+    switch (true) {
+        default:
+            script +=
+                (await extensions.addExtension('pcov', version, os_version, true)) +
+                    pipe +
+                    '\n';
+            script +=
+                (await config.addINIValues('pcov.enabled=1', os_version, true)) + '\n';
+            // add command to disable xdebug and enable pcov
+            switch (os_version) {
+                case 'linux':
+                case 'darwin':
+                    script += 'remove_extension xdebug' + pipe + '\n';
+                    break;
+                case 'win32':
+                    script += 'Remove-Extension xdebug' + pipe + '\n';
+                    break;
+            }
+            // success
+            script += await utils.addLog('$tick', 'coverage: pcov', 'PCOV enabled as coverage driver', os_version);
+            // version is not supported
+            break;
+        case /5\.[3-6]|7\.0/.test(version):
+            script += await utils.addLog('$cross', 'pcov', 'PHP 7.1 or newer is required', os_version);
+            break;
+    }
+    return script;
 }
 exports.addCoveragePCOV = addCoveragePCOV;
 /**
@@ -2198,23 +2095,21 @@ exports.addCoveragePCOV = addCoveragePCOV;
  * @param os_version
  * @param pipe
  */
-function disableCoverage(version, os_version, pipe) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let script = '\n';
-        switch (os_version) {
-            case 'linux':
-            case 'darwin':
-                script += 'remove_extension xdebug' + pipe + '\n';
-                script += 'remove_extension pcov' + pipe + '\n';
-                break;
-            case 'win32':
-                script += 'Remove-Extension xdebug' + pipe + '\n';
-                script += 'Remove-Extension pcov' + pipe + '\n';
-                break;
-        }
-        script += yield utils.addLog('$tick', 'none', 'Disabled Xdebug and PCOV', os_version);
-        return script;
-    });
+async function disableCoverage(version, os_version, pipe) {
+    let script = '\n';
+    switch (os_version) {
+        case 'linux':
+        case 'darwin':
+            script += 'remove_extension xdebug' + pipe + '\n';
+            script += 'remove_extension pcov' + pipe + '\n';
+            break;
+        case 'win32':
+            script += 'Remove-Extension xdebug' + pipe + '\n';
+            script += 'Remove-Extension pcov' + pipe + '\n';
+            break;
+    }
+    script += await utils.addLog('$tick', 'none', 'Disabled Xdebug and PCOV', os_version);
+    return script;
 }
 exports.disableCoverage = disableCoverage;
 /**
@@ -2224,22 +2119,20 @@ exports.disableCoverage = disableCoverage;
  * @param version
  * @param os_version
  */
-function addCoverage(coverage_driver, version, os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        coverage_driver = coverage_driver.toLowerCase();
-        const script = '\n' + (yield utils.stepLog('Setup Coverage', os_version));
-        const pipe = yield utils.suppressOutput(os_version);
-        switch (coverage_driver) {
-            case 'pcov':
-                return script + (yield addCoveragePCOV(version, os_version, pipe));
-            case 'xdebug':
-                return script + (yield addCoverageXdebug(version, os_version, pipe));
-            case 'none':
-                return script + (yield disableCoverage(version, os_version, pipe));
-            default:
-                return '';
-        }
-    });
+async function addCoverage(coverage_driver, version, os_version) {
+    coverage_driver = coverage_driver.toLowerCase();
+    const script = '\n' + (await utils.stepLog('Setup Coverage', os_version));
+    const pipe = await utils.suppressOutput(os_version);
+    switch (coverage_driver) {
+        case 'pcov':
+            return script + (await addCoveragePCOV(version, os_version, pipe));
+        case 'xdebug':
+            return script + (await addCoverageXdebug(version, os_version, pipe));
+        case 'none':
+            return script + (await disableCoverage(version, os_version, pipe));
+        default:
+            return '';
+    }
 }
 exports.addCoverage = addCoverage;
 
@@ -2251,15 +2144,6 @@ exports.addCoverage = addCoverage;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -2274,18 +2158,14 @@ const utils = __importStar(__webpack_require__(163));
  *
  * @param ini_values_csv
  */
-function addINIValuesUnix(ini_values_csv) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const ini_values = yield utils.CSVArray(ini_values_csv);
-        let script = '\n';
-        yield utils.asyncForEach(ini_values, function (line) {
-            return __awaiter(this, void 0, void 0, function* () {
-                script +=
-                    (yield utils.addLog('$tick', line, 'Added to php.ini', 'linux')) + '\n';
-            });
-        });
-        return 'echo "' + ini_values.join('\n') + '" >> $ini_file' + script;
+async function addINIValuesUnix(ini_values_csv) {
+    const ini_values = await utils.CSVArray(ini_values_csv);
+    let script = '\n';
+    await utils.asyncForEach(ini_values, async function (line) {
+        script +=
+            (await utils.addLog('$tick', line, 'Added to php.ini', 'linux')) + '\n';
     });
+    return 'echo "' + ini_values.join('\n') + '" >> $ini_file' + script;
 }
 exports.addINIValuesUnix = addINIValuesUnix;
 /**
@@ -2293,21 +2173,17 @@ exports.addINIValuesUnix = addINIValuesUnix;
  *
  * @param ini_values_csv
  */
-function addINIValuesWindows(ini_values_csv) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const ini_values = yield utils.CSVArray(ini_values_csv);
-        let script = '\n';
-        yield utils.asyncForEach(ini_values, function (line) {
-            return __awaiter(this, void 0, void 0, function* () {
-                script +=
-                    (yield utils.addLog('$tick', line, 'Added to php.ini', 'win32')) + '\n';
-            });
-        });
-        return ('Add-Content C:\\tools\\php\\php.ini "' +
-            ini_values.join('\n') +
-            '"' +
-            script);
+async function addINIValuesWindows(ini_values_csv) {
+    const ini_values = await utils.CSVArray(ini_values_csv);
+    let script = '\n';
+    await utils.asyncForEach(ini_values, async function (line) {
+        script +=
+            (await utils.addLog('$tick', line, 'Added to php.ini', 'win32')) + '\n';
     });
+    return ('Add-Content C:\\tools\\php\\php.ini "' +
+        ini_values.join('\n') +
+        '"' +
+        script);
 }
 exports.addINIValuesWindows = addINIValuesWindows;
 /**
@@ -2315,32 +2191,31 @@ exports.addINIValuesWindows = addINIValuesWindows;
  *
  * @param ini_values_csv
  * @param os_version
+ * @param no_step
  */
-function addINIValues(ini_values_csv, os_version, no_step = false) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let script = '\n';
-        switch (no_step) {
-            case true:
-                script +=
-                    (yield utils.stepLog('Add php.ini values', os_version)) +
-                        (yield utils.suppressOutput(os_version)) +
-                        '\n';
-                break;
-            case false:
-            default:
-                script += (yield utils.stepLog('Add php.ini values', os_version)) + '\n';
-                break;
-        }
-        switch (os_version) {
-            case 'win32':
-                return script + (yield addINIValuesWindows(ini_values_csv));
-            case 'darwin':
-            case 'linux':
-                return script + (yield addINIValuesUnix(ini_values_csv));
-            default:
-                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
-        }
-    });
+async function addINIValues(ini_values_csv, os_version, no_step = false) {
+    let script = '\n';
+    switch (no_step) {
+        case true:
+            script +=
+                (await utils.stepLog('Add php.ini values', os_version)) +
+                    (await utils.suppressOutput(os_version)) +
+                    '\n';
+            break;
+        case false:
+        default:
+            script += (await utils.stepLog('Add php.ini values', os_version)) + '\n';
+            break;
+    }
+    switch (os_version) {
+        case 'win32':
+            return script + (await addINIValuesWindows(ini_values_csv));
+        case 'darwin':
+        case 'linux':
+            return script + (await addINIValuesUnix(ini_values_csv));
+        default:
+            return await utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+    }
 }
 exports.addINIValues = addINIValues;
 
@@ -2352,15 +2227,6 @@ exports.addINIValues = addINIValues;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -2384,63 +2250,59 @@ const matchers = __importStar(__webpack_require__(86));
  * @param version
  * @param os_version
  */
-function build(filename, version, os_version) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // taking inputs
-        const extension_csv = (yield utils.getInput('extensions', false)) ||
-            (yield utils.getInput('extension', false));
-        const ini_values_csv = yield utils.getInput('ini-values', false);
-        const coverage_driver = yield utils.getInput('coverage', false);
-        const pecl = yield utils.getInput('pecl', false);
-        let tools_csv = yield utils.getInput('tools', false);
-        if (pecl == 'true' ||
-            /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv) ||
-            /.*-(\d+\.\d+\.\d+).*/.test(extension_csv)) {
-            tools_csv = 'pecl, ' + tools_csv;
-        }
-        let script = yield utils.readScript(filename, version, os_version);
-        script += yield tools.addTools(tools_csv, version, os_version);
-        if (extension_csv) {
-            script += yield extensions.addExtension(extension_csv, version, os_version);
-        }
-        if (ini_values_csv) {
-            script += yield config.addINIValues(ini_values_csv, os_version);
-        }
-        if (coverage_driver) {
-            script += yield coverage.addCoverage(coverage_driver, version, os_version);
-        }
-        return yield utils.writeScript(filename, script);
-    });
+async function build(filename, version, os_version) {
+    // taking inputs
+    const extension_csv = (await utils.getInput('extensions', false)) ||
+        (await utils.getInput('extension', false));
+    const ini_values_csv = await utils.getInput('ini-values', false);
+    const coverage_driver = await utils.getInput('coverage', false);
+    const pecl = await utils.getInput('pecl', false);
+    let tools_csv = await utils.getInput('tools', false);
+    if (pecl == 'true' ||
+        /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv) ||
+        /.*-(\d+\.\d+\.\d+).*/.test(extension_csv)) {
+        tools_csv = 'pecl, ' + tools_csv;
+    }
+    let script = await utils.readScript(filename);
+    script += await tools.addTools(tools_csv, version, os_version);
+    if (extension_csv) {
+        script += await extensions.addExtension(extension_csv, version, os_version);
+    }
+    if (ini_values_csv) {
+        script += await config.addINIValues(ini_values_csv, os_version);
+    }
+    if (coverage_driver) {
+        script += await coverage.addCoverage(coverage_driver, version, os_version);
+    }
+    return await utils.writeScript(filename, script);
 }
 exports.build = build;
 /**
  * Run the script
  */
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            let version = yield utils.getInput('php-version', true);
-            version = version.length > 1 ? version.slice(0, 3) : version + '.0';
-            const os_version = process.platform;
-            // check the os version and run the respective script
-            let script_path = '';
-            switch (os_version) {
-                case 'darwin':
-                case 'linux':
-                    script_path = yield build(os_version + '.sh', version, os_version);
-                    yield exec_1.exec('bash ' + script_path + ' ' + version + ' ' + __dirname);
-                    break;
-                case 'win32':
-                    script_path = yield build('win32.ps1', version, os_version);
-                    yield exec_1.exec('pwsh ' + script_path + ' ' + version + ' ' + __dirname);
-                    break;
-            }
-            yield matchers.addMatchers();
+async function run() {
+    try {
+        let version = await utils.getInput('php-version', true);
+        version = version.length > 1 ? version.slice(0, 3) : version + '.0';
+        const os_version = process.platform;
+        // check the os version and run the respective script
+        let script_path = '';
+        switch (os_version) {
+            case 'darwin':
+            case 'linux':
+                script_path = await build(os_version + '.sh', version, os_version);
+                await exec_1.exec('bash ' + script_path + ' ' + version + ' ' + __dirname);
+                break;
+            case 'win32':
+                script_path = await build('win32.ps1', version, os_version);
+                await exec_1.exec('pwsh ' + script_path + ' ' + version + ' ' + __dirname);
+                break;
         }
-        catch (error) {
-            core.setFailed(error.message);
-        }
-    });
+        await matchers.addMatchers();
+    }
+    catch (error) {
+        core.setFailed(error.message);
+    }
 }
 exports.run = run;
 // call the run function
@@ -2670,15 +2532,6 @@ module.exports = require("fs");
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -2696,90 +2549,100 @@ const utils = __importStar(__webpack_require__(163));
  * @param version
  * @param pipe
  */
-function addExtensionDarwin(extension_csv, version, pipe) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const extensions = yield utils.extensionArray(extension_csv);
-        let script = '\n';
-        yield utils.asyncForEach(extensions, function (extension) {
-            return __awaiter(this, void 0, void 0, function* () {
-                extension = extension.toLowerCase();
-                const version_extension = version + extension;
-                const [ext_name, ext_version] = extension.split('-');
-                const prefix = yield utils.getExtensionPrefix(ext_name);
-                let install_command = '';
-                switch (true) {
-                    // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
-                    // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
-                    case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
-                        install_command =
-                            'bash ' +
-                                path.join(__dirname, '../src/scripts/ext/blackfire_darwin.sh') +
-                                ' ' +
-                                version +
-                                ' ' +
-                                (yield utils.getBlackfireVersion(ext_version));
-                        break;
-                    // match pre-release versions
-                    case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-                        script +=
-                            '\nadd_unstable_extension ' +
-                                ext_name +
-                                ' ' +
-                                ext_version +
-                                ' ' +
-                                prefix;
-                        return;
-                    // match exact versions
-                    case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
-                        script +=
-                            '\nadd_pecl_extension ' + ext_name + ' ' + ext_version + ' ' + prefix;
-                        return;
-                    case /5\.3xdebug/.test(version_extension):
-                        install_command = 'sudo pecl install -f xdebug-2.2.7' + pipe;
-                        break;
-                    case /5\.4xdebug/.test(version_extension):
-                        install_command = 'sudo pecl install -f xdebug-2.4.1' + pipe;
-                        break;
-                    case /5\.[5-6]xdebug/.test(version_extension):
-                        install_command = 'sudo pecl install -f xdebug-2.5.5' + pipe;
-                        break;
-                    case /7\.0xdebug/.test(version_extension):
-                        install_command = 'sudo pecl install -f xdebug-2.9.0' + pipe;
-                        break;
-                    case /5\.6redis/.test(version_extension):
-                        install_command = 'sudo pecl install -f redis-2.2.8' + pipe;
-                        break;
-                    case /[5-9]\.\dimagick/.test(version_extension):
-                        install_command =
-                            'brew install pkg-config imagemagick' +
-                                pipe +
-                                ' && sudo pecl install -f imagick' +
-                                pipe;
-                        break;
-                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-                        script +=
-                            'sh ' +
-                                path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
-                                ' ' +
-                                extension +
-                                ' ' +
-                                version;
-                        return;
-                    default:
-                        install_command = 'sudo pecl install -f ' + extension + pipe;
-                        break;
-                }
+async function addExtensionDarwin(extension_csv, version, pipe) {
+    const extensions = await utils.extensionArray(extension_csv);
+    let script = '\n';
+    await utils.asyncForEach(extensions, async function (extension) {
+        const version_extension = version + extension;
+        const [ext_name, ext_version] = extension.split('-');
+        const ext_prefix = await utils.getExtensionPrefix(ext_name);
+        const command_prefix = 'sudo pecl install -f ';
+        let command = '';
+        switch (true) {
+            // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+            // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+            case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
+                command =
+                    'bash ' +
+                        path.join(__dirname, '../src/scripts/ext/blackfire_darwin.sh') +
+                        ' ' +
+                        version +
+                        ' ' +
+                        (await utils.getBlackfireVersion(ext_version));
+                break;
+            // match pre-release versions. For example - xdebug-beta
+            case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
                 script +=
-                    '\nadd_extension ' +
+                    '\nadd_unstable_extension ' +
+                        ext_name +
+                        ' ' +
+                        ext_version +
+                        ' ' +
+                        ext_prefix;
+                return;
+            // match semver
+            case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
+                script +=
+                    '\nadd_pecl_extension ' +
+                        ext_name +
+                        ' ' +
+                        ext_version +
+                        ' ' +
+                        ext_prefix;
+                return;
+            // match 5.3xdebug
+            case /5\.3xdebug/.test(version_extension):
+                command = command_prefix + 'xdebug-2.2.7' + pipe;
+                break;
+            // match 5.4xdebug
+            case /5\.4xdebug/.test(version_extension):
+                command = command_prefix + 'xdebug-2.4.1' + pipe;
+                break;
+            // match 5.5xdebug and 5.6xdebug
+            case /5\.[5-6]xdebug/.test(version_extension):
+                command = command_prefix + 'xdebug-2.5.5' + pipe;
+                break;
+            // match 7.0redis
+            case /7\.0xdebug/.test(version_extension):
+                command = command_prefix + 'xdebug-2.9.0' + pipe;
+                break;
+            // match 5.6redis
+            case /5\.6redis/.test(version_extension):
+                command = command_prefix + 'redis-2.2.8' + pipe;
+                break;
+            // match imagick
+            case /imagick/.test(extension):
+                command =
+                    'brew install pkg-config imagemagick' +
+                        pipe +
+                        ' && ' +
+                        command_prefix +
+                        'imagick' +
+                        pipe;
+                break;
+            // match sqlite
+            case /sqlite/.test(extension):
+                extension = 'sqlite3';
+                command = command_prefix + extension + pipe;
+                break;
+            // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+            case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+                script +=
+                    'sh ' +
+                        path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
+                        ' ' +
                         extension +
-                        ' "' +
-                        install_command +
-                        '" ' +
-                        (yield utils.getExtensionPrefix(extension));
-            });
-        });
-        return script;
+                        ' ' +
+                        version;
+                return;
+            default:
+                command = command_prefix + extension + pipe;
+                break;
+        }
+        script +=
+            '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
     });
+    return script;
 }
 exports.addExtensionDarwin = addExtensionDarwin;
 /**
@@ -2787,62 +2650,62 @@ exports.addExtensionDarwin = addExtensionDarwin;
  *
  * @param extension_csv
  * @param version
- * @param pipe
  */
-function addExtensionWindows(extension_csv, version, pipe) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const extensions = yield utils.extensionArray(extension_csv);
-        let script = '\n';
-        yield utils.asyncForEach(extensions, function (extension) {
-            return __awaiter(this, void 0, void 0, function* () {
-                extension = extension.toLowerCase();
-                const [ext_name, ext_version] = extension.split('-');
-                const version_extension = version + extension;
-                let matches;
-                switch (true) {
-                    // match 5.4blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
-                    // match 5.4blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
-                    case /^(5\.[4-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
-                        script +=
-                            '\n& ' +
-                                path.join(__dirname, '../src/scripts/ext/blackfire.ps1') +
-                                ' ' +
-                                version +
-                                ' ' +
-                                (yield utils.getBlackfireVersion(ext_version));
-                        return;
-                    // match pre-release versions
-                    case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-                        script += '\nAdd-Extension ' + ext_name + ' ' + ext_version;
-                        break;
-                    // match exact versions
-                    case /.*-\d+\.\d+\.\d+$/.test(version_extension):
-                        script += '\nAdd-Extension ' + ext_name + ' stable ' + ext_version;
-                        return;
-                    case /.*-(\d+\.\d+\.\d)+(beta|alpha|devel|snapshot)\d*/.test(version_extension):
-                        matches = /.*-(\d+\.\d+\.\d)+(beta|alpha|devel|snapshot)\d*/.exec(version_extension);
-                        script +=
-                            '\nAdd-Extension ' + ext_name + ' ' + matches[2] + ' ' + matches[1];
-                        return;
-                    // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-                        script +=
-                            '\n& ' +
-                                path.join(__dirname, '../src/scripts/ext/phalcon.ps1') +
-                                ' ' +
-                                extension +
-                                ' ' +
-                                version +
-                                '\n';
-                        break;
-                    default:
-                        script += '\nAdd-Extension ' + extension;
-                        break;
-                }
-            });
-        });
-        return script;
+async function addExtensionWindows(extension_csv, version) {
+    const extensions = await utils.extensionArray(extension_csv);
+    let script = '\n';
+    await utils.asyncForEach(extensions, async function (extension) {
+        const [ext_name, ext_version] = extension.split('-');
+        const version_extension = version + extension;
+        let matches;
+        switch (true) {
+            // match 5.4blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+            // match 5.4blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+            case /^(5\.[4-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
+                script +=
+                    '\n& ' +
+                        path.join(__dirname, '../src/scripts/ext/blackfire.ps1') +
+                        ' ' +
+                        version +
+                        ' ' +
+                        (await utils.getBlackfireVersion(ext_version));
+                return;
+            // match pre-release versions. For example - xdebug-beta
+            case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+                script += '\nAdd-Extension ' + ext_name + ' ' + ext_version;
+                break;
+            // match semver without state
+            case /.*-\d+\.\d+\.\d+$/.test(version_extension):
+                script += '\nAdd-Extension ' + ext_name + ' stable ' + ext_version;
+                return;
+            // match semver with state
+            case /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.test(version_extension):
+                matches = /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.exec(version_extension);
+                script +=
+                    '\nAdd-Extension ' + ext_name + ' ' + matches[2] + ' ' + matches[1];
+                return;
+            // match sqlite
+            case /sqlite/.test(extension):
+                extension = 'sqlite3';
+                script += '\nAdd-Extension ' + extension;
+                break;
+            // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+            case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+                script +=
+                    '\n& ' +
+                        path.join(__dirname, '../src/scripts/ext/phalcon.ps1') +
+                        ' ' +
+                        extension +
+                        ' ' +
+                        version +
+                        '\n';
+                break;
+            default:
+                script += '\nAdd-Extension ' + extension;
+                break;
+        }
     });
+    return script;
 }
 exports.addExtensionWindows = addExtensionWindows;
 /**
@@ -2852,92 +2715,92 @@ exports.addExtensionWindows = addExtensionWindows;
  * @param version
  * @param pipe
  */
-function addExtensionLinux(extension_csv, version, pipe) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const extensions = yield utils.extensionArray(extension_csv);
-        let script = '\n';
-        yield utils.asyncForEach(extensions, function (extension) {
-            return __awaiter(this, void 0, void 0, function* () {
-                extension = extension.toLowerCase();
-                const version_extension = version + extension;
-                const [ext_name, ext_version] = extension.split('-');
-                const prefix = yield utils.getExtensionPrefix(ext_name);
-                let install_command = '';
-                switch (true) {
-                    // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
-                    // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
-                    case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
-                        install_command =
-                            'bash ' +
-                                path.join(__dirname, '../src/scripts/ext/blackfire.sh') +
-                                ' ' +
-                                version +
-                                ' ' +
-                                (yield utils.getBlackfireVersion(ext_version));
-                        break;
-                    // match pre-release versions
-                    case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-                        script +=
-                            '\nadd_unstable_extension ' +
-                                ext_name +
-                                ' ' +
-                                ext_version +
-                                ' ' +
-                                prefix;
-                        return;
-                    // match exact versions
-                    case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
-                        script +=
-                            '\nadd_pecl_extension ' + ext_name + ' ' + ext_version + ' ' + prefix;
-                        return;
-                    // match 5.6gearman..7.4gearman
-                    case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
-                        install_command =
-                            'sh ' +
-                                path.join(__dirname, '../src/scripts/ext/gearman.sh') +
-                                ' ' +
-                                version +
-                                pipe;
-                        break;
-                    // match 7.0phalcon3...7.3phalcon3 or 7.2phalcon4...7.4phalcon4
-                    case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-                        script +=
-                            '\nsh ' +
-                                path.join(__dirname, '../src/scripts/ext/phalcon.sh') +
-                                ' ' +
-                                extension +
-                                ' ' +
-                                version;
-                        return;
-                    // match 7.0xdebug..7.4xdebug
-                    case /^7\.[0-4]xdebug$/.test(version_extension):
-                        script +=
-                            '\nupdate_extension xdebug 2.9.1' +
-                                pipe +
-                                '\n' +
-                                (yield utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));
-                        return;
-                    // match pdo extensions
-                    case /.*pdo[_-].*/.test(version_extension):
-                        script +=
-                            '\nadd_pdo_extension ' +
-                                extension.replace('pdo_', '').replace('pdo-', '');
-                        return;
-                    default:
-                        install_command =
-                            'sudo $debconf_fix apt-get install -y php' +
-                                version +
-                                '-' +
-                                extension +
-                                pipe;
-                        break;
-                }
+async function addExtensionLinux(extension_csv, version, pipe) {
+    const extensions = await utils.extensionArray(extension_csv);
+    let script = '\n';
+    await utils.asyncForEach(extensions, async function (extension) {
+        const version_extension = version + extension;
+        const [ext_name, ext_version] = extension.split('-');
+        const ext_prefix = await utils.getExtensionPrefix(ext_name);
+        const command_prefix = 'sudo $debconf_fix apt-get install -y php';
+        let command = '';
+        switch (true) {
+            // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+            // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+            case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
+                command =
+                    'bash ' +
+                        path.join(__dirname, '../src/scripts/ext/blackfire.sh') +
+                        ' ' +
+                        version +
+                        ' ' +
+                        (await utils.getBlackfireVersion(ext_version));
+                break;
+            // match pre-release versions. For example - xdebug-beta
+            case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
                 script +=
-                    '\nadd_extension ' + extension + ' "' + install_command + '" ' + prefix;
-            });
-        });
-        return script;
+                    '\nadd_unstable_extension ' +
+                        ext_name +
+                        ' ' +
+                        ext_version +
+                        ' ' +
+                        ext_prefix;
+                return;
+            // match semver versions
+            case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
+                script +=
+                    '\nadd_pecl_extension ' +
+                        ext_name +
+                        ' ' +
+                        ext_version +
+                        ' ' +
+                        ext_prefix;
+                return;
+            // match 5.6gearman..7.4gearman
+            case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
+                command =
+                    'sh ' +
+                        path.join(__dirname, '../src/scripts/ext/gearman.sh') +
+                        ' ' +
+                        version +
+                        pipe;
+                break;
+            // match 7.0phalcon3...7.3phalcon3 or 7.2phalcon4...7.4phalcon4
+            case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+                script +=
+                    '\nsh ' +
+                        path.join(__dirname, '../src/scripts/ext/phalcon.sh') +
+                        ' ' +
+                        extension +
+                        ' ' +
+                        version;
+                return;
+            // match 7.0xdebug..7.4xdebug
+            case /^7\.[0-4]xdebug$/.test(version_extension):
+                script +=
+                    '\nupdate_extension xdebug 2.9.2' +
+                        pipe +
+                        '\n' +
+                        (await utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));
+                return;
+            // match pdo extensions
+            case /.*pdo[_-].*/.test(version_extension):
+                extension = extension.replace('pdo_', '').replace('pdo-', '');
+                script += '\nadd_pdo_extension ' + extension;
+                return;
+            // match sqlite
+            case /sqlite/.test(extension):
+                extension = 'sqlite3';
+                command = command_prefix + version + '-' + extension + pipe;
+                break;
+            default:
+                command = command_prefix + version + '-' + extension + pipe;
+                break;
+        }
+        script +=
+            '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
     });
+    return script;
 }
 exports.addExtensionLinux = addExtensionLinux;
 /**
@@ -2946,32 +2809,30 @@ exports.addExtensionLinux = addExtensionLinux;
  * @param extension_csv
  * @param version
  * @param os_version
- * @param log_prefix
+ * @param no_step
  */
-function addExtension(extension_csv, version, os_version, no_step = false) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const pipe = yield utils.suppressOutput(os_version);
-        let script = '\n';
-        switch (no_step) {
-            case true:
-                script += (yield utils.stepLog('Setup Extensions', os_version)) + pipe;
-                break;
-            case false:
-            default:
-                script += yield utils.stepLog('Setup Extensions', os_version);
-                break;
-        }
-        switch (os_version) {
-            case 'win32':
-                return script + (yield addExtensionWindows(extension_csv, version, pipe));
-            case 'darwin':
-                return script + (yield addExtensionDarwin(extension_csv, version, pipe));
-            case 'linux':
-                return script + (yield addExtensionLinux(extension_csv, version, pipe));
-            default:
-                return yield utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
-        }
-    });
+async function addExtension(extension_csv, version, os_version, no_step = false) {
+    const pipe = await utils.suppressOutput(os_version);
+    let script = '\n';
+    switch (no_step) {
+        case true:
+            script += (await utils.stepLog('Setup Extensions', os_version)) + pipe;
+            break;
+        case false:
+        default:
+            script += await utils.stepLog('Setup Extensions', os_version);
+            break;
+    }
+    switch (os_version) {
+        case 'win32':
+            return script + (await addExtensionWindows(extension_csv, version));
+        case 'darwin':
+            return script + (await addExtensionDarwin(extension_csv, version, pipe));
+        case 'linux':
+            return script + (await addExtensionLinux(extension_csv, version, pipe));
+        default:
+            return await utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+    }
 }
 exports.addExtension = addExtension;
 

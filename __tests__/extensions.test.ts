@@ -13,6 +13,19 @@ describe('Extension tests', () => {
     expect(win32).toContain('phalcon.ps1 phalcon4');
     expect(win32).toContain('Add-Extension ast beta');
 
+    win32 = await extensions.addExtension('mysql', '7.4', 'win32');
+    expect(win32).toContain('Add-Extension mysqli');
+    expect(win32).toContain('Add-Extension mysqlnd');
+
+    win32 = await extensions.addExtension('mysql', '8.0', 'win32');
+    expect(win32).toContain('Add-Extension mysqli');
+    expect(win32).toContain('Add-Extension mysqlnd');
+
+    win32 = await extensions.addExtension('mysql', '5.6', 'win32');
+    expect(win32).toContain('Add-Extension mysql');
+    expect(win32).toContain('Add-Extension mysqli');
+    expect(win32).toContain('Add-Extension mysqlnd');
+
     win32 = await extensions.addExtension(
       'phalcon3, does_not_exist',
       '7.2',
@@ -66,7 +79,7 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite3, ast-beta',
+      'Xdebug, pcov, sqlite, ast-beta',
       '7.2',
       'darwin'
     );

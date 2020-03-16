@@ -76,7 +76,7 @@ export async function addExtensionDarwin(
         command = command_prefix + 'redis-2.2.8' + pipe;
         break;
       // match imagick
-      case /imagick/.test(extension):
+      case /^imagick$/.test(extension):
         command =
           'brew install pkg-config imagemagick' +
           pipe +
@@ -86,7 +86,7 @@ export async function addExtensionDarwin(
           pipe;
         break;
       // match sqlite
-      case /sqlite/.test(extension):
+      case /^sqlite$/.test(extension):
         extension = 'sqlite3';
         command = command_prefix + extension + pipe;
         break;
@@ -158,8 +158,21 @@ export async function addExtensionWindows(
         script +=
           '\nAdd-Extension ' + ext_name + ' ' + matches[2] + ' ' + matches[1];
         return;
+      // match 5.3mysql..5.6mysql
+      // match 5.3mysqli..5.6mysqli
+      // match 5.3mysqlnd..5.6mysqlnd
+      case /^5\.\d(mysql|mysqli|mysqlnd)$/.test(version_extension):
+        script +=
+          '\nAdd-Extension mysql\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
+        break;
+      // match 7.0mysql..8.0mysql
+      // match 7.0mysqli..8.0mysqli
+      // match 7.0mysqlnd..8.0mysqlnd
+      case /[7-8]\.\d(mysql|mysqli|mysqlnd)$/.test(version_extension):
+        script += '\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
+        break;
       // match sqlite
-      case /sqlite/.test(extension):
+      case /^sqlite$/.test(extension):
         extension = 'sqlite3';
         script += '\nAdd-Extension ' + extension;
         break;
@@ -269,7 +282,7 @@ export async function addExtensionLinux(
         script += '\nadd_pdo_extension ' + extension;
         return;
       // match sqlite
-      case /sqlite/.test(extension):
+      case /^sqlite$/.test(extension):
         extension = 'sqlite3';
         command = command_prefix + version + '-' + extension + pipe;
         break;

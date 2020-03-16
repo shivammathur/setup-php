@@ -56,7 +56,12 @@ get_pecl_version() {
 
 # Function to test if extension is loaded
 check_extension() {
-  php -m | grep -i -q -w "$1"
+  extension=$1
+  if [ "$extension" != "mysql" ]; then
+    php -m | grep -i -q -w "$extension"
+  else
+    php -m | grep -i -q "$extension"
+  fi
 }
 
 # Function to delete extensions

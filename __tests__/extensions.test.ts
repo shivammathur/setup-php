@@ -15,6 +15,19 @@ describe('Extension tests', () => {
     expect(win32).toContain('Add-Extension grpc stable 1.2.3');
     expect(win32).toContain('Add-Extension inotify alpha 1.2.3');
 
+    win32 = await extensions.addExtension('mysql', '7.4', 'win32');
+    expect(win32).toContain('Add-Extension mysqli');
+    expect(win32).toContain('Add-Extension mysqlnd');
+
+    win32 = await extensions.addExtension('mysql', '8.0', 'win32');
+    expect(win32).toContain('Add-Extension mysqli');
+    expect(win32).toContain('Add-Extension mysqlnd');
+
+    win32 = await extensions.addExtension('mysql', '5.5', 'win32');
+    expect(win32).toContain('Add-Extension mysql');
+    expect(win32).toContain('Add-Extension mysqli');
+    expect(win32).toContain('Add-Extension mysqlnd');
+
     win32 = await extensions.addExtension(
       'phalcon3, does_not_exist',
       '7.2',

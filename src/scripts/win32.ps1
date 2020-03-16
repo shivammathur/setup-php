@@ -20,6 +20,18 @@ Function Add-Log($mark, $subject, $message) {
   printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $code $mark $subject $message
 }
 
+Function Install-PhpManager() {
+  $repo = "mlocati/powershell-phpmanager"
+  $zip_file = "$php_dir\PhpManager.zip"
+  $tags = Invoke-WebRequest https://api.github.com/repos/$repo/tags | ConvertFrom-Json
+  $tag = $tags[0].Name
+  $module_path = "$php_dir\PhpManager\powershell-phpmanager-$tag\PhpManager"
+  Invoke-WebRequest -UseBasicParsing -Uri https://github.com/$repo/archive/$tag.zip -OutFile $zip_file
+  Expand-Archive -Path $zip_file -DestinationPath $php_dir\PhpManager
+  Import-Module $module_path
+  Add-Content -Path $PsHome\profile.ps1 -Value "Import-Module $module_path"
+}
+
 Function Add-Extension {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -204,7 +216,7 @@ if((Test-Path env:PHPTS) -and $env:PHPTS -eq 'ts') {
 }
 
 Step-Log "Setup PhpManager"
-Install-Module -Name PhpManager -Force -Scope CurrentUser
+Install-PhpManager >$null 2>&1
 Add-Log $tick "PhpManager" "Installed"
 
 $installed = $null

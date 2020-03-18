@@ -1,6 +1,6 @@
 # These are supported funding model platforms
 
-github: shivammathur
+tidelift: "npm/setup-php"
 community_bridge: setup-php
 issuehunt: shivammathur
 patreon: shivammathur

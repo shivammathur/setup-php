@@ -19,12 +19,13 @@ add_log() {
 # Function to update php ppa
 update_ppa() {
   if [ "$ppa_updated" = "false" ]; then
-    if [[ "$version" =~ $old_versions ]]; then
-      ppa="dotdeb-ubuntu-php*.list"
-    else
-      ppa="ondrej-ubuntu-php*.list"
-    fi
-    find /etc/apt/sources.list.d -type f -name "$ppa" -exec sudo "$debconf_fix" apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
+    sudo "$debconf_fix" apt-get update >/dev/null 2>&1
+#    if [[ "$version" =~ $old_versions ]]; then
+#      ppa="dotdeb-ubuntu-php*.list"
+#    else
+#      ppa="ondrej-ubuntu-php*.list"
+#    fi
+#    find /etc/apt/sources.list.d -type f -name "$ppa" -exec sudo "$debconf_fix" apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
     ppa_updated="true"
   fi
 }

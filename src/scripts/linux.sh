@@ -19,8 +19,9 @@ add_log() {
 # Function to update php ppa
 update_ppa() {
   if [ "$ppa_updated" = "false" ]; then
-    find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
-    ppa_updated="true"
+    sudo "$debconf_fix" apt-get update >/dev/null 2>&1
+    #find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
+    #ppa_updated="true"
   fi
 }
 

@@ -136,6 +136,9 @@ Function Add-Tool() {
     (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr
   } elseif($tool -eq "composer") {
     composer -q global config process-timeout 0
+    if (Test-Path env:COMPOSER_TOKEN) {
+      composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
+    }
   } elseif($tool -eq "wp-cli") {
     Copy-Item $php_dir\wp-cli.bat -Destination $php_dir\wp.bat
   }

@@ -53,7 +53,7 @@ describe('Extension tests', () => {
       '7.4',
       'linux'
     );
-    expect(linux).toContain('update_extension xdebug 2.9.2');
+    expect(linux).toContain('update_extension xdebug 2.9.3');
     expect(linux).toContain('sudo $debconf_fix apt-get install -y php7.4-pcov');
     expect(linux).toContain(
       'sudo $debconf_fix apt-get install -y php7.4-sqlite3'

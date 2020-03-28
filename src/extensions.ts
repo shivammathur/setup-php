@@ -268,10 +268,10 @@ export async function addExtensionLinux(
           ' ' +
           version;
         return;
-      // match 7.0xdebug..7.4xdebug
-      case /^7\.[0-4]xdebug$/.test(version_extension):
+      // match 7.1xdebug..7.4xdebug
+      case /^7\.[1-4]xdebug$/.test(version_extension):
         script +=
-          '\nupdate_extension xdebug 2.9.2' +
+          '\nupdate_extension xdebug 2.9.3' +
           pipe +
           '\n' +
           (await utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));

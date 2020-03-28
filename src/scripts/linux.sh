@@ -239,27 +239,23 @@ add_blackfire() {
 setup_master() {
   tar_file=php_"$version"%2Bubuntu"$(lsb_release -r -s)".tar.xz
   install_dir=~/php/"$version"
+  bintray_url=https://dl.bintray.com/shivammathur/php/"$tar_file"
   sudo mkdir -m 777 -p ~/php
-  update_ppa && $apt_install libicu-dev >/dev/null 2>&1
-  curl -SLO https://dl.bintray.com/shivammathur/php/"$tar_file" >/dev/null 2>&1
-  sudo tar xf "$tar_file" -C ~/php >/dev/null 2>&1
-  rm -rf "$tar_file"
+  curl -o /tmp/"$tar_file" -sSL "$bintray_url"
+  sudo tar xf /tmp/"$tar_file" -C ~/php
   sudo ln -sf -S "$version" "$install_dir"/bin/* /usr/bin/
   sudo ln -sf "$install_dir"/etc/php.ini /etc/php.ini
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5
 setup_old_versions() {
-  (
-    cd /tmp || exit
-    curl -SLO https://dl.bintray.com/shivammathur/php/php-"$version".tar.xz >/dev/null 2>&1
-    sudo tar xf php-"$version".tar.xz >/dev/null 2>&1
-    cd php-"$version" || exit
-    sudo chmod a+x ./*.sh
-    ./install.sh >/dev/null 2>&1
-    ./post-install.sh >/dev/null 2>&1
-  )
-  sudo rm -rf /tmp/php-"$version"
+  dir=php-"$version"
+  tar_file="$dir".tar.xz
+  bintray_url=https://dl.bintray.com/shivammathur/php/"$tar_file"
+  curl -o /tmp/"$tar_file" -sSL "$bintray_url"
+  sudo tar xf /tmp/"$tar_file" -C /tmp
+  sudo chmod a+x /tmp/"$dir"/*.sh
+  (cd /tmp/"$dir" && ./install.sh && ./post-install.sh)
   configure_pecl
   release_version=$(php -v | head -n 1 | cut -d' ' -f 2)
 }
@@ -325,9 +321,9 @@ sudo mkdir -p /var/run /run/php
 if [ "$existing_version" != "$version" ]; then
   if [ ! -e "/usr/bin/php$version" ]; then
     if [ "$version" = "8.0" ]; then
-      setup_master
+      setup_master >/dev/null 2>&1
     elif [[ "$version" =~ $old_versions ]] || [ "$version" = "5.3" ]; then
-      setup_old_versions
+      setup_old_versions >/dev/null 2>&1
     else
       update_ppa
       $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml >/dev/null 2>&1

@@ -281,6 +281,10 @@ export async function addExtensionLinux(
         extension = extension.replace('pdo_', '').replace('pdo-', '');
         script += '\nadd_pdo_extension ' + extension;
         return;
+      // match ast and uopz
+      case /^(ast|uopz)$/.test(extension):
+        command = command_prefix + '-' + extension + pipe;
+        break;
       // match sqlite
       case /^sqlite$/.test(extension):
         extension = 'sqlite3';

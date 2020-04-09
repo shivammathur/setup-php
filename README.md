@@ -29,13 +29,14 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Inputs](#inputs)
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
-  - [Experimental Setup](#experimental-setup)  
+  - [Experimental Setup](#experimental-setup)
   - [Thread Safe Setup](#thread-safe-setup)
   - [Force Update](#force-update)
   - [Verbose Setup](#verbose-setup)
   - [Cache Extensions](#cache-extensions)
   - [Cache Composer Dependencies](#cache-composer-dependencies)
   - [Cache Node.js Dependencies](#cache-nodejs-dependencies)
+  - [Composer GitHub OAuth](#composer-github-oauth)
   - [Problem Matchers](#problem-matchers)
   - [Examples](#examples)
 - [License](#scroll-license)
@@ -429,6 +430,19 @@ If your project has node.js dependencies, you can persist npm's or yarn's cache 
 ```
 
 **Note:** Please do not cache `node_modules` directory as that will have side-effects.
+
+### Composer GitHub OAuth
+
+If you have a number of workflows which setup multiple tools or have many composer dependencies, you might hit the GitHub's rate limit for composer. To avoid that you can add a `OAuth` token to the composer's config by setting `COMPOSER_TOKEN` environment variable. You can use [`GITHUB_TOKEN`](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token "GITHUB_TOKEN documentation") secret for this purpose.
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+  env:
+    COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
 
 ### Problem Matchers
 

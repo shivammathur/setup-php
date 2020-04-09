@@ -28,7 +28,7 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
         php-versions: ['8.0']
     env:
-      extensions: xml, opcache, xdebug, pcov
+      extensions: xml, opcache, pcov
       key: cache-v2
     steps:
       - name: Checkout

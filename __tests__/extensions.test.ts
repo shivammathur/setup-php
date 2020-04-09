@@ -49,15 +49,17 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnLinux', async () => {
     let linux: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
+      'Xdebug, pcov, sqlite, ast, uopz, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
       '7.4',
       'linux'
     );
-    expect(linux).toContain('update_extension xdebug 2.9.2');
+    expect(linux).toContain('update_extension xdebug 2.9.3');
     expect(linux).toContain('sudo $debconf_fix apt-get install -y php7.4-pcov');
     expect(linux).toContain(
       'sudo $debconf_fix apt-get install -y php7.4-sqlite3'
     );
+    expect(linux).toContain('sudo $debconf_fix apt-get install -y php-ast');
+    expect(linux).toContain('sudo $debconf_fix apt-get install -y php-uopz');
     expect(linux).toContain('add_unstable_extension ast beta extension');
     expect(linux).toContain('add_pdo_extension mysql');
     expect(linux).toContain('add_pdo_extension odbc');

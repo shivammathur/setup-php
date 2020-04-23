@@ -165,13 +165,26 @@ add_pecl() {
   add_log "$tick" "PECL" "Added"
 }
 
+# Function to fetch updated formulas
+update_formulae() {
+  brew_dir=$(brew --prefix)/Homebrew/Library/Taps/homebrew/homebrew-core/Formula
+  for formula in httpd pkg-config apr apr-util argon2 aspell autoconf bison curl-openssl freetds freetype gettext glib gmp icu4c jpeg krb5 libffi libpng libpq libsodium libzip oniguruma openldap openssl@1.1 re2c sqlite tidyp unixodbc webp; do
+    sudo curl -o "$brew_dir"/"$formula".rb -sSL https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/"$formula".rb &
+    to_wait+=( $! )
+  done
+  wait "${to_wait[@]}"
+}
+
 # Function to setup PHP >=5.6
 setup_php() {
   action=$1
-  export HOMEBREW_NO_INSTALL_CLEANUP=TRUE >/dev/null 2>&1
-  brew tap shivammathur/homebrew-php >/dev/null 2>&1
-  brew "$action" shivammathur/php/php@"$version" >/dev/null 2>&1
-  brew link --force --overwrite php@"$version" >/dev/null 2>&1
+  if [ "$version" = "8.0" ]; then
+    update_formulae
+  fi
+  export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
+  brew tap shivammathur/homebrew-php
+  brew "$action" shivammathur/php/php@"$version"
+  brew link --force --overwrite php@"$version"
 }
 
 # Variables
@@ -190,10 +203,10 @@ if [[ "$version" =~ $old_versions ]]; then
   curl -sSL https://github.com/shivammathur/php5-darwin/releases/latest/download/install.sh | bash -s "$nodot_version" >/dev/null 2>&1 &&
   status="Installed"
 elif [ "$existing_version" != "$version" ]; then
-  setup_php "install"
+  setup_php "install" >/dev/null 2>&1
   status="Installed"
 elif [ "$existing_version" = "$version" ] && [ "$update" = "true" ]; then
-  setup_php "upgrade"
+  setup_php "upgrade" >/dev/null 2>&1
   status="Updated to"
 else
   status="Found"

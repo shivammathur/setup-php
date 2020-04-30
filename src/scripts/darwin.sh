@@ -183,6 +183,9 @@ setup_php() {
   fi
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
   brew tap shivammathur/homebrew-php
+  if [ "$version" = "5.6" ] || [ "$version" = "7.0" ]; then
+    brew install https://raw.githubusercontent.com/shivammathur/homebrew-php/master/Formula/icu4c.rb --force
+  fi
   brew "$action" shivammathur/php/php@"$version"
   brew link --force --overwrite php@"$version"
 }

@@ -20,6 +20,34 @@ Function Add-Log($mark, $subject, $message) {
   printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $code $mark $subject $message
 }
 
+Function Get-PathFromRegistry {
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
+          [System.Environment]::GetEnvironmentVariable("Path","User")
+  if($null -eq (Get-Content $current_profile | findstr 'Get-PathFromRegistry')) {
+    Add-Content -Path $current_profile -Value 'Function Get-PathFromRegistry { $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User") }; Get-PathFromRegistry'
+  }
+}
+
+Function Add-Path {
+  param(
+    [string]$PathItem
+  )
+  $newPath = (Get-ItemProperty -Path 'hkcu:\Environment' -Name PATH).Path.replace("$PathItem;", '')
+  $newPath = $PathItem + ';' + $newPath
+  Set-ItemProperty -Path 'hkcu:\Environment' -Name Path -Value $newPath
+  Get-PathFromRegistry
+}
+
+Function Get-CleanPSProfile {
+  if(-not(Test-Path -LiteralPath $profile)) {
+    New-Item -Path $profile -ItemType "file" -Force
+  }
+  Set-Content $current_profile -Value ''
+  if ($null -eq (Get-Content $profile | FindStr $current_profile.replace('\', '\\'))) {
+    Add-Content $profile -Value ". $current_profile"
+  }
+}
+
 Function Install-PhpManager() {
   $repo = "mlocati/powershell-phpmanager"
   $zip_file = "$php_dir\PhpManager.zip"
@@ -29,7 +57,9 @@ Function Install-PhpManager() {
   Invoke-WebRequest -UseBasicParsing -Uri https://github.com/$repo/archive/$tag.zip -OutFile $zip_file
   Expand-Archive -Path $zip_file -DestinationPath $php_dir\PhpManager
   Import-Module $module_path
-  Add-Content -Path $PsHome\profile.ps1 -Value "Import-Module $module_path"
+  if($null -eq (Get-Content $current_profile | findstr 'powershell-phpmanager')) {
+    Add-Content -Path $current_profile -Value "Import-Module $module_path"
+  }
 }
 
 Function Add-Extension {
@@ -115,7 +145,7 @@ Function Add-Tool() {
   }
   if ($tool -eq "symfony") {
     Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool.exe
-    Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.exe" >$null 2>&1
+    Add-Content -Path $current_profile -Value "New-Alias $tool $php_dir\$tool.exe" >$null 2>&1
   } else {
     try {
       Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool
@@ -125,7 +155,7 @@ Function Add-Tool() {
       $bat_content += "SET BIN_TARGET=%~dp0/" + $tool
       $bat_content += "php %BIN_TARGET% %*"
       Set-Content -Path $php_dir\$tool.bat -Value $bat_content
-      Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.bat" >$null 2>&1
+      Add-Content -Path $current_profile -Value "New-Alias $tool $php_dir\$tool.bat" >$null 2>&1
     } catch { }
   }
   if($tool -eq "phive") {
@@ -191,9 +221,9 @@ Function Add-Blackfire() {
   )
   $url = "https://packages.blackfire.io/binaries/blackfire-agent/${agent_version}/blackfire-agent-windows_${arch_name}.zip"
   Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\blackfire.zip >$null 2>&1
-  7z e $php_dir\blackfire.zip -o"$php_dir" -y >$null 2>&1
-  Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias blackfire $php_dir\blackfire.exe"
-  Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias blackfire-agent $php_dir\blackfire-agent.exe"
+  Expand-Archive -Path $php_dir\blackfire.zip -DestinationPath $php_dir -Force >$null 2>&1
+  Add-Content -Path $current_profile -Value "New-Alias blackfire $php_dir\blackfire.exe"
+  Add-Content -Path $current_profile -Value "New-Alias blackfire-agent $php_dir\blackfire-agent.exe"
   if ((Test-Path env:BLACKFIRE_SERVER_ID) -and (Test-Path env:BLACKFIRE_SERVER_TOKEN)) {
     blackfire-agent --register --server-id=$env:BLACKFIRE_SERVER_ID --server-token=$env:BLACKFIRE_SERVER_TOKEN >$null 2>&1
   }
@@ -208,35 +238,59 @@ Function Add-Blackfire() {
 $tick = ([char]8730)
 $cross = ([char]10007)
 $php_dir = 'C:\tools\php'
-$ext_dir = $php_dir + '\ext'
+$ext_dir = "$php_dir\ext"
+$current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $master_version = '8.0'
+
 $arch = 'x64'
-$arch_name='amd64'
-$ts = $false
-if((Test-Path env:PHPTS) -and $env:PHPTS -eq 'ts') {
-  $ts = $true
+$arch_name ='amd64'
+if(-not([Environment]::Is64BitOperatingSystem) -or $version -lt '7.0') {
+  $arch = 'x86'
+  $arch_name = '386'
 }
 
+$ts = $env:PHPTS -eq 'ts'
+if($env:PHPTS -ne 'ts') {
+  $env:PHPTS = 'nts'
+}
+
+if($env:RUNNER -eq 'self-hosted') {
+  $bin_dir = 'C:\tools\bin'
+  $php_dir = "$php_dir$version"
+  $ext_dir = "$php_dir\ext"
+  Get-CleanPSProfile >$null 2>&1
+  New-Item $bin_dir -Type Directory 2>&1 | Out-Null
+  Add-Path -PathItem $bin_dir
+  if(-not(Test-Path $bin_dir\printf.exe)) {
+    Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/printf/releases/latest/download/printf-$arch.zip" -OutFile "$bin_dir\printf.zip" >$null 2>&1
+    Expand-Archive -Path $bin_dir\printf.zip -DestinationPath $bin_dir -Force >$null 2>&1
+  }
+  if($version -lt 5.6) {
+    Add-Log $cross "PHP" "PHP $version is not supported on self-hosted runner"
+    exit 1
+  }
+  New-Item $php_dir -Type Directory 2>&1 | Out-Null
+  Add-Path -PathItem $php_dir
+  setx PHPROOT $php_dir >$null 2>&1
+} else {
+  $current_profile = "$PSHOME\Profile.ps1"
+}
 Step-Log "Setup PhpManager"
 Install-PhpManager >$null 2>&1
 Add-Log $tick "PhpManager" "Installed"
 
+Step-Log "Setup PHP"
 $installed = $null
 if (Test-Path -LiteralPath $php_dir -PathType Container) {
   try {
     $installed = Get-Php -Path $php_dir
-  }
-  catch {
-  }
+  } catch { }
 }
-Step-Log "Setup PHP"
 $status = "Installed"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
-  if ($version -lt '7.0') {
+  if ($version -lt '7.0' -and (Get-InstalledModule).Name -notcontains 'VcRedist') {
     Install-Module -Name VcRedist -Force
-    $arch='x86'
-    $arch_name='386'
   }
   if ($version -eq $master_version) {
     $version = 'master'
@@ -244,7 +298,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 
   Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
 } else {
-  if((Test-Path env:update) -and $env:update -eq 'true') {
+  if($env:update -eq 'true') {
     Update-Php $php_dir >$null 2>&1
     $status = "Updated to"
   } else {
@@ -255,18 +309,13 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 $installed = Get-Php -Path $php_dir
 Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
 if($version -lt "5.5") {
-  Add-Extension openssl >$null 2>&1
-  Add-Extension curl >$null 2>&1
+  Enable-PhpExtension -Extension openssl, curl, mbstring -Path $php_dir
 } else {
-  Enable-PhpExtension -Extension openssl, curl, opcache -Path $php_dir
+  Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 }
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
 if ($version -eq 'master') {
-  if($installed.ThreadSafe) {
-    Copy-Item $dir"\..\src\bin\php_ts_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
-  } else {
-    Copy-Item $dir"\..\src\bin\php_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
-  }
+  Copy-Item $dir"\..\src\bin\php_$env:PHPTS`_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
   Set-PhpIniKey -Key 'opcache.jit_buffer_size' -Value '256M' -Path $php_dir
   Set-PhpIniKey -Key 'opcache.jit' -Value '1235' -Path $php_dir
 }

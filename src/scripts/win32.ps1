@@ -166,6 +166,7 @@ Function Add-Tool() {
     (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr
   } elseif($tool -eq "composer") {
     composer -q global config process-timeout 0
+    Write-Output "::add-path::C:/Users/runneradmin/AppData/Roaming/Composer/vendor/bin"
     if (Test-Path env:COMPOSER_TOKEN) {
       composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
     }
@@ -199,8 +200,6 @@ Function Add-Composertool() {
   )
   composer -q global require $prefix$release 2>&1 | out-null
   if($?) {
-    $composer_dir = composer -q global config home | ForEach-Object { $_ -replace "/", "\" }
-    Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $composer_dir\vendor\bin\$tool.bat"
     Add-Log $tick $tool "Added"
   } else {
     Add-Log $cross $tool "Could not setup $tool"

@@ -25,10 +25,12 @@ update_ppa() {
   fi
 }
 
+# Function to configure PECL
 configure_pecl() {
   if [ "$pecl_config" = "false" ] && [ -e /usr/bin/pecl ]; then
+    sudo touch "$scan_dir"/99-pecl.ini >/dev/null 2>&1
     for tool in pear pecl; do
-      sudo "$tool" config-set php_ini "$ini_file" >/dev/null 2>&1
+      sudo "$tool" config-set php_ini "$scan_dir"/99-pecl.ini >/dev/null 2>&1
       sudo "$tool" config-set auto_discover 1 >/dev/null 2>&1
       sudo "$tool" channel-update "$tool".php.net >/dev/null 2>&1
     done

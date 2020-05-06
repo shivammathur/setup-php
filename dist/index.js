@@ -1827,7 +1827,7 @@ async function getCleanedToolsList(tools_csv) {
         .map(function (extension) {
         return extension
             .trim()
-            .replace(/symfony\/|robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
+            .replace(/symfony\/|laravel\/|robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
     })
         .filter(Boolean);
     return [...new Set(tools_list)];
@@ -1911,6 +1911,10 @@ async function addTools(tools_csv, php_version, os_version) {
                 url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
                 script += await addArchive(tool, version, url, os_version);
                 break;
+            case 'infection':
+                url = github + 'infection/infection/' + uri;
+                script += await addArchive(tool, version, url, os_version);
+                break;
             case 'php-cs-fixer':
                 uri = await getUri(tool, '.phar', version, 'releases', 'v', 'download');
                 url = github + 'FriendsOfPHP/PHP-CS-Fixer/' + uri;
@@ -1966,6 +1970,9 @@ async function addTools(tools_csv, php_version, os_version) {
                 break;
             case 'prestissimo':
                 script += await addPackage(tool, release, 'hirak/', os_version);
+                break;
+            case 'vapor-cli':
+                script += await addPackage(tool, release, 'laravel/', os_version);
                 break;
             case 'composer-prefetcher':
                 script += await addPackage(tool, release, 'narrowspark/automatic-', os_version);

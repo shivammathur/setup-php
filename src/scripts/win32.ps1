@@ -159,8 +159,6 @@ Function Add-Tool() {
     } catch { }
   }
   if($tool -eq "phive") {
-    Add-Extension curl >$null 2>&1
-    Add-Extension mbstring >$null 2>&1
     Add-Extension xml >$null 2>&1
   } elseif($tool -eq "cs2pr") {
     (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr

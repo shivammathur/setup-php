@@ -19,9 +19,15 @@ add_log() {
 # Function to remove extensions
 remove_extension() {
   extension=$1
-  sudo sed -i '' "/$extension/d" "$ini_file"
-  sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
-  sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
+  if check_extension "$extension"; then
+    sudo sed -i '' "/$extension/d" "$ini_file"
+    sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
+    sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
+    (! check_extension "$extension" && add_log "$tick" ":$extension" "Removed") ||
+    add_log "$cross" ":$extension" "Could not remove $extension on PHP $semver"
+  else
+    add_log "$tick" ":$extension" "Could not find $extension on PHP $semver"
+  fi
 }
 
 # Function to test if extension is loaded
@@ -59,7 +65,7 @@ add_pecl_extension() {
   if [ "$ext_version" = "$pecl_version" ]; then
     add_log "$tick" "$extension" "Enabled"
   else
-    remove_extension "$extension"
+    remove_extension "$extension" >/dev/null 2>&1
     (
       sudo pecl install -f "$extension-$pecl_version" >/dev/null 2>&1 &&
       check_extension "$extension" &&

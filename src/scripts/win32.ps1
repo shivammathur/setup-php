@@ -120,10 +120,17 @@ Function Remove-Extension() {
     $extension
   )
   if(php -m | findstr -i $extension) {
-    Disable-PhpExtension $extension $php_dir
-  }
-  if (Test-Path $ext_dir\php_$extension.dll) {
-    Remove-Item $ext_dir\php_$extension.dll
+    try {
+      Disable-PhpExtension $extension $php_dir
+      if (Test-Path $ext_dir\php_$extension.dll) {
+        Remove-Item $ext_dir\php_$extension.dll
+      }
+      Add-Log $tick ":$extension" "Removed"
+    } catch {
+      Add-Log $cross ":$extension" "Could not remove $extension on PHP $($installed.FullVersion)"
+    }
+  } else {
+    Add-Log $tick ":$extension" "Could not find $extension on PHP $($installed.FullVersion)"
   }
 }
 

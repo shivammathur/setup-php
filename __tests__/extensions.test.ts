@@ -3,13 +3,14 @@ import * as extensions from '../src/extensions';
 describe('Extension tests', () => {
   it('checking addExtensionOnWindows', async () => {
     let win32: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, phalcon4, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2',
+      'Xdebug, pcov, sqlite, :intl, phalcon4, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2',
       '7.4',
       'win32'
     );
     expect(win32).toContain('Add-Extension xdebug');
     expect(win32).toContain('Add-Extension pcov');
     expect(win32).toContain('Add-Extension sqlite3');
+    expect(win32).toContain('Remove-Extension intl');
     expect(win32).toContain('phalcon.ps1 phalcon4');
     expect(win32).toContain('Add-Extension ast beta');
     expect(win32).toContain('Add-Extension grpc stable 1.2.3');
@@ -49,7 +50,7 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnLinux', async () => {
     let linux: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, ast, uopz, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
+      'Xdebug, pcov, sqlite, :intl, ast, uopz, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
       '7.4',
       'linux'
     );
@@ -58,6 +59,7 @@ describe('Extension tests', () => {
     expect(linux).toContain(
       'sudo $debconf_fix apt-get install -y php7.4-sqlite3'
     );
+    expect(linux).toContain('remove_extension intl');
     expect(linux).toContain('sudo $debconf_fix apt-get install -y php-ast');
     expect(linux).toContain('sudo $debconf_fix apt-get install -y php-uopz');
     expect(linux).toContain('add_unstable_extension ast beta extension');
@@ -98,13 +100,14 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, ast-beta, grpc-1.2.3',
+      'Xdebug, pcov, sqlite, :intl, ast-beta, grpc-1.2.3',
       '7.2',
       'darwin'
     );
     expect(darwin).toContain('sudo pecl install -f xdebug');
     expect(darwin).toContain('sudo pecl install -f pcov');
     expect(darwin).toContain('sudo pecl install -f sqlite3');
+    expect(darwin).toContain('remove_extension intl');
     expect(darwin).toContain('add_unstable_extension ast beta extension');
     expect(darwin).toContain('add_pecl_extension grpc 1.2.3 extension');
 

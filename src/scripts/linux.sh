@@ -93,10 +93,16 @@ delete_extension() {
 # Function to disable and delete extensions
 remove_extension() {
   extension=$1
-  if [[ ! "$version" =~ $old_versions ]] && [ -e /etc/php/"$version"/mods-available/"$extension".ini ]; then
-    sudo phpdismod -v "$version" "$extension"
+  if check_extension "$extension"; then
+    if [[ ! "$version" =~ $old_versions ]] && [ -e /etc/php/"$version"/mods-available/"$extension".ini ]; then
+      sudo phpdismod -v "$version" "$extension" >/dev/null 2>&1
+    fi
+    delete_extension "$extension"
+    (! check_extension "$extension" && add_log "$tick" ":$extension" "Removed") ||
+    add_log "$cross" ":$extension" "Could not remove $extension on PHP $semver"
+  else
+    add_log "$tick" ":$extension" "Could not find $extension on PHP $semver"
   fi
-  delete_extension "$extension"
 }
 
 # Function to enable existing extension

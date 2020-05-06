@@ -14,7 +14,8 @@ export async function addExtensionDarwin(
   pipe: string
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
-  let script = '\n';
+  let add_script = '\n';
+  let remove_script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     const version_extension: string = version + extension;
     const [ext_name, ext_version]: string[] = extension.split('-');
@@ -22,6 +23,10 @@ export async function addExtensionDarwin(
     const command_prefix = 'sudo pecl install -f ';
     let command = '';
     switch (true) {
+      // match :extension
+      case /^:/.test(ext_name):
+        remove_script += '\nremove_extension ' + ext_name.slice(1);
+        return;
       // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
       // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
       case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
@@ -37,7 +42,7 @@ export async function addExtensionDarwin(
         break;
       // match pre-release versions. For example - xdebug-beta
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-        script +=
+        add_script +=
           '\nadd_unstable_extension ' +
           ext_name +
           ' ' +
@@ -47,7 +52,7 @@ export async function addExtensionDarwin(
         return;
       // match semver
       case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
-        script +=
+        add_script +=
           '\nadd_pecl_extension ' +
           ext_name +
           ' ' +
@@ -92,7 +97,7 @@ export async function addExtensionDarwin(
         break;
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-        script +=
+        add_script +=
           'sh ' +
           path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
           ' ' +
@@ -104,10 +109,10 @@ export async function addExtensionDarwin(
         command = command_prefix + extension + pipe;
         break;
     }
-    script +=
+    add_script +=
       '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
   });
-  return script;
+  return add_script + remove_script;
 }
 
 /**
@@ -121,18 +126,23 @@ export async function addExtensionWindows(
   version: string
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
-  let script = '\n';
+  let add_script = '\n';
+  let remove_script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     const [ext_name, ext_version]: string[] = extension.split('-');
     const version_extension: string = version + extension;
     let matches: RegExpExecArray;
     switch (true) {
+      // Match :extension
+      case /^:/.test(ext_name):
+        remove_script += '\nRemove-Extension ' + ext_name.slice(1);
+        return;
       // match 5.4blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
       // match 5.4blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
       case /^(5\.[4-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
-        script +=
+        add_script +=
           '\n& ' +
           path.join(__dirname, '../src/scripts/ext/blackfire.ps1') +
           ' ' +
@@ -142,11 +152,11 @@ export async function addExtensionWindows(
         return;
       // match pre-release versions. For example - xdebug-beta
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-        script += '\nAdd-Extension ' + ext_name + ' ' + ext_version;
+        add_script += '\nAdd-Extension ' + ext_name + ' ' + ext_version;
         break;
       // match semver without state
       case /.*-\d+\.\d+\.\d+$/.test(version_extension):
-        script += '\nAdd-Extension ' + ext_name + ' stable ' + ext_version;
+        add_script += '\nAdd-Extension ' + ext_name + ' stable ' + ext_version;
         return;
       // match semver with state
       case /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.test(
@@ -155,30 +165,30 @@ export async function addExtensionWindows(
         matches = /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.exec(
           version_extension
         ) as RegExpExecArray;
-        script +=
+        add_script +=
           '\nAdd-Extension ' + ext_name + ' ' + matches[2] + ' ' + matches[1];
         return;
       // match 5.3mysql..5.6mysql
       // match 5.3mysqli..5.6mysqli
       // match 5.3mysqlnd..5.6mysqlnd
       case /^5\.\d(mysql|mysqli|mysqlnd)$/.test(version_extension):
-        script +=
+        add_script +=
           '\nAdd-Extension mysql\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
         break;
       // match 7.0mysql..8.0mysql
       // match 7.0mysqli..8.0mysqli
       // match 7.0mysqlnd..8.0mysqlnd
       case /[7-8]\.\d(mysql|mysqli|mysqlnd)$/.test(version_extension):
-        script += '\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
+        add_script += '\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
         break;
       // match sqlite
       case /^sqlite$/.test(extension):
         extension = 'sqlite3';
-        script += '\nAdd-Extension ' + extension;
+        add_script += '\nAdd-Extension ' + extension;
         break;
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-        script +=
+        add_script +=
           '\n& ' +
           path.join(__dirname, '../src/scripts/ext/phalcon.ps1') +
           ' ' +
@@ -188,11 +198,11 @@ export async function addExtensionWindows(
           '\n';
         break;
       default:
-        script += '\nAdd-Extension ' + extension;
+        add_script += '\nAdd-Extension ' + extension;
         break;
     }
   });
-  return script;
+  return add_script + remove_script;
 }
 
 /**
@@ -208,7 +218,8 @@ export async function addExtensionLinux(
   pipe: string
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
-  let script = '\n';
+  let add_script = '\n';
+  let remove_script = '\n';
   await utils.asyncForEach(extensions, async function(extension: string) {
     const version_extension: string = version + extension;
     const [ext_name, ext_version]: string[] = extension.split('-');
@@ -216,6 +227,10 @@ export async function addExtensionLinux(
     const command_prefix = 'sudo $debconf_fix apt-get install -y php';
     let command = '';
     switch (true) {
+      // Match :extension
+      case /^:/.test(ext_name):
+        remove_script += '\nremove_extension ' + ext_name.slice(1);
+        return;
       // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
       // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
       case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
@@ -231,7 +246,7 @@ export async function addExtensionLinux(
         break;
       // match pre-release versions. For example - xdebug-beta
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-        script +=
+        add_script +=
           '\nadd_unstable_extension ' +
           ext_name +
           ' ' +
@@ -241,7 +256,7 @@ export async function addExtensionLinux(
         return;
       // match semver versions
       case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
-        script +=
+        add_script +=
           '\nadd_pecl_extension ' +
           ext_name +
           ' ' +
@@ -260,7 +275,7 @@ export async function addExtensionLinux(
         break;
       // match 7.0phalcon3...7.3phalcon3 or 7.2phalcon4...7.4phalcon4
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-        script +=
+        add_script +=
           '\nsh ' +
           path.join(__dirname, '../src/scripts/ext/phalcon.sh') +
           ' ' +
@@ -270,7 +285,7 @@ export async function addExtensionLinux(
         return;
       // match 7.1xdebug..7.4xdebug
       case /^7\.[1-4]xdebug$/.test(version_extension):
-        script +=
+        add_script +=
           '\nupdate_extension xdebug 2.9.3' +
           pipe +
           '\n' +
@@ -279,7 +294,7 @@ export async function addExtensionLinux(
       // match pdo extensions
       case /.*pdo[_-].*/.test(version_extension):
         extension = extension.replace('pdo_', '').replace('pdo-', '');
-        script += '\nadd_pdo_extension ' + extension;
+        add_script += '\nadd_pdo_extension ' + extension;
         return;
       // match ast and uopz
       case /^(ast|uopz)$/.test(extension):
@@ -294,10 +309,10 @@ export async function addExtensionLinux(
         command = command_prefix + version + '-' + extension + pipe;
         break;
     }
-    script +=
+    add_script +=
       '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
   });
-  return script;
+  return add_script + remove_script;
 }
 
 /**

@@ -178,15 +178,14 @@ update_formulae() {
 # Function to setup PHP >=5.6
 setup_php() {
   action=$1
-  if [ "$version" = "8.0" ]; then
-    update_formulae
-  fi
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
   brew tap shivammathur/homebrew-php
-  if [ "$version" = "5.6" ] || [ "$version" = "7.0" ]; then
-    brew install https://raw.githubusercontent.com/shivammathur/homebrew-php/master/Formula/icu4c.rb --force
+  if brew list php@"$version" 2>/dev/null | grep -q "Error" && [ "$action" != "upgrade" ]; then
+    brew unlink php@"$version"
+  else
+    if [ "$version" = "8.0" ]; then update_formulae; fi
+    brew "$action" shivammathur/php/php@"$version"
   fi
-  brew "$action" shivammathur/php/php@"$version"
   brew link --force --overwrite php@"$version"
 }
 
@@ -198,7 +197,22 @@ nodot_version=${1/./}
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
-[[ -z "${update}" ]] && update='false' || update="${update}"
+[[ -z "${update}" ]] && update='false' && UPDATE='false' || update="${update}"
+[ "$update" = false ] && [[ -n ${UPDATE} ]] && update="${UPDATE}"
+[[ -z "${runner}" ]] && runner='github' && RUNNER='github' || runner="${runner}"
+[ "$runner" = false ] && [[ -n ${RUNNER} ]] && runner="${RUNNER}"
+
+if [ "$runner" = "self-hosted" ]; then
+  if [[ "$version" =~ $old_versions ]]; then
+    add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
+    exit 1
+  fi
+  if [[ $(command -v brew) == "" ]]; then
+      step_log "Setup Brew"
+      curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash -s >/dev/null 2>&1
+      add_log "$tick" "Brew" "Installed Homebrew"
+  fi
+fi
 
 # Setup PHP
 step_log "Setup PHP"

@@ -438,10 +438,7 @@ export async function addTools(
     switch (tool) {
       case 'blackfire':
       case 'blackfire-agent':
-        script += await getCommand(
-          os_version,
-          'blackfire ' + (await utils.getBlackfireAgentVersion())
-        );
+        script += await getCommand(os_version, 'blackfire');
         break;
       case 'blackfire-player':
         url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);

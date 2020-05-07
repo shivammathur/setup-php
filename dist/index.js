@@ -1214,29 +1214,6 @@ async function suppressOutput(os_version) {
     }
 }
 exports.suppressOutput = suppressOutput;
-/**
- * Function to get Blackfire version
- *
- * @param blackfire_version
- */
-async function getBlackfireVersion(blackfire_version) {
-    switch (blackfire_version) {
-        case null:
-        case undefined:
-        case '':
-            return '1.31.0';
-        default:
-            return blackfire_version;
-    }
-}
-exports.getBlackfireVersion = getBlackfireVersion;
-/**
- * Function to get Blackfire Agent version
- */
-async function getBlackfireAgentVersion() {
-    return '1.32.0';
-}
-exports.getBlackfireAgentVersion = getBlackfireAgentVersion;
 
 
 /***/ }),
@@ -1940,7 +1917,7 @@ async function addTools(tools_csv, php_version, os_version) {
         switch (tool) {
             case 'blackfire':
             case 'blackfire-agent':
-                script += await getCommand(os_version, 'blackfire ' + (await utils.getBlackfireAgentVersion()));
+                script += await getCommand(os_version, 'blackfire');
                 break;
             case 'blackfire-player':
                 url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
@@ -2620,7 +2597,7 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                         ' ' +
                         version +
                         ' ' +
-                        (await utils.getBlackfireVersion(ext_version));
+                        extension;
                 break;
             // match pre-release versions. For example - xdebug-beta
             case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
@@ -2692,7 +2669,7 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                 break;
         }
         add_script +=
-            '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
+            '\nadd_extension ' + ext_name + ' "' + command + '" ' + ext_prefix;
     });
     return add_script + remove_script;
 }
@@ -2725,7 +2702,7 @@ async function addExtensionWindows(extension_csv, version) {
                         ' ' +
                         version +
                         ' ' +
-                        (await utils.getBlackfireVersion(ext_version));
+                        extension;
                 return;
             // match pre-release versions. For example - xdebug-beta
             case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
@@ -2771,7 +2748,7 @@ async function addExtensionWindows(extension_csv, version) {
                         '\n';
                 break;
             default:
-                add_script += '\nAdd-Extension ' + extension;
+                add_script += '\nAdd-Extension ' + ext_name;
                 break;
         }
     });
@@ -2801,7 +2778,7 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                 remove_script += '\nremove_extension ' + ext_name.slice(1);
                 return;
             // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
-            // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+            // match 5.3blackfire-{semver}...5.6blackfire-{semver}, 7.0blackfire-{semver}...7.4blackfire-{semver}
             case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
                 command =
                     'bash ' +
@@ -2809,7 +2786,7 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                         ' ' +
                         version +
                         ' ' +
-                        (await utils.getBlackfireVersion(ext_version));
+                        extension;
                 break;
             // match pre-release versions. For example - xdebug-beta
             case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
@@ -2877,7 +2854,7 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                 break;
         }
         add_script +=
-            '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
+            '\nadd_extension ' + ext_name + ' "' + command + '" ' + ext_prefix;
     });
     return add_script + remove_script;
 }

@@ -3,10 +3,10 @@ Param (
     [ValidateNotNull()]
     [string]
     $version,
-    [Parameter(Position = 2, Mandatory = $false)]
+    [Parameter(Position = 1, Mandatory = $true)]
     [ValidateNotNull()]
     [string]
-    $extension_version
+    $extension
 )
 
 $tick = ([char]8730)
@@ -15,7 +15,11 @@ $ext_dir = $php_dir + '\ext'
 $arch='x64'
 if ($version -lt '7.0') { $arch='x86' }
 $version = $version.replace('.', '')
-
+$extension_version = $extension.split('-')[1]
+if ($extension_version -notmatch "\S") {
+    $ext_data = Invoke-WebRequest https://blackfire.io/docs/up-and-running/update | ForEach-Object { $_.tostring() -split "[`r`n]" | Select-String '<td class="version">' | Select-Object -Index 2 }
+    $extension_version = [regex]::Matches($ext_data, '<td.*?>(.+)</td>') | ForEach-Object { $_.Captures[0].Groups[1].value }
+}
 if (Test-Path $ext_dir\blackfire.dll) {
     Enable-PhpExtension -Extension blackfire -Path $php_dir
     $status="Enabled"

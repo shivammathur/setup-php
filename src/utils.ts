@@ -255,28 +255,3 @@ export async function suppressOutput(os_version: string): Promise<string> {
       );
   }
 }
-
-/**
- * Function to get Blackfire version
- *
- * @param blackfire_version
- */
-export async function getBlackfireVersion(
-  blackfire_version: null | undefined | string
-): Promise<string> {
-  switch (blackfire_version) {
-    case null:
-    case undefined:
-    case '':
-      return '1.31.0';
-    default:
-      return blackfire_version;
-  }
-}
-
-/**
- * Function to get Blackfire Agent version
- */
-export async function getBlackfireAgentVersion(): Promise<string> {
-  return '1.32.0';
-}

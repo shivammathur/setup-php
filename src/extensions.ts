@@ -38,7 +38,7 @@ export async function addExtensionDarwin(
           ' ' +
           version +
           ' ' +
-          (await utils.getBlackfireVersion(ext_version));
+          extension;
         break;
       // match pre-release versions. For example - xdebug-beta
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
@@ -110,7 +110,7 @@ export async function addExtensionDarwin(
         break;
     }
     add_script +=
-      '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
+      '\nadd_extension ' + ext_name + ' "' + command + '" ' + ext_prefix;
   });
   return add_script + remove_script;
 }
@@ -148,7 +148,7 @@ export async function addExtensionWindows(
           ' ' +
           version +
           ' ' +
-          (await utils.getBlackfireVersion(ext_version));
+          extension;
         return;
       // match pre-release versions. For example - xdebug-beta
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
@@ -198,7 +198,7 @@ export async function addExtensionWindows(
           '\n';
         break;
       default:
-        add_script += '\nAdd-Extension ' + extension;
+        add_script += '\nAdd-Extension ' + ext_name;
         break;
     }
   });
@@ -232,7 +232,7 @@ export async function addExtensionLinux(
         remove_script += '\nremove_extension ' + ext_name.slice(1);
         return;
       // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
-      // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+      // match 5.3blackfire-{semver}...5.6blackfire-{semver}, 7.0blackfire-{semver}...7.4blackfire-{semver}
       case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
@@ -242,7 +242,7 @@ export async function addExtensionLinux(
           ' ' +
           version +
           ' ' +
-          (await utils.getBlackfireVersion(ext_version));
+          extension;
         break;
       // match pre-release versions. For example - xdebug-beta
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
@@ -310,7 +310,7 @@ export async function addExtensionLinux(
         break;
     }
     add_script +=
-      '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
+      '\nadd_extension ' + ext_name + ' "' + command + '" ' + ext_prefix;
   });
   return add_script + remove_script;
 }

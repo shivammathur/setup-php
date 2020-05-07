@@ -1,5 +1,9 @@
 version=${1/./}
-extension_version=$2
+extension=${2}
+extension_version=$(echo "$extension" | cut -d '-' -f 2)
+if [ "$extension_version" = "blackfire" ]; then
+  extension_version=$(curl -sSL https://blackfire.io/docs/up-and-running/update | grep 'class="version"' | sed -e 's/<[^>]*>\| //g' | sed -n '3,3p')
+fi
 ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 ini_file="$scan_dir/50-blackfire.ini"

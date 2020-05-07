@@ -216,13 +216,8 @@ Function Add-Pecl() {
 }
 
 Function Add-Blackfire() {
-  Param (
-    [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateNotNull()]
-    [ValidateLength(1, [int]::MaxValue)]
-    [string]
-    $agent_version
-  )
+  $agent_data = Invoke-WebRequest https://blackfire.io/docs/up-and-running/update | ForEach-Object { $_.tostring() -split "[`r`n]" | Select-String '<td class="version">' | Select-Object -Index 0 }
+  $agent_version = [regex]::Matches($agent_data, '<td.*?>(.+)</td>') | ForEach-Object {$_.Captures[0].Groups[1].value }
   $url = "https://packages.blackfire.io/binaries/blackfire-agent/${agent_version}/blackfire-agent-windows_${arch_name}.zip"
   Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\blackfire.zip >$null 2>&1
   Expand-Archive -Path $php_dir\blackfire.zip -DestinationPath $php_dir -Force >$null 2>&1

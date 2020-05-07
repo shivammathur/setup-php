@@ -450,7 +450,7 @@ describe('Tools tests', () => {
       '7.4',
       'win32'
     );
-    expect(script).toContain('Add-Blackfire 1.32.0');
+    expect(script).toContain('Add-Blackfire');
     expect(script).toContain(
       'Add-Tool https://get.blackfire.io/blackfire-player-v1.8.1.phar blackfire-player'
     );

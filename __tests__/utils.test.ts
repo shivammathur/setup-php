@@ -161,14 +161,4 @@ describe('Utils tests', () => {
       'Platform fedora is not supported'
     );
   });
-
-  it('checking getBlackfireVersion', async () => {
-    expect(await utils.getBlackfireVersion('')).toEqual('1.31.0');
-    expect(await utils.getBlackfireVersion(undefined)).toEqual('1.31.0');
-    expect(await utils.getBlackfireVersion(null)).toEqual('1.31.0');
-    expect(await utils.getBlackfireVersion('1.32.0')).toEqual('1.32.0');
-  });
-  it('checking getBlackfireAgentVersion', async () => {
-    expect(await utils.getBlackfireAgentVersion()).toEqual('1.32.0');
-  });
 });

@@ -324,7 +324,7 @@ export async function getCleanedToolsList(
   let tools_list: string[] = await utils.CSVArray(tools_csv);
   tools_list = await addComposer(tools_list);
   tools_list = tools_list
-    .map(function(extension: string) {
+    .map(function (extension: string) {
       return extension
         .trim()
         .replace(
@@ -420,7 +420,7 @@ export async function addTools(
 ): Promise<string> {
   let script = '\n' + (await utils.stepLog('Setup Tools', os_version));
   const tools_list: Array<string> = await getCleanedToolsList(tools_csv);
-  await utils.asyncForEach(tools_list, async function(release: string) {
+  await utils.asyncForEach(tools_list, async function (release: string) {
     const tool_data: {name: string; version: string} = await parseTool(release);
     const tool: string = tool_data.name;
     const version: string = tool_data.version;

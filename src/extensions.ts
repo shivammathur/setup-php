@@ -16,7 +16,7 @@ export async function addExtensionDarwin(
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let add_script = '\n';
   let remove_script = '\n';
-  await utils.asyncForEach(extensions, async function(extension: string) {
+  await utils.asyncForEach(extensions, async function (extension: string) {
     const version_extension: string = version + extension;
     const [ext_name, ext_version]: string[] = extension.split('-');
     const ext_prefix = await utils.getExtensionPrefix(ext_name);
@@ -128,7 +128,7 @@ export async function addExtensionWindows(
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let add_script = '\n';
   let remove_script = '\n';
-  await utils.asyncForEach(extensions, async function(extension: string) {
+  await utils.asyncForEach(extensions, async function (extension: string) {
     const [ext_name, ext_version]: string[] = extension.split('-');
     const version_extension: string = version + extension;
     let matches: RegExpExecArray;
@@ -220,7 +220,7 @@ export async function addExtensionLinux(
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let add_script = '\n';
   let remove_script = '\n';
-  await utils.asyncForEach(extensions, async function(extension: string) {
+  await utils.asyncForEach(extensions, async function (extension: string) {
     const version_extension: string = version + extension;
     const [ext_name, ext_version]: string[] = extension.split('-');
     const ext_prefix = await utils.getExtensionPrefix(ext_name);

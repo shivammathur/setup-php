@@ -98,7 +98,7 @@ export async function addExtensionDarwin(
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
         add_script +=
-          'sh ' +
+          '\nbash ' +
           path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
           ' ' +
           extension +
@@ -267,7 +267,7 @@ export async function addExtensionLinux(
       // match 5.6gearman..7.4gearman
       case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
         command =
-          'sh ' +
+          '\nbash ' +
           path.join(__dirname, '../src/scripts/ext/gearman.sh') +
           ' ' +
           version +
@@ -276,7 +276,7 @@ export async function addExtensionLinux(
       // match 7.0phalcon3...7.3phalcon3 or 7.2phalcon4...7.4phalcon4
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
         add_script +=
-          '\nsh ' +
+          '\nbash ' +
           path.join(__dirname, '../src/scripts/ext/phalcon.sh') +
           ' ' +
           extension +

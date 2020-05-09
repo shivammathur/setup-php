@@ -36,7 +36,7 @@ tick="✓"
 cross="✗"
 
 if [ "$extension_major_version" = "4" ]; then
-  if [ -e "$ext_dir/psr.so" ]; then
+  if [ -e "$ext_dir/psr.so" ] && ! php -m | grep -i -q -w psr; then
     echo "extension=psr.so" | sudo tee -a "$ini_file" >/dev/null 2>&1
   fi
 

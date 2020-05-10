@@ -210,7 +210,7 @@ add_tool() {
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
       composer -q global config process-timeout 0
-      echo "::add-path::/home/runner/.composer/vendor/bin"
+      echo "::add-path::/home/$USER/.composer/vendor/bin"
       if [ -n "$COMPOSER_TOKEN" ]; then
         composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
       fi

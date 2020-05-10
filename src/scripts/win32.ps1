@@ -171,7 +171,7 @@ Function Add-Tool() {
     (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr
   } elseif($tool -eq "composer") {
     composer -q global config process-timeout 0
-    Write-Output "::add-path::C:/Users/runneradmin/AppData/Roaming/Composer/vendor/bin"
+    Write-Output "::add-path::$env:APPDATA\Composer\vendor\bin"
     if (Test-Path env:COMPOSER_TOKEN) {
       composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
     }

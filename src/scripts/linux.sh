@@ -241,7 +241,7 @@ version=$1
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y"
 tool_path_dir="/usr/local/bin"
-existing_version=$(php-config --version | cut -c 1-3)
+existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 # Setup PHP
 step_log "Setup PHP"

@@ -15,7 +15,7 @@ export async function addExtensionDarwin(
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script = '\n';
-  await utils.asyncForEach(extensions, async function(extension: string) {
+  await utils.asyncForEach(extensions, async function (extension: string) {
     const version_extension: string = version + extension;
     const [extension_name, stability]: string[] = extension.split('-');
     const ext_prefix = await utils.getExtensionPrefix(extension_name);
@@ -96,7 +96,7 @@ export async function addExtensionWindows(
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script = '\n';
-  await utils.asyncForEach(extensions, async function(extension: string) {
+  await utils.asyncForEach(extensions, async function (extension: string) {
     const [extension_name, stability]: string[] = extension.split('-');
     const version_extension: string = version + extension;
     switch (true) {
@@ -153,7 +153,7 @@ export async function addExtensionLinux(
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let script = '\n';
-  await utils.asyncForEach(extensions, async function(extension: string) {
+  await utils.asyncForEach(extensions, async function (extension: string) {
     const version_extension: string = version + extension;
     const [extension_name, stability]: string[] = extension.split('-');
     const ext_prefix = await utils.getExtensionPrefix(extension_name);

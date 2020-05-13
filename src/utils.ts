@@ -186,7 +186,7 @@ export async function extensionArray(
     default:
       return extension_csv
         .split(',')
-        .map(function(extension: string) {
+        .map(function (extension: string) {
           return extension
             .trim()
             .toLowerCase()
@@ -211,7 +211,7 @@ export async function CSVArray(values_csv: string): Promise<Array<string>> {
     default:
       return values_csv
         .split(',')
-        .map(function(value: string) {
+        .map(function (value: string) {
           return value.trim();
         })
         .filter(Boolean);

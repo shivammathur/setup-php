@@ -24,10 +24,31 @@ update_ppa() {
   fi
 }
 
+# Function to setup environment for self-hosted runners
+pre_setup() {
+  sudo mkdir -p /var/run /run/php
+  if [ "$runner" = "self-hosted" ]; then
+    if [[ "$version" =~ $old_versions ]] || [ "$version" = "5.3" ]; then
+      add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
+      exit 1
+    fi
+    if ! command -v apt-fast >/dev/null; then
+      sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
+    fi
+    update_ppa && $apt_install curl make lsb-release software-properties-common unzip
+    if ! apt-cache policy | grep -q ondrej/php; then
+      LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y && update_ppa
+    fi
+    if [ "$version" = "8.0" ]; then
+      $apt_install libcurl4-gnutls-dev libtidy-dev libpng-dev libjpeg-dev libicu-dev libzip-dev
+    fi
+  fi
+}
+
 # Function to configure PECL
 configure_pecl() {
   if [ "$pecl_config" = "false" ] && [ -e /usr/bin/pecl ]; then
-    sudo touch "$scan_dir"/99-pecl.ini >/dev/null 2>&1
+
     for tool in pear pecl; do
       sudo "$tool" config-set php_ini "$scan_dir"/99-pecl.ini >/dev/null 2>&1
       sudo "$tool" config-set auto_discover 1 >/dev/null 2>&1
@@ -64,6 +85,7 @@ check_extension() {
 delete_extension() {
   extension=$1
   sudo sed -i "/$extension/d" "$ini_file"
+  sudo sed -i "/$extension/d" "$pecl_file"
   sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
 }
@@ -71,16 +93,22 @@ delete_extension() {
 # Function to disable and delete extensions
 remove_extension() {
   extension=$1
-  if [[ ! "$version" =~ $old_versions ]] && [ -e /etc/php/"$version"/mods-available/"$extension".ini ]; then
-    sudo phpdismod -v "$version" "$extension"
+  if check_extension "$extension"; then
+    if [[ ! "$version" =~ $old_versions ]] && [ -e /etc/php/"$version"/mods-available/"$extension".ini ]; then
+      sudo phpdismod -v "$version" "$extension" >/dev/null 2>&1
+    fi
+    delete_extension "$extension"
+    (! check_extension "$extension" && add_log "$tick" ":$extension" "Removed") ||
+    add_log "$cross" ":$extension" "Could not remove $extension on PHP $semver"
+  else
+    add_log "$tick" ":$extension" "Could not find $extension on PHP $semver"
   fi
-  delete_extension "$extension"
 }
 
 # Function to enable existing extension
 enable_extension() {
   if ! check_extension "$1" && [ -e "$ext_dir/$1.so" ]; then
-    echo "$2=$1.so" >>"$ini_file"
+    echo "$2=$1.so" >>"$pecl_file"
   fi
 }
 
@@ -130,7 +158,7 @@ add_pecl_extension() {
   pecl_version=$2
   prefix=$3
   if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"
+    echo "$prefix=$ext_dir/$extension.so" >>"$pecl_file"
   fi
   ext_version=$(php -r "echo phpversion('$extension');")
   if [ "$ext_version" = "$pecl_version" ]; then
@@ -182,6 +210,7 @@ add_tool() {
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
       composer -q global config process-timeout 0
+      echo "::add-path::/home/$USER/.composer/vendor/bin"
       if [ -n "$COMPOSER_TOKEN" ]; then
         composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
       fi
@@ -207,7 +236,6 @@ add_composertool() {
   prefix=$3
   (
     composer global require "$prefix$release" >/dev/null 2>&1 &&
-    sudo ln -sf "$(composer -q global config home)"/vendor/bin/"$tool" /usr/local/bin/"$tool" &&
     add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
 }
@@ -243,9 +271,16 @@ setup_master() {
   install_dir=~/php/"$version"
   bintray_url=https://dl.bintray.com/shivammathur/php/"$tar_file"
   sudo mkdir -m 777 -p ~/php
+  if [ ! "$(whoami)" = "runner" ]; then
+    sudo rm -rf /home/runner && sudo ln -sf ~/ /home/runner;
+  fi
   curl -o /tmp/"$tar_file" -sSL "$bintray_url"
   sudo tar xf /tmp/"$tar_file" -C ~/php
-  sudo ln -sf -S "$version" "$install_dir"/bin/* /usr/bin/
+  for tool_path in "$install_dir"/bin/*; do
+    tool=$(basename "$tool_path")
+    sudo cp "$tool_path" /usr/bin/"$tool$version"
+    sudo update-alternatives --install /usr/bin/"$tool" "$tool" /usr/bin/"$tool$version" 50
+  done
   sudo ln -sf "$install_dir"/etc/php.ini /etc/php.ini
 }
 
@@ -313,13 +348,15 @@ old_versions="5.[4-5]"
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y"
 tool_path_dir="/usr/local/bin"
-existing_version=$(php-config --version | cut -c 1-3)
-[[ -z "${update}" ]] && update='false' || update="${update}"
+existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
+[[ -z "${update}" ]] && update='false' && UPDATE='false' || update="${update}"
+[ "$update" = false ] && [[ -n ${UPDATE} ]] && update="${UPDATE}"
+[[ -z "${runner}" ]] && runner='github' && RUNNER='github' || runner="${runner}"
+[ "$runner" = false ] && [[ -n ${RUNNER} ]] && runner="${RUNNER}"
 
 # Setup PHP
 step_log "Setup PHP"
-sudo mkdir -p /var/run /run/php
-
+pre_setup >/dev/null 2>&1
 if [ "$existing_version" != "$version" ]; then
   if [ ! -e "/usr/bin/php$version" ]; then
     if [ "$version" = "8.0" ]; then
@@ -328,7 +365,7 @@ if [ "$existing_version" != "$version" ]; then
       setup_old_versions >/dev/null 2>&1
     else
       update_ppa
-      $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml >/dev/null 2>&1
+      $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml php"$version"-intl >/dev/null 2>&1
     fi
     status="Installed"
   else
@@ -349,12 +386,17 @@ else
     update_php
   else
     status="Found"
+    if [ "$version" = "8.0" ]; then
+      switch_version
+    fi
   fi
 fi
 
 semver=$(php_semver)
-ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
-sudo chmod 777 "$ini_file" "$tool_path_dir"
+ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
+pecl_file="$scan_dir"/99-pecl.ini
+sudo touch "$pecl_file" >/dev/null 2>&1
+sudo chmod 777 "$ini_file" "$pecl_file" "$tool_path_dir"
 add_log "$tick" "PHP" "$status PHP $semver"

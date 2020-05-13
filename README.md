@@ -30,6 +30,8 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
   - [Experimental Setup](#experimental-setup)
+  - [Self Hosted Setup](#self-hosted-setup)
+  - [Local Testing Setup](#local-testing-setup)
   - [Thread Safe Setup](#thread-safe-setup)
   - [Force Update](#force-update)
   - [Verbose Setup](#verbose-setup)
@@ -47,18 +49,18 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 ## :tada: PHP Support
 
-|PHP Version|Stability|Release Support|
-|--- |--- |--- |
-|5.3|`Stable`|`End of life`|
-|5.4|`Stable`|`End of life`|
-|5.5|`Stable`|`End of life`|
-|5.6|`Stable`|`End of life`|
-|7.0|`Stable`|`End of life`|
-|7.1|`Stable`|`End of life`|
-|7.2|`Stable`|`Security fixes only`|
-|7.3|`Stable`|`Active`|
-|7.4|`Stable`|`Active`|
-|8.0|`Experimental`|`In development`|
+|PHP Version|Stability|Release Support|Runner Support|
+|--- |--- |--- |--- |
+|`5.3`|`Stable`|`End of life`|`GitHub`|
+|`5.4`|`Stable`|`End of life`|`GitHub`|
+|`5.5`|`Stable`|`End of life`|`GitHub`|
+|`5.6`|`Stable`|`End of life`|`GitHub`, `self-hosted`|
+|`7.0`|`Stable`|`End of life`|`GitHub`, `self-hosted`|
+|`7.1`|`Stable`|`End of life`|`GitHub`, `self-hosted`|
+|`7.2`|`Stable`|`Security fixes only`|`GitHub`, `self-hosted`|
+|`7.3`|`Stable`|`Active`|`GitHub`, `self-hosted`|
+|`7.4`|`Stable`|`Active`|`GitHub`, `self-hosted`|
+|`8.0`|`Experimental`|`In development`|`GitHub`, `self-hosted`|
 
 **Note:** Specifying `8.0` in `php-version` input installs a nightly build of `PHP 8.0.0-dev` with `PHP JIT`, `Union Types v2` and other [new features](https://wiki.php.net/rfc#php_80 "New features implemented in PHP 8"). See [experimental setup](#experimental-setup) for more information.
 
@@ -69,9 +71,13 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |Windows Server 2019|`windows-latest` or `windows-2019`|
 |Ubuntu 18.04|`ubuntu-latest` or `ubuntu-18.04`|
 |Ubuntu 16.04|`ubuntu-16.04`|
-|macOS X Catalina 10.15|`macos-latest` or `macos-10.15`|
+|MacOS X Catalina 10.15|`macos-latest` or `macos-10.15`|
+|Self Hosted|`self-hosted`|
+
+**Note:** Refer to the [self-hosted setup](#self-hosted-setup) to use the action on self-hosted runners.
 
 ## :heavy_plus_sign: PHP Extension Support
+
 - On `ubuntu` by default extensions which are available as a package can be installed. PECL extensions if not available as a package can be installed by specifying `pecl` in the tools input.
 
 ```yaml
@@ -108,7 +114,16 @@ with:
   extensions: xdebug-beta
 ```
 
-- Extensions which cannot be setup gracefully leave an error message in the logs, the action is not interrupted.
+- Non-default extensions can be removed by prefixing it with a `:`.
+
+```yaml
+uses: shivammathur/setup-php@v2
+with:
+  php-version: '7.4'  
+  extensions: :opcache
+```
+
+- Extensions which cannot be added or removed gracefully leave an error message in the logs, the action is not interrupted.
 
 - These extensions have custom support - `gearman` on ubuntu, `blackfire`, `phalcon3` and `phalcon4` on all supported OS.
 
@@ -116,7 +131,7 @@ with:
 
 These tools can be setup globally using the `tools` input.
 
-`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `flex`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`
+`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `flex`, `infection`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`, `vapor-cli`
 
 ```yaml
 uses: shivammathur/setup-php@v2
@@ -140,7 +155,7 @@ with:
 - Specifying version for `composer` and `pecl` has no effect, latest versions of both tools which are compatible with the PHP version will be setup.
 - Both agent and client will be setup when `blackfire` is specified.
 - If the version specified for the tool is not in semver format, latest version of the tool will be setup.
-- Tools which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
+- Tools which cannot be setup gracefully leave an error message in the logs, the action is not interrupted.
 
 ## :signal_strength: Coverage support
 
@@ -200,8 +215,9 @@ with:
 
 #### `extensions` (optional)
 
-- Specify the extensions you want to setup.
-- Accepts a `string` in csv-format. For example `mbstring, zip`.
+- Specify the extensions you want to add or remove.
+- Accepts a `string` in csv-format. For example `mbstring, :opcache`.
+- Non-default extensions prefixed with `:` are removed.
 - See [PHP extension support](#heavy_plus_sign-php-extension-support) for more info.
 
 #### `ini-values` (optional)
@@ -294,11 +310,76 @@ steps:
     tools: php-cs-fixer, phpunit
 ```
 
+### Self Hosted Setup
+
+> Setup PHP on a self-hosted runner.
+
+- `PHP 5.6` and newer versions are supported on self-hosted runners.
+- `Windows 7` and newer, `Windows Server 2012 R2` and newer, `Ubuntu 18.04`, `Ubuntu 16.04` and `MacOS X Catalina 10.15` are supported.
+- To setup a dockerized self-hosted runner, refer to this [guide](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Ubuntu) to setup in an `Ubuntu` container and refer to this [guide](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Windows) to setup in a `Windows` container.
+- To setup the runner directly on the host OS or in a VM, follow this [requirements guide](https://github.com/shivammathur/setup-php/wiki/Requirements-for-self-hosted-runners "Requirements guide for self-hosted runner to run setup-php") before setting up the self-hosted runner.
+
+Specify the environment variable `runner` with the value `self-hosted`. Without this your workflow will fail.
+
+```yaml
+jobs:
+  run:
+    runs-on: self-hosted
+    strategy:
+      matrix:        
+        php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0']
+    name: PHP ${{ matrix.php-versions }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
+      env:
+        runner: self-hosted # Specify the runner.
+```
+
+### Local Testing Setup
+
+> Test your `Ubuntu` workflow locally using [`nektos/act`](https://github.com/nektos/act "Project to test GitHub Actions locally").
+
+```yaml
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    name: PHP 7.4 Test
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 7.4
+```
+
+Run the workflow locally with `act` using [`shivammathur/node`](https://github.com/shivammathur/node-docker "Docker image to run setup-php") docker image.
+
+```bash
+# For runs-on: ubuntu-latest
+act -P ubuntu-latest=shivammathur/node:latest
+
+# For runs-on: ubuntu-18.04
+act -P ubuntu-18.04=shivammathur/node:latest
+
+# For runs-on: ubuntu-16.04
+act -P ubuntu-16.04=shivammathur/node:xenial
+```
+
 ### Thread Safe Setup
 
+> Setup both `TS` and `NTS` PHP on `Windows`.
+
 - `NTS` versions are setup by default.
-- On `ubuntu` and `macOS` only `NTS` versions are supported.
-- On `windows` both `TS` and `NTS` versions are supported.
+- On `Ubuntu` and `macOS` only `NTS` versions are supported.
+- On `Windows` both `TS` and `NTS` versions are supported.
 
 ```yaml
 jobs:
@@ -314,10 +395,12 @@ jobs:
       with:
         php-version: '7.4'
       env:
-        PHPTS: ts # specify ts or nts
+        phpts: ts # specify ts or nts
 ```
 
 ### Force Update
+
+> Update to latest patch of PHP versions.
 
 - Pre-installed PHP versions on the GitHub Actions runner are not updated to their latest patch release by default.
 - You can specify the `update` environment variable to `true` to force update to the latest release.
@@ -333,6 +416,8 @@ jobs:
 
 ### Verbose Setup
 
+> Debug your workflow
+
 To debug any issues, you can use the `verbose` tag instead of `v2`.
 
 ```yaml
@@ -344,7 +429,7 @@ To debug any issues, you can use the `verbose` tag instead of `v2`.
 
 ### Cache Extensions
 
-You can cache PHP extensions using [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") and [`action/cache`](https://github.com/actions/cache "GitHub Action to cache files") GitHub Actions. Extensions which take very long to setup if cached are available in the next workflow run and enabled directly which reduces the workflow execution time.
+You can cache PHP extensions using [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") and [`action/cache`](https://github.com/actions/cache "GitHub Action to cache files") GitHub Actions. Extensions which take very long to setup when cached are available in the next workflow run and are enabled directly. This reduces the workflow execution time.
 
 ```yaml
 runs-on: ${{ matrix.operating-system }}
@@ -382,7 +467,7 @@ steps:
     extensions: ${{ env.extensions }}
 ```
 
-**Note:** If you setup both `TS` and `NTS` PHP versions on `windows`, add `${{ env.PHPTS }}` to `key` and `restore-keys` inputs in `actions/cache` step.
+**Note:** If you setup both `TS` and `NTS` PHP versions on `windows`, add `${{ env.phpts }}` to `key` and `restore-keys` inputs in `actions/cache` step.
 
 ### Cache Composer Dependencies
 

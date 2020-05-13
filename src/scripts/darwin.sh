@@ -19,9 +19,15 @@ add_log() {
 # Function to remove extensions
 remove_extension() {
   extension=$1
-  sudo sed -i '' "/$extension/d" "$ini_file"
-  sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
-  sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
+  if check_extension "$extension"; then
+    sudo sed -i '' "/$extension/d" "$ini_file"
+    sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
+    sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
+    (! check_extension "$extension" && add_log "$tick" ":$extension" "Removed") ||
+    add_log "$cross" ":$extension" "Could not remove $extension on PHP $semver"
+  else
+    add_log "$tick" ":$extension" "Could not find $extension on PHP $semver"
+  fi
 }
 
 # Function to test if extension is loaded
@@ -59,7 +65,7 @@ add_pecl_extension() {
   if [ "$ext_version" = "$pecl_version" ]; then
     add_log "$tick" "$extension" "Enabled"
   else
-    remove_extension "$extension"
+    remove_extension "$extension" >/dev/null 2>&1
     (
       sudo pecl install -f "$extension-$pecl_version" >/dev/null 2>&1 &&
       check_extension "$extension" &&
@@ -108,6 +114,7 @@ add_tool() {
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
       composer -q global config process-timeout 0
+      echo "::add-path::/Users/$USER/.composer/vendor/bin"
       if [ -n "$COMPOSER_TOKEN" ]; then
         composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
       fi
@@ -135,7 +142,6 @@ add_composertool() {
   prefix=$3
   (
     composer global require "$prefix$release" >/dev/null 2>&1 &&
-    sudo ln -sf "$(composer -q global config home)"/vendor/bin/"$tool" /usr/local/bin/"$tool" &&
     add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
 }
@@ -178,15 +184,14 @@ update_formulae() {
 # Function to setup PHP >=5.6
 setup_php() {
   action=$1
-  if [ "$version" = "8.0" ]; then
-    update_formulae
-  fi
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
   brew tap shivammathur/homebrew-php
-  if [ "$version" = "5.6" ] || [ "$version" = "7.0" ]; then
-    brew install https://raw.githubusercontent.com/shivammathur/homebrew-php/master/Formula/icu4c.rb --force
+  if brew list php@"$version" 2>/dev/null | grep -q "Error" && [ "$action" != "upgrade" ]; then
+    brew unlink php@"$version"
+  else
+    if [ "$version" = "8.0" ]; then update_formulae; fi
+    brew "$action" shivammathur/php/php@"$version"
   fi
-  brew "$action" shivammathur/php/php@"$version"
   brew link --force --overwrite php@"$version"
 }
 
@@ -197,8 +202,23 @@ version=$1
 nodot_version=${1/./}
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
-existing_version=$(php-config --version | cut -c 1-3)
-[[ -z "${update}" ]] && update='false' || update="${update}"
+existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
+[[ -z "${update}" ]] && update='false' && UPDATE='false' || update="${update}"
+[ "$update" = false ] && [[ -n ${UPDATE} ]] && update="${UPDATE}"
+[[ -z "${runner}" ]] && runner='github' && RUNNER='github' || runner="${runner}"
+[ "$runner" = false ] && [[ -n ${RUNNER} ]] && runner="${RUNNER}"
+
+if [ "$runner" = "self-hosted" ]; then
+  if [[ "$version" =~ $old_versions ]]; then
+    add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
+    exit 1
+  fi
+  if [[ $(command -v brew) == "" ]]; then
+      step_log "Setup Brew"
+      curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash -s >/dev/null 2>&1
+      add_log "$tick" "Brew" "Installed Homebrew"
+  fi
+fi
 
 # Setup PHP
 step_log "Setup PHP"

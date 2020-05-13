@@ -10,7 +10,7 @@ export async function addINIValuesUnix(
 ): Promise<string> {
   const ini_values: Array<string> = await utils.CSVArray(ini_values_csv);
   let script = '\n';
-  await utils.asyncForEach(ini_values, async function(line: string) {
+  await utils.asyncForEach(ini_values, async function (line: string) {
     script +=
       (await utils.addLog('$tick', line, 'Added to php.ini', 'linux')) + '\n';
   });
@@ -27,7 +27,7 @@ export async function addINIValuesWindows(
 ): Promise<string> {
   const ini_values: Array<string> = await utils.CSVArray(ini_values_csv);
   let script = '\n';
-  await utils.asyncForEach(ini_values, async function(line: string) {
+  await utils.asyncForEach(ini_values, async function (line: string) {
     script +=
       (await utils.addLog('$tick', line, 'Added to php.ini', 'win32')) + '\n';
   });

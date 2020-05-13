@@ -952,14 +952,27 @@ class ExecState extends events.EventEmitter {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.addMatchers = void 0;
 const path = __importStar(__webpack_require__(622));
 const utils = __importStar(__webpack_require__(163));
 const io = __importStar(__webpack_require__(1));
@@ -996,14 +1009,27 @@ module.exports = require("child_process");
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.getInput = void 0;
 const fs = __importStar(__webpack_require__(747));
 const path = __importStar(__webpack_require__(622));
 const core = __importStar(__webpack_require__(470));
@@ -1214,29 +1240,6 @@ async function suppressOutput(os_version) {
     }
 }
 exports.suppressOutput = suppressOutput;
-/**
- * Function to get Blackfire version
- *
- * @param blackfire_version
- */
-async function getBlackfireVersion(blackfire_version) {
-    switch (blackfire_version) {
-        case null:
-        case undefined:
-        case '':
-            return '1.31.0';
-        default:
-            return blackfire_version;
-    }
-}
-exports.getBlackfireVersion = getBlackfireVersion;
-/**
- * Function to get Blackfire Agent version
- */
-async function getBlackfireAgentVersion() {
-    return '1.32.0';
-}
-exports.getBlackfireAgentVersion = getBlackfireAgentVersion;
 
 
 /***/ }),
@@ -1315,14 +1318,28 @@ class Command {
         return cmdStr;
     }
 }
+/**
+ * Sanitizes an input into a string so it can be passed into issueCommand safely
+ * @param input input to sanitize into a string
+ */
+function toCommandValue(input) {
+    if (input === null || input === undefined) {
+        return '';
+    }
+    else if (typeof input === 'string' || input instanceof String) {
+        return input;
+    }
+    return JSON.stringify(input);
+}
+exports.toCommandValue = toCommandValue;
 function escapeData(s) {
-    return (s || '')
+    return toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A');
 }
 function escapeProperty(s) {
-    return (s || '')
+    return toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A')
@@ -1378,11 +1395,13 @@ var ExitCode;
 /**
  * Sets env variable for this action and future actions in the job
  * @param name the name of the variable to set
- * @param val the value of the variable
+ * @param val the value of the variable. Non-string values will be converted to a string via JSON.stringify
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function exportVariable(name, val) {
-    process.env[name] = val;
-    command_1.issueCommand('set-env', { name }, val);
+    const convertedVal = command_1.toCommandValue(val);
+    process.env[name] = convertedVal;
+    command_1.issueCommand('set-env', { name }, convertedVal);
 }
 exports.exportVariable = exportVariable;
 /**
@@ -1421,12 +1440,22 @@ exports.getInput = getInput;
  * Sets the value of an output.
  *
  * @param     name     name of the output to set
- * @param     value    value to store
+ * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setOutput(name, value) {
     command_1.issueCommand('set-output', { name }, value);
 }
 exports.setOutput = setOutput;
+/**
+ * Enables or disables the echoing of commands into stdout for the rest of the step.
+ * Echoing is disabled by default if ACTIONS_STEP_DEBUG is not set.
+ *
+ */
+function setCommandEcho(enabled) {
+    command_1.issue('echo', enabled ? 'on' : 'off');
+}
+exports.setCommandEcho = setCommandEcho;
 //-----------------------------------------------------------------------
 // Results
 //-----------------------------------------------------------------------
@@ -1460,18 +1489,18 @@ function debug(message) {
 exports.debug = debug;
 /**
  * Adds an error issue
- * @param message error issue message
+ * @param message error issue message. Errors will be converted to string via toString()
  */
 function error(message) {
-    command_1.issue('error', message);
+    command_1.issue('error', message instanceof Error ? message.toString() : message);
 }
 exports.error = error;
 /**
  * Adds an warning issue
- * @param message warning issue message
+ * @param message warning issue message. Errors will be converted to string via toString()
  */
 function warning(message) {
-    command_1.issue('warning', message);
+    command_1.issue('warning', message instanceof Error ? message.toString() : message);
 }
 exports.warning = warning;
 /**
@@ -1529,8 +1558,9 @@ exports.group = group;
  * Saves state for current action, the state can only be retrieved by this action's post job execution.
  *
  * @param     name     name of the state to store
- * @param     value    value to store
+ * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function saveState(name, value) {
     command_1.issueCommand('save-state', { name }, value);
 }
@@ -1554,14 +1584,27 @@ exports.getState = getState;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.addTools = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.addComposer = exports.getWpCliUrl = exports.getSymfonyUri = exports.getDeployerUrl = exports.getPharUrl = exports.addPhive = exports.getCodeceptionUri = exports.getCodeceptionUriBuilder = exports.getUri = exports.parseTool = exports.getToolVersion = exports.getCommand = void 0;
 const utils = __importStar(__webpack_require__(163));
 /**
  * Function to get command to setup tools
@@ -1840,7 +1883,7 @@ async function getCleanedToolsList(tools_csv) {
         .map(function (extension) {
         return extension
             .trim()
-            .replace(/symfony\/|robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
+            .replace(/symfony\/|laravel\/|robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
     })
         .filter(Boolean);
     return [...new Set(tools_list)];
@@ -1913,7 +1956,7 @@ async function addTools(tools_csv, php_version, os_version) {
         switch (tool) {
             case 'blackfire':
             case 'blackfire-agent':
-                script += await getCommand(os_version, 'blackfire ' + (await utils.getBlackfireAgentVersion()));
+                script += await getCommand(os_version, 'blackfire');
                 break;
             case 'blackfire-player':
                 url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
@@ -1922,6 +1965,10 @@ async function addTools(tools_csv, php_version, os_version) {
             case 'cs2pr':
                 uri = await getUri(tool, '', version, 'releases', '', 'download');
                 url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
+                script += await addArchive(tool, version, url, os_version);
+                break;
+            case 'infection':
+                url = github + 'infection/infection/' + uri;
                 script += await addArchive(tool, version, url, os_version);
                 break;
             case 'php-cs-fixer':
@@ -1980,6 +2027,9 @@ async function addTools(tools_csv, php_version, os_version) {
             case 'prestissimo':
                 script += await addPackage(tool, release, 'hirak/', os_version);
                 break;
+            case 'vapor-cli':
+                script += await addPackage(tool, release, 'laravel/', os_version);
+                break;
             case 'composer-prefetcher':
                 script += await addPackage(tool, release, 'narrowspark/automatic-', os_version);
                 break;
@@ -2031,14 +2081,27 @@ module.exports = require("path");
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.addCoverage = exports.disableCoverage = exports.addCoveragePCOV = exports.addCoverageXdebug = void 0;
 const utils = __importStar(__webpack_require__(163));
 const extensions = __importStar(__webpack_require__(911));
 const config = __importStar(__webpack_require__(641));
@@ -2157,14 +2220,27 @@ exports.addCoverage = addCoverage;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.addINIValues = exports.addINIValuesWindows = exports.addINIValuesUnix = void 0;
 const utils = __importStar(__webpack_require__(163));
 /**
  * Add script to set custom ini values for unix
@@ -2240,14 +2316,27 @@ exports.addINIValues = addINIValues;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.run = exports.build = void 0;
 const exec_1 = __webpack_require__(986);
 const core = __importStar(__webpack_require__(470));
 const config = __importStar(__webpack_require__(641));
@@ -2545,14 +2634,27 @@ module.exports = require("fs");
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.addExtension = exports.addExtensionLinux = exports.addExtensionWindows = exports.addExtensionDarwin = void 0;
 const path = __importStar(__webpack_require__(622));
 const utils = __importStar(__webpack_require__(163));
 /**
@@ -2564,7 +2666,8 @@ const utils = __importStar(__webpack_require__(163));
  */
 async function addExtensionDarwin(extension_csv, version, pipe) {
     const extensions = await utils.extensionArray(extension_csv);
-    let script = '\n';
+    let add_script = '\n';
+    let remove_script = '\n';
     await utils.asyncForEach(extensions, async function (extension) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');
@@ -2572,6 +2675,10 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
         const command_prefix = 'sudo pecl install -f ';
         let command = '';
         switch (true) {
+            // match :extension
+            case /^:/.test(ext_name):
+                remove_script += '\nremove_extension ' + ext_name.slice(1);
+                return;
             // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
             // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
             case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
@@ -2581,11 +2688,11 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                         ' ' +
                         version +
                         ' ' +
-                        (await utils.getBlackfireVersion(ext_version));
+                        extension;
                 break;
             // match pre-release versions. For example - xdebug-beta
             case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-                script +=
+                add_script +=
                     '\nadd_unstable_extension ' +
                         ext_name +
                         ' ' +
@@ -2595,7 +2702,7 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                 return;
             // match semver
             case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
-                script +=
+                add_script +=
                     '\nadd_pecl_extension ' +
                         ext_name +
                         ' ' +
@@ -2640,8 +2747,8 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                 break;
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-                script +=
-                    'sh ' +
+                add_script +=
+                    '\nbash ' +
                         path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
                         ' ' +
                         extension +
@@ -2652,10 +2759,10 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                 command = command_prefix + extension + pipe;
                 break;
         }
-        script +=
-            '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
+        add_script +=
+            '\nadd_extension ' + ext_name + ' "' + command + '" ' + ext_prefix;
     });
-    return script;
+    return add_script + remove_script;
 }
 exports.addExtensionDarwin = addExtensionDarwin;
 /**
@@ -2666,58 +2773,63 @@ exports.addExtensionDarwin = addExtensionDarwin;
  */
 async function addExtensionWindows(extension_csv, version) {
     const extensions = await utils.extensionArray(extension_csv);
-    let script = '\n';
+    let add_script = '\n';
+    let remove_script = '\n';
     await utils.asyncForEach(extensions, async function (extension) {
         const [ext_name, ext_version] = extension.split('-');
         const version_extension = version + extension;
         let matches;
         switch (true) {
+            // Match :extension
+            case /^:/.test(ext_name):
+                remove_script += '\nRemove-Extension ' + ext_name.slice(1);
+                return;
             // match 5.4blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
             // match 5.4blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
             case /^(5\.[4-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
-                script +=
+                add_script +=
                     '\n& ' +
                         path.join(__dirname, '../src/scripts/ext/blackfire.ps1') +
                         ' ' +
                         version +
                         ' ' +
-                        (await utils.getBlackfireVersion(ext_version));
+                        extension;
                 return;
             // match pre-release versions. For example - xdebug-beta
             case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-                script += '\nAdd-Extension ' + ext_name + ' ' + ext_version;
+                add_script += '\nAdd-Extension ' + ext_name + ' ' + ext_version;
                 break;
             // match semver without state
             case /.*-\d+\.\d+\.\d+$/.test(version_extension):
-                script += '\nAdd-Extension ' + ext_name + ' stable ' + ext_version;
+                add_script += '\nAdd-Extension ' + ext_name + ' stable ' + ext_version;
                 return;
             // match semver with state
             case /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.test(version_extension):
                 matches = /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.exec(version_extension);
-                script +=
+                add_script +=
                     '\nAdd-Extension ' + ext_name + ' ' + matches[2] + ' ' + matches[1];
                 return;
             // match 5.3mysql..5.6mysql
             // match 5.3mysqli..5.6mysqli
             // match 5.3mysqlnd..5.6mysqlnd
             case /^5\.\d(mysql|mysqli|mysqlnd)$/.test(version_extension):
-                script +=
+                add_script +=
                     '\nAdd-Extension mysql\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
                 break;
             // match 7.0mysql..8.0mysql
             // match 7.0mysqli..8.0mysqli
             // match 7.0mysqlnd..8.0mysqlnd
             case /[7-8]\.\d(mysql|mysqli|mysqlnd)$/.test(version_extension):
-                script += '\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
+                add_script += '\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
                 break;
             // match sqlite
             case /^sqlite$/.test(extension):
                 extension = 'sqlite3';
-                script += '\nAdd-Extension ' + extension;
+                add_script += '\nAdd-Extension ' + extension;
                 break;
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-                script +=
+                add_script +=
                     '\n& ' +
                         path.join(__dirname, '../src/scripts/ext/phalcon.ps1') +
                         ' ' +
@@ -2727,11 +2839,11 @@ async function addExtensionWindows(extension_csv, version) {
                         '\n';
                 break;
             default:
-                script += '\nAdd-Extension ' + extension;
+                add_script += '\nAdd-Extension ' + ext_name;
                 break;
         }
     });
-    return script;
+    return add_script + remove_script;
 }
 exports.addExtensionWindows = addExtensionWindows;
 /**
@@ -2743,7 +2855,8 @@ exports.addExtensionWindows = addExtensionWindows;
  */
 async function addExtensionLinux(extension_csv, version, pipe) {
     const extensions = await utils.extensionArray(extension_csv);
-    let script = '\n';
+    let add_script = '\n';
+    let remove_script = '\n';
     await utils.asyncForEach(extensions, async function (extension) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');
@@ -2751,8 +2864,12 @@ async function addExtensionLinux(extension_csv, version, pipe) {
         const command_prefix = 'sudo $debconf_fix apt-get install -y php';
         let command = '';
         switch (true) {
+            // Match :extension
+            case /^:/.test(ext_name):
+                remove_script += '\nremove_extension ' + ext_name.slice(1);
+                return;
             // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
-            // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+            // match 5.3blackfire-{semver}...5.6blackfire-{semver}, 7.0blackfire-{semver}...7.4blackfire-{semver}
             case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
                 command =
                     'bash ' +
@@ -2760,11 +2877,11 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                         ' ' +
                         version +
                         ' ' +
-                        (await utils.getBlackfireVersion(ext_version));
+                        extension;
                 break;
             // match pre-release versions. For example - xdebug-beta
             case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-                script +=
+                add_script +=
                     '\nadd_unstable_extension ' +
                         ext_name +
                         ' ' +
@@ -2774,7 +2891,7 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                 return;
             // match semver versions
             case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
-                script +=
+                add_script +=
                     '\nadd_pecl_extension ' +
                         ext_name +
                         ' ' +
@@ -2785,7 +2902,7 @@ async function addExtensionLinux(extension_csv, version, pipe) {
             // match 5.6gearman..7.4gearman
             case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
                 command =
-                    'sh ' +
+                    '\nbash ' +
                         path.join(__dirname, '../src/scripts/ext/gearman.sh') +
                         ' ' +
                         version +
@@ -2793,8 +2910,8 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                 break;
             // match 7.0phalcon3...7.3phalcon3 or 7.2phalcon4...7.4phalcon4
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-                script +=
-                    '\nsh ' +
+                add_script +=
+                    '\nbash ' +
                         path.join(__dirname, '../src/scripts/ext/phalcon.sh') +
                         ' ' +
                         extension +
@@ -2803,7 +2920,7 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                 return;
             // match 7.1xdebug..7.4xdebug
             case /^7\.[1-4]xdebug$/.test(version_extension):
-                script +=
+                add_script +=
                     '\nupdate_extension xdebug 2.9.3' +
                         pipe +
                         '\n' +
@@ -2812,7 +2929,7 @@ async function addExtensionLinux(extension_csv, version, pipe) {
             // match pdo extensions
             case /.*pdo[_-].*/.test(version_extension):
                 extension = extension.replace('pdo_', '').replace('pdo-', '');
-                script += '\nadd_pdo_extension ' + extension;
+                add_script += '\nadd_pdo_extension ' + extension;
                 return;
             // match ast and uopz
             case /^(ast|uopz)$/.test(extension):
@@ -2827,10 +2944,10 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                 command = command_prefix + version + '-' + extension + pipe;
                 break;
         }
-        script +=
-            '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
+        add_script +=
+            '\nadd_extension ' + ext_name + ' "' + command + '" ' + ext_prefix;
     });
-    return script;
+    return add_script + remove_script;
 }
 exports.addExtensionLinux = addExtensionLinux;
 /**

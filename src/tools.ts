@@ -324,10 +324,13 @@ export async function getCleanedToolsList(
   let tools_list: string[] = await utils.CSVArray(tools_csv);
   tools_list = await addComposer(tools_list);
   tools_list = tools_list
-    .map(function(extension: string) {
+    .map(function (extension: string) {
       return extension
         .trim()
-        .replace(/symfony\/|robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
+        .replace(
+          /symfony\/|laravel\/|robmorgan\/|hirak\/|narrowspark\/automatic-/,
+          ''
+        );
     })
     .filter(Boolean);
   return [...new Set(tools_list)];
@@ -417,7 +420,7 @@ export async function addTools(
 ): Promise<string> {
   let script = '\n' + (await utils.stepLog('Setup Tools', os_version));
   const tools_list: Array<string> = await getCleanedToolsList(tools_csv);
-  await utils.asyncForEach(tools_list, async function(release: string) {
+  await utils.asyncForEach(tools_list, async function (release: string) {
     const tool_data: {name: string; version: string} = await parseTool(release);
     const tool: string = tool_data.name;
     const version: string = tool_data.version;
@@ -435,10 +438,7 @@ export async function addTools(
     switch (tool) {
       case 'blackfire':
       case 'blackfire-agent':
-        script += await getCommand(
-          os_version,
-          'blackfire ' + (await utils.getBlackfireAgentVersion())
-        );
+        script += await getCommand(os_version, 'blackfire');
         break;
       case 'blackfire-player':
         url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
@@ -447,6 +447,10 @@ export async function addTools(
       case 'cs2pr':
         uri = await getUri(tool, '', version, 'releases', '', 'download');
         url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
+        script += await addArchive(tool, version, url, os_version);
+        break;
+      case 'infection':
+        url = github + 'infection/infection/' + uri;
         script += await addArchive(tool, version, url, os_version);
         break;
       case 'php-cs-fixer':
@@ -504,6 +508,9 @@ export async function addTools(
         break;
       case 'prestissimo':
         script += await addPackage(tool, release, 'hirak/', os_version);
+        break;
+      case 'vapor-cli':
+        script += await addPackage(tool, release, 'laravel/', os_version);
         break;
       case 'composer-prefetcher':
         script += await addPackage(

@@ -31,6 +31,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Experimental Setup](#experimental-setup)
   - [Thread Safe Setup](#thread-safe-setup)  
   - [Cache dependencies](#cache-dependencies)
+  - [Composer GitHub OAuth](#composer-github-oauth)  
   - [Problem Matchers](#problem-matchers)
   - [Examples](#examples)
 - [License](#scroll-license)
@@ -277,7 +278,20 @@ In the above example, if you support a range of `composer` dependencies and do n
 
 ```yaml
 key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }} 
-``` 
+```
+
+### Composer GitHub OAuth
+
+If you have a number of workflows which setup multiple tools or have many composer dependencies, you might hit the GitHub's rate limit for composer. To avoid that you can add a `OAuth` token to the composer's config by setting `COMPOSER_TOKEN` environment variable. You can use [`GITHUB_TOKEN`](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token "GITHUB_TOKEN documentation") secret for this purpose.
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+  env:
+    COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
 
 ### Problem Matchers
 

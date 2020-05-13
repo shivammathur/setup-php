@@ -13,6 +13,7 @@ add_log() {
 # Function to install phalcon
 install_phalcon() {
   (
+    sed -i '' '/extension.*psr/d' "$ini_file"
     brew tap shivammathur/homebrew-phalcon >/dev/null 2>&1
     brew install phalcon@"$php_version"_"$extension_major" >/dev/null 2>&1
     sudo cp /usr/local/opt/psr@"$php_version"/psr.so "$ext_dir" >/dev/null 2>&1
@@ -27,14 +28,17 @@ extension=$1
 extension_major=${extension: -1}
 php_version=$2
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
-ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
+ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
 if [ -e "$ext_dir/psr.so" ] && [ -e "$ext_dir/phalcon.so" ]; then
-  phalcon_version=$(php -d="extension=psr.so" -d="extension=phalcon.so" -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
+  phalcon_version=$(php -d="extension=psr.so" -d="extension=phalcon.so" -r "echo phpversion('phalcon');" 2>/dev/null | cut -d'.' -f 1)
+  if php -m | grep -i -q -w psr; then
+    phalcon_version=$(php -d="extension=phalcon.so" -r "echo phpversion('phalcon');" 2>/dev/null | cut -d'.' -f 1)
+  fi
   if [ "$phalcon_version" != "$extension_major" ]; then
     install_phalcon
   else
-    echo "extension=psr.so" >>"$ini_file"
+    if ! php -m | grep -i -q -w psr; then echo "extension=psr.so" >>"$ini_file"; fi
     echo "extension=phalcon.so" >>"$ini_file"
     add_log "$tick" "$extension" "Enabled"
   fi

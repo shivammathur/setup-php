@@ -172,28 +172,26 @@ Function Add-Pecl() {
 $tick = ([char]8730)
 $cross = ([char]10007)
 $php_dir = 'C:\tools\php'
-$ext_dir = $php_dir + '\ext'
+$ext_dir = "$php_dir\ext"
 $ProgressPreference = 'SilentlyContinue'
 $master_version = '8.0'
 $arch = 'x64'
-$ts = $false
-if((Test-Path env:PHPTS) -and $env:PHPTS -eq 'ts') {
-  $ts = $true
+$ts = $env:PHPTS -eq 'ts'
+if($env:PHPTS -ne 'ts') {
+  $env:PHPTS = 'nts'
 }
 
 Step-Log "Setup PhpManager"
 Install-PhpManager >$null 2>&1
 Add-Log $tick "PhpManager" "Installed"
 
+Step-Log "Setup PHP"
 $installed = $null
 if (Test-Path -LiteralPath $php_dir -PathType Container) {
   try {
     $installed = Get-Php -Path $php_dir
-  }
-  catch {
-  }
+  } catch { }
 }
-Step-Log "Setup PHP"
 $status = "Installed"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
   if ($version -lt '7.0') {
@@ -211,14 +209,10 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 
 $installed = Get-Php -Path $php_dir
 Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
-Enable-PhpExtension -Extension openssl, curl, opcache -Path $php_dir
+Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
 if ($version -eq 'master') {
-  if($installed.ThreadSafe) {
-    Copy-Item $dir"\..\src\bin\php_ts_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
-  } else {
-    Copy-Item $dir"\..\src\bin\php_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
-  }
+  Copy-Item $dir"\..\src\bin\php_$env:PHPTS`_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
   Set-PhpIniKey -Key 'opcache.jit_buffer_size' -Value '256M' -Path $php_dir
   Set-PhpIniKey -Key 'opcache.jit' -Value '1235' -Path $php_dir
 }

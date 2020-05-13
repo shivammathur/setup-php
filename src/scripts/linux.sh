@@ -20,17 +20,14 @@ add_log() {
 update_ppa() {
   if [ "$ppa_updated" = "false" ]; then
     sudo "$debconf_fix" apt-get update >/dev/null 2>&1
-    #find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
-    #ppa_updated="true"
   fi
 }
 
 # Function to configure PECL
 configure_pecl() {
   if [ "$pecl_config" = "false" ] && [ -e /usr/bin/pecl ]; then
-    sudo touch "$scan_dir"/99-pecl.ini >/dev/null 2>&1
     for tool in pear pecl; do
-      sudo "$tool" config-set php_ini "$scan_dir"/99-pecl.ini >/dev/null 2>&1
+      sudo "$tool" config-set php_ini "$pecl_file" >/dev/null 2>&1
       sudo "$tool" config-set auto_discover 1 >/dev/null 2>&1
       sudo "$tool" channel-update "$tool".php.net >/dev/null 2>&1
     done
@@ -65,6 +62,7 @@ check_extension() {
 delete_extension() {
   extension=$1
   sudo sed -i "/$extension/d" "$ini_file"
+  sudo sed -i "/$extension/d" "$pecl_file"
   sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
 }
@@ -103,7 +101,7 @@ add_pecl_extension() {
   pecl_version=$2
   prefix=$3
   if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"
+    echo "$prefix=$ext_dir/$extension.so" >>"$pecl_file"
   fi
   ext_version=$(php -r "echo phpversion('$extension');")
   if [ "$ext_version" = "$pecl_version" ]; then
@@ -195,12 +193,15 @@ setup_master() {
   update_ppa && $apt_install libzip-dev
   tar_file=php_"$version"%2Bubuntu"$(lsb_release -r -s)".tar.xz
   install_dir=~/php/"$version"
+  bintray_url=https://dl.bintray.com/shivammathur/php/"$tar_file"
   sudo mkdir -m 777 -p ~/php
-  update_ppa && $apt_install libicu64 libicu-dev >/dev/null 2>&1
-  curl -SLO https://dl.bintray.com/shivammathur/php/"$tar_file" >/dev/null 2>&1
-  sudo tar xf "$tar_file" -C ~/php >/dev/null 2>&1
-  rm -rf "$tar_file"
-  sudo ln -sf -S "$version" "$install_dir"/bin/* /usr/bin/
+  curl -o /tmp/"$tar_file" -sSL "$bintray_url"
+  sudo tar xf /tmp/"$tar_file" -C ~/php
+  for tool_path in "$install_dir"/bin/*; do
+    tool=$(basename "$tool_path")
+    sudo cp "$tool_path" /usr/bin/"$tool$version"
+    sudo update-alternatives --install /usr/bin/"$tool" "$tool" /usr/bin/"$tool$version" 50
+  done
   sudo ln -sf "$install_dir"/etc/php.ini /etc/php.ini
 }
 
@@ -245,8 +246,7 @@ existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 # Setup PHP
 step_log "Setup PHP"
-sudo mkdir -p /var/run
-sudo mkdir -p /run/php
+sudo mkdir -p /var/run /run/php
 
 if [ "$existing_version" != "$version" ]; then
   if [ ! -e "/usr/bin/php$version" ]; then
@@ -267,8 +267,10 @@ else
 fi
 
 semver=$(php_semver)
+scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
-scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
-sudo chmod 777 "$ini_file" "$tool_path_dir"
+pecl_file="$scan_dir"/99-pecl.ini
+sudo touch "$pecl_file" >/dev/null 2>&1
+sudo chmod 777 "$ini_file" "$tool_path_dir" "$pecl_file"
 add_log "$tick" "PHP" "$status PHP $semver"

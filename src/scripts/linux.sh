@@ -153,6 +153,10 @@ add_tool() {
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
       composer -q global config process-timeout 0
+      echo "::add-path::/home/$USER/.composer/vendor/bin"
+      if [ -n "$COMPOSER_TOKEN" ]; then
+        composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
+      fi
     elif [ "$tool" = "cs2pr" ]; then
       sudo sed -i 's/\r$//; s/exit(9)/exit(0)/' "$tool_path"
     elif [ "$tool" = "phive" ]; then
@@ -173,7 +177,6 @@ add_composertool() {
   prefix=$3
   (
     composer global require "$prefix$release" >/dev/null 2>&1 &&
-    sudo ln -sf "$(composer -q global config home)"/vendor/bin/"$tool" /usr/local/bin/"$tool" &&
     add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
 }

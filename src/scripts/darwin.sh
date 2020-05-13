@@ -107,7 +107,13 @@ add_tool() {
   status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" -L "$url")
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
-    if [ "$tool" = "phive" ]; then
+    if [ "$tool" = "composer" ]; then
+      composer -q global config process-timeout 0
+      echo "::add-path::/Users/$USER/.composer/vendor/bin"
+      if [ -n "$COMPOSER_TOKEN" ]; then
+        composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
+      fi
+    elif [ "$tool" = "phive" ]; then
       add_extension curl "sudo pecl install -f curl" extension >/dev/null 2>&1
       add_extension mbstring "sudo pecl install -f mbstring" extension >/dev/null 2>&1
       add_extension xml "sudo pecl install -f xml" extension >/dev/null 2>&1
@@ -129,7 +135,6 @@ add_composertool() {
   prefix=$3
   (
     composer global require "$prefix$release" >/dev/null 2>&1 &&
-    sudo ln -sf "$(composer -q global config home)"/vendor/bin/"$tool" /usr/local/bin/"$tool" &&
     add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
 }

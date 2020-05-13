@@ -103,10 +103,7 @@ Function Add-Tool() {
   if (Test-Path $php_dir\$tool) {
     Remove-Item $php_dir\$tool
   }
-  if ($tool -eq "composer") {
-    Install-Composer -Scope System -Path $php_dir -PhpPath $php_dir
-    composer -q global config process-timeout 0
-  } elseif ($tool -eq "symfony") {
+  if ($tool -eq "symfony") {
     Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool.exe
     Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.exe" > $null 2>&1
   } else {
@@ -125,10 +122,16 @@ Function Add-Tool() {
     Add-Extension curl >$null 2>&1
     Add-Extension mbstring >$null 2>&1
     Add-Extension xml >$null 2>&1
-  }
-  if($tool -eq "cs2pr") {
+  } elseif($tool -eq "cs2pr") {
     (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr
+  } elseif($tool -eq "composer") {
+    composer -q global config process-timeout 0
+    Write-Output "::add-path::$env:APPDATA\Composer\vendor\bin"
+    if (Test-Path env:COMPOSER_TOKEN) {
+      composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
+    }
   }
+
   if (((Get-ChildItem -Path $php_dir/* | Where-Object Name -Match "^$tool(.exe|.phar)*$").Count -gt 0)) {
     Add-Log $tick $tool "Added"
   } else {
@@ -156,8 +159,6 @@ Function Add-Composertool() {
   )
   composer -q global require $prefix$release 2>&1 | out-null
   if($?) {
-    $composer_dir = composer -q global config home | ForEach-Object { $_ -replace "/", "\" }
-    Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $composer_dir\vendor\bin\$tool.bat"
     Add-Log $tick $tool "Added"
   } else {
     Add-Log $cross $tool "Could not setup $tool"

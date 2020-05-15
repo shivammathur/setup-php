@@ -119,7 +119,7 @@ add_pdo_extension() {
     add_log "$tick" "$pdo_ext" "Enabled"
   else
     read -r ext ext_name <<< "$1 $1"
-    sudo rm -rf "$scan_dir"/*pdo.ini >/dev/null 2>&1 && enable_extension "pdo" "extension" >/dev/null 2>&1
+    sudo rm -rf "$scan_dir"/*pdo.ini >/dev/null 2>&1 && echo "extension=pdo.so" >> "$ini_file"
     if [ "$ext" = "mysql" ]; then
       enable_extension "mysqlnd" "extension"
       ext_name="mysqli"

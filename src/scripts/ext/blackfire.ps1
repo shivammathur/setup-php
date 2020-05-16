@@ -11,7 +11,8 @@ Param (
 
 $tick = ([char]8730)
 $php_dir = 'C:\tools\php'
-$ext_dir = $php_dir + '\ext'
+if($env:RUNNER -eq 'self-hosted') { $php_dir = "$php_dir$version" }
+$ext_dir = "$php_dir\ext"
 $arch='x64'
 if ($version -lt '7.0') { $arch='x86' }
 $version = $version.replace('.', '')

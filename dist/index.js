@@ -2269,10 +2269,7 @@ async function addINIValuesWindows(ini_values_csv) {
         script +=
             (await utils.addLog('$tick', line, 'Added to php.ini', 'win32')) + '\n';
     });
-    return ('Add-Content C:\\tools\\php\\php.ini "' +
-        ini_values.join('\n') +
-        '"' +
-        script);
+    return ('Add-Content "$php_dir\\php.ini" "' + ini_values.join('\n') + '"' + script);
 }
 exports.addINIValuesWindows = addINIValuesWindows;
 /**

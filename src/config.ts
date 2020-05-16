@@ -32,10 +32,7 @@ export async function addINIValuesWindows(
       (await utils.addLog('$tick', line, 'Added to php.ini', 'win32')) + '\n';
   });
   return (
-    'Add-Content C:\\tools\\php\\php.ini "' +
-    ini_values.join('\n') +
-    '"' +
-    script
+    'Add-Content "$php_dir\\php.ini" "' + ini_values.join('\n') + '"' + script
   );
 }
 

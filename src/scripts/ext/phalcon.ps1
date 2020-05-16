@@ -31,7 +31,8 @@ Function Install-Phalcon() {
 $tick = ([char]8730)
 $domain = 'https://github.com'
 $php_dir = 'C:\tools\php'
-$ext_dir = $php_dir + '\ext'
+if($env:RUNNER -eq 'self-hosted') { $php_dir = "$php_dir$version" }
+$ext_dir = "$php_dir\ext"
 $extension_version = $extension.substring($extension.Length - 1)
 
 if($extension_version -eq '4') {

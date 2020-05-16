@@ -7,7 +7,7 @@ describe('Config tests', () => {
       'win32'
     );
     expect(win32).toContain(
-      'Add-Content C:\\tools\\php\\php.ini "post_max_size=256M\nshort_open_tag=On\ndate.timezone=Asia/Kolkata"'
+      'Add-Content "$php_dir\\php.ini" "post_max_size=256M\nshort_open_tag=On\ndate.timezone=Asia/Kolkata"'
     );
 
     win32 = await config.addINIValues(

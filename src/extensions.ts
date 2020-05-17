@@ -110,7 +110,7 @@ export async function addExtensionDarwin(
         break;
     }
     add_script +=
-      '\nadd_extension ' + ext_name + ' "' + command + '" ' + ext_prefix;
+      '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
   });
   return add_script + remove_script;
 }
@@ -198,7 +198,7 @@ export async function addExtensionWindows(
           '\n';
         break;
       default:
-        add_script += '\nAdd-Extension ' + ext_name;
+        add_script += '\nAdd-Extension ' + extension;
         break;
     }
   });
@@ -293,7 +293,10 @@ export async function addExtensionLinux(
         return;
       // match pdo extensions
       case /.*pdo[_-].*/.test(version_extension):
-        extension = extension.replace('pdo_', '').replace('pdo-', '');
+        extension = extension
+          .replace('pdo_', '')
+          .replace('pdo-', '')
+          .replace('sqlite3', 'sqlite');
         add_script += '\nadd_pdo_extension ' + extension;
         return;
       // match ast and uopz
@@ -310,7 +313,7 @@ export async function addExtensionLinux(
         break;
     }
     add_script +=
-      '\nadd_extension ' + ext_name + ' "' + command + '" ' + ext_prefix;
+      '\nadd_extension ' + extension + ' "' + command + '" ' + ext_prefix;
   });
   return add_script + remove_script;
 }

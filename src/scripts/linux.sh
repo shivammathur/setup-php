@@ -123,6 +123,8 @@ add_pdo_extension() {
     if [ "$ext" = "mysql" ]; then
       enable_extension "mysqlnd" "extension"
       ext_name="mysqli"
+    elif [ "$ext" = "sqlite" ]; then
+      read -r ext ext_name <<< "sqlite3 sqlite3"
     fi
     add_extension "$ext_name" "$apt_install php$version-$ext" "extension" >/dev/null 2>&1
     enable_extension "$pdo_ext" "extension"

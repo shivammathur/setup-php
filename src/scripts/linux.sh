@@ -184,7 +184,7 @@ add_composertool() {
 # Function to setup phpize and php-config
 add_devtools() {
   if ! [ -e "/usr/bin/phpize$version" ] || ! [ -e "/usr/bin/php-config$version" ]; then
-    $apt_install php"$version"-dev php"$version"-xml >/dev/null 2>&1
+    update_ppa && $apt_install php"$version"-dev php"$version"-xml >/dev/null 2>&1
   fi
   sudo update-alternatives --set php-config /usr/bin/php-config"$version" >/dev/null 2>&1
   sudo update-alternatives --set phpize /usr/bin/phpize"$version" >/dev/null 2>&1

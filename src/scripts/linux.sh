@@ -268,7 +268,7 @@ add_blackfire() {
 
 # Function to setup the nightly build from master branch
 setup_master() {
-  update_ppa && $apt_install libzip-dev
+  update_ppa && $apt_install libzip-dev libwebp-dev
   tar_file=php_"$version"%2Bubuntu"$(lsb_release -r -s)".tar.xz
   install_dir=~/php/"$version"
   bintray_url=https://dl.bintray.com/shivammathur/php/"$tar_file"

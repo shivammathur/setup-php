@@ -193,7 +193,7 @@ add_devtools() {
 
 # Function to setup the nightly build from master branch
 setup_master() {
-  update_ppa && $apt_install libzip-dev
+  update_ppa && $apt_install libzip-dev libwebp-dev >/dev/null 2>&1
   tar_file=php_"$version"%2Bubuntu"$(lsb_release -r -s)".tar.xz
   install_dir=~/php/"$version"
   bintray_url=https://dl.bintray.com/shivammathur/php/"$tar_file"
@@ -203,7 +203,7 @@ setup_master() {
   for tool_path in "$install_dir"/bin/*; do
     tool=$(basename "$tool_path")
     sudo cp "$tool_path" /usr/bin/"$tool$version"
-    sudo update-alternatives --install /usr/bin/"$tool" "$tool" /usr/bin/"$tool$version" 50
+    sudo update-alternatives --install /usr/bin/"$tool" "$tool" /usr/bin/"$tool$version" 50 >/dev/null 2>&1
   done
   sudo ln -sf "$install_dir"/etc/php.ini /etc/php.ini
 }

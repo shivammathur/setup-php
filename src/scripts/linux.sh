@@ -40,7 +40,8 @@ pre_setup() {
       LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y && update_ppa
     fi
     if [ "$version" = "8.0" ]; then
-      $apt_install libcurl4-gnutls-dev libtidy-dev libpng-dev libjpeg-dev libicu-dev libzip-dev
+      IFS=' ' read -r -a libs <<< "$(echo "aspell curl4-gnutls enchant freetype6 icu jpeg png tidy webp xpm zip" | sed "s/[^ ]*/lib&-dev/g")"
+      $apt_install "${libs[@]}"
     fi
   fi
 }

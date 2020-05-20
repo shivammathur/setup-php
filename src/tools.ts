@@ -463,6 +463,10 @@ export async function addTools(
         url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
         script += await addArchive(tool, version, url, os_version);
         break;
+      case 'phan':
+        url = github + 'phan/phan/' + uri;
+        script += await addArchive(tool, version, url, os_version);
+        break;
       case 'phive':
         script += await addPhive(version, os_version);
         break;

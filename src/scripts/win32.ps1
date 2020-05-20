@@ -165,7 +165,10 @@ Function Add-Tool() {
       Add-Content -Path $current_profile -Value "New-Alias $tool $php_dir\$tool.bat" >$null 2>&1
     } catch { }
   }
-  if($tool -eq "phive") {
+  if($tool -eq "phan") {
+    Add-Extension fileinfo >$null 2>&1
+    Add-Extension ast >$null 2>&1
+  } elseif($tool -eq "phive") {
     Add-Extension xml >$null 2>&1
   } elseif($tool -eq "cs2pr") {
     (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr

@@ -391,7 +391,7 @@ describe('Tools tests', () => {
   });
   it('checking addTools on darwin', async () => {
     const script: string = await tools.addTools(
-      'blackfire, blackfire-player, flex, infection, phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, vapor-cli, phive:1.2.3, cs2pr:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3, wp-cli',
+      'blackfire, blackfire-player, flex, infection, phan, phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, vapor-cli, phan:2.7.2, phive:1.2.3, cs2pr:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3, wp-cli',
       '7.4',
       'darwin'
     );
@@ -407,6 +407,9 @@ describe('Tools tests', () => {
     );
     expect(script).toContain(
       'add_tool https://github.com/infection/infection/releases/latest/download/infection.phar infection'
+    );
+    expect(script).toContain(
+      'add_tool https://github.com/phan/phan/releases/latest/download/phan.phar phan'
     );
     expect(script).toContain(
       'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar phpcs'
@@ -426,6 +429,9 @@ describe('Tools tests', () => {
     expect(script).toContain('add_composertool vapor-cli vapor-cli laravel/');
     expect(script).toContain('add_composertool flex flex symfony/');
     expect(script).toContain('add_composertool phinx phinx robmorgan/');
+    expect(script).toContain(
+      'add_tool https://github.com/phan/phan/releases/download/2.7.2/phan.phar phan'
+    );
     expect(script).toContain(
       'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'
     );

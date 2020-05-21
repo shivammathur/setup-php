@@ -15,7 +15,7 @@ export async function addExtensionDarwin(
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let add_script = '\n';
-  let remove_script = '\n';
+  let remove_script = '';
   await utils.asyncForEach(extensions, async function (extension: string) {
     const version_extension: string = version + extension;
     const [ext_name, ext_version]: string[] = extension.split('-');
@@ -127,7 +127,7 @@ export async function addExtensionWindows(
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let add_script = '\n';
-  let remove_script = '\n';
+  let remove_script = '';
   await utils.asyncForEach(extensions, async function (extension: string) {
     const [ext_name, ext_version]: string[] = extension.split('-');
     const version_extension: string = version + extension;
@@ -219,7 +219,7 @@ export async function addExtensionLinux(
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let add_script = '\n';
-  let remove_script = '\n';
+  let remove_script = '';
   await utils.asyncForEach(extensions, async function (extension: string) {
     const version_extension: string = version + extension;
     const [ext_name, ext_version]: string[] = extension.split('-');

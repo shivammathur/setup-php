@@ -131,7 +131,7 @@ with:
 
 These tools can be setup globally using the `tools` input.
 
-`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `flex`, `infection`, `pecl`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`, `vapor-cli`
+`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `flex`, `infection`, `pecl`, `phan`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`, `vapor-cli`
 
 ```yaml
 uses: shivammathur/setup-php@v2
@@ -367,7 +367,7 @@ Run the workflow locally with `act` using [`shivammathur/node`](https://github.c
 act -P ubuntu-latest=shivammathur/node:latest
 
 # For runs-on: ubuntu-18.04
-act -P ubuntu-18.04=shivammathur/node:latest
+act -P ubuntu-18.04=shivammathur/node:bionic
 
 # For runs-on: ubuntu-16.04
 act -P ubuntu-16.04=shivammathur/node:xenial

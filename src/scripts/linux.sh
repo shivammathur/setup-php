@@ -219,6 +219,9 @@ add_tool() {
       fi
     elif [ "$tool" = "cs2pr" ]; then
       sudo sed -i 's/\r$//; s/exit(9)/exit(0)/' "$tool_path"
+    elif [ "$tool" = "phan" ]; then
+      add_extension fileinfo "$apt_install php$version-fileinfo" extension >/dev/null 2>&1
+      add_extension ast "$apt_install php-ast" extension >/dev/null 2>&1
     elif [ "$tool" = "phive" ]; then
       add_extension curl "$apt_install php$version-curl" extension >/dev/null 2>&1
       add_extension mbstring "$apt_install php$version-mbstring" extension >/dev/null 2>&1

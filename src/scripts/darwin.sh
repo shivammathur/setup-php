@@ -118,6 +118,9 @@ add_tool() {
       if [ -n "$COMPOSER_TOKEN" ]; then
         composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
       fi
+    elif [ "$tool" = "phan" ]; then
+      add_extension fileinfo "sudo pecl install -f fileinfo" extension >/dev/null 2>&1
+      add_extension ast "sudo pecl install -f ast" extension >/dev/null 2>&1
     elif [ "$tool" = "phive" ]; then
       add_extension curl "sudo pecl install -f curl" extension >/dev/null 2>&1
       add_extension mbstring "sudo pecl install -f mbstring" extension >/dev/null 2>&1

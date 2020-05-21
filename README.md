@@ -367,7 +367,7 @@ Run the workflow locally with `act` using [`shivammathur/node`](https://github.c
 act -P ubuntu-latest=shivammathur/node:latest
 
 # For runs-on: ubuntu-18.04
-act -P ubuntu-18.04=shivammathur/node:latest
+act -P ubuntu-18.04=shivammathur/node:bionic
 
 # For runs-on: ubuntu-16.04
 act -P ubuntu-16.04=shivammathur/node:xenial

@@ -2674,7 +2674,7 @@ const utils = __importStar(__webpack_require__(163));
 async function addExtensionDarwin(extension_csv, version, pipe) {
     const extensions = await utils.extensionArray(extension_csv);
     let add_script = '\n';
-    let remove_script = '\n';
+    let remove_script = '';
     await utils.asyncForEach(extensions, async function (extension) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');
@@ -2781,7 +2781,7 @@ exports.addExtensionDarwin = addExtensionDarwin;
 async function addExtensionWindows(extension_csv, version) {
     const extensions = await utils.extensionArray(extension_csv);
     let add_script = '\n';
-    let remove_script = '\n';
+    let remove_script = '';
     await utils.asyncForEach(extensions, async function (extension) {
         const [ext_name, ext_version] = extension.split('-');
         const version_extension = version + extension;
@@ -2863,7 +2863,7 @@ exports.addExtensionWindows = addExtensionWindows;
 async function addExtensionLinux(extension_csv, version, pipe) {
     const extensions = await utils.extensionArray(extension_csv);
     let add_script = '\n';
-    let remove_script = '\n';
+    let remove_script = '';
     await utils.asyncForEach(extensions, async function (extension) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');

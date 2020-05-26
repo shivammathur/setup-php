@@ -274,6 +274,6 @@ scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
 pecl_file="$scan_dir"/99-pecl.ini
-sudo touch "$pecl_file" >/dev/null 2>&1
-sudo chmod 777 "$ini_file" "$tool_path_dir" "$pecl_file"
+echo '' | sudo tee "$pecl_file" >/dev/null 2>&1
+sudo chmod 777 "$ini_file" "$pecl_file" "$tool_path_dir"
 add_log "$tick" "PHP" "$status PHP $semver"

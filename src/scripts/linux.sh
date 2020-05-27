@@ -24,11 +24,6 @@ read_env() {
   [ "$runner" = false ] && [[ -n ${RUNNER} ]] && runner="${RUNNER}"
 }
 
-# Function to dump sudo warnings instead of piping to STDOUT.
-sudo_wa() {
-  echo "Set disable_coredump false" | sudo tee -a /etc/sudo.conf
-}
-
 # Function to update the package lists.
 update_lists() {
   if [ "$lists_updated" = "false" ]; then
@@ -52,10 +47,6 @@ self_hosted_setup() {
     if [ "$(lsb_release -r -s)" = "16.04" ]; then
       sudo "$debconf_fix" apt-get update >/dev/null 2>&1
     fi
-  fi
-  if [ "$version" = "$master_version" ]; then
-    IFS=' ' read -r -a libs <<< "$(echo "aspell curl4-gnutls enchant freetype6 icu jpeg onig png pq tidy webp xpm xslt zip" | sed "s/[^ ]*/lib&-dev/g")"
-    $apt_install "${libs[@]}"
   fi
 }
 
@@ -285,33 +276,12 @@ add_blackfire() {
 
 # Function to setup the nightly build from master branch.
 setup_master() {
-  update_lists && $apt_install libzip-dev libwebp-dev
-  tar_file=php_"$version"%2Bubuntu"$(lsb_release -r -s)".tar.xz
-  install_dir=~/php/"$version"
-  bintray_url=https://dl.bintray.com/shivammathur/php/"$tar_file"
-  sudo mkdir -m 777 -p ~/php
-  if [ ! "$(whoami)" = "runner" ]; then
-    sudo rm -rf /home/runner && sudo ln -sf ~/ /home/runner;
-  fi
-  curl -o /tmp/"$tar_file" -sSL "$bintray_url"
-  sudo tar xf /tmp/"$tar_file" -C ~/php
-  for tool_path in "$install_dir"/bin/*; do
-    tool=$(basename "$tool_path")
-    sudo cp "$tool_path" /usr/bin/"$tool$version"
-    sudo update-alternatives --install /usr/bin/"$tool" "$tool" /usr/bin/"$tool$version" 50
-  done
-  sudo ln -sf "$install_dir"/etc/php.ini /etc/php.ini
+  curl -sSL "$github"/php-builder/releases/latest/download/install.sh | bash
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
 setup_old_versions() {
-  dir=php-"$version"
-  tar_file="$dir".tar.xz
-  bintray_url=https://dl.bintray.com/shivammathur/php/"$tar_file"
-  curl -o /tmp/"$tar_file" -sSL "$bintray_url"
-  sudo tar xf /tmp/"$tar_file" -C /tmp
-  sudo chmod a+x /tmp/"$dir"/*.sh
-  (cd /tmp/"$dir" && ./install.sh && ./post-install.sh)
+  curl -sSL "$github"/php5-ubuntu/releases/latest/download/install.sh | bash -s "$version"
   configure_pecl
   release_version=$(php -v | head -n 1 | cut -d' ' -f 2)
 }
@@ -384,13 +354,14 @@ version=$1
 master_version="8.0"
 old_versions="5.[3-5]"
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
+github="https://github.com/shivammathur"
 apt_install="sudo $debconf_fix apt-fast install -y"
 tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 # Setup PHP
 step_log "Setup PHP"
-sudo_wa >/dev/null 2>&1
+echo "Set disable_coredump false" | sudo tee -a /etc/sudo.conf >/dev/null 2>&1
 sudo mkdir -p /var/run /run/php
 read_env
 if [ "$runner" = "self-hosted" ]; then
@@ -407,7 +378,7 @@ if [ "$existing_version" != "$version" ]; then
       status="Switched to"
     fi
   fi
-  if [ "$version" != "5.3" ]; then
+  if ! [[ "$version" =~ $old_versions ]]; then
     switch_version >/dev/null 2>&1
   fi
 else

@@ -37,10 +37,13 @@ pre_setup() {
     fi
     update_ppa && $apt_install curl make lsb-release software-properties-common unzip
     if ! apt-cache policy | grep -q ondrej/php; then
-      LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y && update_ppa
+      LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
+      if [ "$(lsb_release -r -s)" = "16.04" ]; then
+        sudo "$debconf_fix" apt-get update >/dev/null 2>&1
+      fi
     fi
     if [ "$version" = "8.0" ]; then
-      IFS=' ' read -r -a libs <<< "$(echo "aspell curl4-gnutls enchant freetype6 icu jpeg png tidy webp xpm zip" | sed "s/[^ ]*/lib&-dev/g")"
+      IFS=' ' read -r -a libs <<< "$(echo "aspell curl4-gnutls enchant freetype6 icu jpeg onig png pq tidy webp xpm xslt zip" | sed "s/[^ ]*/lib&-dev/g")"
       $apt_install "${libs[@]}"
     fi
   fi

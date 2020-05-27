@@ -1,10 +1,10 @@
-# Function to log start of a operation
+# Function to log start of a operation.
 step_log() {
   message=$1
   printf "\n\033[90;1m==> \033[0m\033[37;1m%s\033[0m\n" "$message"
 }
 
-# Function to log result of a operation
+# Function to log result of a operation.
 add_log() {
   mark=$1
   subject=$2
@@ -16,7 +16,28 @@ add_log() {
   fi
 }
 
-# Function to remove extensions
+# Function to read env inputs.
+read_env() {
+  [[ -z "${update}" ]] && update='false' && UPDATE='false' || update="${update}"
+  [ "$update" = false ] && [[ -n ${UPDATE} ]] && update="${UPDATE}"
+  [[ -z "${runner}" ]] && runner='github' && RUNNER='github' || runner="${runner}"
+  [ "$runner" = false ] && [[ -n ${RUNNER} ]] && runner="${RUNNER}"
+}
+
+# Function to setup environment for self-hosted runners.
+self_hosted_setup() {
+  if [[ "$version" =~ $old_versions ]]; then
+    add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
+    exit 1
+  fi
+  if [[ $(command -v brew) == "" ]]; then
+      step_log "Setup Brew"
+      curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash -s >/dev/null 2>&1
+      add_log "$tick" "Brew" "Installed Homebrew"
+  fi
+}
+
+# Function to remove extensions.
 remove_extension() {
   extension=$1
   if check_extension "$extension"; then
@@ -30,7 +51,7 @@ remove_extension() {
   fi
 }
 
-# Function to test if extension is loaded
+# Function to test if extension is loaded.
 check_extension() {
   extension=$1
   if [ "$extension" != "mysql" ]; then
@@ -40,7 +61,7 @@ check_extension() {
   fi
 }
 
-# Fuction to get the PECL version
+# Fuction to get the PECL version.
 get_pecl_version() {
   extension=$1
   stability=$2
@@ -53,7 +74,7 @@ get_pecl_version() {
   echo "$pecl_version"
 }
 
-# Function to install a PECL version
+# Function to install a specific version of PECL extension.
 add_pecl_extension() {
   extension=$1
   pecl_version=$2
@@ -91,7 +112,7 @@ add_extension() {
   fi
 }
 
-# Function to pre-release extensions using PECL
+# Function to setup pre-release extensions using PECL.
 add_unstable_extension() {
   extension=$1
   stability=$2
@@ -100,7 +121,7 @@ add_unstable_extension() {
   add_pecl_extension "$extension" "$pecl_version" "$prefix"
 }
 
-# Function to setup a remote tool
+# Function to setup a remote tool.
 add_tool() {
   url=$1
   tool=$2
@@ -138,7 +159,7 @@ add_tool() {
   fi
 }
 
-# Function to add a tool using composer
+# Function to add a tool using composer.
 add_composertool() {
   tool=$1
   release=$2
@@ -163,18 +184,17 @@ add_blackfire() {
 # Function to configure PECL
 configure_pecl() {
   for tool in pear pecl; do
-    sudo "$tool" config-set php_ini "$ini_file" >/dev/null 2>&1
-    sudo "$tool" config-set auto_discover 1 >/dev/null 2>&1
-    sudo "$tool" channel-update "$tool".php.net >/dev/null 2>&1
+    sudo "$tool" config-set php_ini "$ini_file"
+    sudo "$tool" channel-update "$tool".php.net
   done
 }
 
-# Function to log PECL, it is installed along with PHP
+# Function to handle request to add PECL.
 add_pecl() {
   add_log "$tick" "PECL" "Added"
 }
 
-# Function to fetch updated formulas
+# Function to fetch updated formulae.
 update_formulae() {
   brew_dir=$(brew --prefix)/Homebrew/Library/Taps/homebrew/homebrew-core/Formula
   for formula in httpd pkg-config apr apr-util argon2 aspell autoconf bison curl-openssl freetds freetype gettext glib gmp icu4c jpeg krb5 libffi libpng libpq libsodium libzip oniguruma openldap openssl@1.1 re2c sqlite tidyp unixodbc webp; do
@@ -184,7 +204,7 @@ update_formulae() {
   wait "${to_wait[@]}"
 }
 
-# Function to setup PHP >=5.6
+# Function to setup PHP 5.6 and newer.
 setup_php() {
   action=$1
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
@@ -192,7 +212,7 @@ setup_php() {
   if brew list php@"$version" 2>/dev/null | grep -q "Error" && [ "$action" != "upgrade" ]; then
     brew unlink php@"$version"
   else
-    if [ "$version" = "8.0" ]; then update_formulae; fi
+    if [ "$version" = "$master_version" ]; then update_formulae; fi
     brew "$action" shivammathur/php/php@"$version"
   fi
   brew link --force --overwrite php@"$version"
@@ -203,24 +223,14 @@ tick="✓"
 cross="✗"
 version=$1
 nodot_version=${1/./}
+master_version="8.0"
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
-[[ -z "${update}" ]] && update='false' && UPDATE='false' || update="${update}"
-[ "$update" = false ] && [[ -n ${UPDATE} ]] && update="${UPDATE}"
-[[ -z "${runner}" ]] && runner='github' && RUNNER='github' || runner="${runner}"
-[ "$runner" = false ] && [[ -n ${RUNNER} ]] && runner="${RUNNER}"
 
+read_env
 if [ "$runner" = "self-hosted" ]; then
-  if [[ "$version" =~ $old_versions ]]; then
-    add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
-    exit 1
-  fi
-  if [[ $(command -v brew) == "" ]]; then
-      step_log "Setup Brew"
-      curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash -s >/dev/null 2>&1
-      add_log "$tick" "Brew" "Installed Homebrew"
-  fi
+  self_hosted_setup >/dev/null 2>&1
 fi
 
 # Setup PHP
@@ -244,5 +254,5 @@ ext_dir=$(php -i | grep -Ei "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo mkdir -p "$ext_dir"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
-if [[ ! "$version" =~ $old_versions ]]; then configure_pecl; fi
+if [[ ! "$version" =~ $old_versions ]]; then configure_pecl >/dev/null 2>&1; fi
 add_log "$tick" "PHP" "$status PHP $semver"

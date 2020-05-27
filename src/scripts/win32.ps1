@@ -11,15 +11,18 @@ param (
   $dir
 )
 
+# Function to log start of a operation.
 Function Step-Log($message) {
   printf "\n\033[90;1m==> \033[0m\033[37;1m%s \033[0m\n" $message
 }
 
+# Function to log result of a operation.
 Function Add-Log($mark, $subject, $message) {
   $code = if ($mark -eq $cross) { "31" } else { "32" }
   printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $code $mark $subject $message
 }
 
+# Function to fetch PATH from the registry.
 Function Get-PathFromRegistry {
   $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
           [System.Environment]::GetEnvironmentVariable("Path","User")
@@ -28,6 +31,7 @@ Function Get-PathFromRegistry {
   }
 }
 
+# Function to add a location to PATH.
 Function Add-Path {
   param(
     [string]$PathItem
@@ -38,6 +42,7 @@ Function Add-Path {
   Get-PathFromRegistry
 }
 
+# Function to get a clean Powershell profile.
 Function Get-CleanPSProfile {
   if(-not(Test-Path -LiteralPath $profile)) {
     New-Item -Path $profile -ItemType "file" -Force
@@ -48,6 +53,7 @@ Function Get-CleanPSProfile {
   }
 }
 
+# Function to install PhpManager.
 Function Install-PhpManager() {
   $repo = "mlocati/powershell-phpmanager"
   $zip_file = "$php_dir\PhpManager.zip"
@@ -61,6 +67,7 @@ Function Install-PhpManager() {
   }
 }
 
+# Function to add PHP extensions.
 Function Add-Extension {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -110,6 +117,7 @@ Function Add-Extension {
   }
 }
 
+# Function to remove PHP extensions.
 Function Remove-Extension() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -133,6 +141,7 @@ Function Remove-Extension() {
   }
 }
 
+# Function to add tools.
 Function Add-Tool() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -187,6 +196,7 @@ Function Add-Tool() {
   }
 }
 
+# Function to setup a tool using composer.
 Function Add-Composertool() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -213,10 +223,12 @@ Function Add-Composertool() {
   }
 }
 
+# Function to handle request to add PECL.
 Function Add-Pecl() {
   Add-Log $tick "PECL" "Use extensions input to setup PECL extensions on windows"
 }
 
+# Function to add blackfire and blackfire-agent.
 Function Add-Blackfire() {
   $agent_data = Invoke-WebRequest https://blackfire.io/docs/up-and-running/update | ForEach-Object { $_.tostring() -split "[`r`n]" | Select-String '<td class="version">' | Select-Object -Index 0 }
   $agent_version = [regex]::Matches($agent_data, '<td.*?>(.+)</td>') | ForEach-Object {$_.Captures[0].Groups[1].value }

@@ -27,6 +27,7 @@ update_ppa() {
 # Function to setup environment for self-hosted runners
 pre_setup() {
   sudo mkdir -p /var/run /run/php
+  echo "Set disable_coredump false" | sudo tee -a /etc/sudo.conf >/dev/null 2>&1
   if [ "$runner" = "self-hosted" ]; then
     if [[ "$version" =~ $old_versions ]] || [ "$version" = "5.3" ]; then
       add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"

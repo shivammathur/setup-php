@@ -454,7 +454,7 @@ steps:
     key: ${{ env.key }}
 
 - name: Cache extensions
-  uses: actions/cache@v1
+  uses: actions/cache@v2
   with:
     path: ${{ steps.cache-env.outputs.dir }}
     key: ${{ steps.cache-env.outputs.key }}
@@ -479,7 +479,7 @@ If your project uses composer, you can persist composer's internal cache directo
   run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
 - name: Cache dependencies
-  uses: actions/cache@v1
+  uses: actions/cache@v2
   with:
     path: ${{ steps.composer-cache.outputs.dir }}
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -507,7 +507,7 @@ If your project has node.js dependencies, you can persist npm's or yarn's cache 
   run: echo "::set-output name=dir::$(npm config get cache)" # Use $(yarn cache dir) for yarn
 
 - name: Cache dependencies
-  uses: actions/cache@v1
+  uses: actions/cache@v2
   with:
     path: ${{ steps.node-cache-dir.outputs.dir }}
     key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # Use '**/yarn.lock' for yarn

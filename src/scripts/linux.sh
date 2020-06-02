@@ -38,6 +38,7 @@ self_hosted_setup() {
     add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
     exit 1
   fi
+  echo "Set disable_coredump false" | sudo tee -a /etc/sudo.conf
   if ! command -v apt-fast >/dev/null; then
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
   fi
@@ -45,7 +46,7 @@ self_hosted_setup() {
   if ! apt-cache policy | grep -q ondrej/php; then
     LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
     if [ "$(lsb_release -r -s)" = "16.04" ]; then
-      sudo "$debconf_fix" apt-get update >/dev/null 2>&1
+      sudo "$debconf_fix" apt-get update
     fi
   fi
 }
@@ -365,13 +366,11 @@ existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 # Setup PHP
 step_log "Setup PHP"
-echo "Set disable_coredump false" | sudo tee -a /etc/sudo.conf >/dev/null 2>&1
-sudo mkdir -p /var/run /run/php
 read_env
 if [ "$runner" = "self-hosted" ]; then
   self_hosted_setup >/dev/null 2>&1
 fi
-
+sudo mkdir -p /var/run /run/php
 if [ "$existing_version" != "$version" ]; then
   if [ ! -e "/usr/bin/php$version" ]; then
     add_php >/dev/null 2>&1

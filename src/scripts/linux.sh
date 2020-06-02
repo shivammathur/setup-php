@@ -267,14 +267,17 @@ add_devtools() {
 # Function to add blackfire and blackfire-agent.
 add_blackfire() {
   sudo mkdir -p /var/run/blackfire
-  sudo curl -o /tmp/blackfire-gpg.key -sSL https://packages.blackfire.io/gpg.key >/dev/null 2>&1
-  sudo apt-key add /tmp/blackfire-gpg.key >/dev/null 2>&1
+  sudo curl -sSL https://packages.blackfire.io/gpg.key | sudo apt-key add - >/dev/null 2>&1
   echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list >/dev/null 2>&1
-  find /etc/apt/sources.list.d -type f -name blackfire.list -exec sudo "$debconf_fix" apt-fast update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
+  sudo "$debconf_fix" apt-get update >/dev/null 2>&1
   $apt_install blackfire-agent >/dev/null 2>&1
-  sudo blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
-  sudo /etc/init.d/blackfire-agent restart >/dev/null 2>&1
-  sudo blackfire --config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
+  if [[ -n $BLACKFIRE_SERVER_ID ]] && [[ -n $BLACKFIRE_SERVER_TOKEN ]]; then
+    sudo blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
+    sudo /etc/init.d/blackfire-agent restart >/dev/null 2>&1
+  fi
+  if [[ -n $BLACKFIRE_CLIENT_ID ]] && [[ -n $BLACKFIRE_CLIENT_TOKEN ]]; then
+    sudo blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
+  fi
   add_log "$tick" "blackfire" "Added"
   add_log "$tick" "blackfire-agent" "Added"
 }

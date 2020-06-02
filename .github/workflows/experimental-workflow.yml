@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        operating-system: [ubuntu-20.04, ubuntu-latest, windows-latest, macos-latest]
         php-versions: ['8.0']
     env:
       extensions: xml, opcache, pcov

@@ -1610,7 +1610,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addTools = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.addComposer = exports.getWpCliUrl = exports.getSymfonyUri = exports.getDeployerUrl = exports.getPharUrl = exports.addPhive = exports.getCodeceptionUri = exports.getCodeceptionUriBuilder = exports.getUri = exports.parseTool = exports.getToolVersion = exports.getCommand = void 0;
+exports.addTools = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.updateComposer = exports.addComposer = exports.getWpCliUrl = exports.getSymfonyUri = exports.getDeployerUrl = exports.getPharUrl = exports.addPhive = exports.getCodeceptionUri = exports.getCodeceptionUriBuilder = exports.getUri = exports.parseTool = exports.getToolVersion = exports.getCommand = void 0;
 const utils = __importStar(__webpack_require__(163));
 /**
  * Function to get command to setup tools
@@ -1638,8 +1638,10 @@ exports.getCommand = getCommand;
 async function getToolVersion(version) {
     // semver_regex - https://semver.org/
     const semver_regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+    const composer_regex = /^stable$|^preview$|^snapshot$|^v?[1|2]$/;
     version = version.replace(/[><=^]*/, '');
     switch (true) {
+        case composer_regex.test(version):
         case semver_regex.test(version):
             return version;
         default:
@@ -1864,19 +1866,42 @@ exports.getWpCliUrl = getWpCliUrl;
  * @param tools_list
  */
 async function addComposer(tools_list) {
-    const regex = /^composer($|:.*)/;
-    const composer = tools_list.filter(tool => regex.test(tool))[0];
-    switch (composer) {
+    const regex_any = /^composer($|:.*)/;
+    const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$)/;
+    const matches = tools_list.filter(tool => regex_valid.test(tool));
+    let composer = 'composer';
+    tools_list = tools_list.filter(tool => !regex_any.test(tool));
+    switch (matches[0]) {
         case undefined:
             break;
         default:
-            tools_list = tools_list.filter(tool => !regex.test(tool));
+            composer = matches[matches.length - 1].replace(/v([1-2])/, '$1');
             break;
     }
-    tools_list.unshift('composer');
+    tools_list.unshift(composer);
     return tools_list;
 }
 exports.addComposer = addComposer;
+/**
+ * Function to get script to update composer
+ *
+ * @param version
+ * @param os_version
+ */
+async function updateComposer(version, os_version) {
+    switch (version) {
+        case 'snapshot':
+        case 'preview':
+        case '1':
+        case '2':
+            return ('\ncomposer self-update --' +
+                version +
+                (await utils.suppressOutput(os_version)));
+        default:
+            return '';
+    }
+}
+exports.updateComposer = updateComposer;
 /**
  * Function to get Tools list after cleanup
  *
@@ -2007,11 +2032,10 @@ async function addTools(tools_csv, php_version, os_version) {
                 script += await addArchive(tool, version, url, os_version);
                 break;
             case 'composer':
-                // If RC is released as latest release, switch to getcomposer.
-                // Prefered source is GitHub as it is faster.
-                // url = github + 'composer/composer/releases/latest/download/composer.phar';
                 url = 'https://getcomposer.org/composer-stable.phar';
-                script += await addArchive(tool, version, url, os_version);
+                script +=
+                    (await addArchive('composer', version, url, os_version)) +
+                        (await updateComposer(version, os_version));
                 break;
             case 'codeception':
                 url =

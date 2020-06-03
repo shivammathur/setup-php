@@ -33,8 +33,10 @@ export async function getCommand(
 export async function getToolVersion(version: string): Promise<string> {
   // semver_regex - https://semver.org/
   const semver_regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+  const composer_regex = /^stable$|^preview$|^snapshot$|^v?[1|2]$/;
   version = version.replace(/[><=^]*/, '');
   switch (true) {
+    case composer_regex.test(version):
     case semver_regex.test(version):
       return version;
     default:
@@ -279,17 +281,45 @@ export async function getSymfonyUri(
  * @param tools_list
  */
 export async function addComposer(tools_list: string[]): Promise<string[]> {
-  const regex = /^composer($|:.*)/;
-  const composer: string = tools_list.filter(tool => regex.test(tool))[0];
-  switch (composer) {
+  const regex_any = /^composer($|:.*)/;
+  const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$)/;
+  const matches: string[] = tools_list.filter(tool => regex_valid.test(tool));
+  let composer = 'composer';
+  tools_list = tools_list.filter(tool => !regex_any.test(tool));
+  switch (matches[0]) {
     case undefined:
       break;
     default:
-      tools_list = tools_list.filter(tool => !regex.test(tool));
+      composer = matches[matches.length - 1].replace(/v([1-2])/, '$1');
       break;
   }
-  tools_list.unshift('composer');
+  tools_list.unshift(composer);
   return tools_list;
+}
+
+/**
+ * Function to get script to update composer
+ *
+ * @param version
+ * @param os_version
+ */
+export async function updateComposer(
+  version: string,
+  os_version: string
+): Promise<string> {
+  switch (version) {
+    case 'snapshot':
+    case 'preview':
+    case '1':
+    case '2':
+      return (
+        '\ncomposer self-update --' +
+        version +
+        (await utils.suppressOutput(os_version))
+      );
+    default:
+      return '';
+  }
 }
 
 /**
@@ -443,11 +473,10 @@ export async function addTools(
         script += await addArchive(tool, version, url, os_version);
         break;
       case 'composer':
-        // If RC is released as latest release, switch to getcomposer.
-        // Preferred source is GitHub as it is faster.
-        // url = github + 'composer/composer/releases/latest/download/composer.phar';
         url = 'https://getcomposer.org/composer-stable.phar';
-        script += await addArchive(tool, version, url, os_version);
+        script +=
+          (await addArchive('composer', version, url, os_version)) +
+          (await updateComposer(version, os_version));
         break;
       case 'codeception':
         url =

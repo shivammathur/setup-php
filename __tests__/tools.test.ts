@@ -243,6 +243,41 @@ describe('Tools tests', () => {
     expect(
       await tools.addComposer(['a', 'b', 'composer:1.2.3'])
     ).toStrictEqual(['composer', 'a', 'b']);
+    expect(
+      await tools.addComposer(['a', 'b', 'composer:snapshot'])
+    ).toStrictEqual(['composer:snapshot', 'a', 'b']);
+    expect(
+      await tools.addComposer(['a', 'b', 'composer:preview'])
+    ).toStrictEqual(['composer:preview', 'a', 'b']);
+    expect(
+      await tools.addComposer(['a', 'b', 'c', 'composer:1'])
+    ).toStrictEqual(['composer:1', 'a', 'b', 'c']);
+    expect(
+      await tools.addComposer(['a', 'b', 'c', 'composer:2'])
+    ).toStrictEqual(['composer:2', 'a', 'b', 'c']);
+    expect(
+      await tools.addComposer(['a', 'b', 'c', 'composer:v1'])
+    ).toStrictEqual(['composer:1', 'a', 'b', 'c']);
+    expect(
+      await tools.addComposer(['a', 'b', 'c', 'composer:v2'])
+    ).toStrictEqual(['composer:2', 'a', 'b', 'c']);
+  });
+
+  it('checking updateComposer', async () => {
+    expect(await tools.updateComposer('latest', 'linux')).toContain('');
+    expect(await tools.updateComposer('stable', 'win32')).toContain('');
+    expect(await tools.updateComposer('snapshot', 'darwin')).toContain(
+      '\ncomposer self-update --snapshot'
+    );
+    expect(await tools.updateComposer('preview', 'linux')).toContain(
+      '\ncomposer self-update --preview'
+    );
+    expect(await tools.updateComposer('1', 'win32')).toContain(
+      '\ncomposer self-update --1'
+    );
+    expect(await tools.updateComposer('2', 'darwin')).toContain(
+      '\ncomposer self-update --2'
+    );
   });
 
   it('checking getSymfonyUri', async () => {
@@ -484,5 +519,25 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'Add-Composertool composer-prefetcher composer-prefetcher narrowspark/automatic-'
     );
+  });
+  it('checking composer setup', async () => {
+    let script: string = await tools.addTools(
+      'composer, composer:v1',
+      '7.4',
+      'linux'
+    );
+    expect(script).toContain(
+      'add_tool https://getcomposer.org/composer-stable.phar composer'
+    );
+    expect(script).toContain('composer self-update --1');
+
+    script = await tools.addTools('composer:preview', '7.4', 'linux');
+    expect(script).toContain('composer self-update --preview');
+    script = await tools.addTools(
+      'composer:v1, composer:preview, composer:snapshot',
+      '7.4',
+      'linux'
+    );
+    expect(script).toContain('composer self-update --snapshot');
   });
 });

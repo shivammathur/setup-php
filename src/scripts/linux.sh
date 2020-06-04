@@ -284,7 +284,7 @@ add_blackfire() {
 
 # Function to setup the nightly build from master branch.
 setup_master() {
-  curl -sSL "$github"/php-builder/releases/latest/download/install.sh | bash
+  curl -sSL "$github"/php-builder/releases/latest/download/install.sh | bash -s "$runner"
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.

@@ -308,7 +308,7 @@ if($env:RUNNER -eq 'self-hosted') {
   }
   if($version -lt 5.6) {
     Add-Log $cross "PHP" "PHP $version is not supported on self-hosted runner"
-    Start-Sleep 3
+    Start-Sleep 1
     exit 1
   }
   if ((Get-InstalledModule).Name -notcontains 'VcRedist') {

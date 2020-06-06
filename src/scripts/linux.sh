@@ -34,10 +34,6 @@ update_lists() {
 
 # Function to setup environment for self-hosted runners.
 self_hosted_setup() {
-  if [[ "$version" =~ $old_versions ]]; then
-    add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
-    exit 1
-  fi
   echo "Set disable_coredump false" | sudo tee -a /etc/sudo.conf
   if ! command -v apt-fast >/dev/null; then
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
@@ -367,12 +363,18 @@ apt_install="sudo $debconf_fix apt-fast install -y"
 tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
-# Setup PHP
-step_log "Setup PHP"
 read_env
 if [ "$runner" = "self-hosted" ]; then
-  self_hosted_setup >/dev/null 2>&1
+  if [[ "$version" =~ $old_versions ]]; then
+    add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
+    exit 1
+  else
+    self_hosted_setup >/dev/null 2>&1
+  fi
 fi
+
+# Setup PHP
+step_log "Setup PHP"
 sudo mkdir -p /var/run /run/php
 if [ "$existing_version" != "$version" ]; then
   if [ ! -e "/usr/bin/php$version" ]; then

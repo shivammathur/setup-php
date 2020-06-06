@@ -26,10 +26,6 @@ read_env() {
 
 # Function to setup environment for self-hosted runners.
 self_hosted_setup() {
-  if [[ "$version" =~ $old_versions ]]; then
-    add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
-    exit 1
-  fi
   if [[ $(command -v brew) == "" ]]; then
       step_log "Setup Brew"
       curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash -s >/dev/null 2>&1
@@ -238,7 +234,12 @@ existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 read_env
 if [ "$runner" = "self-hosted" ]; then
-  self_hosted_setup >/dev/null 2>&1
+  if [[ "$version" =~ $old_versions ]]; then
+    add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
+    exit 1
+  else
+    self_hosted_setup >/dev/null 2>&1
+  fi
 fi
 
 # Setup PHP

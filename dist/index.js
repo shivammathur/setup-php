@@ -2358,7 +2358,7 @@ async function run() {
             case 'darwin':
             case 'linux':
                 script_path = await build(os_version + '.sh', version, os_version);
-                await exec_1.exec('sh ' + script_path + ' ' + version + ' ' + __dirname);
+                await exec_1.exec('bash ' + script_path + ' ' + version + ' ' + __dirname);
                 break;
             case 'win32':
                 script_path = await build('win32.ps1', version, os_version);

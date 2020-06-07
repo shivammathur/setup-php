@@ -17,8 +17,8 @@ add_log() {
 }
 
 # Function to update php ppa
-update_ppa() {
-  if [ "$ppa_updated" = "false" ]; then
+update_lists() {
+  if [ "$lists_updated" = "false" ]; then
     sudo "$debconf_fix" apt-get update >/dev/null 2>&1
   fi
 }
@@ -87,7 +87,7 @@ add_extension() {
     add_log "$tick" "$extension" "Enabled"
   elif ! check_extension "$extension"; then
     eval "$install_command" >/dev/null 2>&1 ||
-    (update_ppa && eval "$install_command" >/dev/null 2>&1) ||
+    (update_lists && eval "$install_command" >/dev/null 2>&1) ||
     sudo pecl install -f "$extension" >/dev/null 2>&1
     (check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled") ||
     add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
@@ -134,7 +134,7 @@ update_extension() {
   if [ "$final_version" != "$current_version"  ]; then
     version_exists=$(apt-cache policy -- *"$extension" | grep "$final_version")
     if [ -z "$version_exists" ]; then
-      update_ppa
+      update_lists
     fi
     $apt_install php"$version"-"$extension"
   fi
@@ -184,7 +184,7 @@ add_composertool() {
 # Function to setup phpize and php-config
 add_devtools() {
   if ! [ -e "/usr/bin/phpize$version" ] || ! [ -e "/usr/bin/php-config$version" ]; then
-    update_ppa && $apt_install php"$version"-dev php"$version"-xml >/dev/null 2>&1
+    update_lists && $apt_install php"$version"-dev php"$version"-xml >/dev/null 2>&1
   fi
   sudo update-alternatives --set php-config /usr/bin/php-config"$version" >/dev/null 2>&1
   sudo update-alternatives --set phpize /usr/bin/phpize"$version" >/dev/null 2>&1
@@ -193,19 +193,7 @@ add_devtools() {
 
 # Function to setup the nightly build from master branch
 setup_master() {
-  update_ppa && $apt_install libzip-dev libwebp-dev >/dev/null 2>&1
-  tar_file=php_"$version"%2Bubuntu"$(lsb_release -r -s)".tar.xz
-  install_dir=~/php/"$version"
-  bintray_url=https://dl.bintray.com/shivammathur/php/"$tar_file"
-  sudo mkdir -m 777 -p ~/php
-  curl -o /tmp/"$tar_file" -sSL "$bintray_url"
-  sudo tar xf /tmp/"$tar_file" -C ~/php
-  for tool_path in "$install_dir"/bin/*; do
-    tool=$(basename "$tool_path")
-    sudo cp "$tool_path" /usr/bin/"$tool$version"
-    sudo update-alternatives --install /usr/bin/"$tool" "$tool" /usr/bin/"$tool$version" 50 >/dev/null 2>&1
-  done
-  sudo ln -sf "$install_dir"/etc/php.ini /etc/php.ini
+  curl -sSL https://github.com/shivammathur/php-builder/releases/latest/download/install.sh | bash -s "github"
 }
 
 # Function to setup PECL
@@ -222,7 +210,7 @@ add_pecl() {
 switch_version() {
   for tool in pear pecl php phar phar.phar php-cgi php-config phpize phpdbg; do
     if [ -e "/usr/bin/$tool$version" ]; then
-      sudo update-alternatives --set $tool /usr/bin/"$tool$version" >/dev/null 2>&1
+      sudo update-alternatives --set $tool /usr/bin/"$tool$version"
     fi
   done
 }
@@ -239,7 +227,7 @@ php_semver() {
 # Variables
 tick="✓"
 cross="✗"
-ppa_updated="false"
+lists_updated="false"
 pecl_config="false"
 version=$1
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
@@ -254,17 +242,18 @@ sudo mkdir -p /var/run /run/php
 if [ "$existing_version" != "$version" ]; then
   if [ ! -e "/usr/bin/php$version" ]; then
     if [ "$version" = "8.0" ]; then
-      setup_master
+      setup_master >/dev/null 2>&1
     else
-      update_ppa
-      $apt_install php"$version" php"$version"-curl php"$version"-mbstring php"$version"-xml >/dev/null 2>&1
+      update_lists
+      IFS=' ' read -r -a packages <<< "$(echo "curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
+      $apt_install php"$version" "${packages[@]}" >/dev/null 2>&1
     fi
     status="Installed"
   else
     status="Switched to"
   fi
 
-  switch_version
+  switch_version >/dev/null 2>&1
 else
   status="Found"
 fi

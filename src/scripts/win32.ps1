@@ -20,15 +20,38 @@ Function Add-Log($mark, $subject, $message) {
   printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $code $mark $subject $message
 }
 
+Function Add-ToProfile {
+  param(
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $input_profile,
+    [Parameter(Position = 1, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $search,
+    [Parameter(Position = 2, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $value
+  )
+  if($null -eq (Get-Content $input_profile | findstr $search)) {
+    Add-Content -Path $input_profile -Value $value
+  }
+}
+
 Function Install-PhpManager() {
   $repo = "mlocati/powershell-phpmanager"
   $zip_file = "$php_dir\PhpManager.zip"
   $tag = (Invoke-RestMethod https://api.github.com/repos/$repo/tags)[0].Name
   $module_path = "$php_dir\PhpManager\powershell-phpmanager-$tag\PhpManager"
   Invoke-WebRequest -UseBasicParsing -Uri https://github.com/$repo/archive/$tag.zip -OutFile $zip_file
-  Expand-Archive -Path $zip_file -DestinationPath $php_dir\PhpManager
+  Expand-Archive -Path $zip_file -DestinationPath $php_dir\PhpManager -Force
   Import-Module $module_path
-  Add-Content -Path $PsHome\profile.ps1 -Value "Import-Module $module_path"
+  Add-ToProfile $current_profile "PhpManager" "Import-Module $module_path"
 }
 
 Function Add-Extension {
@@ -104,7 +127,7 @@ Function Add-Tool() {
   }
   if ($tool -eq "symfony") {
     Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool.exe
-    Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.exe" > $null 2>&1
+    Add-ToProfile $current_profile $tool "New-Alias $tool $php_dir\$tool.exe" > $null 2>&1
   } else {
     try {
       Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool
@@ -114,7 +137,7 @@ Function Add-Tool() {
       $bat_content += "SET BIN_TARGET=%~dp0/" + $tool
       $bat_content += "php %BIN_TARGET% %*"
       Set-Content -Path $php_dir\$tool.bat -Value $bat_content
-      Add-Content -Path $PsHome\profile.ps1 -Value "New-Alias $tool $php_dir\$tool.bat" > $null 2>&1
+      Add-ToProfile $current_profile $tool "New-Alias $tool $php_dir\$tool.bat" > $null 2>&1
     } catch { }
   }
   if($tool -eq "phive") {
@@ -173,12 +196,16 @@ $tick = ([char]8730)
 $cross = ([char]10007)
 $php_dir = 'C:\tools\php'
 $ext_dir = "$php_dir\ext"
+$current_profile = "$PSHOME\Profile.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $master_version = '8.0'
 $arch = 'x64'
 $ts = $env:PHPTS -eq 'ts'
 if($env:PHPTS -ne 'ts') {
   $env:PHPTS = 'nts'
+}
+if(-not(Test-Path -LiteralPath $current_profile)) {
+  New-Item -Path $current_profile -ItemType "file" -Force >$null 2>&1
 }
 
 Step-Log "Setup PhpManager"

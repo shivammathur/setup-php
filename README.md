@@ -18,26 +18,26 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 ## Contents
 
 - [PHP Support](#tada-php-support)
-- [OS/Platform Support](#cloud-osplatform-support)
+- [GitHub-Hosted Runner Support](#cloud-github-hosted-runner-support)
 - [PHP Extension Support](#heavy_plus_sign-php-extension-support)
 - [Tools Support](#wrench-tools-support)
-- [Coverage support](#signal_strength-coverage-support)
+- [Coverage Support](#signal_strength-coverage-support)
   - [Xdebug](#xdebug)
   - [PCOV](#pcov)
   - [Disable coverage](#disable-coverage)
 - [Usage](#memo-usage)
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
-  - [Experimental Setup](#experimental-setup)
+  - [Nightly Build Setup](#nightly-build-setup)
   - [Thread Safe Setup](#thread-safe-setup)  
-  - [Cache dependencies](#cache-dependencies)
+  - [Cache Dependencies](#cache-dependencies)
   - [Composer GitHub OAuth](#composer-github-oauth)  
   - [Problem Matchers](#problem-matchers)
   - [Examples](#examples)
 - [License](#scroll-license)
 - [Contributions](#1-contributions)
-- [Support this project](#sparkling_heart-support-this-project)
-- [This action uses the following works](#bookmark-this-action-uses-the-following-works)
+- [Support This project](#sparkling_heart-support-this-project)
+- [Dependencies](#bookmark-dependencies)
 - [Further Reading](#bookmark_tabs-further-reading)
 
 ## :tada: PHP Support
@@ -50,18 +50,19 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |7.2|`Stable`|`Security fixes only`|
 |7.3|`Stable`|`Active`|
 |7.4|`Stable`|`Active`|
-|8.0|`Experimental`|`In development`|
+|8.0|`Nightly`|`In development`|
 
-**Note:** Specifying `8.0` in `php-version` input installs a nightly build of `PHP 8.0.0-dev` with `PHP JIT`, `Union Types v2` and other [new features](https://wiki.php.net/rfc#php_80 "New features implemented in PHP 8"). See [experimental setup](#experimental-setup) for more information.
+**Note:** Specifying `8.0` in `php-version` input installs a nightly build of `PHP 8.0.0-dev` with `PHP JIT`, `Union Types v2` and other [new features](https://wiki.php.net/rfc#php_80 "New features implemented in PHP 8"). See [nightly build setup](#nightly-build-setup) for more information.
 
-## :cloud: OS/Platform Support
+## :cloud: GitHub-Hosted Runner Support
 
-|Virtual environment|matrix.operating-system|
-|--- |--- |
-|Windows Server 2019|`windows-latest` or `windows-2019`|
-|Ubuntu 18.04|`ubuntu-latest` or `ubuntu-18.04`|
-|Ubuntu 16.04|`ubuntu-16.04`|
-|macOS X Catalina 10.15|`macos-latest` or `macos-10.15`|
+|Virtual environment|YAML workflow label|Pre-installed PHP|
+|--- |--- |--- |
+|Ubuntu 16.04|`ubuntu-16.04`|`PHP 5.6` to `PHP 7.4`|
+|Ubuntu 18.04|`ubuntu-latest` or `ubuntu-18.04`|`PHP 7.1` to `PHP 7.4`|
+|Ubuntu 20.04|`ubuntu-20.04`|`PHP 7.4`|
+|Windows Server 2019|`windows-latest` or `windows-2019`|`PHP 7.4`|
+|macOS 10.15 Catalina|`macos-latest` or `macos-10.15`|`PHP 7.4`|
 
 ## :heavy_plus_sign: PHP Extension Support
 - On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl` in the tools input.
@@ -85,22 +86,27 @@ with:
 ```
 
 To setup a particular version of a tool, specify it in the form `tool:version`.  
-Version should be in semver format and a valid release of the tool.
+Latest stable version of `composer` is setup by default and accepts `v1`, `v2`, `snapshot` and `preview` as versions.
 
 ```yaml
 uses: shivammathur/setup-php@v1
 with:
   php-version: '7.4'
-  tools: php-cs-fixer:2.15.5, phpunit:8.5.1
-``` 
+  tools: composer:v2
+```
 
-**Note**
-- `composer` is setup by default.
-- Specifying version for `composer` and `pecl` has no effect, latest version of both tools will be setup.
-- If the version specified for the tool is not in semver format, latest version of the tool will be setup.
-- Tools which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
+Version for other tools should be in `semver` format and a valid release of the tool.
 
-## :signal_strength: Coverage support
+```yaml
+uses: shivammathur/setup-php@v1
+with:
+  php-version: '7.4'
+  tools: php-cs-fixer:2.16.2, phpunit:8.5.1
+```
+
+Tools which cannot be installed gracefully leave an error message in the logs, the action is not interrupted.
+
+## :signal_strength: Coverage Support
 
 ### Xdebug
 
@@ -130,7 +136,7 @@ with:
   coverage: pcov
 ```
 
-### Disable coverage
+### Disable Coverage
 
 Specify `coverage: none` to disable both `Xdebug` and `PCOV`.  
 Consider disabling the coverage using this PHP action for these reasons.
@@ -204,12 +210,11 @@ jobs:
         tools: php-cs-fixer, phpunit #optional, setup tools globally
 ```
 
-### Experimental Setup
+### Nightly Build Setup
 
 > Setup a nightly build of `PHP 8.0.0-dev` from the [master branch](https://github.com/php/php-src/tree/master "Master branch on PHP source repository") of PHP.
 
-- This version is currently in development and is an experimental feature on this action.
-- `PECL` is installed by default with this version on `ubuntu`.
+- `PECL` is installed by default with this version on `Ubuntu` and `macOS`.
 - Some extensions might not support this version currently.
 - Refer to this [RFC](https://wiki.php.net/rfc/jit "PHP JIT RFC configuration") for configuring `PHP JIT` on this version.
 - Refer to this [list of RFCs](https://wiki.php.net/rfc#php_80 "List of RFCs implemented in PHP8") implemented in this version.
@@ -249,10 +254,10 @@ jobs:
       with:
         php-version: '7.4'
       env:
-        PHPTS: ts # specify ts or nts
+        phpts: ts # specify ts or nts
 ```
 
-### Cache dependencies
+### Cache Dependencies
 
 You can persist composer's internal cache directory using the [`action/cache`](https://github.com/actions/cache "GitHub Action to cache files") GitHub Action. Dependencies cached are loaded directly instead of downloading them while installation. The files cached are available across check-runs and will reduce the workflow execution time.
 
@@ -264,7 +269,7 @@ You can persist composer's internal cache directory using the [`action/cache`](h
   run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
 - name: Cache dependencies
-  uses: actions/cache@v1
+  uses: actions/cache@v2
   with:
     path: ${{ steps.composer-cache.outputs.dir }}
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -304,7 +309,7 @@ You can setup problem matchers for your `PHPUnit` output by adding this step aft
   run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 ```
 
-#### Other tools
+#### Other Tools
 
 For tools that support `checkstyle` reporting like `phpstan`, `psalm`, `php-cs-fixer` and `phpcs` you can use `cs2pr` to annotate your code.  
 For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-pull-request-from-checkstyle).  
@@ -358,21 +363,22 @@ The scripts and documentation in this project are released under the [MIT Licens
 
 Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "shivammathur/setup-php contribution guide"). If you face any issues while using this or want to suggest a feature/improvement, create an issue [here](https://github.com/shivammathur/setup-php/issues "Issues reported").
 
-## :sparkling_heart: Support this project
+## :sparkling_heart: Support This Project
 
 If this action helped you.
 
+- To support this project subscribe on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") or sponsor using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal").
 - Please star the project and share it with the community.
-- If you blog, write about your experience while using this action.
-- I maintain this in my free time, please support me with a [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") subscription or a one time contribution using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal").
+- If you blog, write about your experience of using this action.
 - If you need any help using this, please contact me using [Codementor](https://www.codementor.io/shivammathur "Shivam Mathur Codementor")
 
-## :bookmark: This action uses the following works
+## :bookmark: Dependencies
 
-- [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Pre-compiled ubuntu packages")
-- [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Pre-compiled nightly PHP builds")
+- [Node.js dependencies](https://github.com/shivammathur/setup-php/network/dependencies "Node.js dependencies")
 - [mlocati/powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager "Package to handle PHP on windows")
+- [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Packaging active PHP packages")
 - [shivammathur/homebrew-php](https://github.com/shivammathur/homebrew-php "Tap for PHP builds for MacOS")
+- [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Nightly PHP package")
 
 ## :bookmark_tabs: Further Reading
 

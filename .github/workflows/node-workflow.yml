@@ -1,0 +1,47 @@
+name: Node workflow
+on:
+  pull_request:
+    branches:
+      - releases/v1
+    paths-ignore:
+      - '**.md'
+      - 'examples/**'
+  push:
+    branches:
+      - releases/v1
+    paths-ignore:
+      - '**.md'
+      - 'examples/**'
+jobs:
+  run:
+    name: Run
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Prettier Format Check
+        run: npm run format-check
+
+      - name: ESLint Check
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Send Coverage
+        continue-on-error: true
+        timeout-minutes: 1
+        run: curl -s https://codecov.io/bash | bash -s -- -t ${{secrets.CODECOV_TOKEN}} -f coverage/clover.xml -n github-actions-codecov-${{ matrix.operating-system }}

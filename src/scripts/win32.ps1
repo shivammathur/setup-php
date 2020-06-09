@@ -11,23 +11,49 @@ param (
   $dir
 )
 
+# Function to log start of a operation.
 Function Step-Log($message) {
   printf "\n\033[90;1m==> \033[0m\033[37;1m%s \033[0m\n" $message
 }
 
+# Function to log result of a operation.
 Function Add-Log($mark, $subject, $message) {
   $code = if ($mark -eq $cross) { "31" } else { "32" }
   printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $code $mark $subject $message
 }
 
-Function Get-PathFromRegistry {
-  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
-          [System.Environment]::GetEnvironmentVariable("Path","User")
-  if($null -eq (Get-Content $current_profile | findstr 'Get-PathFromRegistry')) {
-    Add-Content -Path $current_profile -Value 'Function Get-PathFromRegistry { $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User") }; Get-PathFromRegistry'
+# Function to add a line to a powershell profile safely.
+Function Add-ToProfile {
+  param(
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $input_profile,
+    [Parameter(Position = 1, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $search,
+    [Parameter(Position = 2, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $value
+  )
+  if($null -eq (Get-Content $input_profile | findstr $search)) {
+    Add-Content -Path $input_profile -Value $value
   }
 }
 
+# Function to fetch PATH from the registry.
+Function Get-PathFromRegistry {
+  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","User") + ";" +
+          [System.Environment]::GetEnvironmentVariable("Path","Machine")
+  Add-ToProfile $current_profile 'Get-PathFromRegistry' 'Function Get-PathFromRegistry { $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "User") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "Machine") }; Get-PathFromRegistry'
+}
+
+# Function to add a location to PATH.
 Function Add-Path {
   param(
     [string]$PathItem
@@ -38,30 +64,30 @@ Function Add-Path {
   Get-PathFromRegistry
 }
 
+# Function to get a clean Powershell profile.
 Function Get-CleanPSProfile {
   if(-not(Test-Path -LiteralPath $profile)) {
     New-Item -Path $profile -ItemType "file" -Force
   }
   Set-Content $current_profile -Value ''
-  if ($null -eq (Get-Content $profile | FindStr $current_profile.replace('\', '\\'))) {
-    Add-Content $profile -Value ". $current_profile"
-  }
+  Add-ToProfile $profile $current_profile.replace('\', '\\') ". $current_profile"
 }
 
+# Function to install PhpManager.
 Function Install-PhpManager() {
   $repo = "mlocati/powershell-phpmanager"
-  $zip_file = "$php_dir\PhpManager.zip"
-  $tags = Invoke-WebRequest https://api.github.com/repos/$repo/tags | ConvertFrom-Json
-  $tag = $tags[0].Name
-  $module_path = "$php_dir\PhpManager\powershell-phpmanager-$tag\PhpManager"
-  Invoke-WebRequest -UseBasicParsing -Uri https://github.com/$repo/archive/$tag.zip -OutFile $zip_file
-  Expand-Archive -Path $zip_file -DestinationPath $php_dir\PhpManager
-  Import-Module $module_path
-  if($null -eq (Get-Content $current_profile | findstr 'powershell-phpmanager')) {
-    Add-Content -Path $current_profile -Value "Import-Module $module_path"
+  $tag = (Invoke-RestMethod https://api.github.com/repos/$repo/tags)[0].Name
+  $module_path = "$bin_dir\PhpManager\powershell-phpmanager-$tag\PhpManager"
+  if(-not (Test-Path $module_path\PhpManager.psm1 -PathType Leaf)) {
+    $zip_file = "$bin_dir\PhpManager.zip"
+    Invoke-WebRequest -UseBasicParsing -Uri https://github.com/$repo/archive/$tag.zip -OutFile $zip_file
+    Expand-Archive -Path $zip_file -DestinationPath $bin_dir\PhpManager -Force
   }
+  Import-Module $module_path
+  Add-ToProfile $current_profile 'powershell-phpmanager' "Import-Module $module_path"
 }
 
+# Function to add PHP extensions.
 Function Add-Extension {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -111,6 +137,7 @@ Function Add-Extension {
   }
 }
 
+# Function to remove PHP extensions.
 Function Remove-Extension() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -134,6 +161,7 @@ Function Remove-Extension() {
   }
 }
 
+# Function to add tools.
 Function Add-Tool() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -147,22 +175,22 @@ Function Add-Tool() {
     [string]
     $tool
   )
-  if (Test-Path $php_dir\$tool) {
-    Remove-Item $php_dir\$tool
+  if (Test-Path $bin_dir\$tool) {
+    Remove-Item $bin_dir\$tool
   }
   if ($tool -eq "symfony") {
-    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool.exe
-    Add-Content -Path $current_profile -Value "New-Alias $tool $php_dir\$tool.exe" >$null 2>&1
+    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\$tool.exe
+    Add-ToProfile $current_profile $tool "New-Alias $tool $bin_dir\$tool.exe" >$null 2>&1
   } else {
     try {
-      Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool
+      Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\$tool
       $bat_content = @()
       $bat_content += "@ECHO off"
       $bat_content += "setlocal DISABLEDELAYEDEXPANSION"
       $bat_content += "SET BIN_TARGET=%~dp0/" + $tool
       $bat_content += "php %BIN_TARGET% %*"
-      Set-Content -Path $php_dir\$tool.bat -Value $bat_content
-      Add-Content -Path $current_profile -Value "New-Alias $tool $php_dir\$tool.bat" >$null 2>&1
+      Set-Content -Path $bin_dir\$tool.bat -Value $bat_content
+      Add-ToProfile $current_profile $tool "New-Alias $tool $bin_dir\$tool.bat" >$null 2>&1
     } catch { }
   }
   if($tool -eq "phan") {
@@ -171,23 +199,28 @@ Function Add-Tool() {
   } elseif($tool -eq "phive") {
     Add-Extension xml >$null 2>&1
   } elseif($tool -eq "cs2pr") {
-    (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr
+    (Get-Content $bin_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $bin_dir/cs2pr
   } elseif($tool -eq "composer") {
     composer -q global config process-timeout 0
     Write-Output "::add-path::$env:APPDATA\Composer\vendor\bin"
     if (Test-Path env:COMPOSER_TOKEN) {
       composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
     }
+    # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
+    if ($version -lt 5.6) {
+      composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
+    }
   } elseif($tool -eq "wp-cli") {
-    Copy-Item $php_dir\wp-cli.bat -Destination $php_dir\wp.bat
+    Copy-Item $bin_dir\wp-cli.bat -Destination $bin_dir\wp.bat
   }
-  if (((Get-ChildItem -Path $php_dir/* | Where-Object Name -Match "^$tool(.exe|.phar)*$").Count -gt 0)) {
+  if (((Get-ChildItem -Path $bin_dir/* | Where-Object Name -Match "^$tool(.exe|.phar)*$").Count -gt 0)) {
     Add-Log $tick $tool "Added"
   } else {
     Add-Log $cross $tool "Could not add $tool"
   }
 }
 
+# Function to setup a tool using composer.
 Function Add-Composertool() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -214,23 +247,25 @@ Function Add-Composertool() {
   }
 }
 
+# Function to handle request to add PECL.
 Function Add-Pecl() {
   Add-Log $tick "PECL" "Use extensions input to setup PECL extensions on windows"
 }
 
+# Function to add blackfire and blackfire-agent.
 Function Add-Blackfire() {
   $agent_data = Invoke-WebRequest https://blackfire.io/docs/up-and-running/update | ForEach-Object { $_.tostring() -split "[`r`n]" | Select-String '<td class="version">' | Select-Object -Index 0 }
   $agent_version = [regex]::Matches($agent_data, '<td.*?>(.+)</td>') | ForEach-Object {$_.Captures[0].Groups[1].value }
   $url = "https://packages.blackfire.io/binaries/blackfire-agent/${agent_version}/blackfire-agent-windows_${arch_name}.zip"
-  Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\blackfire.zip >$null 2>&1
-  Expand-Archive -Path $php_dir\blackfire.zip -DestinationPath $php_dir -Force >$null 2>&1
-  Add-Content -Path $current_profile -Value "New-Alias blackfire $php_dir\blackfire.exe"
-  Add-Content -Path $current_profile -Value "New-Alias blackfire-agent $php_dir\blackfire-agent.exe"
+  Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\blackfire.zip >$null 2>&1
+  Expand-Archive -Path $bin_dir\blackfire.zip -DestinationPath $bin_dir -Force >$null 2>&1
+  Add-ToProfile $current_profile 'blackfire' "New-Alias blackfire $bin_dir\blackfire.exe"
+  Add-ToProfile $current_profile 'blackfire-agent' "New-Alias blackfire-agent $bin_dir\blackfire-agent.exe"
   if ((Test-Path env:BLACKFIRE_SERVER_ID) -and (Test-Path env:BLACKFIRE_SERVER_TOKEN)) {
     blackfire-agent --register --server-id=$env:BLACKFIRE_SERVER_ID --server-token=$env:BLACKFIRE_SERVER_TOKEN >$null 2>&1
   }
   if ((Test-Path env:BLACKFIRE_CLIENT_ID) -and (Test-Path env:BLACKFIRE_CLIENT_TOKEN)) {
-    blackfire --config --client-id=$env:BLACKFIRE_CLIENT_ID --client-token=$env:BLACKFIRE_CLIENT_TOKEN --ca-cert=$php_dir\ssl\cacert.pem >$null 2>&1
+    blackfire config --client-id=$env:BLACKFIRE_CLIENT_ID --client-token=$env:BLACKFIRE_CLIENT_TOKEN --ca-cert=$php_dir\ssl\cacert.pem >$null 2>&1
   }
   Add-Log $tick "blackfire" "Added"
   Add-Log $tick "blackfire-agent" "Added"
@@ -241,9 +276,11 @@ $tick = ([char]8730)
 $cross = ([char]10007)
 $php_dir = 'C:\tools\php'
 $ext_dir = "$php_dir\ext"
+$bin_dir = $php_dir
 $current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $master_version = '8.0'
+$cert_source='CurrentUser'
 
 $arch = 'x64'
 $arch_name ='amd64'
@@ -261,6 +298,7 @@ if($env:RUNNER -eq 'self-hosted') {
   $bin_dir = 'C:\tools\bin'
   $php_dir = "$php_dir$version"
   $ext_dir = "$php_dir\ext"
+  $cert_source='Curl'
   Get-CleanPSProfile >$null 2>&1
   New-Item $bin_dir -Type Directory 2>&1 | Out-Null
   Add-Path -PathItem $bin_dir
@@ -270,13 +308,20 @@ if($env:RUNNER -eq 'self-hosted') {
   }
   if($version -lt 5.6) {
     Add-Log $cross "PHP" "PHP $version is not supported on self-hosted runner"
+    Start-Sleep 1
     exit 1
+  }
+  if ((Get-InstalledModule).Name -notcontains 'VcRedist') {
+    Install-Module -Name VcRedist -Force
   }
   New-Item $php_dir -Type Directory 2>&1 | Out-Null
   Add-Path -PathItem $php_dir
   setx PHPROOT $php_dir >$null 2>&1
 } else {
   $current_profile = "$PSHOME\Profile.ps1"
+  if(-not(Test-Path -LiteralPath $current_profile)) {
+    New-Item -Path $current_profile -ItemType "file" -Force >$null 2>&1
+  }
 }
 Step-Log "Setup PhpManager"
 Install-PhpManager >$null 2>&1
@@ -315,7 +360,7 @@ if($version -lt "5.5") {
 } else {
   Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 }
-Update-PhpCAInfo -Path $php_dir -Source CurrentUser
+Update-PhpCAInfo -Path $php_dir -Source $cert_source
 if ($version -eq 'master') {
   Copy-Item $dir"\..\src\bin\php_$env:PHPTS`_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
   Set-PhpIniKey -Key 'opcache.jit_buffer_size' -Value '256M' -Path $php_dir

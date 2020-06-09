@@ -2,13 +2,18 @@
 name: Bug report
 about: Nice, you found a bug!
 title: ''
-labels: t:bug
+labels: 'bug'
 assignees: 'shivammathur'
 
 ---
 
 **Describe the bug**
 <!-- Please describe the bug concisely. -->
+
+**Version**
+- [ ] I have checked releases and the bug exists in the latest patch version of `v1` or `v2`.
+- [ ] `v2`
+- [ ] `v1`
 
 **Runners**
 <!-- Please mark the GitHub Action runner your workflow uses. -->

@@ -19,9 +19,11 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 - [PHP Support](#tada-php-support)
 - [OS/Platform Support](#cloud-osplatform-support)
+  - [GitHub-Hosted Runners](#github-hosted-runners)
+  - [Self-Hosted Runners](#self-hosted-runners)
 - [PHP Extension Support](#heavy_plus_sign-php-extension-support)
 - [Tools Support](#wrench-tools-support)
-- [Coverage support](#signal_strength-coverage-support)
+- [Coverage Support](#signal_strength-coverage-support)
   - [Xdebug](#xdebug)
   - [PCOV](#pcov)
   - [Disable Coverage](#disable-coverage)
@@ -29,7 +31,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Inputs](#inputs)
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
-  - [Experimental Setup](#experimental-setup)
+  - [Nightly Build Setup](#nightly-build-setup)
   - [Self Hosted Setup](#self-hosted-setup)
   - [Local Testing Setup](#local-testing-setup)
   - [Thread Safe Setup](#thread-safe-setup)
@@ -51,30 +53,45 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 |PHP Version|Stability|Release Support|Runner Support|
 |--- |--- |--- |--- |
-|`5.3`|`Stable`|`End of life`|`GitHub`|
-|`5.4`|`Stable`|`End of life`|`GitHub`|
-|`5.5`|`Stable`|`End of life`|`GitHub`|
-|`5.6`|`Stable`|`End of life`|`GitHub`, `self-hosted`|
-|`7.0`|`Stable`|`End of life`|`GitHub`, `self-hosted`|
-|`7.1`|`Stable`|`End of life`|`GitHub`, `self-hosted`|
-|`7.2`|`Stable`|`Security fixes only`|`GitHub`, `self-hosted`|
-|`7.3`|`Stable`|`Active`|`GitHub`, `self-hosted`|
-|`7.4`|`Stable`|`Active`|`GitHub`, `self-hosted`|
-|`8.0`|`Experimental`|`In development`|`GitHub`, `self-hosted`|
+|`5.3`|`Stable`|`End of life`|`GitHub-hosted`|
+|`5.4`|`Stable`|`End of life`|`GitHub-hosted`|
+|`5.5`|`Stable`|`End of life`|`GitHub-hosted`|
+|`5.6`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
+|`7.0`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
+|`7.1`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
+|`7.2`|`Stable`|`Security fixes only`|`GitHub-hosted`, `self-hosted`|
+|`7.3`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
+|`7.4`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
+|`8.0`|`Nightly`|`In development`|`GitHub-hosted`, `self-hosted`|
 
-**Note:** Specifying `8.0` in `php-version` input installs a nightly build of `PHP 8.0.0-dev` with `PHP JIT`, `Union Types v2` and other [new features](https://wiki.php.net/rfc#php_80 "New features implemented in PHP 8"). See [experimental setup](#experimental-setup) for more information.
+**Note:** Specifying `8.0` in `php-version` input installs a nightly build of `PHP 8.0.0-dev` with `PHP JIT`, `Union Types v2` and other [new features](https://wiki.php.net/rfc#php_80 "New features implemented in PHP 8"). See [nightly build setup](#nightly-build-setup) for more information.
 
 ## :cloud: OS/Platform Support
 
-|Virtual environment|matrix.operating-system|
-|--- |--- |
-|Windows Server 2019|`windows-latest` or `windows-2019`|
-|Ubuntu 18.04|`ubuntu-latest` or `ubuntu-18.04`|
-|Ubuntu 16.04|`ubuntu-16.04`|
-|MacOS X Catalina 10.15|`macos-latest` or `macos-10.15`|
-|Self Hosted|`self-hosted`|
+Both `GitHub-hosted` runners and `self-hosted` runners are supported on the following operating systems.
 
-**Note:** Refer to the [self-hosted setup](#self-hosted-setup) to use the action on self-hosted runners.
+### GitHub-Hosted Runners
+
+|Virtual environment|YAML workflow label|Pre-installed PHP|
+|--- |--- |--- |
+|Ubuntu 16.04|`ubuntu-16.04`|`PHP 5.6` to `PHP 7.4`|
+|Ubuntu 18.04|`ubuntu-latest` or `ubuntu-18.04`|`PHP 7.1` to `PHP 7.4`|
+|Ubuntu 20.04|`ubuntu-20.04`|`PHP 7.4`|
+|Windows Server 2019|`windows-latest` or `windows-2019`|`PHP 7.4`|
+|macOS Catalina 10.15|`macos-latest` or `macos-10.15`|`PHP 7.4`|
+
+### Self-Hosted Runners
+
+|Host OS/Virtual environment|YAML workflow label|
+|--- |--- |
+|Ubuntu 16.04|`self-hosted` or `Ubuntu`|
+|Ubuntu 18.04|`self-hosted` or `Ubuntu`|
+|Ubuntu 20.04|`self-hosted` or `Ubuntu`|
+|Windows 7 and newer|`self-hosted` or `Windows`|
+|Windows Server 2012 R2 and newer|`self-hosted` or `Windows`|
+|macOS Catalina 10.15|`self-hosted` or `macOS`|
+
+- Refer to the [self-hosted setup](#self-hosted-setup) to use the action on self-hosted runners.
 
 ## :heavy_plus_sign: PHP Extension Support
 
@@ -140,24 +157,30 @@ with:
   tools: php-cs-fixer, phpunit
 ```
 
-To setup a particular version of a tool, specify it in this form `tool:version`.  
-Version should be in semver format and a valid release of the tool.
+To setup a particular version of a tool, specify it in the form `tool:version`.  
+Latest stable version of `composer` is setup by default. You can setup the required version by specifying `v1`, `v2`, `snapshot` or `preview` as version.
 
 ```yaml
-uses: shivammathur/setup-php@v2
+uses: shivammathur/setup-php@v1
 with:
   php-version: '7.4'
-  tools: php-cs-fixer:2.15.5, phpunit:8.5.1
-``` 
+  tools: composer:v2
+```
+
+Version for other tools should be in `semver` format and a valid release of the tool.
+
+```yaml
+uses: shivammathur/setup-php@v1
+with:
+  php-version: '7.4'
+  tools: php-cs-fixer:2.16.2, phpunit:8.5.1
+```
 
 **Notes**
-- `composer` is setup by default.
-- Specifying version for `composer` and `pecl` has no effect, latest versions of both tools which are compatible with the PHP version will be setup.
-- Both agent and client will be setup when `blackfire` is specified.
-- If the version specified for the tool is not in semver format, latest version of the tool will be setup.
+- Both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified.
 - Tools which cannot be setup gracefully leave an error message in the logs, the action is not interrupted.
 
-## :signal_strength: Coverage support
+## :signal_strength: Coverage Support
 
 ### Xdebug
 
@@ -174,8 +197,8 @@ with:
 ### PCOV
 
 Specify `coverage: pcov` to use `PCOV` and disable `Xdebug`.  
-It is much faster than `Xdebug`.  
-`PCOV` needs `PHP >= 7.1`.  
+`PCOV` supports `PHP 7.1` and newer PHP versions.  
+Tests with `PCOV` run much faster than with `Xdebug`.  
 If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.  
 
 ```yaml
@@ -285,12 +308,12 @@ jobs:
         tools: php-cs-fixer, phpunit
 ```
 
-### Experimental Setup
+### Nightly Build Setup
 
 > Setup a nightly build of `PHP 8.0.0-dev` from the [master branch](https://github.com/php/php-src/tree/master "Master branch on PHP source repository") of PHP.
 
-- This version is currently in development and is an experimental feature on this action.
-- `PECL` is installed by default with this version on `ubuntu`.
+- This version is currently in development.
+- `PECL` is installed by default with this version on `ubuntu` and `macOS`.
 - Some extensions might not support this version currently.
 - Refer to this [RFC](https://wiki.php.net/rfc/jit "PHP JIT RFC configuration") for configuring `PHP JIT` on this version.
 - Refer to this [list of RFCs](https://wiki.php.net/rfc#php_80 "List of RFCs implemented in PHP8") implemented in this version.
@@ -314,8 +337,6 @@ steps:
 
 > Setup PHP on a self-hosted runner.
 
-- `PHP 5.6` and newer versions are supported on self-hosted runners.
-- `Windows 7` and newer, `Windows Server 2012 R2` and newer, `Ubuntu 18.04`, `Ubuntu 16.04` and `MacOS X Catalina 10.15` are supported.
 - To setup a dockerized self-hosted runner, refer to this [guide](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Ubuntu) to setup in an `Ubuntu` container and refer to this [guide](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Windows) to setup in a `Windows` container.
 - To setup the runner directly on the host OS or in a VM, follow this [requirements guide](https://github.com/shivammathur/setup-php/wiki/Requirements-for-self-hosted-runners "Requirements guide for self-hosted runner to run setup-php") before setting up the self-hosted runner.
 
@@ -365,6 +386,9 @@ Run the workflow locally with `act` using [`shivammathur/node`](https://github.c
 ```bash
 # For runs-on: ubuntu-latest
 act -P ubuntu-latest=shivammathur/node:latest
+
+# For runs-on: ubuntu-20.04
+act -P ubuntu-20.04=shivammathur/node:focal
 
 # For runs-on: ubuntu-18.04
 act -P ubuntu-18.04=shivammathur/node:bionic
@@ -609,7 +633,7 @@ Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "sh
 
 If this action helped you.
 
-- To support this project subscribe on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") or sponsor using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal").
+- Sponsor the project by subscribing on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") or by contributing using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal").
 - Please star the project and share it with the community.
 - If you blog, write about your experience of using this action.
 - If you need any help using this, please contact me using [Codementor](https://www.codementor.io/shivammathur "Shivam Mathur Codementor")

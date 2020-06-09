@@ -2,13 +2,16 @@
 name: Feature request
 about: Suggest a new feature
 title: ''
-labels: t:enhancement
+labels: 'enhancement'
 assignees: 'shivammathur'
 
 ---
 
 **Describe the feature**
 <!-- Please describe concisely the feature you want to add. -->
+
+**Version**
+- [ ] I have checked releases and the feature is missing in the latest patch version of `v2`.
 
 **Underlying issue**
 <!-- Please describe the issue this would solve. -->

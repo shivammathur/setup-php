@@ -6,8 +6,8 @@ The following versions of this project are supported for security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.8.x   | :white_check_mark: |
-| 2.2.x   | :white_check_mark: |
+| 1.9.x   | :white_check_mark: |
+| 2.3.x   | :white_check_mark: |
 
 ## Supported PHP Versions
 
@@ -22,7 +22,7 @@ This security policy only applies to the latest patches of the following PHP ver
 
 ## Reporting a Vulnerability
 
-If you have found any issues that might have security implications in the versions supported, please send a report privately to [contact@shivammathur.com](mailto:contact@shivammathur.com)
+If you have found any issues that might have security implications in the versions supported, please send a report privately to [contact@shivammathur.com](mailto:contact@shivammathur.com).
 Do not report security reports publicly.
 
 ## Tidelift

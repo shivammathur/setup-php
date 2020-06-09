@@ -1,7 +1,7 @@
 {
   "env": { "node": true, "jest": true },
   "parser": "@typescript-eslint/parser",
-  "parserOptions": { "ecmaVersion": 2020, "sourceType": "module" },
+  "parserOptions": { "ecmaVersion": 2019, "sourceType": "module" },
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
@@ -12,11 +12,5 @@
     "plugin:prettier/recommended",
     "prettier/@typescript-eslint"
   ],
-  "plugins": ["@typescript-eslint", "jest"],
-  "rules": {
-    "camelcase": "off",
-    "require-atomic-updates": "off",
-    "@typescript-eslint/ban-ts-ignore": "off",
-    "@typescript-eslint/camelcase": "off"
-  }
+  "plugins": ["@typescript-eslint", "jest"]
 }

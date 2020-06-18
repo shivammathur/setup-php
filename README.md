@@ -470,7 +470,7 @@ steps:
   uses: actions/checkout@v2
 
 - name: Setup cache environment
-  id: cache-env
+  id: extcache
   uses: shivammathur/cache-extensions@v1
   with:
     php-version: ${{ matrix.php-versions }}
@@ -480,9 +480,9 @@ steps:
 - name: Cache extensions
   uses: actions/cache@v2
   with:
-    path: ${{ steps.cache-env.outputs.dir }}
-    key: ${{ steps.cache-env.outputs.key }}
-    restore-keys: ${{ steps.cache-env.outputs.key }}
+    path: ${{ steps.extcache.outputs.dir }}
+    key: ${{ steps.extcache.outputs.key }}
+    restore-keys: ${{ steps.extcache.outputs.key }}
 
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
@@ -499,13 +499,13 @@ If your project uses composer, you can persist composer's internal cache directo
 
 ```yaml
 - name: Get composer cache directory
-  id: composer-cache
+  id: composercache
   run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
 - name: Cache dependencies
   uses: actions/cache@v2
   with:
-    path: ${{ steps.composer-cache.outputs.dir }}
+    path: ${{ steps.composercache.outputs.dir }}
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
     restore-keys: ${{ runner.os }}-composer-
 
@@ -527,13 +527,13 @@ If your project has node.js dependencies, you can persist npm's or yarn's cache 
 
 ```yaml
 - name: Get node.js cache directory
-  id: node-cache-dir
+  id: nodecache
   run: echo "::set-output name=dir::$(npm config get cache)" # Use $(yarn cache dir) for yarn
 
 - name: Cache dependencies
   uses: actions/cache@v2
   with:
-    path: ${{ steps.node-cache-dir.outputs.dir }}
+    path: ${{ steps.nodecache.outputs.dir }}
     key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # Use '**/yarn.lock' for yarn
     restore-keys: ${{ runner.os }}-node-
 ```

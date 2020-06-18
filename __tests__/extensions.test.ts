@@ -1,6 +1,12 @@
 import * as extensions from '../src/extensions';
 
 describe('Extension tests', () => {
+  it('checking getXdebugVersion', async () => {
+    expect(await extensions.getXdebugVersion('5.3')).toContain('2.2.7');
+    expect(await extensions.getXdebugVersion('5.4')).toContain('2.4.1');
+    expect(await extensions.getXdebugVersion('5.5')).toContain('2.5.5');
+    expect(await extensions.getXdebugVersion('5.6')).toContain('2.9.6');
+  });
   it('checking addExtensionOnWindows', async () => {
     let win32: string = await extensions.addExtension(
       'Xdebug, pcov, sqlite, phalcon4, ast-beta',
@@ -83,8 +89,8 @@ describe('Extension tests', () => {
       '7.2',
       'darwin'
     );
-    expect(darwin).toContain('sudo pecl install -f xdebug');
-    expect(darwin).toContain('sudo pecl install -f pcov');
+    expect(darwin).toContain('add_brew_extension xdebug');
+    expect(darwin).toContain('add_brew_extension pcov');
     expect(darwin).toContain('sudo pecl install -f sqlite3');
     expect(darwin).toContain('add_unstable_extension ast beta extension');
 
@@ -98,16 +104,16 @@ describe('Extension tests', () => {
     expect(darwin).toContain('sudo pecl install -f pcov');
 
     darwin = await extensions.addExtension('pcov', '7.2', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f pcov');
+    expect(darwin).toContain('add_brew_extension pcov');
 
     darwin = await extensions.addExtension('xdebug', '5.6', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f xdebug-2.5.5');
+    expect(darwin).toContain('add_brew_extension xdebug');
 
     darwin = await extensions.addExtension('xdebug', '7.0', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f xdebug-2.9.0');
+    expect(darwin).toContain('add_brew_extension xdebug');
 
     darwin = await extensions.addExtension('xdebug', '7.2', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f xdebug');
+    expect(darwin).toContain('add_brew_extension xdebug');
 
     darwin = await extensions.addExtension('redis', '5.6', 'darwin');
     expect(darwin).toContain('sudo pecl install -f redis-2.2.8');

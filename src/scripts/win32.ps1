@@ -239,7 +239,8 @@ Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
 Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
 if ($version -eq 'master') {
-  Copy-Item $dir"\..\src\bin\php_$env:PHPTS`_pcov.dll" -Destination $ext_dir"\php_pcov.dll"
+  Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/php-extensions-windows/releases/latest/download/php_$env:phpts`_$arch`_pcov.dll" -OutFile $ext_dir"\php_pcov.dll" >$null 2>&1
+  Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/php-extensions-windows/releases/latest/download/php_$env:phpts`_$arch`_xdebug.dll" -OutFile $ext_dir"\php_xdebug.dll" >$null 2>&1
   Set-PhpIniKey -Key 'opcache.jit_buffer_size' -Value '256M' -Path $php_dir
   Set-PhpIniKey -Key 'opcache.jit' -Value '1235' -Path $php_dir
 }

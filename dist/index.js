@@ -2648,9 +2648,27 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addExtension = exports.addExtensionLinux = exports.addExtensionWindows = exports.addExtensionDarwin = void 0;
+exports.addExtension = exports.addExtensionLinux = exports.addExtensionWindows = exports.addExtensionDarwin = exports.getXdebugVersion = void 0;
 const path = __importStar(__webpack_require__(622));
 const utils = __importStar(__webpack_require__(163));
+/**
+ * Function to get Xdebug version compatible with php versions
+ *
+ * @param version
+ */
+async function getXdebugVersion(version) {
+    switch (version) {
+        case '5.3':
+            return '2.2.7';
+        case '5.4':
+            return '2.4.1';
+        case '5.5':
+            return '2.5.5';
+        default:
+            return '2.9.6';
+    }
+}
+exports.getXdebugVersion = getXdebugVersion;
 /**
  * Install and enable extensions for darwin
  *
@@ -2678,17 +2696,17 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                         ' ' +
                         ext_prefix;
                 return;
-            // match 5.6xdebug
-            case /5\.6xdebug/.test(version_extension):
-                command = command_prefix + 'xdebug-2.5.5' + pipe;
+            // match 5.6xdebug, 7.0xdebug...7.4xdebug, 8.0xdebug
+            case /(5\.6|7\.[0-4]|8\.[0-9])xdebug/.test(version_extension):
+                command = 'add_brew_extension xdebug';
                 break;
-            // match 7.0xdebug
-            case /7\.0xdebug/.test(version_extension):
-                command = command_prefix + 'xdebug-2.9.0' + pipe;
+            // match 7.1pcov...7.4pcov, 8.0pcov
+            case /(7\.[1-4]|8\.[0-9])pcov/.test(version_extension):
+                command = 'add_brew_extension pcov';
                 break;
             // match 5.6redis
             case /5\.6redis/.test(version_extension):
-                command = command_prefix + 'redis-2.2.8' + pipe;
+                command = command_prefix + 'redis-2.2.8';
                 break;
             // match imagick
             case /^imagick$/.test(extension):
@@ -2703,7 +2721,7 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
             // match sqlite
             case /^sqlite$/.test(extension):
                 extension = 'sqlite3';
-                command = command_prefix + extension + pipe;
+                command = command_prefix + extension;
                 break;
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
@@ -2716,7 +2734,7 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                         version;
                 return;
             default:
-                command = command_prefix + extension + pipe;
+                command = command_prefix + extension;
                 break;
         }
         script +=

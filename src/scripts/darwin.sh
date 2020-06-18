@@ -68,6 +68,16 @@ add_pecl_extension() {
   fi
 }
 
+# Function to install a php extension from shivammathur/extensions tap.
+add_brew_extension() {
+  extension=$1
+  if ! brew tap | grep shivammathur/extensions; then
+    brew tap --shallow shivammathur/extensions
+  fi
+  brew install "$extension@$version"
+  sudo cp "$(brew --prefix)/opt/$extension@$version/$extension.so" "$ext_dir"
+}
+
 # Function to setup extensions
 add_extension() {
   extension=$1
@@ -169,7 +179,7 @@ setup_php() {
     update_formulae
   fi
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
-  brew tap shivammathur/homebrew-php
+  brew tap --shallow shivammathur/homebrew-php
   brew install shivammathur/php/php@"$version"
   brew link --force --overwrite php@"$version"
 }

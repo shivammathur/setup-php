@@ -91,6 +91,16 @@ add_pecl_extension() {
   fi
 }
 
+# Function to install a php extension from shivammathur/extensions tap.
+add_brew_extension() {
+  extension=$1
+  if ! brew tap | grep shivammathur/extensions; then
+    brew tap --shallow shivammathur/extensions
+  fi
+  brew install "$extension@$version"
+  sudo cp "$(brew --prefix)/opt/$extension@$version/$extension.so" "$ext_dir"
+}
+
 # Function to setup extensions
 add_extension() {
   extension=$1
@@ -172,7 +182,7 @@ add_composertool() {
 
 add_blackfire() {
   sudo mkdir -p usr/local/var/run
-  brew tap blackfireio/homebrew-blackfire >/dev/null 2>&1
+  brew tap --shallow blackfireio/homebrew-blackfire >/dev/null 2>&1
   brew install blackfire-agent >/dev/null 2>&1
   if [[ -n $BLACKFIRE_SERVER_ID ]] && [[ -n $BLACKFIRE_SERVER_TOKEN ]]; then
     sudo blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
@@ -212,7 +222,7 @@ update_formulae() {
 setup_php() {
   action=$1
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
-  brew tap shivammathur/homebrew-php
+  brew tap --shallow shivammathur/homebrew-php
   if brew list php@"$version" 2>/dev/null | grep -q "Error" && [ "$action" != "upgrade" ]; then
     brew unlink php@"$version"
   else

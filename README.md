@@ -185,7 +185,7 @@ with:
 ### Xdebug
 
 Specify `coverage: xdebug` to use `Xdebug`.  
-Runs on all [PHP versions supported](#tada-php-support "List of PHP versions supported on this GitHub Action") except `8.0`.
+Runs on all [PHP versions supported](#tada-php-support "List of PHP versions supported on this GitHub Action").
 
 ```yaml
 uses: shivammathur/setup-php@v2

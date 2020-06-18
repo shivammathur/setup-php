@@ -36,19 +36,9 @@ describe('Config tests', () => {
     expect(win32).toContain('add_extension xdebug');
   });
 
-  it('checking addCoverage with Xdebug on windows', async () => {
-    const win32: string = await coverage.addCoverage('xdebug', '8.0', 'win32');
-    expect(win32).toContain('Xdebug currently only supports PHP 7.4 or lower');
-  });
-
   it('checking addCoverage with Xdebug on linux', async () => {
     const linux: string = await coverage.addCoverage('xdebug', '7.4', 'linux');
     expect(linux).toContain('add_extension xdebug');
-  });
-
-  it('checking addCoverage with Xdebug on linux', async () => {
-    const linux: string = await coverage.addCoverage('xdebug', '8.0', 'linux');
-    expect(linux).toContain('Xdebug currently only supports PHP 7.4 or lower');
   });
 
   it('checking addCoverage with Xdebug on darwin', async () => {
@@ -58,15 +48,6 @@ describe('Config tests', () => {
       'darwin'
     );
     expect(darwin).toContain('add_extension xdebug');
-  });
-
-  it('checking addCoverage with Xdebug on darwin', async () => {
-    const darwin: string = await coverage.addCoverage(
-      'xdebug',
-      '8.0',
-      'darwin'
-    );
-    expect(darwin).toContain('Xdebug currently only supports PHP 7.4 or lower');
   });
 
   it('checking disableCoverage windows', async () => {

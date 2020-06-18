@@ -264,14 +264,14 @@ You can persist composer's internal cache directory using the [`action/cache`](h
 **Note:** Please do not cache `vendor` directory using `action/cache` as that will have side-effects.
 
 ```yaml
-- name: Get Composer Cache Directory
-  id: composer-cache
+- name: Get composer cache directory
+  id: composercache
   run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
 - name: Cache dependencies
   uses: actions/cache@v2
   with:
-    path: ${{ steps.composer-cache.outputs.dir }}
+    path: ${{ steps.composercache.outputs.dir }}
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
     restore-keys: ${{ runner.os }}-composer-
 
@@ -357,7 +357,7 @@ Examples for setting up this GitHub Action with different PHP Frameworks/Package
 
 ## :scroll: License
 
-The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). This project has multiple [dependencies](https://github.com/shivammathur/setup-php/network/dependencies "Dependencies for this PHP Action") and uses [various works](#bookmark-this-action-uses-the-following-works "Tools used by this action"). Their licenses can be found in their respective repositories.
+The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). This project has multiple [dependencies](https://github.com/shivammathur/setup-php/network/dependencies "Dependencies for this PHP Action") and uses [various works](#bookmark-dependencies "Tools used by this action"). Their licenses can be found in their respective repositories.
 
 ## :+1: Contributions
 

@@ -15,16 +15,6 @@ export async function addCoverageXdebug(
   pipe: string
 ): Promise<string> {
   switch (version) {
-    case '8.0':
-      return (
-        '\n' +
-        (await utils.addLog(
-          '$cross',
-          'xdebug',
-          'Xdebug currently only supports PHP 7.4 or lower',
-          os_version
-        ))
-      );
     case '7.4':
     default:
       return (

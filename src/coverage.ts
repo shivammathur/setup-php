@@ -5,39 +5,36 @@ import * as config from './config';
 /**
  * Function to setup Xdebug
  *
+ * @param extension
  * @param version
  * @param os_version
  * @param pipe
  */
 export async function addCoverageXdebug(
+  extension: string,
   version: string,
   os_version: string,
   pipe: string
 ): Promise<string> {
-  switch (version) {
-    case '8.0':
-      return (
-        '\n' +
-        (await utils.addLog(
-          '$cross',
-          'xdebug',
-          'Xdebug currently only supports PHP 7.4 or lower',
-          os_version
-        ))
-      );
-    case '7.4':
+  const xdebug =
+    (await extensions.addExtension(extension, version, os_version, true)) +
+    pipe;
+  const ini =
+    (await config.addINIValues('xdebug.mode=coverage', os_version, true)) +
+    pipe;
+  const log = await utils.addLog(
+    '$tick',
+    extension,
+    'Xdebug enabled as coverage driver',
+    os_version
+  );
+  switch (true) {
+    case /^xdebug3$/.test(extension):
+    case /^8\.0$/.test(version):
+      return '\n' + xdebug + '\n' + ini + '\n' + log;
+    case /^xdebug$/.test(extension):
     default:
-      return (
-        (await extensions.addExtension('xdebug', version, os_version, true)) +
-        pipe +
-        '\n' +
-        (await utils.addLog(
-          '$tick',
-          'xdebug',
-          'Xdebug enabled as coverage driver',
-          os_version
-        ))
-      );
+      return xdebug + '\n' + log;
   }
 }
 
@@ -151,7 +148,11 @@ export async function addCoverage(
     case 'pcov':
       return script + (await addCoveragePCOV(version, os_version, pipe));
     case 'xdebug':
-      return script + (await addCoverageXdebug(version, os_version, pipe));
+    case 'xdebug3':
+      return (
+        script +
+        (await addCoverageXdebug(coverage_driver, version, os_version, pipe))
+      );
     case 'none':
       return script + (await disableCoverage(version, os_version, pipe));
     default:

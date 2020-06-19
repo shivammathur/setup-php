@@ -1,6 +1,12 @@
 import * as extensions from '../src/extensions';
 
 describe('Extension tests', () => {
+  it('checking getXdebugVersion', async () => {
+    expect(await extensions.getXdebugVersion('5.3')).toContain('2.2.7');
+    expect(await extensions.getXdebugVersion('5.4')).toContain('2.4.1');
+    expect(await extensions.getXdebugVersion('5.5')).toContain('2.5.5');
+    expect(await extensions.getXdebugVersion('5.6')).toContain('2.9.6');
+  });
   it('checking addExtensionOnWindows', async () => {
     let win32: string = await extensions.addExtension(
       'Xdebug, pcov, sqlite, :intl, phalcon4, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2',
@@ -50,11 +56,14 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnLinux', async () => {
     let linux: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, :intl, ast, uopz, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
+      'Xdebug, xdebug3, pcov, sqlite, :intl, ast, uopz, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
       '7.4',
       'linux'
     );
-    expect(linux).toContain('update_extension xdebug 2.9.3');
+    expect(linux).toContain('update_extension xdebug 2.9.6');
+    expect(linux).toContain(
+      'add_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension'
+    );
     expect(linux).toContain('sudo $debconf_fix apt-get install -y php7.4-pcov');
     expect(linux).toContain(
       'sudo $debconf_fix apt-get install -y php7.4-sqlite3'
@@ -68,6 +77,11 @@ describe('Extension tests', () => {
     expect(linux).toContain('add_pecl_extension grpc 1.2.3 extension');
     expect(linux).toContain(
       'add_unstable_extension xdebug alpha zend_extension'
+    );
+
+    linux = await extensions.addExtension('xdebug3', '8.0', 'linux');
+    expect(linux).toContain(
+      'sudo $debconf_fix apt-get install -y php8.0-xdebug'
     );
 
     linux = await extensions.addExtension('gearman', '7.0', 'linux');
@@ -104,8 +118,8 @@ describe('Extension tests', () => {
       '7.2',
       'darwin'
     );
-    expect(darwin).toContain('sudo pecl install -f xdebug');
-    expect(darwin).toContain('sudo pecl install -f pcov');
+    expect(darwin).toContain('add_brew_extension xdebug');
+    expect(darwin).toContain('add_brew_extension pcov');
     expect(darwin).toContain('sudo pecl install -f sqlite3');
     expect(darwin).toContain('remove_extension intl');
     expect(darwin).toContain('add_unstable_extension ast beta extension');
@@ -121,7 +135,7 @@ describe('Extension tests', () => {
     expect(darwin).toContain('sudo pecl install -f pcov');
 
     darwin = await extensions.addExtension('pcov', '7.2', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f pcov');
+    expect(darwin).toContain('add_brew_extension pcov');
 
     darwin = await extensions.addExtension('xdebug', '5.3', 'darwin');
     expect(darwin).toContain('sudo pecl install -f xdebug-2.2.7');
@@ -133,13 +147,13 @@ describe('Extension tests', () => {
     expect(darwin).toContain('sudo pecl install -f xdebug-2.5.5');
 
     darwin = await extensions.addExtension('xdebug', '5.6', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f xdebug-2.5.5');
+    expect(darwin).toContain('add_brew_extension xdebug');
 
     darwin = await extensions.addExtension('xdebug', '7.0', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f xdebug-2.9.0');
+    expect(darwin).toContain('add_brew_extension xdebug');
 
     darwin = await extensions.addExtension('xdebug', '7.2', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f xdebug');
+    expect(darwin).toContain('add_brew_extension xdebug');
 
     darwin = await extensions.addExtension('redis', '5.6', 'darwin');
     expect(darwin).toContain('sudo pecl install -f redis-2.2.8');

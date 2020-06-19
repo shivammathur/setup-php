@@ -19,19 +19,19 @@ jobs:
           extensions: mbstring, intl, pdo_sqlite, pdo_mysql
           coverage: pcov #optional
       - name: Get composer cache directory
-        id: composer-cache
+        id: composercache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
       - name: Cache composer dependencies
         uses: actions/cache@v2
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
+          path: ${{ steps.composercache.outputs.dir }}
           # Use composer.json for key, if composer.lock is not committed.
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
       - name: Install dependencies
         run: |
-          composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+          composer install --no-progress --prefer-dist --optimize-autoloader
           composer run-script post-install-cmd --no-interaction
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text
@@ -48,18 +48,18 @@ jobs:
           php-version: '7.3'
           extensions: mbstring, intl
       - name: Get composer cache directory
-        id: composer-cache
+        id: composercache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
       - name: Cache composer dependencies
         uses: actions/cache@v2
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
+          path: ${{ steps.composercache.outputs.dir }}
           # Use composer.json for key, if composer.lock is not committed.
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
       - name: Install dependencies
-        run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
       - name: PHP CodeSniffer
         run: composer cs-check
 
@@ -76,17 +76,17 @@ jobs:
           extensions: mbstring, intl
           tools: phpstan
       - name: Get composer cache directory
-        id: composer-cache
+        id: composercache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
       - name: Cache composer dependencies
         uses: actions/cache@v2
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
+          path: ${{ steps.composercache.outputs.dir }}
           # Use composer.json for key, if composer.lock is not committed.
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
       - name: Install dependencies
-        run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
       - name: Static Analysis using PHPStan
         run: phpstan analyse --no-progress src/

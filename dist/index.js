@@ -1218,13 +1218,17 @@ exports.CSVArray = CSVArray;
  * @param extension
  */
 async function getExtensionPrefix(extension) {
-    const zend = ['xdebug', 'opcache', 'ioncube', 'eaccelerator'];
+    const zend = [
+        'xdebug',
+        'xdebug3',
+        'opcache',
+        'ioncube',
+        'eaccelerator'
+    ];
     switch (zend.indexOf(extension)) {
-        case 0:
-        case 1:
+        default:
             return 'zend_extension';
         case -1:
-        default:
             return 'extension';
     }
 }
@@ -2142,21 +2146,24 @@ const config = __importStar(__webpack_require__(641));
 /**
  * Function to setup Xdebug
  *
+ * @param extension
  * @param version
  * @param os_version
  * @param pipe
  */
-async function addCoverageXdebug(version, os_version, pipe) {
-    switch (version) {
-        case '8.0':
-            return ('\n' +
-                (await utils.addLog('$cross', 'xdebug', 'Xdebug currently only supports PHP 7.4 or lower', os_version)));
-        case '7.4':
+async function addCoverageXdebug(extension, version, os_version, pipe) {
+    const xdebug = (await extensions.addExtension(extension, version, os_version, true)) +
+        pipe;
+    const ini = (await config.addINIValues('xdebug.mode=coverage', os_version, true)) +
+        pipe;
+    const log = await utils.addLog('$tick', extension, 'Xdebug enabled as coverage driver', os_version);
+    switch (true) {
+        case /^xdebug3$/.test(extension):
+        case /^8\.0$/.test(version):
+            return '\n' + xdebug + '\n' + ini + '\n' + log;
+        case /^xdebug$/.test(extension):
         default:
-            return ((await extensions.addExtension('xdebug', version, os_version, true)) +
-                pipe +
-                '\n' +
-                (await utils.addLog('$tick', 'xdebug', 'Xdebug enabled as coverage driver', os_version)));
+            return xdebug + '\n' + log;
     }
 }
 exports.addCoverageXdebug = addCoverageXdebug;
@@ -2237,7 +2244,9 @@ async function addCoverage(coverage_driver, version, os_version) {
         case 'pcov':
             return script + (await addCoveragePCOV(version, os_version, pipe));
         case 'xdebug':
-            return script + (await addCoverageXdebug(version, os_version, pipe));
+        case 'xdebug3':
+            return (script +
+                (await addCoverageXdebug(coverage_driver, version, os_version, pipe)));
         case 'none':
             return script + (await disableCoverage(version, os_version, pipe));
         default:
@@ -2283,10 +2292,10 @@ const utils = __importStar(__webpack_require__(163));
  */
 async function addINIValuesUnix(ini_values_csv) {
     const ini_values = await utils.CSVArray(ini_values_csv);
-    let script = '\n';
+    let script = '';
     await utils.asyncForEach(ini_values, async function (line) {
         script +=
-            (await utils.addLog('$tick', line, 'Added to php.ini', 'linux')) + '\n';
+            '\n' + (await utils.addLog('$tick', line, 'Added to php.ini', 'linux'));
     });
     return 'echo "' + ini_values.join('\n') + '" >> $ini_file' + script;
 }
@@ -2685,9 +2694,27 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addExtension = exports.addExtensionLinux = exports.addExtensionWindows = exports.addExtensionDarwin = void 0;
+exports.addExtension = exports.addExtensionLinux = exports.addExtensionWindows = exports.addExtensionDarwin = exports.getXdebugVersion = void 0;
 const path = __importStar(__webpack_require__(622));
 const utils = __importStar(__webpack_require__(163));
+/**
+ * Function to get Xdebug version compatible with php versions
+ *
+ * @param version
+ */
+async function getXdebugVersion(version) {
+    switch (version) {
+        case '5.3':
+            return '2.2.7';
+        case '5.4':
+            return '2.4.1';
+        case '5.5':
+            return '2.5.5';
+        default:
+            return '2.9.6';
+    }
+}
+exports.getXdebugVersion = getXdebugVersion;
 /**
  * Install and enable extensions for darwin
  *
@@ -2741,25 +2768,22 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                         ' ' +
                         ext_prefix;
                 return;
-            // match 5.3xdebug
-            case /5\.3xdebug/.test(version_extension):
-                command = command_prefix + 'xdebug-2.2.7' + pipe;
+            // match 5.3xdebug...5.5xdebug
+            case /5\.[3-5]xdebug/.test(version_extension):
+                command =
+                    command_prefix + 'xdebug-' + (await getXdebugVersion(version));
                 break;
-            // match 5.4xdebug
-            case /5\.4xdebug/.test(version_extension):
-                command = command_prefix + 'xdebug-2.4.1' + pipe;
+            // match 5.6xdebug, 7.0xdebug...7.4xdebug, 8.0xdebug
+            case /(5\.6|7\.[0-4]|8\.[0-9])xdebug/.test(version_extension):
+                command = 'add_brew_extension xdebug';
                 break;
-            // match 5.5xdebug and 5.6xdebug
-            case /5\.[5-6]xdebug/.test(version_extension):
-                command = command_prefix + 'xdebug-2.5.5' + pipe;
-                break;
-            // match 7.0redis
-            case /7\.0xdebug/.test(version_extension):
-                command = command_prefix + 'xdebug-2.9.0' + pipe;
+            // match 7.1pcov...7.4pcov, 8.0pcov
+            case /(7\.[1-4]|8\.[0-9])pcov/.test(version_extension):
+                command = 'add_brew_extension pcov';
                 break;
             // match 5.6redis
             case /5\.6redis/.test(version_extension):
-                command = command_prefix + 'redis-2.2.8' + pipe;
+                command = command_prefix + 'redis-2.2.8';
                 break;
             // match imagick
             case /^imagick$/.test(extension):
@@ -2774,7 +2798,7 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
             // match sqlite
             case /^sqlite$/.test(extension):
                 extension = 'sqlite3';
-                command = command_prefix + extension + pipe;
+                command = command_prefix + extension;
                 break;
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
@@ -2787,7 +2811,7 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                         version;
                 return;
             default:
-                command = command_prefix + extension + pipe;
+                command = command_prefix + extension;
                 break;
         }
         add_script +=
@@ -2949,10 +2973,20 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                         ' ' +
                         version;
                 return;
+            // match 7.2xdebug3..7.4xdebug3
+            case /^7\.[2-4]xdebug3$/.test(version_extension):
+                add_script +=
+                    '\nadd_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension';
+                return;
+            // match 8.0xdebug3
+            case /^8\.[0-9]xdebug3$/.test(version_extension):
+                extension = 'xdebug';
+                command = command_prefix + version + '-' + extension + pipe;
+                break;
             // match 7.1xdebug..7.4xdebug
             case /^7\.[1-4]xdebug$/.test(version_extension):
                 add_script +=
-                    '\nupdate_extension xdebug 2.9.3' +
+                    '\nupdate_extension xdebug 2.9.6' +
                         pipe +
                         '\n' +
                         (await utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));

@@ -120,7 +120,8 @@ add_pdo_extension() {
     add_log "$tick" "$pdo_ext" "Enabled"
   else
     read -r ext ext_name <<< "$1 $1"
-    sudo rm -rf "$scan_dir"/*pdo.ini >/dev/null 2>&1 && echo "extension=pdo.so" >> "$ini_file"
+    sudo rm -rf "$scan_dir"/*pdo.ini >/dev/null 2>&1
+    if ! check_extension "pdo"; then echo "extension=pdo.so" >> "$ini_file"; fi
     if [ "$ext" = "mysql" ]; then
       enable_extension "mysqlnd" "extension"
       ext_name="mysqli"
@@ -198,6 +199,27 @@ update_extension() {
     fi
     $apt_install php"$version"-"$extension"
   fi
+}
+
+# Function to install extension from source
+add_extension_from_source() {
+  extension=$1
+  repo=$2
+  release=$3
+  args=$4
+  prefix=$5
+  (
+    add_devtools
+    delete_extension "$extension"
+    curl -o /tmp/"$extension".tar.gz -sSL https://github.com/"$repo"/archive/"$release".tar.gz
+    tar xf /tmp/"$extension".tar.gz -C /tmp
+    cd /tmp/"$extension-$release" || exit 1
+    phpize  && ./configure "$args" && make && sudo make install
+    enable_extension "$extension" "$prefix"
+  ) >/dev/null 2>&1
+  (
+    check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled"
+  ) || add_log "$cross" "$extension" "Could not install $extension-$release on PHP $semver"
 }
 
 # Function to setup a remote tool.

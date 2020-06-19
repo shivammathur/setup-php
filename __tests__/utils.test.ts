@@ -155,6 +155,7 @@ describe('Utils tests', () => {
     );
     expect(await utils.getExtensionPrefix('xsl')).toEqual('extension');
     expect(await utils.getExtensionPrefix('xdebug')).toEqual('zend_extension');
+    expect(await utils.getExtensionPrefix('xdebug3')).toEqual('zend_extension');
     expect(await utils.getExtensionPrefix('opcache')).toEqual('zend_extension');
   });
 

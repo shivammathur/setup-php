@@ -48,7 +48,8 @@ describe('Config tests', () => {
 
   it('checking addCoverage with Xdebug on linux', async () => {
     const linux: string = await coverage.addCoverage('xdebug', '8.0', 'linux');
-    expect(linux).toContain('Xdebug currently only supports PHP 7.4 or lower');
+    expect(linux).toContain('add_extension xdebug');
+    expect(linux).toContain('echo "xdebug.mode=coverage"');
   });
 
   it('checking addCoverage with Xdebug on darwin', async () => {

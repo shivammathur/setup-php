@@ -2106,16 +2106,15 @@ const config = __importStar(__webpack_require__(641));
  * @param pipe
  */
 async function addCoverageXdebug(version, os_version, pipe) {
-    switch (version) {
-        case '8.0':
-            return ('\n' +
-                (await utils.addLog('$cross', 'xdebug', 'Xdebug currently only supports PHP 7.4 or lower', os_version)));
-        case '7.4':
+    const xdebug = (await extensions.addExtension('xdebug', version, os_version, true)) + pipe;
+    const ini = await config.addINIValues('xdebug.mode=coverage', os_version, true);
+    const log = await utils.addLog('$tick', 'xdebug', 'Xdebug enabled as coverage driver', os_version);
+    switch (true) {
+        case /8.[0-9]/.test(version):
+            return xdebug + '\n' + ini + '\n' + log;
+        case /5\.[3-6]|7.[0-4]/.test(version):
         default:
-            return ((await extensions.addExtension('xdebug', version, os_version, true)) +
-                pipe +
-                '\n' +
-                (await utils.addLog('$tick', 'xdebug', 'Xdebug enabled as coverage driver', os_version)));
+            return xdebug + '\n' + log;
     }
 }
 exports.addCoverageXdebug = addCoverageXdebug;

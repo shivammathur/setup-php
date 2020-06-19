@@ -34,7 +34,7 @@ export async function addCoverageXdebug(
       return '\n' + xdebug + '\n' + ini + '\n' + log;
     case /^xdebug$/.test(extension):
     default:
-      return '\n' + xdebug + '\n' + log;
+      return xdebug + '\n' + log;
   }
 }
 

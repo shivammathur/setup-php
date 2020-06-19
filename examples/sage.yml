@@ -46,7 +46,7 @@ jobs:
       - name: Install yarn dependencies
         run: yarn -V
       - name: Install Composer dependencies
-        run: composer install -o --prefer-dist --no-interaction
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
       - name: Yarn test and build
         run: |
           yarn run test

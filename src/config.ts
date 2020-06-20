@@ -9,10 +9,10 @@ export async function addINIValuesUnix(
   ini_values_csv: string
 ): Promise<string> {
   const ini_values: Array<string> = await utils.CSVArray(ini_values_csv);
-  let script = '\n';
+  let script = '';
   await utils.asyncForEach(ini_values, async function (line: string) {
     script +=
-      (await utils.addLog('$tick', line, 'Added to php.ini', 'linux')) + '\n';
+      '\n' + (await utils.addLog('$tick', line, 'Added to php.ini', 'linux'));
   });
   return 'echo "' + ini_values.join('\n') + '" >> $ini_file' + script;
 }

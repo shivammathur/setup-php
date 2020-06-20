@@ -1218,13 +1218,17 @@ exports.CSVArray = CSVArray;
  * @param extension
  */
 async function getExtensionPrefix(extension) {
-    const zend = ['xdebug', 'opcache', 'ioncube', 'eaccelerator'];
+    const zend = [
+        'xdebug',
+        'xdebug3',
+        'opcache',
+        'ioncube',
+        'eaccelerator'
+    ];
     switch (zend.indexOf(extension)) {
-        case 0:
-        case 1:
+        default:
             return 'zend_extension';
         case -1:
-        default:
             return 'extension';
     }
 }
@@ -2142,18 +2146,24 @@ const config = __importStar(__webpack_require__(641));
 /**
  * Function to setup Xdebug
  *
+ * @param extension
  * @param version
  * @param os_version
  * @param pipe
  */
-async function addCoverageXdebug(version, os_version, pipe) {
-    switch (version) {
-        case '7.4':
+async function addCoverageXdebug(extension, version, os_version, pipe) {
+    const xdebug = (await extensions.addExtension(extension, version, os_version, true)) +
+        pipe;
+    const ini = (await config.addINIValues('xdebug.mode=coverage', os_version, true)) +
+        pipe;
+    const log = await utils.addLog('$tick', extension, 'Xdebug enabled as coverage driver', os_version);
+    switch (true) {
+        case /^xdebug3$/.test(extension):
+        case /^8\.0$/.test(version):
+            return '\n' + xdebug + '\n' + ini + '\n' + log;
+        case /^xdebug$/.test(extension):
         default:
-            return ((await extensions.addExtension('xdebug', version, os_version, true)) +
-                pipe +
-                '\n' +
-                (await utils.addLog('$tick', 'xdebug', 'Xdebug enabled as coverage driver', os_version)));
+            return '\n' + xdebug + '\n' + log;
     }
 }
 exports.addCoverageXdebug = addCoverageXdebug;
@@ -2234,7 +2244,9 @@ async function addCoverage(coverage_driver, version, os_version) {
         case 'pcov':
             return script + (await addCoveragePCOV(version, os_version, pipe));
         case 'xdebug':
-            return script + (await addCoverageXdebug(version, os_version, pipe));
+        case 'xdebug3':
+            return (script +
+                (await addCoverageXdebug(coverage_driver, version, os_version, pipe)));
         case 'none':
             return script + (await disableCoverage(version, os_version, pipe));
         default:
@@ -2280,10 +2292,10 @@ const utils = __importStar(__webpack_require__(163));
  */
 async function addINIValuesUnix(ini_values_csv) {
     const ini_values = await utils.CSVArray(ini_values_csv);
-    let script = '\n';
+    let script = '';
     await utils.asyncForEach(ini_values, async function (line) {
         script +=
-            (await utils.addLog('$tick', line, 'Added to php.ini', 'linux')) + '\n';
+            '\n' + (await utils.addLog('$tick', line, 'Added to php.ini', 'linux'));
     });
     return 'echo "' + ini_values.join('\n') + '" >> $ini_file' + script;
 }
@@ -2961,10 +2973,20 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                         ' ' +
                         version;
                 return;
+            // match 7.2xdebug3..7.4xdebug3
+            case /^7\.[2-4]xdebug3$/.test(version_extension):
+                add_script +=
+                    '\nadd_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension';
+                return;
+            // match 8.0xdebug3
+            case /^8\.[0-9]xdebug3$/.test(version_extension):
+                extension = 'xdebug';
+                command = command_prefix + version + '-' + extension + pipe;
+                break;
             // match 7.1xdebug..7.4xdebug
             case /^7\.[1-4]xdebug$/.test(version_extension):
                 add_script +=
-                    '\nupdate_extension xdebug 2.9.3' +
+                    '\nupdate_extension xdebug 2.9.6' +
                         pipe +
                         '\n' +
                         (await utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));

@@ -1,15 +1,9 @@
 import * as coverage from '../src/coverage';
 
-jest.mock('../src/extensions', () => ({
-  addExtension: jest.fn().mockImplementation(extension => {
-    return 'add_extension ' + extension + '\n';
-  })
-}));
-
 describe('Config tests', () => {
   it('checking addCoverage with PCOV on windows', async () => {
     let win32: string = await coverage.addCoverage('PCOV', '7.4', 'win32');
-    expect(win32).toContain('add_extension pcov');
+    expect(win32).toContain('Add-Extension pcov');
     expect(win32).toContain('Remove-Extension xdebug');
 
     win32 = await coverage.addCoverage('pcov', '7.0', 'win32');
@@ -33,12 +27,24 @@ describe('Config tests', () => {
 
   it('checking addCoverage with Xdebug on windows', async () => {
     const win32: string = await coverage.addCoverage('xdebug', '7.4', 'win32');
-    expect(win32).toContain('add_extension xdebug');
+    expect(win32).toContain('Add-Extension xdebug');
   });
 
   it('checking addCoverage with Xdebug on linux', async () => {
-    const linux: string = await coverage.addCoverage('xdebug', '7.4', 'linux');
+    const linux: string = await coverage.addCoverage('xdebug', '8.0', 'linux');
     expect(linux).toContain('add_extension xdebug');
+  });
+
+  it('checking addCoverage with Xdebug3 on linux', async () => {
+    const linux: string = await coverage.addCoverage('xdebug3', '7.4', 'linux');
+    expect(linux).toContain('add_extension_from_source xdebug');
+    expect(linux).toContain('echo "xdebug.mode=coverage"');
+  });
+
+  it('checking addCoverage with Xdebug3 on linux', async () => {
+    const linux: string = await coverage.addCoverage('xdebug3', '8.0', 'linux');
+    expect(linux).toContain('add_extension xdebug');
+    expect(linux).toContain('echo "xdebug.mode=coverage"');
   });
 
   it('checking addCoverage with Xdebug on darwin', async () => {

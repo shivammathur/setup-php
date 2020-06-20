@@ -298,10 +298,20 @@ export async function addExtensionLinux(
           ' ' +
           version;
         return;
+      // match 7.2xdebug3..7.4xdebug3
+      case /^7\.[2-4]xdebug3$/.test(version_extension):
+        add_script +=
+          '\nadd_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension';
+        return;
+      // match 8.0xdebug3
+      case /^8\.[0-9]xdebug3$/.test(version_extension):
+        extension = 'xdebug';
+        command = command_prefix + version + '-' + extension + pipe;
+        break;
       // match 7.1xdebug..7.4xdebug
       case /^7\.[1-4]xdebug$/.test(version_extension):
         add_script +=
-          '\nupdate_extension xdebug 2.9.3' +
+          '\nupdate_extension xdebug 2.9.6' +
           pipe +
           '\n' +
           (await utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));

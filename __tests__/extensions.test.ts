@@ -56,11 +56,14 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnLinux', async () => {
     let linux: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, :intl, ast, uopz, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
+      'Xdebug, xdebug3, pcov, sqlite, :intl, ast, uopz, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
       '7.4',
       'linux'
     );
-    expect(linux).toContain('update_extension xdebug 2.9.3');
+    expect(linux).toContain('update_extension xdebug 2.9.6');
+    expect(linux).toContain(
+      'add_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension'
+    );
     expect(linux).toContain('sudo $debconf_fix apt-get install -y php7.4-pcov');
     expect(linux).toContain(
       'sudo $debconf_fix apt-get install -y php7.4-sqlite3'
@@ -74,6 +77,11 @@ describe('Extension tests', () => {
     expect(linux).toContain('add_pecl_extension grpc 1.2.3 extension');
     expect(linux).toContain(
       'add_unstable_extension xdebug alpha zend_extension'
+    );
+
+    linux = await extensions.addExtension('xdebug3', '8.0', 'linux');
+    expect(linux).toContain(
+      'sudo $debconf_fix apt-get install -y php8.0-xdebug'
     );
 
     linux = await extensions.addExtension('gearman', '7.0', 'linux');

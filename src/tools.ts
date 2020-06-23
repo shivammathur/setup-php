@@ -358,7 +358,7 @@ export async function getCleanedToolsList(
       return extension
         .trim()
         .replace(
-          /symfony\/|laravel\/|robmorgan\/|hirak\/|narrowspark\/automatic-/,
+          /hirak\/|laravel\/|narrowspark\/automatic-|overtrue\/|robmorgan\/|symfony\//,
           ''
         );
     })
@@ -538,6 +538,9 @@ export async function addTools(
         break;
       case 'phinx':
         script += await addPackage(tool, release, 'robmorgan/', os_version);
+        break;
+      case 'phplint':
+        script += await addPackage(tool, release, 'overtrue/', os_version);
         break;
       case 'prestissimo':
         script += await addPackage(tool, release, 'hirak/', os_version);

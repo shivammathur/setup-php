@@ -1918,7 +1918,7 @@ async function getCleanedToolsList(tools_csv) {
         .map(function (extension) {
         return extension
             .trim()
-            .replace(/symfony\/|laravel\/|robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
+            .replace(/hirak\/|laravel\/|narrowspark\/automatic-|overtrue\/|robmorgan\/|symfony\//, '');
     })
         .filter(Boolean);
     return [...new Set(tools_list)];
@@ -2061,6 +2061,9 @@ async function addTools(tools_csv, php_version, os_version) {
                 break;
             case 'phinx':
                 script += await addPackage(tool, release, 'robmorgan/', os_version);
+                break;
+            case 'phplint':
+                script += await addPackage(tool, release, 'overtrue/', os_version);
                 break;
             case 'prestissimo':
                 script += await addPackage(tool, release, 'hirak/', os_version);

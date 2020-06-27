@@ -114,12 +114,15 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, :intl, ast-beta, grpc-1.2.3',
+      'Xdebug, pcov, grpc, protobuf, swoole, sqlite, :intl, ast-beta, grpc-1.2.3',
       '7.2',
       'darwin'
     );
     expect(darwin).toContain('add_brew_extension xdebug');
     expect(darwin).toContain('add_brew_extension pcov');
+    expect(darwin).toContain('add_brew_extension grpc');
+    expect(darwin).toContain('add_brew_extension protobuf');
+    expect(darwin).toContain('add_brew_extension swoole');
     expect(darwin).toContain('sudo pecl install -f sqlite3');
     expect(darwin).toContain('remove_extension intl');
     expect(darwin).toContain('add_unstable_extension ast beta extension');

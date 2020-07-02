@@ -18,6 +18,7 @@ add_log() {
 
 # Function to read env inputs.
 read_env() {
+  . /etc/lsb-release
   [[ -z "${update}" ]] && update='false' && UPDATE='false' || update="${update}"
   [ "$update" = false ] && [[ -n ${UPDATE} ]] && update="${UPDATE}"
   [[ -z "${runner}" ]] && runner='github' && RUNNER='github' || runner="${runner}"
@@ -32,19 +33,24 @@ update_lists() {
   fi
 }
 
+# Function to add ppa:ondrej/php.
+add_ppa() {
+  if ! apt-cache policy | grep -q ondrej/php; then
+    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
+    if [ "$DISTRIB_RELEASE" = "16.04" ]; then
+      sudo "$debconf_fix" apt-get update
+    fi
+  fi
+}
+
 # Function to setup environment for self-hosted runners.
 self_hosted_setup() {
   echo "Set disable_coredump false" | sudo tee -a /etc/sudo.conf
   if ! command -v apt-fast >/dev/null; then
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
   fi
-  update_lists && $apt_install curl make lsb-release software-properties-common unzip
-  if ! apt-cache policy | grep -q ondrej/php; then
-    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
-    if [ "$(lsb_release -r -s)" = "16.04" ]; then
-      sudo "$debconf_fix" apt-get update
-    fi
-  fi
+  update_lists && $apt_install curl make software-properties-common unzip
+  add_ppa
 }
 
 # Function to configure PECL.
@@ -393,6 +399,8 @@ if [ "$runner" = "self-hosted" ]; then
   else
     self_hosted_setup >/dev/null 2>&1
   fi
+elif [ "$DISTRIB_RELEASE" = "20.04" ]; then
+  add_ppa >/dev/null 2>&1
 fi
 
 # Setup PHP

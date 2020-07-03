@@ -238,6 +238,10 @@ existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 # Setup PHP
 step_log "Setup PHP"
 sudo mkdir -p /var/run /run/php
+. /etc/lsb-release
+if [ "$DISTRIB_RELEASE" = "20.04" ]; then
+  LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
+fi
 
 if [ "$existing_version" != "$version" ]; then
   if [ ! -e "/usr/bin/php$version" ]; then

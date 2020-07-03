@@ -384,7 +384,7 @@ describe('Tools tests', () => {
 
   it('checking addTools on linux', async () => {
     const script: string = await tools.addTools(
-      'blackfire, blackfire-player, cs2pr, flex, php-cs-fixer, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, symfony, wp-cli',
+      'blackfire, blackfire-player, cs2pr, flex, php-cs-fixer, phplint, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, symfony, wp-cli',
       '7.4',
       'linux'
     );
@@ -419,6 +419,7 @@ describe('Tools tests', () => {
     expect(script).toContain('add_pecl');
     expect(script).toContain('add_composertool flex flex symfony/');
     expect(script).toContain('add_composertool phinx phinx robmorgan/');
+    expect(script).toContain('add_composertool phplint phplint overtrue/');
     expect(script).toContain('add_composertool phinx phinx:1.2.3 robmorgan/');
     expect(script).toContain('add_devtools');
     expect(script).toContain('add_log "$tick" "php-config" "Added"');

@@ -1918,7 +1918,7 @@ async function getCleanedToolsList(tools_csv) {
         .map(function (extension) {
         return extension
             .trim()
-            .replace(/symfony\/|laravel\/|robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
+            .replace(/hirak\/|laravel\/|narrowspark\/automatic-|overtrue\/|robmorgan\/|symfony\//, '');
     })
         .filter(Boolean);
     return [...new Set(tools_list)];
@@ -2061,6 +2061,9 @@ async function addTools(tools_csv, php_version, os_version) {
                 break;
             case 'phinx':
                 script += await addPackage(tool, release, 'robmorgan/', os_version);
+                break;
+            case 'phplint':
+                script += await addPackage(tool, release, 'overtrue/', os_version);
                 break;
             case 'prestissimo':
                 script += await addPackage(tool, release, 'hirak/', os_version);
@@ -2773,13 +2776,13 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                 command =
                     command_prefix + 'xdebug-' + (await getXdebugVersion(version));
                 break;
-            // match 5.6xdebug, 7.0xdebug...7.4xdebug, 8.0xdebug
-            case /(5\.6|7\.[0-4]|8\.[0-9])xdebug/.test(version_extension):
-                command = 'add_brew_extension xdebug';
-                break;
-            // match 7.1pcov...7.4pcov, 8.0pcov
+            // match 5.6xdebug to 8.0xdebug, 5.6swoole to 8.0swoole
+            // match 5.6grpc to 7.4grpc, 5.6protobuf to 7.4protobuf
+            // match 7.1pcov to 8.0pcov
+            case /(5\.6|7\.[0-4]|8\.[0-9])(xdebug|swoole)/.test(version_extension):
+            case /(5\.6|7\.[0-4])(grpc|protobuf)/.test(version_extension):
             case /(7\.[1-4]|8\.[0-9])pcov/.test(version_extension):
-                command = 'add_brew_extension pcov';
+                command = 'add_brew_extension ' + ext_name;
                 break;
             // match 5.6redis
             case /5\.6redis/.test(version_extension):

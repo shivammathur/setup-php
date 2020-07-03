@@ -378,6 +378,7 @@ If this action helped you.
 - [mlocati/powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager "Package to handle PHP on windows")
 - [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Packaging active PHP packages")
 - [shivammathur/homebrew-php](https://github.com/shivammathur/homebrew-php "Tap for PHP builds for MacOS")
+- [shivammathur/homebrew-extensions](https://github.com/shivammathur/homebrew-extensions "Tap for PHP extensions for MacOS")
 - [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Nightly PHP package")
 
 ## :bookmark_tabs: Further Reading

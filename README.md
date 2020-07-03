@@ -43,10 +43,11 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Composer GitHub OAuth](#composer-github-oauth)
   - [Problem Matchers](#problem-matchers)
   - [Examples](#examples)
+- [Versioning](#bookmark-versioning)
 - [License](#scroll-license)
 - [Contributions](#1-contributions)
 - [Support This Project](#sparkling_heart-support-this-project)
-- [Dependencies](#bookmark-dependencies)
+- [Dependencies](#package-dependencies)
 - [Further Reading](#bookmark_tabs-further-reading)
 
 ## :tada: PHP Support
@@ -148,7 +149,7 @@ with:
 
 These tools can be setup globally using the `tools` input.
 
-`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `flex`, `infection`, `pecl`, `phan`, `phinx`, `phive`, `php-config`, `php-cs-fixer`, `phpcbf`, `phpcpd`, `phpcs`, `phpize`, `phplint`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`, `vapor-cli`
+`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `flex`, `infection`, `pecl`, `phan`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`, `vapor-cli`
 
 ```yaml
 uses: shivammathur/setup-php@v2
@@ -594,7 +595,7 @@ For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-p
 
 ### Examples
 
-Examples for setting up this GitHub Action with different PHP Frameworks/Packages.
+Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 |Framework/Package|Runs on|Workflow|
 |--- |--- |--- |
@@ -622,13 +623,25 @@ Examples for setting up this GitHub Action with different PHP Frameworks/Package
 |Yii2 Starter Kit with `PostgreSQL`|`ubuntu`|[yii2-postgres.yml](./examples/yii2-postgres.yml "GitHub Action for Yii2 Starter Kit with PostgreSQL")|
 |Zend Framework|`macOS`, `ubuntu` and `windows`|[zend-framework.yml](./examples/zend-framework.yml "GitHub Action for Zend Framework")|
 
+## :bookmark: Versioning
+
+- It is highly recommended to use the `v2` tag as `setup-php` version. It is a rolling tag and is synced with latest minor and patch releases. With `v2` you automatically get the bug fixes, new features and support for latest PHP releases. For debugging any issues `verbose` tag can be used temporarily. It outputs all the logs and is also synced with the latest releases.
+- Semantic release versions can also be used. It is recommended to [use dependabot](https://docs.github.com/en/github/administering-a-repository/keeping-your-actions-up-to-date-with-github-dependabot "Setup Dependabot with GitHub Actions") with semantic versioning to keep the actions in your workflows up to date.
+- Commit SHA can also be used, but are not recommended. They have to be updated with every release manually, without which you will not get any bug fixes or new features. 
+- Using the `master` branch as version is highly discouraged, it might break your workflow after major releases as they have breaking changes.
+- If you are using the `v1` tag or a `1.x.y` version, it is recommended that you [switch to v2](https://github.com/shivammathur/setup-php/wiki/Switch-to-v2 "Guide for switching from setup-php v1 to v2") as `v1` only gets critical bug fixes. Maintenance support for `v1` will be dropped with the last `PHP 8.0` release.
+
 ## :scroll: License
 
-The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). This project has multiple [dependencies](#bookmark-dependencies "Dependencies for this PHP Action"). Their licenses can be found in their respective repositories.
+- The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). 
+- This project has multiple [dependencies](#bookmark-dependencies "Dependencies for this PHP Action"). Their licenses can be found in their respective repositories.
 
 ## :+1: Contributions
 
-Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "shivammathur/setup-php contribution guide"). If you face any issues while using this or want to suggest a feature/improvement, create an issue [here](https://github.com/shivammathur/setup-php/issues "Issues reported").
+> Contributions are welcome!
+
+- See [Contributor's Guide](.github/CONTRIBUTING.md "shivammathur/setup-php contribution guide") before you start.
+- If you face any issues while using this or want to suggest a feature/improvement, create an issue [here](https://github.com/shivammathur/setup-php/issues "Issues reported").
 
 ## :sparkling_heart: Support This Project
 
@@ -639,14 +652,15 @@ If this action helped you.
 - If you blog, write about your experience of using this action.
 - If you need any help using this, please contact me using [Codementor](https://www.codementor.io/shivammathur "Shivam Mathur Codementor")
 
-## :bookmark: Dependencies
+## :package: Dependencies
 
 - [Node.js dependencies](https://github.com/shivammathur/setup-php/network/dependencies "Node.js dependencies")
 - [gplessis/dotdeb-php](https://github.com/gplessis/dotdeb-php "Packaging for end of life PHP versions")
 - [mlocati/powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager "Package to handle PHP on windows")
 - [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Packaging active PHP packages")
 - [shivammathur/cache-extensions](https://github.com/shivammathur/cache-extensions "GitHub action to help with caching PHP extensions")
-- [shivammathur/homebrew-php](https://github.com/shivammathur/homebrew-php "Tap for PHP builds for MacOS")
+- [shivammathur/homebrew-php](https://github.com/shivammathur/homebrew-php "Tap for PHP builds on MacOS")
+- [shivammathur/homebrew-extensions](https://github.com/shivammathur/homebrew-extensions "Tap for PHP extensions on MacOS")
 - [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Nightly PHP package")
 - [shivammathur/php5-darwin](https://github.com/shivammathur/php5-darwin "Scripts to setup PHP5 versions on darwin")
 - [shivammathur/php5-ubuntu](https://github.com/shivammathur/php5-ubuntu "Scripts to setup PHP5 versions on ubuntu")

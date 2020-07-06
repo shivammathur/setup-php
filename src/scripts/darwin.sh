@@ -208,16 +208,6 @@ add_pecl() {
   add_log "$tick" "PECL" "Added"
 }
 
-# Function to fetch updated formulae.
-update_formulae() {
-  brew_dir=$(brew --prefix)/Homebrew/Library/Taps/homebrew/homebrew-core/Formula
-  for formula in httpd pkg-config apr apr-util argon2 aspell autoconf bison curl-openssl freetds freetype gettext glib gmp icu4c jpeg krb5 libffi libpng libpq libsodium libzip oniguruma openldap openssl@1.1 re2c sqlite tidyp unixodbc webp; do
-    sudo curl -o "$brew_dir"/"$formula".rb -sSL https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/"$formula".rb &
-    to_wait+=( $! )
-  done
-  wait "${to_wait[@]}"
-}
-
 # Function to setup PHP 5.6 and newer.
 setup_php() {
   action=$1
@@ -226,7 +216,6 @@ setup_php() {
   if brew list php@"$version" 2>/dev/null | grep -q "Error" && [ "$action" != "upgrade" ]; then
     brew unlink php@"$version"
   else
-    if [ "$version" = "$master_version" ]; then update_formulae; fi
     brew "$action" shivammathur/php/php@"$version"
   fi
   brew link --force --overwrite php@"$version"
@@ -237,7 +226,6 @@ tick="✓"
 cross="✗"
 version=$1
 nodot_version=${1/./}
-master_version="8.0"
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)

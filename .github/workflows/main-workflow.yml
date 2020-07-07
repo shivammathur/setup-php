@@ -1,5 +1,6 @@
 name: Main workflow
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - releases/v1

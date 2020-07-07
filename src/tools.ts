@@ -1,4 +1,6 @@
 import * as utils from './utils';
+import * as httpm from '@actions/http-client';
+import {IHttpClientResponse as hcr} from '@actions/http-client/interfaces';
 
 /**
  * Function to get command to setup tools
@@ -298,27 +300,28 @@ export async function addComposer(tools_list: string[]): Promise<string[]> {
 }
 
 /**
- * Function to get script to update composer
+ * Function to get composer URL for a given version
  *
  * @param version
- * @param os_version
  */
-export async function updateComposer(
-  version: string,
-  os_version: string
-): Promise<string> {
+export async function getComposerUrl(version: string): Promise<string> {
+  const getComposerUrlHelper = async function (
+    version: string
+  ): Promise<string> {
+    const client: httpm.HttpClient = new httpm.HttpClient('setup-php');
+    const response: hcr = await client.get('https://getcomposer.org/versions');
+    const data = JSON.parse(await response.readBody());
+    return 'https://getcomposer.org' + data[version][0]['path'];
+  };
   switch (version) {
     case 'snapshot':
+      return 'https://getcomposer.org/composer.phar';
     case 'preview':
     case '1':
     case '2':
-      return (
-        '\ncomposer self-update --' +
-        version +
-        (await utils.suppressOutput(os_version))
-      );
+      return await getComposerUrlHelper(version);
     default:
-      return '';
+      return 'https://getcomposer.org/composer-stable.phar';
   }
 }
 
@@ -473,10 +476,8 @@ export async function addTools(
         script += await addArchive(tool, version, url, os_version);
         break;
       case 'composer':
-        url = 'https://getcomposer.org/composer-stable.phar';
-        script +=
-          (await addArchive('composer', version, url, os_version)) +
-          (await updateComposer(version, os_version));
+        url = await getComposerUrl(version);
+        script += await addArchive('composer', version, url, os_version);
         break;
       case 'codeception':
         url =

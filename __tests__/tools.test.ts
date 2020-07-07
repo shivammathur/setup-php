@@ -1,4 +1,20 @@
+import * as httpm from '@actions/http-client';
 import * as tools from '../src/tools';
+
+httpm.HttpClient.prototype.get = jest.fn().mockImplementation(() => {
+  return {
+    message: null,
+    readBody: jest.fn().mockImplementation(() => {
+      return JSON.stringify({
+        stable: [{path: '/composer-stable.phar'}],
+        preview: [{path: '/composer-preview.phar'}],
+        snapshot: [{path: '/composer.phar'}],
+        '1': [{path: '/composer-1.phar'}],
+        '2': [{path: '/composer-2.phar'}]
+      });
+    })
+  };
+});
 
 describe('Tools tests', () => {
   it('checking getCommand', async () => {
@@ -263,20 +279,24 @@ describe('Tools tests', () => {
     ).toStrictEqual(['composer:2', 'a', 'b', 'c']);
   });
 
-  it('checking updateComposer', async () => {
-    expect(await tools.updateComposer('latest', 'linux')).toContain('');
-    expect(await tools.updateComposer('stable', 'win32')).toContain('');
-    expect(await tools.updateComposer('snapshot', 'darwin')).toContain(
-      '\ncomposer self-update --snapshot'
+  it('checking getComposerUrl', async () => {
+    expect(await tools.getComposerUrl('latest')).toContain(
+      'https://getcomposer.org/composer-stable.phar'
     );
-    expect(await tools.updateComposer('preview', 'linux')).toContain(
-      '\ncomposer self-update --preview'
+    expect(await tools.getComposerUrl('stable')).toContain(
+      'https://getcomposer.org/composer-stable.phar'
     );
-    expect(await tools.updateComposer('1', 'win32')).toContain(
-      '\ncomposer self-update --1'
+    expect(await tools.getComposerUrl('snapshot')).toContain(
+      'https://getcomposer.org/composer.phar'
     );
-    expect(await tools.updateComposer('2', 'darwin')).toContain(
-      '\ncomposer self-update --2'
+    expect(await tools.getComposerUrl('preview')).toContain(
+      'https://getcomposer.org/composer-preview.phar'
+    );
+    expect(await tools.getComposerUrl('1')).toContain(
+      'https://getcomposer.org/composer-1.phar'
+    );
+    expect(await tools.getComposerUrl('2')).toContain(
+      'https://getcomposer.org/composer-2.phar'
     );
   });
 
@@ -527,17 +547,20 @@ describe('Tools tests', () => {
       'linux'
     );
     expect(script).toContain(
-      'add_tool https://getcomposer.org/composer-stable.phar composer'
+      'add_tool https://getcomposer.org/composer-1.phar composer'
     );
-    expect(script).toContain('composer self-update --1');
 
     script = await tools.addTools('composer:preview', '7.4', 'linux');
-    expect(script).toContain('composer self-update --preview');
+    expect(script).toContain(
+      'add_tool https://getcomposer.org/composer-preview.phar composer'
+    );
     script = await tools.addTools(
       'composer:v1, composer:preview, composer:snapshot',
       '7.4',
       'linux'
     );
-    expect(script).toContain('composer self-update --snapshot');
+    expect(script).toContain(
+      'add_tool https://getcomposer.org/composer.phar composer'
+    );
   });
 });

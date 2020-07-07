@@ -16,6 +16,16 @@ add_log() {
   fi
 }
 
+# Function to backup and cleanup package lists.
+cleanup_lists() {
+  if [ ! -e /etc/apt/sources.list.d.save ]; then
+    sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save
+    sudo mkdir /etc/apt/sources.list.d
+    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
+    trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/" exit
+  fi
+}
+
 # Function to update php ppa
 update_lists() {
   if [ "$lists_updated" = "false" ]; then
@@ -140,7 +150,23 @@ update_extension() {
   fi
 }
 
-# Function to setup a remote tool
+# Function to configure composer
+configure_composer() {
+  tool_path=$1
+  sudo ln -sf "$tool_path" "$tool_path.phar"
+  php -r "try {\$p=new Phar('$tool_path.phar', 0);exit(0);} catch(Exception \$e) {exit(1);}"
+  if [ $? -eq 1 ]; then
+    add_log "$cross" "composer" "Could not download composer"
+    exit 1;
+  fi
+  composer -q global config process-timeout 0
+  echo "::add-path::/home/$USER/.composer/vendor/bin"
+  if [ -n "$COMPOSER_TOKEN" ]; then
+    composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
+  fi
+}
+
+# Function to setup a remote tool.
 add_tool() {
   url=$1
   tool=$2
@@ -152,11 +178,7 @@ add_tool() {
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
-      composer -q global config process-timeout 0
-      echo "::add-path::/home/$USER/.composer/vendor/bin"
-      if [ -n "$COMPOSER_TOKEN" ]; then
-        composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
-      fi
+      configure_composer "$tool_path"
     elif [ "$tool" = "cs2pr" ]; then
       sudo sed -i 's/\r$//; s/exit(9)/exit(0)/' "$tool_path"
     elif [ "$tool" = "phive" ]; then

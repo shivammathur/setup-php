@@ -127,6 +127,26 @@ add_unstable_extension() {
   add_pecl_extension "$extension" "$pecl_version" "$prefix"
 }
 
+# Function to configure composer
+configure_composer() {
+  tool_path=$1
+  sudo ln -sf "$tool_path" "$tool_path.phar"
+  php -r "try {\$p=new Phar('$tool_path.phar', 0);exit(0);} catch(Exception \$e) {exit(1);}"
+  if [ $? -eq 1 ]; then
+    add_log "$cross" "composer" "Could not download composer"
+    exit 1;
+  fi
+  composer -q global config process-timeout 0
+  echo "::add-path::/Users/$USER/.composer/vendor/bin"
+  if [ -n "$COMPOSER_TOKEN" ]; then
+    composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
+  fi
+  # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
+  if [[ "$version" =~ $old_versions ]]; then
+    composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
+  fi
+}
+
 # Function to setup a remote tool.
 add_tool() {
   url=$1
@@ -140,15 +160,7 @@ add_tool() {
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
-      composer -q global config process-timeout 0
-      echo "::add-path::/Users/$USER/.composer/vendor/bin"
-      if [ -n "$COMPOSER_TOKEN" ]; then
-        composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
-      fi
-      # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
-      if [[ "$version" =~ $old_versions ]]; then
-        composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
-      fi
+      configure_composer "$tool_path"
     elif [ "$tool" = "phan" ]; then
       add_extension fileinfo "sudo pecl install -f fileinfo" extension >/dev/null 2>&1
       add_extension ast "sudo pecl install -f ast" extension >/dev/null 2>&1

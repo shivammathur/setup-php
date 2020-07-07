@@ -161,6 +161,31 @@ Function Remove-Extension() {
   }
 }
 
+Function Edit-ComposerConfig() {
+  Param(
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $tool_path
+  )
+  Copy-Item $tool_path -Destination "$tool_path.phar"
+  php -r "try {`$p=new Phar('$tool_path.phar', 0);exit(0);} catch(Exception `$e) {exit(1);}"
+  if ($? -eq $False) {
+    Add-Log "$cross" "composer" "Could not download composer"
+    exit 1;
+  }
+  composer -q global config process-timeout 0
+  Write-Output "::add-path::$env:APPDATA\Composer\vendor\bin"
+  if (Test-Path env:COMPOSER_TOKEN) {
+    composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
+  }
+  # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
+  if ($version -lt 5.6) {
+    composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
+  }
+}
+
 # Function to add tools.
 Function Add-Tool() {
   Param (
@@ -201,15 +226,7 @@ Function Add-Tool() {
   } elseif($tool -eq "cs2pr") {
     (Get-Content $bin_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $bin_dir/cs2pr
   } elseif($tool -eq "composer") {
-    composer -q global config process-timeout 0
-    Write-Output "::add-path::$env:APPDATA\Composer\vendor\bin"
-    if (Test-Path env:COMPOSER_TOKEN) {
-      composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
-    }
-    # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
-    if ($version -lt 5.6) {
-      composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
-    }
+    Edit-ComposerConfig $bin_dir\$tool
   } elseif($tool -eq "wp-cli") {
     Copy-Item $bin_dir\wp-cli.bat -Destination $bin_dir\wp.bat
   }

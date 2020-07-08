@@ -3007,8 +3007,7 @@ const config = __importStar(__webpack_require__(641));
 async function addCoverageXdebug(extension, version, os_version, pipe) {
     const xdebug = (await extensions.addExtension(extension, version, os_version, true)) +
         pipe;
-    const ini = (await config.addINIValues('xdebug.mode=coverage', os_version, true)) +
-        pipe;
+    const ini = await config.addINIValues('xdebug.mode=coverage', os_version, true);
     const log = await utils.addLog('$tick', extension, 'Xdebug enabled as coverage driver', os_version);
     switch (true) {
         case /^xdebug3$/.test(extension):

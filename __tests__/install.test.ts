@@ -26,11 +26,11 @@ jest.mock('../src/install', () => ({
       if (extension_csv) {
         script += 'install extensions';
       }
-      if (ini_values_csv) {
-        script += 'edit php.ini';
-      }
       if (coverage_driver) {
         script += 'set coverage driver';
+      }
+      if (ini_values_csv) {
+        script += 'edit php.ini';
       }
 
       return script;

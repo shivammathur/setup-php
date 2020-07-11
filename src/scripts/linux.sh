@@ -361,8 +361,8 @@ php_semver() {
 # Function to install packaged PHP
 add_packaged_php() {
   update_lists
-  IFS=' ' read -r -a packages <<< "$(echo "curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
-  $apt_install php"$version" "${packages[@]}"
+  IFS=' ' read -r -a packages <<< "$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
+  $apt_install "${packages[@]}"
 }
 
 # Function to update PHP.

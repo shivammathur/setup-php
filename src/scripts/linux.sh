@@ -25,9 +25,20 @@ read_env() {
   [ "$runner" = false ] && [[ -n ${RUNNER} ]] && runner="${RUNNER}"
 }
 
+# Function to backup and cleanup package lists.
+cleanup_lists() {
+  if [ ! -e /etc/apt/sources.list.d.save ]; then
+    sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save
+    sudo mkdir /etc/apt/sources.list.d
+    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
+    trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/" exit
+  fi
+}
+
 # Function to update the package lists.
 update_lists() {
   if [ "$lists_updated" = "false" ]; then
+    cleanup_lists
     sudo "$debconf_fix" apt-get update >/dev/null 2>&1
     lists_updated="true"
   fi
@@ -36,6 +47,7 @@ update_lists() {
 # Function to add ppa:ondrej/php.
 add_ppa() {
   if ! apt-cache policy | grep -q ondrej/php; then
+    cleanup_lists
     LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
     if [ "$DISTRIB_RELEASE" = "16.04" ]; then
       sudo "$debconf_fix" apt-get update

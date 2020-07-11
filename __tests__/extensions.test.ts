@@ -5,6 +5,8 @@ describe('Extension tests', () => {
     expect(await extensions.getXdebugVersion('5.3')).toContain('2.2.7');
     expect(await extensions.getXdebugVersion('5.4')).toContain('2.4.1');
     expect(await extensions.getXdebugVersion('5.5')).toContain('2.5.5');
+    expect(await extensions.getXdebugVersion('5.6')).toContain('2.5.5');
+    expect(await extensions.getXdebugVersion('7.0')).toContain('2.7.2');
     expect(await extensions.getXdebugVersion('7.2')).toContain('2.9.6');
   });
   it('checking addExtensionOnWindows', async () => {

@@ -373,6 +373,9 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 $installed = Get-Php -Path $php_dir
 Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
 if($version -lt "5.5") {
+  ForEach($lib in "libeay32.dll", "ssleay32.dll") {
+    Invoke-WebRequest -UseBasicParsing -Uri https://dl.bintray.com/shivammathur/php/$lib -OutFile $php_dir\$lib >$null 2>&1
+  }
   Enable-PhpExtension -Extension openssl, curl, mbstring -Path $php_dir
 } else {
   Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir

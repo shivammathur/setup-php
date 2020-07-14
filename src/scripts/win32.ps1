@@ -65,7 +65,12 @@ Function Add-Extension {
     [ValidateNotNull()]
     [ValidateSet('stable', 'beta', 'alpha', 'devel', 'snapshot')]
     [string]
-    $mininum_stability = 'stable'
+    $stability = 'stable',
+    [Parameter(Position = 2, Mandatory = $false)]
+    [ValidateNotNull()]
+    [ValidatePattern('^\d+(\.\d+){0,2}$')]
+    [string]
+    $extension_version = ''
   )
   try {
     $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
@@ -84,7 +89,12 @@ Function Add-Extension {
       }
     }
     else {
-      Install-PhpExtension -Extension $extension -MinimumStability $mininum_stability -Path $php_dir
+      if($extension_version -ne '') {
+        Install-PhpExtension -Extension $extension -Version $extension_version -MinimumStability $stability -MaximumStability $stability -Path $php_dir
+      } else {
+        Install-PhpExtension -Extension $extension -MinimumStability $stability -MaximumStability $stability -Path $php_dir
+      }
+
       Add-Log $tick $extension "Installed and enabled"
     }
   }

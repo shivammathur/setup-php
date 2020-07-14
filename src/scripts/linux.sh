@@ -49,10 +49,10 @@ configure_pecl() {
 # Fuction to get the PECL version
 get_pecl_version() {
   extension=$1
-  stability=$2
+  stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
   pecl_rest='https://pecl.php.net/rest/r/'
   response=$(curl -q -sSL "$pecl_rest$extension"/allreleases.xml)
-  pecl_version=$(echo "$response" | grep -m 1 -Po "(\d*\.\d*\.\d*$stability\d*)")
+  pecl_version=$(echo "$response" | grep -m 1 -Pio "(\d*\.\d*\.\d*$stability\d*)")
   if [ ! "$pecl_version" ]; then
     pecl_version=$(echo "$response" | grep -m 1 -Po "(\d*\.\d*\.\d*)")
   fi
@@ -111,6 +111,9 @@ add_pecl_extension() {
   extension=$1
   pecl_version=$2
   prefix=$3
+  if [[ $pecl_version =~ .*(alpha|beta|rc|snapshot).* ]]; then
+    pecl_version=$(get_pecl_version "$extension" "$pecl_version")
+  fi
   if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
     echo "$prefix=$ext_dir/$extension.so" >>"$pecl_file"
   fi

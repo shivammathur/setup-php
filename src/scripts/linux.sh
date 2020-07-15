@@ -327,7 +327,7 @@ add_blackfire() {
     sudo /etc/init.d/blackfire-agent restart >/dev/null 2>&1
   fi
   if [[ -n $BLACKFIRE_CLIENT_ID ]] && [[ -n $BLACKFIRE_CLIENT_TOKEN ]]; then
-    sudo blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
+    blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
   fi
   add_log "$tick" "blackfire" "Added"
   add_log "$tick" "blackfire-agent" "Added"

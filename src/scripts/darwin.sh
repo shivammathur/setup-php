@@ -200,11 +200,11 @@ add_blackfire() {
   brew tap --shallow blackfireio/homebrew-blackfire >/dev/null 2>&1
   brew install blackfire-agent >/dev/null 2>&1
   if [[ -n $BLACKFIRE_SERVER_ID ]] && [[ -n $BLACKFIRE_SERVER_TOKEN ]]; then
-    sudo blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
+    blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
     brew services start blackfire-agent >/dev/null 2>&1
   fi
   if [[ -n $BLACKFIRE_CLIENT_ID ]] && [[ -n $BLACKFIRE_CLIENT_TOKEN ]]; then
-    sudo blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
+    blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
   fi
   add_log "$tick" "blackfire" "Added"
   add_log "$tick" "blackfire-agent" "Added"

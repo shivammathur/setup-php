@@ -270,6 +270,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 
 $installed = Get-Php -Path $php_dir
 Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
+Set-PhpIniKey -Key 'memory_limit' -Value '-1' -Path $php_dir
 Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
 if ($version -eq 'master') {

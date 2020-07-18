@@ -206,8 +206,8 @@ else
 fi
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 sudo chmod 777 "$ini_file" "$tool_path_dir"
-echo "date.timezone=UTC" >>"$ini_file"
-ext_dir=$(php -i | grep -Ei "extension_dir => /(usr|opt)" | sed -e "s|.*=> s*||")
+echo -e "date.timezone=UTC\nmemory_limit=-1" >>"$ini_file"
+ext_dir=$(php -i | grep -Ei "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo mkdir -p "$ext_dir"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')

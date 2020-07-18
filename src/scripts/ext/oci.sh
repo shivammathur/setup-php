@@ -108,7 +108,7 @@ install_extension() {
       get_php
       patch_phpize
       cd "/opt/oracle/php-src-$tag/ext/$ext" || exit 1
-      [ "$ext" = "pdo_oci" ] && patch_pdo_oci_config
+      #[ "$ext" = "pdo_oci" ] && patch_pdo_oci_config
       sudo phpize && ./configure --with-php-config="$(command -v php-config)" --with-"${ext/_/-}"=instantclient,"$oracle_client"
       sudo make -j"$(nproc)"
       sudo cp ./modules/* "$ext_dir/"

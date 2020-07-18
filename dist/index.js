@@ -2296,6 +2296,11 @@ async function addTools(tools_csv, php_version, os_version) {
                 url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
                 script += await addArchive(tool, version, url, os_version);
                 break;
+            case 'composer-normalize':
+                uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
+                url = github + 'ergebnis/composer-normalize/' + uri;
+                script += await addArchive(tool, version, url, os_version);
+                break;
             case 'cs2pr':
                 uri = await getUri(tool, '', version, 'releases', '', 'download');
                 url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;

@@ -9,13 +9,11 @@ add_log() {
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
   fi
 }
-
 # Function to test if extension is loaded.
 check_extension() {
   extension=$1
   php -m | grep -i -q -w "$extension"
 }
-
 # Function to get the tag for a php version.
 get_tag() {
   master_version='8.0'
@@ -25,7 +23,6 @@ get_tag() {
   fi
   echo "$tag"
 }
-
 # Function to install instantclient and SDK.
 install_client() {
   echo 'get_client'
@@ -35,30 +32,33 @@ install_client() {
       if [ "$os" = 'Linux' ]; then
         libs='/usr/lib/'
         os_name='linux'
-        arch='linuxx64'
         lib_ext='so'
       elif [ "$os" = 'Darwin' ]; then
         libs='/usr/local/lib/'
-        os_name='mac'
-        arch='macos'
+        os_name='macos'
         lib_ext='dylib'
       fi
-      curl -o "/opt/oracle/$package.zip" -sSL "https://download.oracle.com/otn_software/$os_name/instantclient/instantclient-$package-$arch.zip"
+      curl -o "/opt/oracle/$package.zip" -sSL "https://dl.bintray.com/shivammathur/playground/instantclient-$package-$os_name.x64-12.1.0.2.0.zip"
       unzip "/opt/oracle/$package.zip" -d "$oracle_home"
     done
+    sudo ln -sf /opt/oracle/instantclient* /opt/oracle/instantclient
+    (
+      cd "$oracle_client" || exit
+      sudo ln -s libclntsh."$lib_ext".12.1 libclntsh."$lib_ext"
+      sudo ln -s libocci."$lib_ext".12.1 libocci."$lib_ext"
+    )
     sudo ln -sf /opt/oracle/instantclient*/*.$lib_ext* $libs
-    sudo ln -sf /opt/oracle/instantclient* "$oracle_client"
+    [ "$os" = 'Linux' ] && sudo sh -c "echo /opt/oracle/instantclient > /etc/ld.so.conf.d/oracle-instantclient.conf" && sudo ldconfig
+    sudo mkdir -p -m 777 "$oracle_client/network/admin"
   fi
   echo 'get_client_exit'
 }
-
 # Function to get PHP source.
 get_php() {
   echo 'get_php'
   [ ! -d "/opt/oracle/php-src-$tag" ] && curl -sSL "https://github.com/php/php-src/archive/$tag.tar.gz" | tar xzf - -C "$oracle_home/"
   echo 'get_php_exit'
 }
-
 # Function to get phpize location on darwin.
 get_phpize() {
   if [[ "$version" =~ 5.[3-5] ]]; then
@@ -67,7 +67,6 @@ get_phpize() {
       echo "/usr/local/bin/$(readlink /usr/local/bin/phpize)"
   fi
 }
-
 # Function to patch phpize to link to php headers on darwin.
 patch_phpize() {
   if [ "$os" = "Darwin" ]; then
@@ -75,7 +74,6 @@ patch_phpize() {
     sudo sed -i '' 's~includedir=.*~includedir="$(xcrun --show-sdk-path)/usr/include/php"~g' "$phpize_orig"
   fi
 }
-
 # Function to restore phpize.
 restore_phpize() {
   if [ "$os" = "Darwin" ]; then
@@ -88,20 +86,19 @@ patch_pdo_oci_config() {
   curl -sSLO https://raw.githubusercontent.com/php/php-src/master/ext/pdo_oci/config.m4
   sudo sed -i '' "/PHP_CHECK_PDO_INCLUDES/d" config.m4 || sudo sed -i "/PHP_CHECK_PDO_INCLUDES/d" config.m4
 }
-
 # Function to install the dependencies.
 install_dependencies() {
   if [ "$os" = 'Linux' ]; then
     if [ "$runner" = "self-hosted" ] || [ "$RUNNER" = "self-hosted" ]; then
-      sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y autoconf automake libaio-dev gcc g++ php"$version"-dev
-    else
-      sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$version"-dev
+      sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y autoconf automake libaio-dev gcc g++
     fi
-    sudo update-alternatives --set php-config /usr/bin/php-config"$version"
-    sudo update-alternatives --set phpize /usr/bin/phpize"$version"
+    if [[ "$version" =~ 5.6|7.[0-4] ]]; then
+      sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$version"-dev
+      sudo update-alternatives --set php-config /usr/bin/php-config"$version"
+      sudo update-alternatives --set phpize /usr/bin/phpize"$version"
+    fi
   fi
 }
-
 # Function to install the extension.
 install_extension() {
   if ! [ -e "$ext_dir/$ext.so" ]; then

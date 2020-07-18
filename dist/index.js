@@ -2301,6 +2301,11 @@ async function addTools(tools_csv, php_version, os_version) {
                 url = github + 'ergebnis/composer-normalize/' + uri;
                 script += await addArchive(tool, version, url, os_version);
                 break;
+            case 'composer-require-checker':
+                uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
+                url = github + 'maglnet/ComposerRequireChecker/' + uri;
+                script += await addArchive(tool, version, url, os_version);
+                break;
             case 'cs2pr':
                 uri = await getUri(tool, '', version, 'releases', '', 'download');
                 url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;

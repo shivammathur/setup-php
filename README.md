@@ -149,7 +149,7 @@ with:
 
 These tools can be setup globally using the `tools` input.
 
-`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `flex`, `infection`, `pecl`, `phan`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`, `vapor-cli`
+`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `cs2pr`, `deployer`, `flex`, `infection`, `pecl`, `phan`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`, `vapor-cli`
 
 ```yaml
 uses: shivammathur/setup-php@v2

@@ -505,6 +505,11 @@ export async function addTools(
         url = github + 'maglnet/ComposerRequireChecker/' + uri;
         script += await addArchive(tool, version, url, os_version);
         break;
+      case 'composer-unused':
+        uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
+        url = github + 'composer-unused/composer-unused/' + uri;
+        script += await addArchive(tool, version, url, os_version);
+        break;
       case 'cs2pr':
         uri = await getUri(tool, '', version, 'releases', '', 'download');
         url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;

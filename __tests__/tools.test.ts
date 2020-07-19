@@ -452,6 +452,7 @@ describe('Tools tests', () => {
       'composer-normalize',
       'composer-prefetcher:1.2.3',
       'composer-require-checker',
+      'composer-unused',
       'cs2pr:1.2.3',
       'flex',
       'infection',
@@ -490,6 +491,9 @@ describe('Tools tests', () => {
     );
     expect(script).toContain(
       'add_tool https://github.com/maglnet/ComposerRequireChecker/releases/latest/download/composer-require-checker.phar composer-require-checker'
+    );
+    expect(script).toContain(
+      'add_tool https://github.com/composer-unused/composer-unused/releases/latest/download/composer-unused.phar composer-unused'
     );
     expect(script).toContain(
       'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr'

@@ -446,11 +446,38 @@ describe('Tools tests', () => {
     expect(script).toContain('add_log "$tick" "phpize" "Added"');
   });
   it('checking addTools on darwin', async () => {
+    const listOfTools = [
+      'blackfire',
+      'blackfire-player',
+      'composer-normalize',
+      'composer-prefetcher:1.2.3',
+      'composer-require-checker',
+      'cs2pr:1.2.3',
+      'flex',
+      'infection',
+      'phan',
+      'phan:2.7.2',
+      'phinx',
+      'phive:1.2.3',
+      'php-config',
+      'phpcbf',
+      'phpcpd',
+      'phpcs',
+      'phpize',
+      'phpmd',
+      'psalm',
+      'symfony',
+      'symfony:1.2.3',
+      'vapor-cli',
+      'wp-cli'
+    ];
+
     const script: string = await tools.addTools(
-      'blackfire, blackfire-player, composer-normalize, composer-require-checker, flex, infection, phan, phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, vapor-cli, phan:2.7.2, phive:1.2.3, cs2pr:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3, wp-cli',
+      listOfTools.join(', '),
       '7.4',
       'darwin'
     );
+
     expect(script).toContain('add_blackfire');
     expect(script).toContain(
       'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player'
@@ -513,11 +540,30 @@ describe('Tools tests', () => {
     expect(script).toContain('add_log "$tick" "php-config" "Added"');
   });
   it('checking addTools on windows', async () => {
+    const listOfTools = [
+      'blackfire',
+      'blackfire-player:1.8.1',
+      'codeception',
+      'cs2pr',
+      'deployer',
+      'does_not_exit',
+      'flex',
+      'phinx',
+      'phive:0.13.2',
+      'php-config',
+      'phpize',
+      'phpmd',
+      'prestissimo',
+      'symfony',
+      'wp-cli'
+    ];
+
     const script: string = await tools.addTools(
-      'blackfire, blackfire-player:1.8.1, codeception, cs2pr, deployer, flex, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, wp-cli, does_not_exit',
+      listOfTools.join(', '),
       '7.4',
       'win32'
     );
+
     expect(script).toContain('Add-Blackfire');
     expect(script).toContain(
       'Add-Tool https://get.blackfire.io/blackfire-player-v1.8.1.phar blackfire-player'
@@ -552,11 +598,18 @@ describe('Tools tests', () => {
     expect(script).toContain('Tool does_not_exit is not supported');
   });
   it('checking addTools with composer tool using user/tool as input', async () => {
+    const listOfTools = [
+      'hirak/prestissimo',
+      'narrowspark/automatic-composer-prefetcher',
+      'robmorgan/phinx'
+    ];
+
     const script: string = await tools.addTools(
-      'hirak/prestissimo, narrowspark/automatic-composer-prefetcher, robmorgan/phinx',
+      listOfTools.join(', '),
       '7.4',
       'win32'
     );
+
     expect(script).toContain(
       'Add-Tool https://getcomposer.org/composer-stable.phar composer'
     );
@@ -567,11 +620,14 @@ describe('Tools tests', () => {
     );
   });
   it('checking composer setup', async () => {
+    const listOfTools = ['composer', 'composer:v1'];
+
     let script: string = await tools.addTools(
-      'composer, composer:v1',
+      listOfTools.join(', '),
       '7.4',
       'linux'
     );
+
     expect(script).toContain(
       'add_tool https://getcomposer.org/composer-1.phar composer'
     );

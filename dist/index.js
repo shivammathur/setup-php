@@ -3682,6 +3682,14 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                         ' ' +
                         version;
                 return;
+            // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
+            case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
+                add_script +=
+                    '\nbash ' +
+                        path.join(__dirname, '../src/scripts/ext/ioncube.sh') +
+                        ' ' +
+                        version;
+                return;
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
                 add_script +=
@@ -3775,6 +3783,15 @@ async function addExtensionWindows(extension_csv, version) {
                         version +
                         '\n';
                 break;
+            // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
+            case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
+                add_script +=
+                    '\n& ' +
+                        path.join(__dirname, '../src/scripts/ext/ioncube.ps1') +
+                        ' ' +
+                        version +
+                        '\n';
+                break;
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
                 add_script +=
@@ -3863,6 +3880,14 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                         path.join(__dirname, '../src/scripts/ext/oci.sh') +
                         ' ' +
                         extension +
+                        ' ' +
+                        version;
+                return;
+            // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
+            case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
+                add_script +=
+                    '\nbash ' +
+                        path.join(__dirname, '../src/scripts/ext/ioncube.sh') +
                         ' ' +
                         version;
                 return;

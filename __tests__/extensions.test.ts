@@ -11,7 +11,7 @@ describe('Extension tests', () => {
   });
   it('checking addExtensionOnWindows', async () => {
     let win32: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, :intl, phalcon4, oci8, pdo_oci, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2',
+      'Xdebug, pcov, sqlite, :intl, phalcon4, ioncube, oci8, pdo_oci, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2',
       '7.4',
       'win32'
     );
@@ -20,6 +20,7 @@ describe('Extension tests', () => {
     expect(win32).toContain('Add-Extension sqlite3');
     expect(win32).toContain('Remove-Extension intl');
     expect(win32).toContain('phalcon.ps1 phalcon4');
+    expect(win32).toContain('ioncube.ps1 7.4');
     expect(win32).toContain('oci.ps1 oci8 7.4');
     expect(win32).toContain('oci.ps1 pdo_oci 7.4');
     expect(win32).toContain('Add-Extension ast beta');
@@ -109,6 +110,9 @@ describe('Extension tests', () => {
     expect(linux).toContain('phalcon.sh phalcon3 7.3');
     expect(linux).toContain('phalcon.sh phalcon4 7.3');
 
+    linux = await extensions.addExtension('ioncube', '7.3', 'linux');
+    expect(linux).toContain('ioncube.sh 7.3');
+
     linux = await extensions.addExtension('oci8, pdo_oci', '7.3', 'linux');
     expect(linux).toContain('oci.sh oci8 7.3');
     expect(linux).toContain('oci.sh pdo_oci 7.3');
@@ -141,6 +145,9 @@ describe('Extension tests', () => {
 
     darwin = await extensions.addExtension('phalcon4', '7.3', 'darwin');
     expect(darwin).toContain('phalcon_darwin.sh phalcon4 7.3');
+
+    darwin = await extensions.addExtension('ioncube', '7.3', 'darwin');
+    expect(darwin).toContain('ioncube.sh 7.3');
 
     darwin = await extensions.addExtension('oci8, pdo_oci', '7.3', 'darwin');
     expect(darwin).toContain('oci.sh oci8 7.3');

@@ -4,16 +4,49 @@ variants:
     calendar:
     cli:
     ctype:
+    curl:
     dom:
     fileinfo:
     filter:
-    ipc:
+    gd:
+      - --enable-exif
+      - --enable-gd
+      - --enable-intl
+      - --enable-phpdbg
+      - --enable-soap
+      - --enable-sysvmsg
+      - --enable-sysvsem
+      - --enable-sysvshm
+      - --enable-xml
+      - --enable-xmlreader
+      - --enable-zend-test=shared
+      - --with-config-file-path=/etc
+      - --with-curl
+      - --with-ffi
+      - --with-freetype
+      - --with-gd
+      - --with-gmp=/usr/local/opt/gmp
+      - --with-iconv=/usr/local/opt/libiconv
+      - --with-icu-dir=/usr/local/opt/icu4c
+      - --with-kerberos
+      - --with-libxml
+      - --with-mhash
+      - --with-mysqli=mysqlnd
+      - --with-openssl
+      - --with-pdo-mysql=mysqlnd
+      - --with-pdo-pgsql
+      - --with-pear
+      - --with-pgsql
+      - --with-readline=/usr/local/opt/readline
+      - --with-zip
     iconv:
+    ipc:
     json:
     mbregex:
     mbstring:
-    mhash:
     mcrypt:
+    mhash:
+    openssl:
     pcntl:
     pcre:
     pdo:
@@ -22,37 +55,4 @@ variants:
     sockets:
     tokenizer:
     xml:
-    curl:
-    openssl:
     zip:
-    gd:
-      - --with-freetype
-      - --with-pdo-mysql=mysqlnd
-      - --with-mysqli=mysqlnd
-      - --with-pgsql
-      - --with-pdo-pgsql
-      - --with-gmp=/usr/local/opt/gmp
-      - --with-openssl
-      - --with-pear
-      - --with-zip
-      - --with-libxml
-      - --with-kerberos
-      - --with-gd
-      - --with-ffi
-      - --with-curl
-      - --with-mhash
-      - --with-readline=/usr/local/opt/readline
-      - --with-iconv=/usr/local/opt/libiconv
-      - --with-icu-dir=/usr/local/opt/icu4c
-      - --with-config-file-path=/etc
-      - --enable-intl
-      - --enable-xml
-      - --enable-sysvsem
-      - --enable-sysvshm
-      - --enable-sysvmsg
-      - --enable-phpdbg
-      - --enable-exif
-      - --enable-gd
-      - --enable-soap
-      - --enable-xmlreader
-      - --enable-zend-test=shared

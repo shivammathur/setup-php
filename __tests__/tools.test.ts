@@ -550,7 +550,7 @@ describe('Tools tests', () => {
       'codeception',
       'cs2pr',
       'deployer',
-      'does_not_exit',
+      'does_not_exist',
       'flex',
       'phinx',
       'phive:0.13.2',
@@ -598,8 +598,7 @@ describe('Tools tests', () => {
     );
     expect(script).toContain('phpize is not a windows tool');
     expect(script).toContain('php-config is not a windows tool');
-    expect(script).toContain('Tool does_not_exit is not supported');
-    expect(script).toContain('Tool does_not_exit is not supported');
+    expect(script).toContain('Tool does_not_exist is not supported');
   });
   it('checking addTools with composer tool using user/tool as input', async () => {
     const listOfTools = [

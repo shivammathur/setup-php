@@ -357,7 +357,9 @@ Examples for setting up this GitHub Action with different PHP Frameworks/Package
 
 ## :scroll: License
 
-The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). This project has multiple [dependencies](https://github.com/shivammathur/setup-php/network/dependencies "Dependencies for this PHP Action") and uses [various works](#bookmark-dependencies "Tools used by this action"). Their licenses can be found in their respective repositories.
+- The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). 
+- This project has multiple [dependencies](#bookmark-dependencies "Dependencies for this PHP Action"). Their licenses can be found in their respective repositories.
+- The logo for `setup-php` is a derivative work of [php.net logo](https://www.php.net/download-logos.php) and is licensed under the [CC BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/ "Creative Commons License").
 
 ## :+1: Contributions
 
@@ -367,10 +369,8 @@ Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "sh
 
 If this action helped you.
 
-- To support this project subscribe on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") or sponsor using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal").
-- Please star the project and share it with the community.
-- If you blog, write about your experience of using this action.
-- If you need any help using this, please contact me using [Codementor](https://www.codementor.io/shivammathur "Shivam Mathur Codementor")
+- Sponsor the project by subscribing on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") or by contributing using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal"). This project is also available as part of the [Tidelift Subscription](https://tidelift.com/subscription/pkg/npm-setup-php?utm_source=npm-setup-php&utm_medium=referral&utm_campaign=enterprise&utm_term=repo "Tidelift Subscription for setup-php") to support delivering enterprise-level maintenance.
+- Please star the project and dependencies. If you blog, please share your experience of using this action with the community.
 
 ## :bookmark: Dependencies
 

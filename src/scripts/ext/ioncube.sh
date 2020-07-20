@@ -5,6 +5,9 @@ add_log() {
   message=$3
   if [ "$mark" = "$tick" ]; then
     printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
+    printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "ioncube" "Click to read the ioncube loader license information"
+    cat /tmp/ioncube/LICENSE.txt
+    echo "::endgroup::"
   else
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
   fi
@@ -18,7 +21,7 @@ check_extension() {
 
 # Function to install ioncube.
 install_ioncube() {
-  if [ ! -e $ext_dir/ioncube.so ]; then
+  if [ ! -e "$ext_dir/ioncube.so" ]; then
     os_name='lin'
     status='Installed and enabled'
     [ "$(uname -s)" = "Darwin" ] && os_name='mac'

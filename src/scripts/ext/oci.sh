@@ -5,6 +5,11 @@ add_log() {
   message=$3
   if [ "$mark" = "$tick" ]; then
     printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
+    printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "$ext" "Click to read the $ext related license information"
+    printf "Oracle Instant Client package is required for %s extension.\n" "$ext"
+    printf "It is provided under the Oracle Technology Network Development and Distribution License.\n"
+    printf "Refer to: \033[35;1m%s \033[0m\n" "https://www.oracle.com/downloads/licenses/instant-client-lic.html"
+    echo "::endgroup::"
   else
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
   fi
@@ -102,6 +107,7 @@ install_dependencies() {
 install_extension() {
   if ! [ -e "$ext_dir/$ext.so" ]; then
     (
+      status='Installed and enabled'
       phpize_orig=$(get_phpize)
       tag=$(get_tag)
       get_php
@@ -121,6 +127,7 @@ ext=$1
 version=$2
 tick='✓'
 cross='✗'
+status='Enabled'
 oracle_home='/opt/oracle'
 oracle_client=$oracle_home/instantclient
 runner="${runner:-github}" && RUNNER="${RUNNER:-github}"
@@ -130,4 +137,4 @@ ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
 install_client >/dev/null 2>&1
 install_dependencies >/dev/null 2>&1
 install_extension >/dev/null 2>&1
-(check_extension "$ext" && add_log "$tick" "$ext" "Installed and enabled") || add_log "$cross" "$ext" "Could not install $ext"
+(check_extension "$ext" && add_log "$tick" "$ext" "$status") || add_log "$cross" "$ext" "Could not install $ext"

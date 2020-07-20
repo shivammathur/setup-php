@@ -19,9 +19,9 @@ add_log() {
 # Function to backup and cleanup package lists.
 cleanup_lists() {
   if [ ! -e /etc/apt/sources.list.d.save ]; then
-    sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save
+    sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save || true
     sudo mkdir /etc/apt/sources.list.d
-    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
+    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/ || true
     trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/" exit
   fi
 }
@@ -29,7 +29,7 @@ cleanup_lists() {
 # Function to update php ppa
 update_lists() {
   if [ "$lists_updated" = "false" ]; then
-    cleanup_lists
+    cleanup_lists >/dev/null 2>&1
     sudo "$debconf_fix" apt-get update >/dev/null 2>&1
   fi
 }
@@ -267,8 +267,8 @@ sudo mkdir -p /var/run /run/php
 . /etc/lsb-release
 if [ "$DISTRIB_RELEASE" = "20.04" ]; then
   if ! apt-cache policy | grep -q ondrej/php; then
-    cleanup_lists
-    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
+    cleanup_lists >/dev/null 2>&1
+    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y >/dev/null 2>&1
   fi
 fi
 
@@ -279,7 +279,7 @@ if [ "$existing_version" != "$version" ]; then
     else
       update_lists
       IFS=' ' read -r -a packages <<< "$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
-      $apt_install "${packages[@]}"
+      $apt_install "${packages[@]}" >/dev/null 2>&1
     fi
     status="Installed"
   else

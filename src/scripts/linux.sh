@@ -29,6 +29,7 @@ cleanup_lists() {
 # Function to update php ppa
 update_lists() {
   if [ "$lists_updated" = "false" ]; then
+    cleanup_lists
     sudo "$debconf_fix" apt-get update >/dev/null 2>&1
   fi
 }
@@ -262,7 +263,10 @@ step_log "Setup PHP"
 sudo mkdir -p /var/run /run/php
 . /etc/lsb-release
 if [ "$DISTRIB_RELEASE" = "20.04" ]; then
-  LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
+  if ! apt-cache policy | grep -q ondrej/php; then
+    cleanup_lists
+    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
+  fi
 fi
 
 if [ "$existing_version" != "$version" ]; then

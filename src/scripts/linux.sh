@@ -271,8 +271,8 @@ if [ "$existing_version" != "$version" ]; then
       setup_master >/dev/null 2>&1
     else
       update_lists
-      IFS=' ' read -r -a packages <<< "$(echo "curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
-      $apt_install php"$version" "${packages[@]}" >/dev/null 2>&1
+      IFS=' ' read -r -a packages <<< "$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
+      $apt_install "${packages[@]}"
     fi
     status="Installed"
   else

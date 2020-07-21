@@ -30,7 +30,7 @@ cleanup_lists() {
   if [ ! -e /etc/apt/sources.list.d.save ]; then
     sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save
     sudo mkdir /etc/apt/sources.list.d
-    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
+    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/ || true
     trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/" exit
   fi
 }

@@ -1,5 +1,6 @@
 name: Main workflow
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - master
@@ -27,7 +28,7 @@ jobs:
         php-versions: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0']
     env:
       extensions: xml, opcache, xdebug, pcov
-      key: cache-v2
+      key: cache-v3
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -71,6 +72,7 @@ jobs:
           php -r "if(phpversion()>=7.1 && ! extension_loaded('pcov')) {throw new Exception('PCOV not found');}"
       - name: Testing ini values
         run: |
+          php -r "if(ini_get('memory_limit')!='-1') {throw new Exception('memory_limit not disabled');}"
           php -r "if(ini_get('post_max_size')!='256M') {throw new Exception('post_max_size not added');}"
           php -r "if(ini_get('short_open_tag')!=1) {throw new Exception('short_open_tag not added');}"
           php -r "if(ini_get('date.timezone')!='Asia/Kolkata') {throw new Exception('date.timezone not added');}"

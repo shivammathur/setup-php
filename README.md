@@ -132,7 +132,7 @@ with:
   extensions: xdebug-beta
 ```
 
-- Non-default extensions can be removed by prefixing it with a `:`.
+- Shared extensions can be removed by prefixing them with a `:`.
 
 ```yaml
 uses: shivammathur/setup-php@v2
@@ -143,13 +143,13 @@ with:
 
 - Extensions which cannot be added or removed gracefully leave an error message in the logs, the action is not interrupted.
 
-- These extensions have custom support - `gearman` on ubuntu, `blackfire`, `phalcon3` and `phalcon4` on all supported OS.
+- These extensions have custom support - `gearman` on `Ubuntu`, `blackfire`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
 
 ## :wrench: Tools Support
 
 These tools can be setup globally using the `tools` input.
 
-`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-prefetcher`, `cs2pr`, `deployer`, `flex`, `infection`, `pecl`, `phan`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`, `vapor-cli`
+`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `composer-require-checker`, `composer-unused`, `cs2pr`, `deployer`, `flex`, `infection`, `pecl`, `phan`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `psalm`, `symfony`, `vapor-cli`
 
 ```yaml
 uses: shivammathur/setup-php@v2
@@ -178,7 +178,7 @@ with:
 ```
 
 **Notes**
-- Both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified.
+- Both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified in tools input.
 - Tools which cannot be setup gracefully leave an error message in the logs, the action is not interrupted.
 
 ## :signal_strength: Coverage Support
@@ -635,6 +635,7 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 - The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). 
 - This project has multiple [dependencies](#bookmark-dependencies "Dependencies for this PHP Action"). Their licenses can be found in their respective repositories.
+- The logo for `setup-php` is a derivative work of [php.net logo](https://www.php.net/download-logos.php) and is licensed under the [CC BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/ "Creative Commons License").
 
 ## :+1: Contributions
 
@@ -647,10 +648,8 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 If this action helped you.
 
-- Sponsor the project by subscribing on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") or by contributing using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal").
-- Please star the project and share it with the community.
-- If you blog, write about your experience of using this action.
-- If you need any help using this, please contact me using [Codementor](https://www.codementor.io/shivammathur "Shivam Mathur Codementor")
+- Sponsor the project by subscribing on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") or by contributing using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal"). This project is also available as part of the [Tidelift Subscription](https://tidelift.com/subscription/pkg/npm-setup-php?utm_source=npm-setup-php&utm_medium=referral&utm_campaign=enterprise&utm_term=repo "Tidelift Subscription for setup-php") to support delivering enterprise-level maintenance.
+- Please star the project and dependencies. If you blog, please share your experience of using this action with the community.
 
 ## :package: Dependencies
 

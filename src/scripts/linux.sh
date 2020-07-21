@@ -25,9 +25,20 @@ read_env() {
   [ "$runner" = false ] && [[ -n ${RUNNER} ]] && runner="${RUNNER}"
 }
 
+# Function to backup and cleanup package lists.
+cleanup_lists() {
+  if [ ! -e /etc/apt/sources.list.d.save ]; then
+    sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save
+    sudo mkdir /etc/apt/sources.list.d
+    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
+    trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/" exit
+  fi
+}
+
 # Function to update the package lists.
 update_lists() {
   if [ "$lists_updated" = "false" ]; then
+    cleanup_lists
     sudo "$debconf_fix" apt-get update >/dev/null 2>&1
     lists_updated="true"
   fi
@@ -36,6 +47,7 @@ update_lists() {
 # Function to add ppa:ondrej/php.
 add_ppa() {
   if ! apt-cache policy | grep -q ondrej/php; then
+    cleanup_lists
     LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
     if [ "$DISTRIB_RELEASE" = "16.04" ]; then
       sudo "$debconf_fix" apt-get update
@@ -68,10 +80,10 @@ configure_pecl() {
 # Fuction to get the PECL version of an extension.
 get_pecl_version() {
   extension=$1
-  stability=$2
+  stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
   pecl_rest='https://pecl.php.net/rest/r/'
   response=$(curl -q -sSL "$pecl_rest$extension"/allreleases.xml)
-  pecl_version=$(echo "$response" | grep -m 1 -Po "(\d*\.\d*\.\d*$stability\d*)")
+  pecl_version=$(echo "$response" | grep -m 1 -Pio "(\d*\.\d*\.\d*$stability\d*)")
   if [ ! "$pecl_version" ]; then
     pecl_version=$(echo "$response" | grep -m 1 -Po "(\d*\.\d*\.\d*)")
   fi
@@ -127,7 +139,7 @@ add_pdo_extension() {
   else
     read -r ext ext_name <<< "$1 $1"
     sudo rm -rf "$scan_dir"/*pdo.ini >/dev/null 2>&1
-    if ! check_extension "pdo"; then echo "extension=pdo.so" >> "$ini_file"; fi
+    if ! check_extension "pdo" 2>/dev/null; then echo "extension=pdo.so" >> "$ini_file"; fi
     if [ "$ext" = "mysql" ]; then
       enable_extension "mysqlnd" "extension"
       ext_name="mysqli"
@@ -167,6 +179,9 @@ add_pecl_extension() {
   extension=$1
   pecl_version=$2
   prefix=$3
+  if [[ $pecl_version =~ .*(alpha|beta|rc|snapshot).* ]]; then
+    pecl_version=$(get_pecl_version "$extension" "$pecl_version")
+  fi
   if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
     echo "$prefix=$ext_dir/$extension.so" >>"$pecl_file"
   fi
@@ -228,6 +243,26 @@ add_extension_from_source() {
   ) || add_log "$cross" "$extension" "Could not install $extension-$release on PHP $semver"
 }
 
+# Function to configure composer
+configure_composer() {
+  tool_path=$1
+  sudo ln -sf "$tool_path" "$tool_path.phar"
+  php -r "try {\$p=new Phar('$tool_path.phar', 0);exit(0);} catch(Exception \$e) {exit(1);}"
+  if [ $? -eq 1 ]; then
+    add_log "$cross" "composer" "Could not download composer"
+    exit 1;
+  fi
+  composer -q global config process-timeout 0
+  echo "::add-path::/home/$USER/.composer/vendor/bin"
+  if [ -n "$COMPOSER_TOKEN" ]; then
+    composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
+  fi
+  # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
+  if [[ "$version" =~ $old_versions ]]; then
+    composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
+  fi
+}
+
 # Function to setup a remote tool.
 add_tool() {
   url=$1
@@ -240,15 +275,7 @@ add_tool() {
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
-      composer -q global config process-timeout 0
-      echo "::add-path::/home/$USER/.composer/vendor/bin"
-      if [ -n "$COMPOSER_TOKEN" ]; then
-        composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
-      fi
-      # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
-      if [[ "$version" =~ $old_versions ]]; then
-        composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
-      fi
+      configure_composer "$tool_path"
     elif [ "$tool" = "cs2pr" ]; then
       sudo sed -i 's/\r$//; s/exit(9)/exit(0)/' "$tool_path"
     elif [ "$tool" = "phan" ]; then
@@ -300,7 +327,7 @@ add_blackfire() {
     sudo /etc/init.d/blackfire-agent restart >/dev/null 2>&1
   fi
   if [[ -n $BLACKFIRE_CLIENT_ID ]] && [[ -n $BLACKFIRE_CLIENT_TOKEN ]]; then
-    sudo blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
+    blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
   fi
   add_log "$tick" "blackfire" "Added"
   add_log "$tick" "blackfire-agent" "Added"
@@ -349,8 +376,8 @@ php_semver() {
 # Function to install packaged PHP
 add_packaged_php() {
   update_lists
-  IFS=' ' read -r -a packages <<< "$(echo "curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
-  $apt_install php"$version" "${packages[@]}"
+  IFS=' ' read -r -a packages <<< "$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
+  $apt_install "${packages[@]}"
 }
 
 # Function to update PHP.

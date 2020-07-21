@@ -1,4 +1,20 @@
+import * as httpm from '@actions/http-client';
 import * as tools from '../src/tools';
+
+httpm.HttpClient.prototype.get = jest.fn().mockImplementation(() => {
+  return {
+    message: null,
+    readBody: jest.fn().mockImplementation(() => {
+      return JSON.stringify({
+        stable: [{path: '/composer-stable.phar'}],
+        preview: [{path: '/composer-preview.phar'}],
+        snapshot: [{path: '/composer.phar'}],
+        '1': [{path: '/composer-1.phar'}],
+        '2': [{path: '/composer-2.phar'}]
+      });
+    })
+  };
+});
 
 describe('Tools tests', () => {
   it('checking getCommand', async () => {
@@ -239,20 +255,24 @@ describe('Tools tests', () => {
     ).toStrictEqual(['composer:2', 'a', 'b', 'c']);
   });
 
-  it('checking updateComposer', async () => {
-    expect(await tools.updateComposer('latest', 'linux')).toContain('');
-    expect(await tools.updateComposer('stable', 'win32')).toContain('');
-    expect(await tools.updateComposer('snapshot', 'darwin')).toContain(
-      '\ncomposer self-update --snapshot'
+  it('checking getComposerUrl', async () => {
+    expect(await tools.getComposerUrl('latest')).toContain(
+      'https://getcomposer.org/composer-stable.phar'
     );
-    expect(await tools.updateComposer('preview', 'linux')).toContain(
-      '\ncomposer self-update --preview'
+    expect(await tools.getComposerUrl('stable')).toContain(
+      'https://getcomposer.org/composer-stable.phar'
     );
-    expect(await tools.updateComposer('1', 'win32')).toContain(
-      '\ncomposer self-update --1'
+    expect(await tools.getComposerUrl('snapshot')).toContain(
+      'https://getcomposer.org/composer.phar'
     );
-    expect(await tools.updateComposer('2', 'darwin')).toContain(
-      '\ncomposer self-update --2'
+    expect(await tools.getComposerUrl('preview')).toContain(
+      'https://getcomposer.org/composer-preview.phar'
+    );
+    expect(await tools.getComposerUrl('1')).toContain(
+      'https://getcomposer.org/composer-1.phar'
+    );
+    expect(await tools.getComposerUrl('2')).toContain(
+      'https://getcomposer.org/composer-2.phar'
     );
   });
 
@@ -426,17 +446,54 @@ describe('Tools tests', () => {
     expect(script).toContain('add_log "$tick" "phpize" "Added"');
   });
   it('checking addTools on darwin', async () => {
+    const listOfTools = [
+      'blackfire',
+      'blackfire-player',
+      'composer-normalize',
+      'composer-prefetcher:1.2.3',
+      'composer-require-checker',
+      'composer-unused',
+      'cs2pr:1.2.3',
+      'flex',
+      'infection',
+      'phan',
+      'phan:2.7.2',
+      'phinx',
+      'phive:1.2.3',
+      'php-config',
+      'phpcbf',
+      'phpcpd',
+      'phpcs',
+      'phpize',
+      'phpmd',
+      'psalm',
+      'symfony',
+      'symfony:1.2.3',
+      'vapor-cli',
+      'wp-cli'
+    ];
+
     const script: string = await tools.addTools(
-      'blackfire, blackfire-player, flex, infection, phan, phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, vapor-cli, phan:2.7.2, phive:1.2.3, cs2pr:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3, wp-cli',
+      listOfTools.join(', '),
       '7.4',
       'darwin'
     );
+
     expect(script).toContain('add_blackfire');
     expect(script).toContain(
       'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player'
     );
     expect(script).toContain(
       'add_tool https://getcomposer.org/composer-stable.phar composer'
+    );
+    expect(script).toContain(
+      'add_tool https://github.com/ergebnis/composer-normalize/releases/latest/download/composer-normalize.phar composer-normalize'
+    );
+    expect(script).toContain(
+      'add_tool https://github.com/maglnet/ComposerRequireChecker/releases/latest/download/composer-require-checker.phar composer-require-checker'
+    );
+    expect(script).toContain(
+      'add_tool https://github.com/composer-unused/composer-unused/releases/latest/download/composer-unused.phar composer-unused'
     );
     expect(script).toContain(
       'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr'
@@ -487,11 +544,30 @@ describe('Tools tests', () => {
     expect(script).toContain('add_log "$tick" "php-config" "Added"');
   });
   it('checking addTools on windows', async () => {
+    const listOfTools = [
+      'blackfire',
+      'blackfire-player:1.8.1',
+      'codeception',
+      'cs2pr',
+      'deployer',
+      'does_not_exist',
+      'flex',
+      'phinx',
+      'phive:0.13.2',
+      'php-config',
+      'phpize',
+      'phpmd',
+      'prestissimo',
+      'symfony',
+      'wp-cli'
+    ];
+
     const script: string = await tools.addTools(
-      'blackfire, blackfire-player:1.8.1, codeception, cs2pr, deployer, flex, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, wp-cli, does_not_exit',
+      listOfTools.join(', '),
       '7.4',
       'win32'
     );
+
     expect(script).toContain('Add-Blackfire');
     expect(script).toContain(
       'Add-Tool https://get.blackfire.io/blackfire-player-v1.8.1.phar blackfire-player'
@@ -522,15 +598,21 @@ describe('Tools tests', () => {
     );
     expect(script).toContain('phpize is not a windows tool');
     expect(script).toContain('php-config is not a windows tool');
-    expect(script).toContain('Tool does_not_exit is not supported');
-    expect(script).toContain('Tool does_not_exit is not supported');
+    expect(script).toContain('Tool does_not_exist is not supported');
   });
   it('checking addTools with composer tool using user/tool as input', async () => {
+    const listOfTools = [
+      'hirak/prestissimo',
+      'narrowspark/automatic-composer-prefetcher',
+      'robmorgan/phinx'
+    ];
+
     const script: string = await tools.addTools(
-      'hirak/prestissimo, narrowspark/automatic-composer-prefetcher, robmorgan/phinx',
+      listOfTools.join(', '),
       '7.4',
       'win32'
     );
+
     expect(script).toContain(
       'Add-Tool https://getcomposer.org/composer-stable.phar composer'
     );
@@ -541,23 +623,29 @@ describe('Tools tests', () => {
     );
   });
   it('checking composer setup', async () => {
+    const listOfTools = ['composer', 'composer:v1'];
+
     let script: string = await tools.addTools(
-      'composer, composer:v1',
+      listOfTools.join(', '),
       '7.4',
       'linux'
     );
+
     expect(script).toContain(
-      'add_tool https://getcomposer.org/composer-stable.phar composer'
+      'add_tool https://getcomposer.org/composer-1.phar composer'
     );
-    expect(script).toContain('composer self-update --1');
 
     script = await tools.addTools('composer:preview', '7.4', 'linux');
-    expect(script).toContain('composer self-update --preview');
+    expect(script).toContain(
+      'add_tool https://getcomposer.org/composer-preview.phar composer'
+    );
     script = await tools.addTools(
       'composer:v1, composer:preview, composer:snapshot',
       '7.4',
       'linux'
     );
-    expect(script).toContain('composer self-update --snapshot');
+    expect(script).toContain(
+      'add_tool https://getcomposer.org/composer.phar composer'
+    );
   });
 });

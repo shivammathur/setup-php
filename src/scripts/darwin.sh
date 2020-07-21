@@ -60,10 +60,10 @@ check_extension() {
 # Fuction to get the PECL version.
 get_pecl_version() {
   extension=$1
-  stability=$2
+  stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
   pecl_rest='https://pecl.php.net/rest/r/'
   response=$(curl -q -sSL "$pecl_rest$extension"/allreleases.xml)
-  pecl_version=$(echo "$response" | grep -m 1 -Eo "(\d*\.\d*\.\d*$stability\d*)")
+  pecl_version=$(echo "$response" | grep -m 1 -Eio "(\d*\.\d*\.\d*$stability\d*)")
   if [ ! "$pecl_version" ]; then
     pecl_version=$(echo "$response" | grep -m 1 -Eo "(\d*\.\d*\.\d*)")
   fi
@@ -75,6 +75,9 @@ add_pecl_extension() {
   extension=$1
   pecl_version=$2
   prefix=$3
+  if [[ $pecl_version =~ .*(alpha|beta|rc|snapshot).* ]]; then
+    pecl_version=$(get_pecl_version "$extension" "$pecl_version")
+  fi
   if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
     echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"
   fi
@@ -127,6 +130,26 @@ add_unstable_extension() {
   add_pecl_extension "$extension" "$pecl_version" "$prefix"
 }
 
+# Function to configure composer
+configure_composer() {
+  tool_path=$1
+  sudo ln -sf "$tool_path" "$tool_path.phar"
+  php -r "try {\$p=new Phar('$tool_path.phar', 0);exit(0);} catch(Exception \$e) {exit(1);}"
+  if [ $? -eq 1 ]; then
+    add_log "$cross" "composer" "Could not download composer"
+    exit 1;
+  fi
+  composer -q global config process-timeout 0
+  echo "::add-path::/Users/$USER/.composer/vendor/bin"
+  if [ -n "$COMPOSER_TOKEN" ]; then
+    composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
+  fi
+  # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
+  if [[ "$version" =~ $old_versions ]]; then
+    composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
+  fi
+}
+
 # Function to setup a remote tool.
 add_tool() {
   url=$1
@@ -140,15 +163,7 @@ add_tool() {
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
-      composer -q global config process-timeout 0
-      echo "::add-path::/Users/$USER/.composer/vendor/bin"
-      if [ -n "$COMPOSER_TOKEN" ]; then
-        composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
-      fi
-      # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
-      if [[ "$version" =~ $old_versions ]]; then
-        composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
-      fi
+      configure_composer "$tool_path"
     elif [ "$tool" = "phan" ]; then
       add_extension fileinfo "sudo pecl install -f fileinfo" extension >/dev/null 2>&1
       add_extension ast "sudo pecl install -f ast" extension >/dev/null 2>&1
@@ -185,11 +200,11 @@ add_blackfire() {
   brew tap --shallow blackfireio/homebrew-blackfire >/dev/null 2>&1
   brew install blackfire-agent >/dev/null 2>&1
   if [[ -n $BLACKFIRE_SERVER_ID ]] && [[ -n $BLACKFIRE_SERVER_TOKEN ]]; then
-    sudo blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
+    blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
     brew services start blackfire-agent >/dev/null 2>&1
   fi
   if [[ -n $BLACKFIRE_CLIENT_ID ]] && [[ -n $BLACKFIRE_CLIENT_TOKEN ]]; then
-    sudo blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
+    blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
   fi
   add_log "$tick" "blackfire" "Added"
   add_log "$tick" "blackfire-agent" "Added"
@@ -256,7 +271,7 @@ else
 fi
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 sudo chmod 777 "$ini_file" "$tool_path_dir"
-echo "date.timezone=UTC" >>"$ini_file"
+echo -e "date.timezone=UTC\nmemory_limit=-1" >>"$ini_file"
 ext_dir=$(php -i | grep -Ei "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo mkdir -p "$ext_dir"

@@ -77,8 +77,8 @@ Function Get-CleanPSProfile {
 Function Install-PhpManager() {
   $repo = "mlocati/powershell-phpmanager"
   $tag = (Invoke-RestMethod https://api.github.com/repos/$repo/tags)[0].Name
-  $module_path = "$bin_dir\PhpManager\powershell-phpmanager-$tag\PhpManager"
-  if(-not (Test-Path $module_path\PhpManager.psm1 -PathType Leaf)) {
+  $module_path = "$bin_dir\PhpManager\powershell-phpmanager-$tag\PhpManager\PhpManager.psm1"
+  if(-not (Test-Path $module_path -PathType Leaf)) {
     $zip_file = "$bin_dir\PhpManager.zip"
     Invoke-WebRequest -UseBasicParsing -Uri https://github.com/$repo/archive/$tag.zip -OutFile $zip_file
     Expand-Archive -Path $zip_file -DestinationPath $bin_dir\PhpManager -Force
@@ -99,7 +99,7 @@ Function Add-Extension {
     [ValidateNotNull()]
     [ValidateSet('stable', 'beta', 'alpha', 'devel', 'snapshot')]
     [string]
-    $mininum_stability = 'stable',
+    $stability = 'stable',
     [Parameter(Position = 2, Mandatory = $false)]
     [ValidateNotNull()]
     [ValidatePattern('^\d+(\.\d+){0,2}$')]
@@ -124,9 +124,9 @@ Function Add-Extension {
     }
     else {
       if($extension_version -ne '') {
-        Install-PhpExtension -Extension $extension -Version $extension_version -MinimumStability $mininum_stability -Path $php_dir
+        Install-PhpExtension -Extension $extension -Version $extension_version -MinimumStability $stability -MaximumStability $stability -Path $php_dir
       } else {
-        Install-PhpExtension -Extension $extension -MinimumStability $mininum_stability -Path $php_dir
+        Install-PhpExtension -Extension $extension -MinimumStability $stability -MaximumStability $stability -Path $php_dir
       }
 
       Add-Log $tick $extension "Installed and enabled"
@@ -158,6 +158,31 @@ Function Remove-Extension() {
     }
   } else {
     Add-Log $tick ":$extension" "Could not find $extension on PHP $($installed.FullVersion)"
+  }
+}
+
+Function Edit-ComposerConfig() {
+  Param(
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $tool_path
+  )
+  Copy-Item $tool_path -Destination "$tool_path.phar"
+  php -r "try {`$p=new Phar('$tool_path.phar', 0);exit(0);} catch(Exception `$e) {exit(1);}"
+  if ($? -eq $False) {
+    Add-Log "$cross" "composer" "Could not download composer"
+    exit 1;
+  }
+  composer -q global config process-timeout 0
+  Write-Output "::add-path::$env:APPDATA\Composer\vendor\bin"
+  if (Test-Path env:COMPOSER_TOKEN) {
+    composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
+  }
+  # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
+  if ($version -lt 5.6) {
+    composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
   }
 }
 
@@ -201,15 +226,7 @@ Function Add-Tool() {
   } elseif($tool -eq "cs2pr") {
     (Get-Content $bin_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $bin_dir/cs2pr
   } elseif($tool -eq "composer") {
-    composer -q global config process-timeout 0
-    Write-Output "::add-path::$env:APPDATA\Composer\vendor\bin"
-    if (Test-Path env:COMPOSER_TOKEN) {
-      composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
-    }
-    # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
-    if ($version -lt 5.6) {
-      composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
-    }
+    Edit-ComposerConfig $bin_dir\$tool
   } elseif($tool -eq "wp-cli") {
     Copy-Item $bin_dir\wp-cli.bat -Destination $bin_dir\wp.bat
   }
@@ -355,7 +372,11 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 
 $installed = Get-Php -Path $php_dir
 Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
+Set-PhpIniKey -Key 'memory_limit' -Value '-1' -Path $php_dir
 if($version -lt "5.5") {
+  ForEach($lib in "libeay32.dll", "ssleay32.dll") {
+    Invoke-WebRequest -UseBasicParsing -Uri https://dl.bintray.com/shivammathur/php/$lib -OutFile $php_dir\$lib >$null 2>&1
+  }
   Enable-PhpExtension -Extension openssl, curl, mbstring -Path $php_dir
 } else {
   Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir

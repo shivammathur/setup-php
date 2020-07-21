@@ -5,11 +5,13 @@ describe('Extension tests', () => {
     expect(await extensions.getXdebugVersion('5.3')).toContain('2.2.7');
     expect(await extensions.getXdebugVersion('5.4')).toContain('2.4.1');
     expect(await extensions.getXdebugVersion('5.5')).toContain('2.5.5');
-    expect(await extensions.getXdebugVersion('5.6')).toContain('2.9.6');
+    expect(await extensions.getXdebugVersion('5.6')).toContain('2.5.5');
+    expect(await extensions.getXdebugVersion('7.0')).toContain('2.7.2');
+    expect(await extensions.getXdebugVersion('7.2')).toContain('2.9.6');
   });
   it('checking addExtensionOnWindows', async () => {
     let win32: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, :intl, phalcon4, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2',
+      'Xdebug, pcov, sqlite, :intl, phalcon4, ioncube, oci8, pdo_oci, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2',
       '7.4',
       'win32'
     );
@@ -18,6 +20,9 @@ describe('Extension tests', () => {
     expect(win32).toContain('Add-Extension sqlite3');
     expect(win32).toContain('Remove-Extension intl');
     expect(win32).toContain('phalcon.ps1 phalcon4');
+    expect(win32).toContain('ioncube.ps1 7.4');
+    expect(win32).toContain('oci.ps1 oci8 7.4');
+    expect(win32).toContain('oci.ps1 pdo_oci 7.4');
     expect(win32).toContain('Add-Extension ast beta');
     expect(win32).toContain('Add-Extension grpc stable 1.2.3');
     expect(win32).toContain('Add-Extension inotify alpha 1.2.3');
@@ -105,6 +110,13 @@ describe('Extension tests', () => {
     expect(linux).toContain('phalcon.sh phalcon3 7.3');
     expect(linux).toContain('phalcon.sh phalcon4 7.3');
 
+    linux = await extensions.addExtension('ioncube', '7.3', 'linux');
+    expect(linux).toContain('ioncube.sh 7.3');
+
+    linux = await extensions.addExtension('oci8, pdo_oci', '7.3', 'linux');
+    expect(linux).toContain('oci.sh oci8 7.3');
+    expect(linux).toContain('oci.sh pdo_oci 7.3');
+
     linux = await extensions.addExtension('blackfire', '7.3', 'linux');
     expect(linux).toContain('blackfire.sh 7.3 blackfire');
 
@@ -114,7 +126,7 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'Xdebug, pcov, grpc, protobuf, swoole, sqlite, :intl, ast-beta, grpc-1.2.3',
+      'Xdebug, pcov, grpc, protobuf, swoole, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
       '7.2',
       'darwin'
     );
@@ -133,6 +145,13 @@ describe('Extension tests', () => {
 
     darwin = await extensions.addExtension('phalcon4', '7.3', 'darwin');
     expect(darwin).toContain('phalcon_darwin.sh phalcon4 7.3');
+
+    darwin = await extensions.addExtension('ioncube', '7.3', 'darwin');
+    expect(darwin).toContain('ioncube.sh 7.3');
+
+    darwin = await extensions.addExtension('oci8, pdo_oci', '7.3', 'darwin');
+    expect(darwin).toContain('oci.sh oci8 7.3');
+    expect(darwin).toContain('oci.sh pdo_oci 7.3');
 
     darwin = await extensions.addExtension('pcov', '5.6', 'darwin');
     expect(darwin).toContain('sudo pecl install -f pcov');

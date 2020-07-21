@@ -41,11 +41,11 @@ export async function build(
   if (extension_csv) {
     script += await extensions.addExtension(extension_csv, version, os_version);
   }
-  if (ini_values_csv) {
-    script += await config.addINIValues(ini_values_csv, os_version);
-  }
   if (coverage_driver) {
     script += await coverage.addCoverage(coverage_driver, version, os_version);
+  }
+  if (ini_values_csv) {
+    script += await config.addINIValues(ini_values_csv, os_version);
   }
 
   return await utils.writeScript(filename, script);

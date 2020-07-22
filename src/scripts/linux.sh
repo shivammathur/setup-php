@@ -30,17 +30,18 @@ cleanup_lists() {
   if [ ! -e /etc/apt/sources.list.d.save ]; then
     sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save
     sudo mkdir /etc/apt/sources.list.d
-    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/ || true
+    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
     trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/" exit
   fi
 }
 
 # Function to update the package lists.
 update_lists() {
-  if [ "$lists_updated" = "false" ]; then
+  if [ ! -e /tmp/setup_php ]; then
+    [ "$DISTRIB_RELEASE" = "20.04" ] && add_ppa >/dev/null 2>&1
     cleanup_lists
     sudo "$debconf_fix" apt-get update >/dev/null 2>&1
-    lists_updated="true"
+    echo '' | sudo tee "/tmp/setup_php" >/dev/null 2>&1
   fi
 }
 
@@ -349,7 +350,7 @@ setup_old_versions() {
 add_pecl() {
   add_devtools >/dev/null 2>&1
   if [ ! -e /usr/bin/pecl ]; then
-    $apt_install php-pear >/dev/null 2>&1
+    $apt_install php-pear >/dev/null 2>&1 || update_lists && $apt_install php-pear >/dev/null 2>&1
   fi
   configure_pecl >/dev/null 2>&1
   add_log "$tick" "PECL" "Added"
@@ -375,14 +376,19 @@ php_semver() {
 
 # Function to install packaged PHP
 add_packaged_php() {
-  update_lists
-  IFS=' ' read -r -a packages <<< "$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
-  $apt_install "${packages[@]}"
+  if [ "$runner" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
+    update_lists
+    IFS=' ' read -r -a packages <<< "$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
+    $apt_install "${packages[@]}"
+  else
+    curl -sSL "$github"/php-ubuntu/releases/latest/download/install.sh | bash -s "$version"
+  fi
 }
 
 # Function to update PHP.
 update_php() {
   initial_version=$(php_semver)
+  use_package_cache="false"
   add_packaged_php
   updated_version=$(php_semver)
   if [ "$updated_version" != "$initial_version" ]; then
@@ -407,7 +413,6 @@ add_php() {
 # Variables
 tick="✓"
 cross="✗"
-lists_updated="false"
 pecl_config="false"
 version=$1
 master_version="8.0"
@@ -426,8 +431,6 @@ if [ "$runner" = "self-hosted" ]; then
   else
     self_hosted_setup >/dev/null 2>&1
   fi
-elif [ "$DISTRIB_RELEASE" = "20.04" ]; then
-  add_ppa >/dev/null 2>&1
 fi
 
 # Setup PHP

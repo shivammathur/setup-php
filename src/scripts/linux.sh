@@ -208,21 +208,6 @@ add_unstable_extension() {
   add_pecl_extension "$extension" "$pecl_version" "$prefix"
 }
 
-# Function to update extension.
-update_extension() {
-  extension=$1
-  latest_version=$2
-  current_version=$(php -r "echo phpversion('$extension');")
-  final_version=$(printf "%s\n%s" "$current_version" "$latest_version" | sort | tail -n 1)
-  if [ "$final_version" != "$current_version"  ]; then
-    version_exists=$(apt-cache policy -- *"$extension" | grep "$final_version")
-    if [ -z "$version_exists" ]; then
-      update_lists
-    fi
-    $apt_install php"$version"-"$extension"
-  fi
-}
-
 # Function to install extension from source
 add_extension_from_source() {
   extension=$1

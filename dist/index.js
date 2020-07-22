@@ -3916,14 +3916,6 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                 extension = 'xdebug';
                 command = command_prefix + version + '-' + extension + pipe;
                 break;
-            // match 7.1xdebug..7.4xdebug
-            case /^7\.[1-4]xdebug$/.test(version_extension):
-                add_script +=
-                    '\nupdate_extension xdebug 2.9.6' +
-                        pipe +
-                        '\n' +
-                        (await utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));
-                return;
             // match pdo extensions
             case /.*pdo[_-].*/.test(version_extension):
                 extension = extension

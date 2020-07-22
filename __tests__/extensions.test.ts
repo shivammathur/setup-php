@@ -65,7 +65,6 @@ describe('Extension tests', () => {
       '7.4',
       'linux'
     );
-    expect(linux).toContain('update_extension xdebug 2.9.6');
     expect(linux).toContain(
       'add_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension'
     );

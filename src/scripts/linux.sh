@@ -243,10 +243,6 @@ configure_composer() {
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
   fi
-  # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
-  if [[ "$version" =~ $old_versions ]]; then
-    composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
-  fi
 }
 
 # Function to setup a remote tool.

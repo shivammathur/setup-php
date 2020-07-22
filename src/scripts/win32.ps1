@@ -139,10 +139,6 @@ Function Edit-ComposerConfig() {
   if (Test-Path env:COMPOSER_TOKEN) {
     composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
   }
-  # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
-  if ($version -lt 5.6) {
-    composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
-  }
 }
 
 Function Add-Tool() {

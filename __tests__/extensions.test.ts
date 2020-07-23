@@ -9,6 +9,12 @@ describe('Extension tests', () => {
     expect(await extensions.getXdebugVersion('7.0')).toContain('2.7.2');
     expect(await extensions.getXdebugVersion('7.2')).toContain('2.9.6');
   });
+  it('checking getUnsupportedLog', async () => {
+    expect(await extensions.getUnsupportedLog('ext', '5.6', 'linux')).toContain(
+      'add_log "$cross" "ext" "ext is not supported on PHP 5.6"'
+    );
+  });
+
   it('checking addExtensionOnWindows', async () => {
     let win32: string = await extensions.addExtension(
       'Xdebug, pcov, sqlite, :intl, phalcon4, ioncube, oci8, pdo_oci, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2',
@@ -26,6 +32,11 @@ describe('Extension tests', () => {
     expect(win32).toContain('Add-Extension ast beta');
     expect(win32).toContain('Add-Extension grpc stable 1.2.3');
     expect(win32).toContain('Add-Extension inotify alpha 1.2.3');
+
+    win32 = await extensions.addExtension('pcov', '5.6', 'win32');
+    expect(win32).toContain(
+      'Add-Log "$cross" "pcov" "pcov is not supported on PHP 5.6"'
+    );
 
     win32 = await extensions.addExtension('mysql', '7.4', 'win32');
     expect(win32).toContain('Add-Extension mysqli');
@@ -86,6 +97,11 @@ describe('Extension tests', () => {
     linux = await extensions.addExtension('xdebug3', '8.0', 'linux');
     expect(linux).toContain(
       'sudo $debconf_fix apt-get install -y php8.0-xdebug'
+    );
+
+    linux = await extensions.addExtension('pcov', '5.6', 'linux');
+    expect(linux).toContain(
+      'add_log "$cross" "pcov" "pcov is not supported on PHP 5.6"'
     );
 
     linux = await extensions.addExtension('gearman', '7.0', 'linux');
@@ -153,7 +169,9 @@ describe('Extension tests', () => {
     expect(darwin).toContain('oci.sh pdo_oci 7.3');
 
     darwin = await extensions.addExtension('pcov', '5.6', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f pcov');
+    expect(darwin).toContain(
+      'add_log "$cross" "pcov" "pcov is not supported on PHP 5.6"'
+    );
 
     darwin = await extensions.addExtension('pcov', '7.2', 'darwin');
     expect(darwin).toContain('add_brew_extension pcov');

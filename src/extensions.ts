@@ -22,6 +22,23 @@ export async function getXdebugVersion(version: string): Promise<string> {
   }
 }
 
+export async function getUnsupportedLog(
+  extension: string,
+  version: string,
+  os_version: string
+): Promise<string> {
+  return (
+    '\n' +
+    (await utils.addLog(
+      '$cross',
+      extension,
+      extension + ' is not supported on PHP ' + version,
+      os_version
+    )) +
+    '\n'
+  );
+}
+
 /**
  * Install and enable extensions for darwin
  *
@@ -86,6 +103,10 @@ export async function addExtensionDarwin(
         command =
           command_prefix + 'xdebug-' + (await getXdebugVersion(version));
         break;
+      // match 5.3pcov to 7.0pcov
+      case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
+        add_script += await getUnsupportedLog('pcov', version, 'darwin');
+        return;
       // match 5.6xdebug to 8.0xdebug, 5.6swoole to 8.0swoole
       // match 5.6grpc to 7.4grpc, 5.6protobuf to 7.4protobuf
       // match 7.1pcov to 8.0pcov
@@ -204,6 +225,10 @@ export async function addExtensionWindows(
         add_script +=
           '\nAdd-Extension ' + ext_name + ' ' + matches[2] + ' ' + matches[1];
         return;
+      // match 5.3pcov to 7.0pcov
+      case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
+        add_script += await getUnsupportedLog('pcov', version, 'win32');
+        break;
       // match 5.3mysql..5.6mysql
       // match 5.3mysqli..5.6mysqli
       // match 5.3mysqlnd..5.6mysqlnd
@@ -319,6 +344,10 @@ export async function addExtensionLinux(
           ext_version +
           ' ' +
           ext_prefix;
+        return;
+      // match 5.3pcov to 7.0pcov
+      case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
+        add_script += await getUnsupportedLog('pcov', version, 'linux');
         return;
       // match 5.6gearman..7.4gearman
       case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):

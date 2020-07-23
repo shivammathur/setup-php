@@ -3568,7 +3568,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addExtension = exports.addExtensionLinux = exports.addExtensionWindows = exports.addExtensionDarwin = exports.getXdebugVersion = void 0;
+exports.addExtension = exports.addExtensionLinux = exports.addExtensionWindows = exports.addExtensionDarwin = exports.getUnsupportedLog = exports.getXdebugVersion = void 0;
 const path = __importStar(__webpack_require__(622));
 const utils = __importStar(__webpack_require__(163));
 /**
@@ -3592,6 +3592,12 @@ async function getXdebugVersion(version) {
     }
 }
 exports.getXdebugVersion = getXdebugVersion;
+async function getUnsupportedLog(extension, version, os_version) {
+    return ('\n' +
+        (await utils.addLog('$cross', extension, extension + ' is not supported on PHP ' + version, os_version)) +
+        '\n');
+}
+exports.getUnsupportedLog = getUnsupportedLog;
 /**
  * Install and enable extensions for darwin
  *
@@ -3650,6 +3656,10 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                 command =
                     command_prefix + 'xdebug-' + (await getXdebugVersion(version));
                 break;
+            // match 5.3pcov to 7.0pcov
+            case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
+                add_script += await getUnsupportedLog('pcov', version, 'darwin');
+                return;
             // match 5.6xdebug to 8.0xdebug, 5.6swoole to 8.0swoole
             // match 5.6grpc to 7.4grpc, 5.6protobuf to 7.4protobuf
             // match 7.1pcov to 8.0pcov
@@ -3759,6 +3769,10 @@ async function addExtensionWindows(extension_csv, version) {
                 add_script +=
                     '\nAdd-Extension ' + ext_name + ' ' + matches[2] + ' ' + matches[1];
                 return;
+            // match 5.3pcov to 7.0pcov
+            case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
+                add_script += await getUnsupportedLog('pcov', version, 'win32');
+                break;
             // match 5.3mysql..5.6mysql
             // match 5.3mysqli..5.6mysqli
             // match 5.3mysqlnd..5.6mysqlnd
@@ -3868,6 +3882,10 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                         ext_version +
                         ' ' +
                         ext_prefix;
+                return;
+            // match 5.3pcov to 7.0pcov
+            case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
+                add_script += await getUnsupportedLog('pcov', version, 'linux');
                 return;
             // match 5.6gearman..7.4gearman
             case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):

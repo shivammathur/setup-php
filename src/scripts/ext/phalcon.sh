@@ -10,11 +10,24 @@ add_log() {
   fi
 }
 
-# Function to update php ppa
-update_ppa() {
-  if [ "$ppa_updated" = "false" ]; then
-    find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-get update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
-    ppa_updated="true"
+# Function to add ppa:ondrej/php
+add_ppa() {
+  if ! apt-cache policy | grep -q ondrej/php; then
+    cleanup_lists
+    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
+    if [ "$DISTRIB_RELEASE" = "16.04" ]; then
+      sudo "$debconf_fix" apt-get update
+    fi
+  fi
+}
+
+# Function to update the package lists
+update_lists() {
+  if [ ! -e /tmp/setup_php ]; then
+    [ "$DISTRIB_RELEASE" = "20.04" ] && add_ppa >/dev/null 2>&1
+    cleanup_lists
+    sudo "$debconf_fix" apt-get update >/dev/null 2>&1
+    echo '' | sudo tee "/tmp/setup_php" >/dev/null 2>&1
   fi
 }
 
@@ -26,11 +39,11 @@ install_phalcon() {
   add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
 }
 
+debconf_fix="DEBIAN_FRONTEND=noninteractive"
 ini_file="/etc/php/$2/cli/conf.d/50-phalcon.ini"
 ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
 extension_major_version=$(echo "$1" | grep -i -Po '\d')
-ppa_updated="false"
 tick="✓"
 cross="✗"
 

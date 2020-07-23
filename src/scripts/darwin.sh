@@ -28,7 +28,7 @@ read_env() {
 self_hosted_setup() {
   if [[ $(command -v brew) == "" ]]; then
       step_log "Setup Brew"
-      curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash -s >/dev/null 2>&1
+      curl "${curl_opts[@]}" https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash -s >/dev/null 2>&1
       add_log "$tick" "Brew" "Installed Homebrew"
   fi
 }
@@ -62,7 +62,7 @@ get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
   pecl_rest='https://pecl.php.net/rest/r/'
-  response=$(curl -q -sSL "$pecl_rest$extension"/allreleases.xml)
+  response=$(curl "${curl_opts[@]}" "$pecl_rest$extension"/allreleases.xml)
   pecl_version=$(echo "$response" | grep -m 1 -Eio "(\d*\.\d*\.\d*$stability\d*)")
   if [ ! "$pecl_version" ]; then
     pecl_version=$(echo "$response" | grep -m 1 -Eo "(\d*\.\d*\.\d*)")
@@ -155,7 +155,7 @@ add_tool() {
     rm -rf "$tool_path"
   fi
 
-  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" -L "$url")
+  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
@@ -239,6 +239,7 @@ version=$1
 nodot_version=${1/./}
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
+curl_opts=(-sSL --retry 5 --retry-delay 1)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 read_env
@@ -254,7 +255,7 @@ fi
 # Setup PHP
 step_log "Setup PHP"
 if [[ "$version" =~ $old_versions ]]; then
-  curl -sSL https://github.com/shivammathur/php5-darwin/releases/latest/download/install.sh | bash -s "$nodot_version" >/dev/null 2>&1 &&
+  curl "${curl_opts[@]}" https://github.com/shivammathur/php5-darwin/releases/latest/download/install.sh | bash -s "$nodot_version" >/dev/null 2>&1 &&
   status="Installed"
 elif [ "$existing_version" != "$version" ]; then
   setup_php "install" >/dev/null 2>&1

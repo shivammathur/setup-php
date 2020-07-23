@@ -47,7 +47,7 @@ install_client() {
         arch='macos'
         lib_ext='dylib'
       fi
-      curl -o "/opt/oracle/$package.zip" -sSL "https://download.oracle.com/otn_software/$os_name/instantclient/instantclient-$package-$arch.zip"
+      curl -o "/opt/oracle/$package.zip" "${curl_opts[@]}" "https://download.oracle.com/otn_software/$os_name/instantclient/instantclient-$package-$arch.zip"
       unzip "/opt/oracle/$package.zip" -d "$oracle_home"
     done
     sudo ln -sf /opt/oracle/instantclient*/*.$lib_ext* $libs
@@ -57,7 +57,7 @@ install_client() {
 
 # Function to get PHP source.
 get_php() {
-  [ ! -d "/opt/oracle/php-src-$tag" ] && curl -sSL "https://github.com/php/php-src/archive/$tag.tar.gz" | tar xzf - -C "$oracle_home/"
+  [ ! -d "/opt/oracle/php-src-$tag" ] && curl "${curl_opts[@]}" "https://github.com/php/php-src/archive/$tag.tar.gz" | tar xzf - -C "$oracle_home/"
 }
 
 # Function to get phpize location on darwin.
@@ -86,7 +86,7 @@ restore_phpize() {
 
 # Function to patch pdo_oci.
 patch_pdo_oci_config() {
-  curl -sSLO https://raw.githubusercontent.com/php/php-src/master/ext/pdo_oci/config.m4
+  curl -O "${curl_opts[@]}" https://raw.githubusercontent.com/php/php-src/master/ext/pdo_oci/config.m4
   sudo sed -i '' "/PHP_CHECK_PDO_INCLUDES/d" config.m4 || sudo sed -i "/PHP_CHECK_PDO_INCLUDES/d" config.m4
 }
 
@@ -132,6 +132,7 @@ oracle_home='/opt/oracle'
 oracle_client=$oracle_home/instantclient
 runner="${runner:-github}" && RUNNER="${RUNNER:-github}"
 os=$(uname -s)
+curl_opts=(-sSL --retry 5 --retry-delay 1)
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
 install_client >/dev/null 2>&1

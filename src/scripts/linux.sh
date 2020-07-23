@@ -35,16 +35,6 @@ cleanup_lists() {
   fi
 }
 
-# Function to update the package lists.
-update_lists() {
-  if [ ! -e /tmp/setup_php ]; then
-    [ "$DISTRIB_RELEASE" = "20.04" ] && add_ppa >/dev/null 2>&1
-    cleanup_lists
-    sudo "$debconf_fix" apt-get update >/dev/null 2>&1
-    echo '' | sudo tee "/tmp/setup_php" >/dev/null 2>&1
-  fi
-}
-
 # Function to add ppa:ondrej/php.
 add_ppa() {
   if ! apt-cache policy | grep -q ondrej/php; then
@@ -53,6 +43,16 @@ add_ppa() {
     if [ "$DISTRIB_RELEASE" = "16.04" ]; then
       sudo "$debconf_fix" apt-get update
     fi
+  fi
+}
+
+# Function to update the package lists.
+update_lists() {
+  if [ ! -e /tmp/setup_php ]; then
+    [ "$DISTRIB_RELEASE" = "20.04" ] && add_ppa >/dev/null 2>&1
+    cleanup_lists
+    sudo "$debconf_fix" apt-get update >/dev/null 2>&1
+    echo '' | sudo tee "/tmp/setup_php" >/dev/null 2>&1
   fi
 }
 
@@ -83,7 +83,7 @@ get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
   pecl_rest='https://pecl.php.net/rest/r/'
-  response=$(curl -q -sSL "$pecl_rest$extension"/allreleases.xml)
+  response=$(curl "${curl_opts[@]}" "$pecl_rest$extension"/allreleases.xml)
   pecl_version=$(echo "$response" | grep -m 1 -Pio "(\d*\.\d*\.\d*$stability\d*)")
   if [ ! "$pecl_version" ]; then
     pecl_version=$(echo "$response" | grep -m 1 -Po "(\d*\.\d*\.\d*)")
@@ -218,7 +218,7 @@ add_extension_from_source() {
   (
     add_devtools
     delete_extension "$extension"
-    curl -o /tmp/"$extension".tar.gz -sSL https://github.com/"$repo"/archive/"$release".tar.gz
+    curl -o /tmp/"$extension".tar.gz "${curl_opts[@]}" https://github.com/"$repo"/archive/"$release".tar.gz
     tar xf /tmp/"$extension".tar.gz -C /tmp
     cd /tmp/"$extension-$release" || exit 1
     phpize  && ./configure "$args" && make && sudo make install
@@ -253,7 +253,7 @@ add_tool() {
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
   fi
-  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" -L "$url")
+  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
@@ -300,7 +300,7 @@ add_devtools() {
 # Function to add blackfire and blackfire-agent.
 add_blackfire() {
   sudo mkdir -p /var/run/blackfire
-  sudo curl -sSL https://packages.blackfire.io/gpg.key | sudo apt-key add - >/dev/null 2>&1
+  sudo curl "${curl_opts[@]}" https://packages.blackfire.io/gpg.key | sudo apt-key add - >/dev/null 2>&1
   echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list >/dev/null 2>&1
   sudo "$debconf_fix" apt-get update >/dev/null 2>&1
   $apt_install blackfire-agent >/dev/null 2>&1
@@ -317,12 +317,12 @@ add_blackfire() {
 
 # Function to setup the nightly build from master branch.
 setup_master() {
-  curl -sSL "$github"/php-builder/releases/latest/download/install.sh | bash -s "$runner"
+  curl "${curl_opts[@]}" "$github"/php-builder/releases/latest/download/install.sh | bash -s "$runner"
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
 setup_old_versions() {
-  curl -sSL "$github"/php5-ubuntu/releases/latest/download/install.sh | bash -s "$version"
+  curl "${curl_opts[@]}" "$github"/php5-ubuntu/releases/latest/download/install.sh | bash -s "$version"
   configure_pecl
   release_version=$(php -v | head -n 1 | cut -d' ' -f 2)
 }
@@ -362,7 +362,7 @@ add_packaged_php() {
     IFS=' ' read -r -a packages <<< "$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
     $apt_install "${packages[@]}"
   else
-    curl -sSL "$github"/php-ubuntu/releases/latest/download/install.sh | bash -s "$version"
+    curl "${curl_opts[@]}" "$github"/php-ubuntu/releases/latest/download/install.sh | bash -s "$version"
   fi
 }
 
@@ -402,6 +402,7 @@ debconf_fix="DEBIAN_FRONTEND=noninteractive"
 github="https://github.com/shivammathur"
 apt_install="sudo $debconf_fix apt-fast install -y"
 tool_path_dir="/usr/local/bin"
+curl_opts=(-sSL --retry 5 --retry-delay 1)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 read_env

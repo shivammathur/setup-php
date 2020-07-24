@@ -1,20 +1,6 @@
 import * as extensions from '../src/extensions';
 
 describe('Extension tests', () => {
-  it('checking getXdebugVersion', async () => {
-    expect(await extensions.getXdebugVersion('5.3')).toContain('2.2.7');
-    expect(await extensions.getXdebugVersion('5.4')).toContain('2.4.1');
-    expect(await extensions.getXdebugVersion('5.5')).toContain('2.5.5');
-    expect(await extensions.getXdebugVersion('5.6')).toContain('2.5.5');
-    expect(await extensions.getXdebugVersion('7.0')).toContain('2.7.2');
-    expect(await extensions.getXdebugVersion('7.2')).toContain('2.9.6');
-  });
-  it('checking getUnsupportedLog', async () => {
-    expect(await extensions.getUnsupportedLog('ext', '5.6', 'linux')).toContain(
-      'add_log "$cross" "ext" "ext is not supported on PHP 5.6"'
-    );
-  });
-
   it('checking addExtensionOnWindows', async () => {
     let win32: string = await extensions.addExtension(
       'Xdebug, pcov, sqlite, :intl, phalcon4, ioncube, oci8, pdo_oci, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2',

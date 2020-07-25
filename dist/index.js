@@ -3629,7 +3629,7 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
-        const command_prefix = 'sudo pecl install -f ';
+        const command_prefix = 'pecl_install ';
         let command = '';
         switch (true) {
             // match :extension

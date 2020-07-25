@@ -91,6 +91,12 @@ get_pecl_version() {
   echo "$pecl_version"
 }
 
+# Function to install PECL extensions and accept default options
+pecl_install() {
+  local extension=$1
+  yes '' | sudo pecl install -f "$extension" >/dev/null 2>&1
+}
+
 # Function to check if an extension is loaded.
 check_extension() {
   extension=$1
@@ -167,8 +173,7 @@ add_extension() {
       install_command="update_lists && ${install_command/5\.[4-5]-$extension/5-$extension=$release_version}"
     fi
     eval "$install_command" >/dev/null 2>&1 ||
-    (update_lists && eval "$install_command" >/dev/null 2>&1) ||
-    sudo pecl install -f "$extension" >/dev/null 2>&1
+    (update_lists && eval "$install_command" >/dev/null 2>&1) || pecl_install "$extension"
     (check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled") ||
     add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi
@@ -192,7 +197,7 @@ add_pecl_extension() {
   else
     delete_extension "$extension"
     (
-      sudo pecl install -f "$extension-$pecl_version" >/dev/null 2>&1 &&
+      pecl_install "$extension-$pecl_version" &&
       check_extension "$extension" &&
       add_log "$tick" "$extension" "Installed and enabled"
     ) || add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"

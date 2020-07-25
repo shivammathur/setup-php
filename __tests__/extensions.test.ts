@@ -136,7 +136,7 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension grpc');
     expect(darwin).toContain('add_brew_extension protobuf');
     expect(darwin).toContain('add_brew_extension swoole');
-    expect(darwin).toContain('sudo pecl install -f sqlite3');
+    expect(darwin).toContain('pecl_install sqlite3');
     expect(darwin).toContain('remove_extension intl');
     expect(darwin).toContain('add_unstable_extension ast beta extension');
     expect(darwin).toContain('add_pecl_extension grpc 1.2.3 extension');
@@ -163,13 +163,13 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension pcov');
 
     darwin = await extensions.addExtension('xdebug', '5.3', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f xdebug-2.2.7');
+    expect(darwin).toContain('pecl_install xdebug-2.2.7');
 
     darwin = await extensions.addExtension('xdebug', '5.4', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f xdebug-2.4.1');
+    expect(darwin).toContain('pecl_install xdebug-2.4.1');
 
     darwin = await extensions.addExtension('xdebug', '5.5', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f xdebug-2.5.5');
+    expect(darwin).toContain('pecl_install xdebug-2.5.5');
 
     darwin = await extensions.addExtension('xdebug', '5.6', 'darwin');
     expect(darwin).toContain('add_brew_extension xdebug');
@@ -181,18 +181,18 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension xdebug');
 
     darwin = await extensions.addExtension('redis', '5.6', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f redis-2.2.8');
+    expect(darwin).toContain('pecl_install redis-2.2.8');
 
     darwin = await extensions.addExtension('redis', '7.2', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f redis');
+    expect(darwin).toContain('pecl_install redis');
 
     darwin = await extensions.addExtension('imagick', '5.6', 'darwin');
     expect(darwin).toContain('brew install pkg-config imagemagick');
-    expect(darwin).toContain('sudo pecl install -f imagick');
+    expect(darwin).toContain('pecl_install imagick');
 
     darwin = await extensions.addExtension('imagick', '7.4', 'darwin');
     expect(darwin).toContain('brew install pkg-config imagemagick');
-    expect(darwin).toContain('sudo pecl install -f imagick');
+    expect(darwin).toContain('pecl_install imagick');
 
     darwin = await extensions.addExtension('blackfire', '7.3', 'darwin');
     expect(darwin).toContain('blackfire_darwin.sh 7.3 blackfire');

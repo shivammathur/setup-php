@@ -48,4 +48,4 @@ jobs:
       - name: Send Coverage
         continue-on-error: true
         timeout-minutes: 1
-        run: curl -s https://codecov.io/bash | bash -s -- -t ${{secrets.CODECOV_TOKEN}} -f coverage/clover.xml -n github-actions-codecov-${{ matrix.operating-system }}-php${{ matrix.php-versions }}
+        run: curl -s https://codecov.io/bash | bash -s -- -t ${{secrets.CODECOV_TOKEN}} -f coverage/clover.xml -n github-actions-codecov-${{ matrix.operating-system }}

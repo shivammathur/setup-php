@@ -16,6 +16,16 @@ add_log() {
   fi
 }
 
+# Function to log result of installing extension.
+add_extension_log() {
+  extension=$1
+  status=$2
+  extension_name=$(echo "$extension" | cut -d '-' -f 1)
+  (
+    check_extension "$extension_name" && add_log "$tick" "$extension_name" "$status"
+  ) || add_log "$cross" "$extension_name" "Could not install $extension on PHP $semver"
+}
+
 # Function to read env inputs.
 read_env() {
   [[ -z "${update}" ]] && update='false' && UPDATE='false' || update="${update}"
@@ -27,9 +37,9 @@ read_env() {
 # Function to setup environment for self-hosted runners.
 self_hosted_setup() {
   if [[ $(command -v brew) == "" ]]; then
-      step_log "Setup Brew"
-      curl "${curl_opts[@]}" https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash -s >/dev/null 2>&1
-      add_log "$tick" "Brew" "Installed Homebrew"
+    step_log "Setup Brew"
+    curl "${curl_opts[@]}" https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash -s >/dev/null 2>&1
+    add_log "$tick" "Brew" "Installed Homebrew"
   fi
 }
 
@@ -41,7 +51,7 @@ remove_extension() {
     sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
     sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
     (! check_extension "$extension" && add_log "$tick" ":$extension" "Removed") ||
-    add_log "$cross" ":$extension" "Could not remove $extension on PHP $semver"
+      add_log "$cross" ":$extension" "Could not remove $extension on PHP $semver"
   else
     add_log "$tick" ":$extension" "Could not find $extension on PHP $semver"
   fi
@@ -92,11 +102,8 @@ add_pecl_extension() {
     add_log "$tick" "$extension" "Enabled"
   else
     remove_extension "$extension" >/dev/null 2>&1
-    (
-      pecl_install "$extension-$pecl_version" &&
-      check_extension "$extension" &&
-      add_log "$tick" "$extension" "Installed and enabled"
-    ) || add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"
+    pecl_install "$extension-$pecl_version"
+    add_extension_log "$extension-$pecl_version" "Installed and enabled"
   fi
 }
 
@@ -121,9 +128,8 @@ add_extension() {
     add_log "$tick" "$extension" "Enabled"
   elif ! check_extension "$extension"; then
     eval "$install_command" >/dev/null 2>&1 &&
-    if [[ "$version" =~ $old_versions ]]; then echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"; fi
-    (check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled") ||
-    add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
+      if [[ "$version" =~ $old_versions ]]; then echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"; fi
+    add_extension_log "$extension" "Installed and enabled"
   fi
 }
 
@@ -143,7 +149,7 @@ configure_composer() {
   php -r "try {\$p=new Phar('$tool_path.phar', 0);exit(0);} catch(Exception \$e) {exit(1);}"
   if [ $? -eq 1 ]; then
     add_log "$cross" "composer" "Could not download composer"
-    exit 1;
+    exit 1
   fi
   composer -q global config process-timeout 0
   echo "::add-path::/Users/$USER/.composer/vendor/bin"
@@ -192,8 +198,7 @@ add_composertool() {
   release=$2
   prefix=$3
   (
-    composer global require "$prefix$release" >/dev/null 2>&1 &&
-    add_log "$tick" "$tool" "Added"
+    composer global require "$prefix$release" >/dev/null 2>&1 && add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
 }
 
@@ -261,7 +266,7 @@ fi
 # Setup PHP
 step_log "Setup PHP"
 if [[ "$version" =~ $old_versions ]]; then
-  curl "${curl_opts[@]}" https://github.com/shivammathur/php5-darwin/releases/latest/download/install.sh | bash -s "$nodot_version" >/dev/null 2>&1 &&
+  curl "${curl_opts[@]}" https://github.com/shivammathur/php5-darwin/releases/latest/download/install.sh | bash -s "$nodot_version" >/dev/null 2>&1
   status="Installed"
 elif [ "$existing_version" != "$version" ]; then
   setup_php "install" >/dev/null 2>&1

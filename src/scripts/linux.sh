@@ -16,6 +16,16 @@ add_log() {
   fi
 }
 
+# Function to log result of installing extension.
+add_extension_log() {
+  extension=$1
+  status=$2
+  extension_name=$(echo "$extension" | cut -d '-' -f 1)
+  (
+    check_extension "$extension_name" && add_log "$tick" "$extension_name" "$status"
+  ) || add_log "$cross" "$extension_name" "Could not install $extension on PHP $semver"
+}
+
 # Function to read env inputs.
 read_env() {
   . /etc/lsb-release
@@ -155,8 +165,7 @@ add_pdo_extension() {
     fi
     add_extension "$ext_name" "$apt_install php$version-$ext" "extension" >/dev/null 2>&1
     enable_extension "$pdo_ext" "extension"
-    (check_extension "$pdo_ext" && add_log "$tick" "$pdo_ext" "Enabled") ||
-    add_log "$cross" "$pdo_ext" "Could not install $pdo_ext on PHP $semver"
+    add_extension_log "$pdo_ext" "Enabled"
   fi
 }
 
@@ -174,8 +183,7 @@ add_extension() {
     fi
     eval "$install_command" >/dev/null 2>&1 ||
     (update_lists && eval "$install_command" >/dev/null 2>&1) || pecl_install "$extension"
-    (check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled") ||
-    add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
+    add_extension_log "$extension" "Installed and enabled"
   fi
   sudo chmod 777 "$ini_file"
 }
@@ -196,11 +204,8 @@ add_pecl_extension() {
     add_log "$tick" "$extension" "Enabled"
   else
     delete_extension "$extension"
-    (
-      pecl_install "$extension-$pecl_version" &&
-      check_extension "$extension" &&
-      add_log "$tick" "$extension" "Installed and enabled"
-    ) || add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"
+    pecl_install "$extension-$pecl_version"
+    add_extension_log "$extension-$pecl_version" "Installed and enabled"
   fi
 }
 
@@ -229,9 +234,7 @@ add_extension_from_source() {
     phpize  && ./configure "$args" && make && sudo make install
     enable_extension "$extension" "$prefix"
   ) >/dev/null 2>&1
-  (
-    check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled"
-  ) || add_log "$cross" "$extension" "Could not install $extension-$release on PHP $semver"
+  add_extension_log "$extension-$release" "Installed and enabled"
 }
 
 # Function to configure composer

@@ -2,6 +2,24 @@ import * as path from 'path';
 import * as utils from './utils';
 
 /**
+ * Function to get script to install custom extensions
+ *
+ * @param script
+ * @param command
+ */
+export async function customExtension(
+  script: string,
+  ...command: string[]
+): Promise<string> {
+  return (
+    '\n. ' +
+    path.join(__dirname, '../src/scripts/ext/' + script) +
+    '\n' +
+    (await utils.joins(...command))
+  );
+}
+
+/**
  * Install and enable extensions for darwin
  *
  * @param extension_csv
@@ -32,13 +50,28 @@ export async function addExtensionDarwin(
       case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
-        command = await utils.joins(
-          '\nbash',
-          path.join(__dirname, '../src/scripts/ext/blackfire_darwin.sh'),
-          version,
+        add_script += await customExtension(
+          'blackfire.sh',
+          'add_blackfire',
           extension
         );
-        break;
+        return;
+      // match pdo_oci and oci8
+      case /^pdo_oci$|^oci8$/.test(extension):
+        add_script += await customExtension('oci.sh', 'add_oci', extension);
+        return;
+      // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
+      case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
+        add_script += await customExtension('ioncube.sh', 'add_ioncube');
+        return;
+      // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+        add_script += await customExtension(
+          'phalcon.sh',
+          'add_phalcon',
+          extension
+        );
+        return;
       // match pre-release versions. For example - xdebug-beta
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
         add_script += await utils.joins(
@@ -57,10 +90,6 @@ export async function addExtensionDarwin(
           ext_prefix
         );
         return;
-      case /5\.[3-5]xdebug/.test(version_extension):
-        command =
-          command_prefix + 'xdebug-' + (await utils.getXdebugVersion(version));
-        break;
       // match 5.3pcov to 7.0pcov
       case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
         add_script += await utils.getUnsupportedLog('pcov', version, 'darwin');
@@ -89,32 +118,6 @@ export async function addExtensionDarwin(
         extension = 'sqlite3';
         command = command_prefix + extension;
         break;
-      // match pdo_oci and oci8
-      case /^pdo_oci$|^oci8$/.test(extension):
-        add_script += await utils.joins(
-          '\nbash ',
-          path.join(__dirname, '../src/scripts/ext/oci.sh'),
-          extension,
-          version
-        );
-        return;
-      // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
-      case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
-        add_script += await utils.joins(
-          '\nbash ',
-          path.join(__dirname, '../src/scripts/ext/ioncube.sh'),
-          version
-        );
-        return;
-      // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-        add_script += await utils.joins(
-          '\nbash ',
-          path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh'),
-          extension,
-          version
-        );
-        return;
       default:
         command = command_prefix + extension;
         break;
@@ -150,19 +153,34 @@ export async function addExtensionWindows(
       // Match :extension
       case /^:/.test(ext_name):
         remove_script += '\nRemove-Extension ' + ext_name.slice(1);
-        return;
+        break;
       // match 5.4blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
       // match 5.4blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
       case /^(5\.[4-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
-        add_script += await utils.joins(
-          '\n& ',
-          path.join(__dirname, '../src/scripts/ext/blackfire.ps1'),
-          version,
+        add_script += await customExtension(
+          'blackfire.ps1',
+          'Add-Blackfire',
           extension
         );
-        return;
+        break;
+      // match pdo_oci and oci8
+      case /^pdo_oci$|^oci8$/.test(extension):
+        add_script += await customExtension('oci.ps1', 'Add-OCI', extension);
+        break;
+      // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
+      case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
+        add_script += await customExtension('ioncube.ps1', 'Add-Ioncube');
+        break;
+      // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+        add_script += await customExtension(
+          'phalcon.ps1',
+          'Add-Phalcon',
+          extension
+        );
+        break;
       // match pre-release versions. For example - xdebug-beta
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
         add_script += await utils.joins(
@@ -179,7 +197,7 @@ export async function addExtensionWindows(
           'stable',
           ext_version
         );
-        return;
+        break;
       // match semver with state
       case /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.test(
         version_extension
@@ -193,7 +211,7 @@ export async function addExtensionWindows(
           matches[2],
           matches[1]
         );
-        return;
+        break;
       // match 5.3pcov to 7.0pcov
       case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
         add_script += await utils.getUnsupportedLog('pcov', version, 'win32');
@@ -215,32 +233,6 @@ export async function addExtensionWindows(
       case /^sqlite$/.test(extension):
         extension = 'sqlite3';
         add_script += await utils.joins('\nAdd-Extension', extension);
-        break;
-      // match pdo_oci and oci8
-      case /^pdo_oci$|^oci8$/.test(extension):
-        add_script += await utils.joins(
-          '\n& ',
-          path.join(__dirname, '../src/scripts/ext/oci.ps1'),
-          extension,
-          version
-        );
-        break;
-      // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
-      case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
-        add_script += await utils.joins(
-          '\n& ',
-          path.join(__dirname, '../src/scripts/ext/ioncube.ps1'),
-          version
-        );
-        break;
-      // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-        add_script += await utils.joins(
-          '\n& ',
-          path.join(__dirname, '../src/scripts/ext/phalcon.ps1'),
-          extension,
-          version
-        );
         break;
       default:
         add_script += '\nAdd-Extension ' + extension;
@@ -281,13 +273,32 @@ export async function addExtensionLinux(
       case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
-        command = await utils.joins(
-          '\nbash',
-          path.join(__dirname, '../src/scripts/ext/blackfire.sh'),
-          version,
+        add_script += await customExtension(
+          'blackfire.sh',
+          'add_blackfire',
           extension
         );
-        break;
+        return;
+      // match pdo_oci and oci8
+      case /^pdo_oci$|^oci8$/.test(extension):
+        add_script += await customExtension('oci.sh', 'add_oci', extension);
+        return;
+      // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
+      case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
+        add_script += await customExtension('ioncube.sh', 'add_ioncube');
+        return;
+      // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+        add_script += await customExtension(
+          'phalcon.sh',
+          'add_phalcon',
+          extension
+        );
+        return;
+      // match 5.6gearman..7.4gearman
+      case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
+        add_script += await customExtension('gearman.sh', 'add_gearman');
+        return;
       // match pre-release versions. For example - xdebug-beta
       case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
         add_script += await utils.joins(
@@ -310,41 +321,6 @@ export async function addExtensionLinux(
       case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
         add_script += await utils.getUnsupportedLog('pcov', version, 'linux');
         return;
-      // match 5.6gearman..7.4gearman
-      case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
-        command = await utils.joins(
-          '\nbash',
-          path.join(__dirname, '../src/scripts/ext/gearman.sh'),
-          version,
-          pipe
-        );
-        break;
-      // match pdo_oci and oci8
-      case /^pdo_oci$|^oci8$/.test(extension):
-        add_script += await utils.joins(
-          '\nbash',
-          path.join(__dirname, '../src/scripts/ext/oci.sh'),
-          extension,
-          version
-        );
-        return;
-      // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
-      case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
-        add_script += await utils.joins(
-          '\nbash',
-          path.join(__dirname, '../src/scripts/ext/ioncube.sh'),
-          version
-        );
-        return;
-      // match 7.0phalcon3...7.3phalcon3 or 7.2phalcon4...7.4phalcon4
-      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-        add_script += await utils.joins(
-          '\nbash',
-          path.join(__dirname, '../src/scripts/ext/phalcon.sh'),
-          extension,
-          version
-        );
-        return;
       // match 7.2xdebug3..7.4xdebug3
       case /^7\.[2-4]xdebug3$/.test(version_extension):
         add_script +=
@@ -356,11 +332,8 @@ export async function addExtensionLinux(
         command = command_prefix + version + '-' + extension + pipe;
         break;
       // match pdo extensions
-      case /.*pdo[_st-].*/.test(version_extension):
-        extension = extension
-          .replace('pdo_', '')
-          .replace('pdo-', '')
-          .replace('sqlite3', 'sqlite');
+      case /.*pdo[_-].*/.test(version_extension):
+        extension = extension.replace(/pdo[_-]|3/, '');
         add_script += '\nadd_pdo_extension ' + extension;
         return;
       // match ast and uopz

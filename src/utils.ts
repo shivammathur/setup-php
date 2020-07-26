@@ -261,27 +261,6 @@ export async function suppressOutput(os_version: string): Promise<string> {
 }
 
 /**
- * Function to get Xdebug version compatible with php versions.
- *
- * @param version
- */
-export async function getXdebugVersion(version: string): Promise<string> {
-  switch (version) {
-    case '5.3':
-      return '2.2.7';
-    case '5.4':
-      return '2.4.1';
-    case '5.5':
-    case '5.6':
-      return '2.5.5';
-    case '7.0':
-      return '2.7.2';
-    default:
-      return '2.9.6';
-  }
-}
-
-/**
  * Function to get script to log unsupported extensions.
  *
  * @param extension

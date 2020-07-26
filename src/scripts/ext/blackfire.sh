@@ -8,7 +8,7 @@ add_blackfire() {
   blackfire_ini_file="${scan_dir:?}/50-blackfire.ini"
   if [ ! -e "${ext_dir:?}/blackfire.so" ]; then
     if [ "$extension_version" = "blackfire" ]; then
-      extension_version=$(curl "${curl_opts[@]:?}" https://blackfire.io/docs/up-and-running/update | grep 'class="version"' | sed -e "s/ //g" | sed -n '3,3p' | cut -d '>' -f 2 | cut -d '<' -f 1)
+      extension_version=$(curl -sSL https://blackfire.io/api/v1/releases | grep -Eo 'php":"([0-9]+.[0-9]+.[0-9]+)' | cut -d '"' -f 3)
     fi
     sudo curl -o "${ext_dir:?}/blackfire.so" "${curl_opts[@]:?}" https://packages.blackfire.io/binaries/blackfire-php/"$extension_version"/blackfire-php-"$platform"_amd64-php-"$no_dot_version".so >/dev/null 2>&1
   fi

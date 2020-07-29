@@ -10,8 +10,7 @@ Function Add-Blackfire() {
     $no_dot_version = $version.replace('.', '')
     $extension_version = $extension.split('-')[1]
     if ($extension_version -notmatch "\S") {
-        $ext_data = Invoke-WebRequest https://blackfire.io/docs/up-and-running/update | ForEach-Object { $_.tostring() -split "[`r`n]" | Select-String '<td class="version">' | Select-Object -Index 2 }
-        $extension_version = [regex]::Matches($ext_data, '<td.*?>(.+)</td>') | ForEach-Object { $_.Captures[0].Groups[1].value }
+        $extension_version = (Invoke-RestMethod https://blackfire.io/api/v1/releases).probe.php
     }
     if (Test-Path $ext_dir\blackfire.dll) {
         Enable-PhpExtension -Extension blackfire -Path $php_dir

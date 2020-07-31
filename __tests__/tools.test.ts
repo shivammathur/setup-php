@@ -402,9 +402,20 @@ describe('Tools tests', () => {
     expect(script).toContain('Platform fedora is not supported');
   });
 
+  it('checking addCustomTool', async () => {
+    let script: string = await tools.addCustomTool('tool', '1.2.3', 'linux');
+    expect(script).toContain('tool.sh\nadd_tool 1.2.3');
+
+    script = await tools.addCustomTool('tool', '1.2.3', 'darwin');
+    expect(script).toContain('tool.sh\nadd_tool 1.2.3');
+
+    script = await tools.addCustomTool('tool', '1.2.3', 'win32');
+    expect(script).toContain('tool.ps1\nAdd-Tool 1.2.3');
+  });
+
   it('checking addTools on linux', async () => {
     const script: string = await tools.addTools(
-      'blackfire, blackfire-player, cs2pr, flex, php-cs-fixer, phplint, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, symfony, wp-cli',
+      'blackfire, blackfire-player, cs2pr, flex, grpc_php_plugin, php-cs-fixer, phplint, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, protoc, symfony, wp-cli',
       '7.4',
       'linux'
     );
@@ -436,6 +447,8 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli'
     );
+    expect(script).toContain('add_protoc latest');
+    expect(script).toContain('add_grpc_php_plugin latest');
     expect(script).toContain('add_pecl');
     expect(script).toContain('add_composertool flex flex symfony/');
     expect(script).toContain('add_composertool phinx phinx robmorgan/');
@@ -455,6 +468,7 @@ describe('Tools tests', () => {
       'composer-unused',
       'cs2pr:1.2.3',
       'flex',
+      'grpc_php_plugin:1.2.3',
       'infection',
       'phan',
       'phan:2.7.2',
@@ -466,6 +480,7 @@ describe('Tools tests', () => {
       'phpcs',
       'phpize',
       'phpmd',
+      'protoc:v1.2.3',
       'psalm',
       'symfony',
       'symfony:1.2.3',
@@ -519,6 +534,8 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar psalm'
     );
+    expect(script).toContain('add_grpc_php_plugin 1.2.3');
+    expect(script).toContain('add_protoc 1.2.3');
     expect(script).toContain('add_composertool vapor-cli vapor-cli laravel/');
     expect(script).toContain('add_composertool flex flex symfony/');
     expect(script).toContain('add_composertool phinx phinx robmorgan/');

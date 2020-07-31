@@ -177,4 +177,13 @@ describe('Utils tests', () => {
   it('checking joins', async () => {
     expect(await utils.joins('a', 'b', 'c')).toBe('a b c');
   });
+
+  it('checking scriptExtension', async () => {
+    expect(await utils.scriptExtension('linux')).toBe('.sh');
+    expect(await utils.scriptExtension('darwin')).toBe('.sh');
+    expect(await utils.scriptExtension('win32')).toBe('.ps1');
+    expect(await utils.scriptExtension('fedora')).toContain(
+      'Platform fedora is not supported'
+    );
+  });
 });

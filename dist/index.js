@@ -1314,7 +1314,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.joins = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.getInput = void 0;
+exports.scriptExtension = exports.joins = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.getInput = void 0;
 const fs = __importStar(__webpack_require__(747));
 const path = __importStar(__webpack_require__(622));
 const core = __importStar(__webpack_require__(470));
@@ -1551,6 +1551,23 @@ async function joins(...str) {
     return [...str].join(' ');
 }
 exports.joins = joins;
+/**
+ * Function to get script extensions
+ *
+ * @param os_version
+ */
+async function scriptExtension(os_version) {
+    switch (os_version) {
+        case 'win32':
+            return '.ps1';
+        case 'linux':
+        case 'darwin':
+            return '.sh';
+        default:
+            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+    }
+}
+exports.scriptExtension = scriptExtension;
 
 
 /***/ }),
@@ -1930,9 +1947,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addTools = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.getComposerUrl = exports.addComposer = exports.getWpCliUrl = exports.getSymfonyUri = exports.getDeployerUrl = exports.getPharUrl = exports.addPhive = exports.getCodeceptionUri = exports.getCodeceptionUriBuilder = exports.getUri = exports.parseTool = exports.getToolVersion = exports.getCommand = void 0;
+exports.addTools = exports.addCustomTool = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.getComposerUrl = exports.addComposer = exports.getWpCliUrl = exports.getSymfonyUri = exports.getDeployerUrl = exports.getPharUrl = exports.addPhive = exports.getCodeceptionUri = exports.getCodeceptionUriBuilder = exports.getUri = exports.parseTool = exports.getToolVersion = exports.getCommand = void 0;
 const utils = __importStar(__webpack_require__(163));
 const httpm = __importStar(__webpack_require__(539));
+const path = __importStar(__webpack_require__(622));
 /**
  * Function to get command to setup tools
  *
@@ -1962,6 +1980,8 @@ async function getToolVersion(version) {
     const composer_regex = /^stable$|^preview$|^snapshot$|^v?[1|2]$/;
     version = version.replace(/[><=^]*/, '');
     switch (true) {
+        case version.charAt(0) == 'v':
+            return version.replace('v', '');
         case composer_regex.test(version):
         case semver_regex.test(version):
             return version;
@@ -2292,6 +2312,20 @@ async function addPackage(tool, release, prefix, os_version) {
 }
 exports.addPackage = addPackage;
 /**
+ * Function to get script to add tools with custom support.
+ *
+ * @param tool
+ * @param version
+ * @param os_version
+ */
+async function addCustomTool(tool, version, os_version) {
+    const script_extension = await utils.scriptExtension(os_version);
+    const script = path.join(__dirname, '../src/scripts/tools/' + tool + script_extension);
+    const command = await getCommand(os_version, tool);
+    return '. ' + script + '\n' + command + version;
+}
+exports.addCustomTool = addCustomTool;
+/**
  * Setup tools
  *
  * @param tools_csv
@@ -2357,6 +2391,10 @@ async function addTools(tools_csv, php_version, os_version) {
                 break;
             case 'flex':
                 script += await addPackage(tool, release, 'symfony/', os_version);
+                break;
+            case 'grpc_php_plugin':
+            case 'protoc':
+                script += await addCustomTool(tool, version, os_version);
                 break;
             case 'infection':
                 url = github + 'infection/infection/' + uri;

@@ -292,3 +292,24 @@ export async function getUnsupportedLog(
 export async function joins(...str: string[]): Promise<string> {
   return [...str].join(' ');
 }
+
+/**
+ * Function to get script extensions
+ *
+ * @param os_version
+ */
+export async function scriptExtension(os_version: string): Promise<string> {
+  switch (os_version) {
+    case 'win32':
+      return '.ps1';
+    case 'linux':
+    case 'darwin':
+      return '.sh';
+    default:
+      return await log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
+  }
+}

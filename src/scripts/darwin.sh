@@ -202,21 +202,6 @@ add_composertool() {
   ) || add_log "$cross" "$tool" "Could not setup $tool"
 }
 
-add_blackfire() {
-  sudo mkdir -p usr/local/var/run
-  brew tap --shallow blackfireio/homebrew-blackfire >/dev/null 2>&1
-  brew install blackfire-agent >/dev/null 2>&1
-  if [[ -n $BLACKFIRE_SERVER_ID ]] && [[ -n $BLACKFIRE_SERVER_TOKEN ]]; then
-    blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
-    brew services start blackfire-agent >/dev/null 2>&1
-  fi
-  if [[ -n $BLACKFIRE_CLIENT_ID ]] && [[ -n $BLACKFIRE_CLIENT_TOKEN ]]; then
-    blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
-  fi
-  add_log "$tick" "blackfire" "Added"
-  add_log "$tick" "blackfire-agent" "Added"
-}
-
 # Function to configure PECL
 configure_pecl() {
   for tool in pear pecl; do

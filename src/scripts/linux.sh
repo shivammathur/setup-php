@@ -305,24 +305,6 @@ add_devtools() {
   configure_pecl >/dev/null 2>&1
 }
 
-# Function to add blackfire and blackfire-agent.
-add_blackfire() {
-  sudo mkdir -p /var/run/blackfire
-  sudo curl "${curl_opts[@]}" https://packages.blackfire.io/gpg.key | sudo apt-key add - >/dev/null 2>&1
-  echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list >/dev/null 2>&1
-  sudo "$debconf_fix" apt-get update >/dev/null 2>&1
-  $apt_install blackfire-agent >/dev/null 2>&1
-  if [[ -n $BLACKFIRE_SERVER_ID ]] && [[ -n $BLACKFIRE_SERVER_TOKEN ]]; then
-    sudo blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
-    sudo /etc/init.d/blackfire-agent restart >/dev/null 2>&1
-  fi
-  if [[ -n $BLACKFIRE_CLIENT_ID ]] && [[ -n $BLACKFIRE_CLIENT_TOKEN ]]; then
-    blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
-  fi
-  add_log "$tick" "blackfire" "Added"
-  add_log "$tick" "blackfire-agent" "Added"
-}
-
 # Function to setup the nightly build from master branch.
 setup_master() {
   curl "${curl_opts[@]}" "$github"/php-builder/releases/latest/download/install.sh | bash -s "$runner"

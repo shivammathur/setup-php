@@ -2259,7 +2259,7 @@ async function getCleanedToolsList(tools_csv) {
         .map(function (extension) {
         return extension
             .trim()
-            .replace(/hirak\/|laravel\/|narrowspark\/automatic-|overtrue\/|robmorgan\/|symfony\//, '');
+            .replace(/-agent|hirak\/|laravel\/|narrowspark\/automatic-|overtrue\/|robmorgan\/|symfony\//, '');
     })
         .filter(Boolean);
     return [...new Set(tools_list)];
@@ -2345,8 +2345,9 @@ async function addTools(tools_csv, php_version, os_version) {
         let url = '';
         switch (tool) {
             case 'blackfire':
-            case 'blackfire-agent':
-                script += await getCommand(os_version, 'blackfire');
+            case 'grpc_php_plugin':
+            case 'protoc':
+                script += await addCustomTool(tool, version, os_version);
                 break;
             case 'blackfire-player':
                 url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
@@ -2391,10 +2392,6 @@ async function addTools(tools_csv, php_version, os_version) {
                 break;
             case 'flex':
                 script += await addPackage(tool, release, 'symfony/', os_version);
-                break;
-            case 'grpc_php_plugin':
-            case 'protoc':
-                script += await addCustomTool(tool, version, os_version);
                 break;
             case 'infection':
                 url = github + 'infection/infection/' + uri;

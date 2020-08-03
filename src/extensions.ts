@@ -210,14 +210,6 @@ export async function addExtensionLinux(
           ' ' +
           version;
         return;
-      // match 7.0xdebug..7.4xdebug
-      case /^7\.[0-4]xdebug$/.test(version_extension):
-        script +=
-          '\nupdate_extension xdebug 2.9.2' +
-          pipe +
-          '\n' +
-          (await utils.addLog('$tick', 'xdebug', 'Enabled', 'linux'));
-        return;
       // match sqlite
       case /^sqlite$/.test(extension):
         extension = 'sqlite3';

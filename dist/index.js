@@ -3505,30 +3505,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addExtension = exports.addExtensionLinux = exports.addExtensionWindows = exports.addExtensionDarwin = exports.getXdebugVersion = void 0;
+exports.addExtension = exports.addExtensionLinux = exports.addExtensionWindows = exports.addExtensionDarwin = void 0;
 const path = __importStar(__webpack_require__(622));
 const utils = __importStar(__webpack_require__(163));
-/**
- * Function to get Xdebug version compatible with php versions
- *
- * @param version
- */
-async function getXdebugVersion(version) {
-    switch (version) {
-        case '5.3':
-            return '2.2.7';
-        case '5.4':
-            return '2.4.1';
-        case '5.5':
-        case '5.6':
-            return '2.5.5';
-        case '7.0':
-            return '2.7.2';
-        default:
-            return '2.9.6';
-    }
-}
-exports.getXdebugVersion = getXdebugVersion;
 /**
  * Install and enable extensions for darwin
  *

@@ -2,27 +2,6 @@ import * as path from 'path';
 import * as utils from './utils';
 
 /**
- * Function to get Xdebug version compatible with php versions
- *
- * @param version
- */
-export async function getXdebugVersion(version: string): Promise<string> {
-  switch (version) {
-    case '5.3':
-      return '2.2.7';
-    case '5.4':
-      return '2.4.1';
-    case '5.5':
-    case '5.6':
-      return '2.5.5';
-    case '7.0':
-      return '2.7.2';
-    default:
-      return '2.9.6';
-  }
-}
-
-/**
  * Install and enable extensions for darwin
  *
  * @param extension_csv

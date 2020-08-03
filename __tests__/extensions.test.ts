@@ -95,7 +95,7 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension grpc');
     expect(darwin).toContain('add_brew_extension protobuf');
     expect(darwin).toContain('add_brew_extension swoole');
-    expect(darwin).toContain('sudo pecl install -f sqlite3');
+    expect(darwin).toContain('pecl_install sqlite3');
     expect(darwin).toContain('add_unstable_extension ast beta extension');
 
     darwin = await extensions.addExtension('phalcon3', '7.0', 'darwin');
@@ -105,7 +105,7 @@ describe('Extension tests', () => {
     expect(darwin).toContain('phalcon_darwin.sh phalcon4 7.3');
 
     darwin = await extensions.addExtension('pcov', '5.6', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f pcov');
+    expect(darwin).toContain('pecl_install pcov');
 
     darwin = await extensions.addExtension('pcov', '7.2', 'darwin');
     expect(darwin).toContain('add_brew_extension pcov');
@@ -120,18 +120,18 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension xdebug');
 
     darwin = await extensions.addExtension('redis', '5.6', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f redis-2.2.8');
+    expect(darwin).toContain('pecl_install redis-2.2.8');
 
     darwin = await extensions.addExtension('redis', '7.2', 'darwin');
-    expect(darwin).toContain('sudo pecl install -f redis');
+    expect(darwin).toContain('pecl_install redis');
 
     darwin = await extensions.addExtension('imagick', '5.6', 'darwin');
     expect(darwin).toContain('brew install pkg-config imagemagick');
-    expect(darwin).toContain('sudo pecl install -f imagick');
+    expect(darwin).toContain('pecl_install imagick');
 
     darwin = await extensions.addExtension('imagick', '7.4', 'darwin');
     expect(darwin).toContain('brew install pkg-config imagemagick');
-    expect(darwin).toContain('sudo pecl install -f imagick');
+    expect(darwin).toContain('pecl_install imagick');
 
     darwin = await extensions.addExtension(
       'does_not_exist',

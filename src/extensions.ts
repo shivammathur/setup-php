@@ -40,7 +40,7 @@ export async function addExtensionDarwin(
     const version_extension: string = version + extension;
     const [extension_name, stability]: string[] = extension.split('-');
     const ext_prefix = await utils.getExtensionPrefix(extension_name);
-    const command_prefix = 'sudo pecl install -f ';
+    const command_prefix = 'pecl_install ';
     let command = '';
     switch (true) {
       // match pre-release versions

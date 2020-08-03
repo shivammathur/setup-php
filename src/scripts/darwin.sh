@@ -34,6 +34,12 @@ check_extension() {
   fi
 }
 
+# Function to install PECL extensions and accept default options
+pecl_install() {
+  local extension=$1
+  yes '' | sudo pecl install -f "$extension" >/dev/null 2>&1
+}
+
 # Fuction to get the PECL version
 get_pecl_version() {
   extension=$1
@@ -64,7 +70,7 @@ add_pecl_extension() {
   else
     remove_extension "$extension"
     (
-      sudo pecl install -f "$extension-$pecl_version" >/dev/null 2>&1 &&
+      pecl_install "$extension-$pecl_version" >/dev/null 2>&1 &&
       check_extension "$extension" &&
       add_log "$tick" "$extension" "Installed and enabled"
     ) || add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"
@@ -139,12 +145,12 @@ add_tool() {
     if [ "$tool" = "composer" ]; then
       configure_composer "$tool_path"
     elif [ "$tool" = "phan" ]; then
-      add_extension fileinfo "sudo pecl install -f fileinfo" extension >/dev/null 2>&1
-      add_extension ast "sudo pecl install -f ast" extension >/dev/null 2>&1
+      add_extension fileinfo "pecl_install fileinfo" extension >/dev/null 2>&1
+      add_extension ast "pecl_install ast" extension >/dev/null 2>&1
     elif [ "$tool" = "phive" ]; then
-      add_extension curl "sudo pecl install -f curl" extension >/dev/null 2>&1
-      add_extension mbstring "sudo pecl install -f mbstring" extension >/dev/null 2>&1
-      add_extension xml "sudo pecl install -f xml" extension >/dev/null 2>&1
+      add_extension curl "pecl_install curl" extension >/dev/null 2>&1
+      add_extension mbstring "pecl_install mbstring" extension >/dev/null 2>&1
+      add_extension xml "pecl_install xml" extension >/dev/null 2>&1
     elif [ "$tool" = "cs2pr" ]; then
       sudo sed -i '' 's/exit(9)/exit(0)/' "$tool_path"
       tr -d '\r' < "$tool_path" | sudo tee "$tool_path.tmp" >/dev/null 2>&1 && sudo mv "$tool_path.tmp" "$tool_path"

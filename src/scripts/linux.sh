@@ -59,6 +59,12 @@ get_pecl_version() {
   echo "$pecl_version"
 }
 
+# Function to install PECL extensions and accept default options
+pecl_install() {
+  local extension=$1
+  yes '' | sudo pecl install -f "$extension" >/dev/null 2>&1
+}
+
 # Function to test if extension is loaded
 check_extension() {
   extension=$1

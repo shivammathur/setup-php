@@ -257,9 +257,11 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   }
   if ($version -eq $master_version) {
     $version = 'master'
+    Invoke-WebRequest -UseBasicParsing -Uri https://dl.bintray.com/shivammathur/php/Install-PhpMaster.ps1 -OutFile $php_dir\Install-PhpMaster.ps1 > $null 2>&1
+    & $php_dir\Install-PhpMaster.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir
+  } else {
+    Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
   }
-
-  Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
 } else {
   $status = "Found"
 }
@@ -269,10 +271,4 @@ Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
 Set-PhpIniKey -Key 'memory_limit' -Value '-1' -Path $php_dir
 Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
-if ($version -eq 'master') {
-  Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/php-extensions-windows/releases/latest/download/php_$env:phpts`_$arch`_pcov.dll" -OutFile $ext_dir"\php_pcov.dll" >$null 2>&1
-  Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/php-extensions-windows/releases/latest/download/php_$env:phpts`_$arch`_xdebug.dll" -OutFile $ext_dir"\php_xdebug.dll" >$null 2>&1
-  Set-PhpIniKey -Key 'opcache.jit_buffer_size' -Value '256M' -Path $php_dir
-  Set-PhpIniKey -Key 'opcache.jit' -Value '1235' -Path $php_dir
-}
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)"

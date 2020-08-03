@@ -16,6 +16,16 @@ add_log() {
   fi
 }
 
+# Function to log result of installing extension.
+add_extension_log() {
+  extension=$1
+  status=$2
+  extension_name=$(echo "$extension" | cut -d '-' -f 1)
+  (
+    check_extension "$extension_name" && add_log "$tick" "$extension_name" "$status"
+  ) || add_log "$cross" "$extension_name" "Could not install $extension on PHP $semver"
+}
+
 # Function to read env inputs.
 read_env() {
   . /etc/lsb-release
@@ -35,15 +45,6 @@ cleanup_lists() {
   fi
 }
 
-# Function to update the package lists.
-update_lists() {
-  if [ "$lists_updated" = "false" ]; then
-    cleanup_lists
-    sudo "$debconf_fix" apt-get update >/dev/null 2>&1
-    lists_updated="true"
-  fi
-}
-
 # Function to add ppa:ondrej/php.
 add_ppa() {
   if ! apt-cache policy | grep -q ondrej/php; then
@@ -52,6 +53,16 @@ add_ppa() {
     if [ "$DISTRIB_RELEASE" = "16.04" ]; then
       sudo "$debconf_fix" apt-get update
     fi
+  fi
+}
+
+# Function to update the package lists.
+update_lists() {
+  if [ ! -e /tmp/setup_php ]; then
+    [ "$DISTRIB_RELEASE" = "20.04" ] && add_ppa >/dev/null 2>&1
+    cleanup_lists
+    sudo "$debconf_fix" apt-get update >/dev/null 2>&1
+    echo '' | sudo tee "/tmp/setup_php" >/dev/null 2>&1
   fi
 }
 
@@ -82,12 +93,18 @@ get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
   pecl_rest='https://pecl.php.net/rest/r/'
-  response=$(curl -q -sSL "$pecl_rest$extension"/allreleases.xml)
+  response=$(curl "${curl_opts[@]}" "$pecl_rest$extension"/allreleases.xml)
   pecl_version=$(echo "$response" | grep -m 1 -Pio "(\d*\.\d*\.\d*$stability\d*)")
   if [ ! "$pecl_version" ]; then
     pecl_version=$(echo "$response" | grep -m 1 -Po "(\d*\.\d*\.\d*)")
   fi
   echo "$pecl_version"
+}
+
+# Function to install PECL extensions and accept default options
+pecl_install() {
+  local extension=$1
+  yes '' | sudo pecl install -f "$extension" >/dev/null 2>&1
 }
 
 # Function to check if an extension is loaded.
@@ -148,8 +165,7 @@ add_pdo_extension() {
     fi
     add_extension "$ext_name" "$apt_install php$version-$ext" "extension" >/dev/null 2>&1
     enable_extension "$pdo_ext" "extension"
-    (check_extension "$pdo_ext" && add_log "$tick" "$pdo_ext" "Enabled") ||
-    add_log "$cross" "$pdo_ext" "Could not install $pdo_ext on PHP $semver"
+    add_extension_log "$pdo_ext" "Enabled"
   fi
 }
 
@@ -166,10 +182,8 @@ add_extension() {
       install_command="update_lists && ${install_command/5\.[4-5]-$extension/5-$extension=$release_version}"
     fi
     eval "$install_command" >/dev/null 2>&1 ||
-    (update_lists && eval "$install_command" >/dev/null 2>&1) ||
-    sudo pecl install -f "$extension" >/dev/null 2>&1
-    (check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled") ||
-    add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
+    (update_lists && eval "$install_command" >/dev/null 2>&1) || pecl_install "$extension"
+    add_extension_log "$extension" "Installed and enabled"
   fi
   sudo chmod 777 "$ini_file"
 }
@@ -190,11 +204,8 @@ add_pecl_extension() {
     add_log "$tick" "$extension" "Enabled"
   else
     delete_extension "$extension"
-    (
-      sudo pecl install -f "$extension-$pecl_version" >/dev/null 2>&1 &&
-      check_extension "$extension" &&
-      add_log "$tick" "$extension" "Installed and enabled"
-    ) || add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"
+    pecl_install "$extension-$pecl_version"
+    add_extension_log "$extension-$pecl_version" "Installed and enabled"
   fi
 }
 
@@ -207,21 +218,6 @@ add_unstable_extension() {
   add_pecl_extension "$extension" "$pecl_version" "$prefix"
 }
 
-# Function to update extension.
-update_extension() {
-  extension=$1
-  latest_version=$2
-  current_version=$(php -r "echo phpversion('$extension');")
-  final_version=$(printf "%s\n%s" "$current_version" "$latest_version" | sort | tail -n 1)
-  if [ "$final_version" != "$current_version"  ]; then
-    version_exists=$(apt-cache policy -- *"$extension" | grep "$final_version")
-    if [ -z "$version_exists" ]; then
-      update_lists
-    fi
-    $apt_install php"$version"-"$extension"
-  fi
-}
-
 # Function to install extension from source
 add_extension_from_source() {
   extension=$1
@@ -232,15 +228,13 @@ add_extension_from_source() {
   (
     add_devtools
     delete_extension "$extension"
-    curl -o /tmp/"$extension".tar.gz -sSL https://github.com/"$repo"/archive/"$release".tar.gz
+    curl -o /tmp/"$extension".tar.gz "${curl_opts[@]}" https://github.com/"$repo"/archive/"$release".tar.gz
     tar xf /tmp/"$extension".tar.gz -C /tmp
     cd /tmp/"$extension-$release" || exit 1
     phpize  && ./configure "$args" && make && sudo make install
     enable_extension "$extension" "$prefix"
   ) >/dev/null 2>&1
-  (
-    check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled"
-  ) || add_log "$cross" "$extension" "Could not install $extension-$release on PHP $semver"
+  add_extension_log "$extension-$release" "Installed and enabled"
 }
 
 # Function to configure composer
@@ -257,10 +251,6 @@ configure_composer() {
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
   fi
-  # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
-  if [[ "$version" =~ $old_versions ]]; then
-    composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
-  fi
 }
 
 # Function to setup a remote tool.
@@ -271,7 +261,7 @@ add_tool() {
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
   fi
-  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" -L "$url")
+  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
@@ -315,32 +305,14 @@ add_devtools() {
   configure_pecl >/dev/null 2>&1
 }
 
-# Function to add blackfire and blackfire-agent.
-add_blackfire() {
-  sudo mkdir -p /var/run/blackfire
-  sudo curl -sSL https://packages.blackfire.io/gpg.key | sudo apt-key add - >/dev/null 2>&1
-  echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list >/dev/null 2>&1
-  sudo "$debconf_fix" apt-get update >/dev/null 2>&1
-  $apt_install blackfire-agent >/dev/null 2>&1
-  if [[ -n $BLACKFIRE_SERVER_ID ]] && [[ -n $BLACKFIRE_SERVER_TOKEN ]]; then
-    sudo blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
-    sudo /etc/init.d/blackfire-agent restart >/dev/null 2>&1
-  fi
-  if [[ -n $BLACKFIRE_CLIENT_ID ]] && [[ -n $BLACKFIRE_CLIENT_TOKEN ]]; then
-    blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
-  fi
-  add_log "$tick" "blackfire" "Added"
-  add_log "$tick" "blackfire-agent" "Added"
-}
-
 # Function to setup the nightly build from master branch.
 setup_master() {
-  curl -sSL "$github"/php-builder/releases/latest/download/install.sh | bash -s "$runner"
+  curl "${curl_opts[@]}" "$github"/php-builder/releases/latest/download/install.sh | bash -s "$runner"
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
 setup_old_versions() {
-  curl -sSL "$github"/php5-ubuntu/releases/latest/download/install.sh | bash -s "$version"
+  curl "${curl_opts[@]}" "$github"/php5-ubuntu/releases/latest/download/install.sh | bash -s "$version"
   configure_pecl
   release_version=$(php -v | head -n 1 | cut -d' ' -f 2)
 }
@@ -349,7 +321,7 @@ setup_old_versions() {
 add_pecl() {
   add_devtools >/dev/null 2>&1
   if [ ! -e /usr/bin/pecl ]; then
-    $apt_install php-pear >/dev/null 2>&1
+    $apt_install php-pear >/dev/null 2>&1 || update_lists && $apt_install php-pear >/dev/null 2>&1
   fi
   configure_pecl >/dev/null 2>&1
   add_log "$tick" "PECL" "Added"
@@ -375,14 +347,19 @@ php_semver() {
 
 # Function to install packaged PHP
 add_packaged_php() {
-  update_lists
-  IFS=' ' read -r -a packages <<< "$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
-  $apt_install "${packages[@]}"
+  if [ "$runner" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
+    update_lists
+    IFS=' ' read -r -a packages <<< "$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
+    $apt_install "${packages[@]}"
+  else
+    curl "${curl_opts[@]}" "$github"/php-ubuntu/releases/latest/download/install.sh | bash -s "$version"
+  fi
 }
 
 # Function to update PHP.
 update_php() {
   initial_version=$(php_semver)
+  use_package_cache="false"
   add_packaged_php
   updated_version=$(php_semver)
   if [ "$updated_version" != "$initial_version" ]; then
@@ -407,7 +384,6 @@ add_php() {
 # Variables
 tick="✓"
 cross="✗"
-lists_updated="false"
 pecl_config="false"
 version=$1
 master_version="8.0"
@@ -416,6 +392,7 @@ debconf_fix="DEBIAN_FRONTEND=noninteractive"
 github="https://github.com/shivammathur"
 apt_install="sudo $debconf_fix apt-fast install -y"
 tool_path_dir="/usr/local/bin"
+curl_opts=(-sSL --retry 5 --retry-delay 1)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 read_env
@@ -426,8 +403,6 @@ if [ "$runner" = "self-hosted" ]; then
   else
     self_hosted_setup >/dev/null 2>&1
   fi
-elif [ "$DISTRIB_RELEASE" = "20.04" ]; then
-  add_ppa >/dev/null 2>&1
 fi
 
 # Setup PHP

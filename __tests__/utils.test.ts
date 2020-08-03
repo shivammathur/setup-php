@@ -167,4 +167,23 @@ describe('Utils tests', () => {
       'Platform fedora is not supported'
     );
   });
+
+  it('checking getUnsupportedLog', async () => {
+    expect(await utils.getUnsupportedLog('ext', '5.6', 'linux')).toContain(
+      'add_log "$cross" "ext" "ext is not supported on PHP 5.6"'
+    );
+  });
+
+  it('checking joins', async () => {
+    expect(await utils.joins('a', 'b', 'c')).toBe('a b c');
+  });
+
+  it('checking scriptExtension', async () => {
+    expect(await utils.scriptExtension('linux')).toBe('.sh');
+    expect(await utils.scriptExtension('darwin')).toBe('.sh');
+    expect(await utils.scriptExtension('win32')).toBe('.ps1');
+    expect(await utils.scriptExtension('fedora')).toContain(
+      'Platform fedora is not supported'
+    );
+  });
 });

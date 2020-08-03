@@ -1,71 +1,65 @@
-# Function to log result of a operation
-add_log() {
-  mark=$1
-  subject=$2
-  message=$3
-  if [ "$mark" = "$tick" ]; then
-    printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
+# Helper function to add phalcon.
+add_phalcon_helper() {
+  status='Installed and enabled'
+  if [ "$os_name" = "Linux" ]; then
+    update_lists
+    ${apt_install:?} "php${version:?}-$extension"
   else
-    printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
+    phalcon_ini_file=${ini_file:?}
+    sed -i '' '/extension.*psr/d' "${ini_file:?}"
+    brew tap shivammathur/homebrew-phalcon
+    brew install phalcon@"${version:?}"_"$extension_major_version"
+    sudo cp /usr/local/opt/psr@"${version:?}"/psr.so "${ext_dir:?}"
+    sudo cp /usr/local/opt/phalcon@"${version:?}"_"$extension_major_version"/phalcon.so "${ext_dir:?}"
   fi
 }
 
-# Function to update php ppa
-update_ppa() {
-  if [ "$ppa_updated" = "false" ]; then
-    find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-get update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
-    ppa_updated="true"
-  fi
+# Function to add phalcon3.
+add_phalcon3() {
+  if [ -e "${ext_dir:?}/phalcon.so" ]; then
+    phalcon_version=$(php -d="extension=phalcon.so" -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
+    if [ "$phalcon_version" != "$extension_major_version" ]; then
+      add_phalcon_helper
+    else
+      echo "extension=phalcon.so" | sudo tee -a "$phalcon_ini_file"
+    fi
+  else
+    add_phalcon_helper
+  fi  
 }
 
-# Function to install phalcon
-install_phalcon() {
-  extension=$1
-  version=$2
-  (update_ppa && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "php$version-$extension" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
-  add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
-}
-
-ini_file="/etc/php/$2/cli/conf.d/50-phalcon.ini"
-ext_dir=$(php -i | grep "extension_dir => /usr" | sed -e "s|.*=> s*||")
-semver=$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')
-extension_major_version=$(echo "$1" | grep -i -Po '\d')
-ppa_updated="false"
-tick="✓"
-cross="✗"
-
-if [ "$extension_major_version" = "4" ]; then
-  if [ -e "$ext_dir/psr.so" ] && ! php -m | grep -i -q -w psr; then
-    echo "extension=psr.so" | sudo tee -a "$ini_file" >/dev/null 2>&1
+# Function to add phalcon4.
+add_phalcon4() {
+  if [ -e "${ext_dir:?}/psr.so" ] && ! php -m | grep -i -q -w psr; then
+    echo "extension=psr.so" | sudo tee -a "${ini_file:?}"
   fi
-
   if [ -e "$ext_dir/phalcon.so" ]; then
     if php -m | grep -i -q -w psr; then
       phalcon_version=$(php -d="extension=phalcon" -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
       if [ "$phalcon_version" != "$extension_major_version" ]; then
-        install_phalcon "$1" "$2"
+        add_phalcon_helper
       else
-        echo "extension=phalcon.so" | sudo tee -a "$ini_file" >/dev/null 2>&1
-        add_log "$tick" "$1" "Enabled"
+        echo "extension=phalcon.so" | sudo tee -a "$phalcon_ini_file"
       fi
     else
-      install_phalcon "$1" "$2"
+      add_phalcon_helper
     fi
   else
-    install_phalcon "$1" "$2"
-  fi
-fi
+    add_phalcon_helper
+  fi  
+}
 
-if [ "$extension_major_version" = "3" ]; then
-  if [ -e "$ext_dir/phalcon.so" ]; then
-    phalcon_version=$(php -d="extension=phalcon.so" -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
-    if [ "$phalcon_version" != "$extension_major_version" ]; then
-      install_phalcon "$1" "$2"
-    else
-      echo "extension=phalcon.so" | sudo tee -a "$ini_file" >/dev/null 2>&1
-      add_log "$tick" "$1" "Enabled"
-    fi
-  else
-    install_phalcon "$1" "$2"
+# Function to add phalcon.
+add_phalcon() {
+  extension=$1
+  status='Enabled'
+  os_name=$(uname -s)
+  phalcon_ini_file="${scan_dir:?}/50-phalcon.ini"
+  extension_major_version=${extension: -1}
+  if [ "$extension_major_version" = "4" ]; then
+    add_phalcon4 >/dev/null 2>&1
+  elif [ "$extension_major_version" = "3" ]; then
+    add_phalcon3 >/dev/null 2>&1
   fi
-fi
+  add_extension_log "phalcon" "$status"
+}

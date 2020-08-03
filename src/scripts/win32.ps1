@@ -180,10 +180,6 @@ Function Edit-ComposerConfig() {
   if (Test-Path env:COMPOSER_TOKEN) {
     composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
   }
-  # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
-  if ($version -lt 5.6) {
-    composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
-  }
 }
 
 # Function to add tools.
@@ -269,25 +265,6 @@ Function Add-Pecl() {
   Add-Log $tick "PECL" "Use extensions input to setup PECL extensions on windows"
 }
 
-# Function to add blackfire and blackfire-agent.
-Function Add-Blackfire() {
-  $agent_data = Invoke-WebRequest https://blackfire.io/docs/up-and-running/update | ForEach-Object { $_.tostring() -split "[`r`n]" | Select-String '<td class="version">' | Select-Object -Index 0 }
-  $agent_version = [regex]::Matches($agent_data, '<td.*?>(.+)</td>') | ForEach-Object {$_.Captures[0].Groups[1].value }
-  $url = "https://packages.blackfire.io/binaries/blackfire-agent/${agent_version}/blackfire-agent-windows_${arch_name}.zip"
-  Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\blackfire.zip >$null 2>&1
-  Expand-Archive -Path $bin_dir\blackfire.zip -DestinationPath $bin_dir -Force >$null 2>&1
-  Add-ToProfile $current_profile 'blackfire' "New-Alias blackfire $bin_dir\blackfire.exe"
-  Add-ToProfile $current_profile 'blackfire-agent' "New-Alias blackfire-agent $bin_dir\blackfire-agent.exe"
-  if ((Test-Path env:BLACKFIRE_SERVER_ID) -and (Test-Path env:BLACKFIRE_SERVER_TOKEN)) {
-    blackfire-agent --register --server-id=$env:BLACKFIRE_SERVER_ID --server-token=$env:BLACKFIRE_SERVER_TOKEN >$null 2>&1
-  }
-  if ((Test-Path env:BLACKFIRE_CLIENT_ID) -and (Test-Path env:BLACKFIRE_CLIENT_TOKEN)) {
-    blackfire config --client-id=$env:BLACKFIRE_CLIENT_ID --client-token=$env:BLACKFIRE_CLIENT_TOKEN --ca-cert=$php_dir\ssl\cacert.pem >$null 2>&1
-  }
-  Add-Log $tick "blackfire" "Added"
-  Add-Log $tick "blackfire-agent" "Added"
-}
-
 # Variables
 $tick = ([char]8730)
 $cross = ([char]10007)
@@ -358,9 +335,11 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   }
   if ($version -eq $master_version) {
     $version = 'master'
+    Invoke-WebRequest -UseBasicParsing -Uri https://dl.bintray.com/shivammathur/php/Install-PhpMaster.ps1 -OutFile $php_dir\Install-PhpMaster.ps1 > $null 2>&1
+    & $php_dir\Install-PhpMaster.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir
+  } else {
+    Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
   }
-
-  Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force >$null 2>&1
 } else {
   if($env:update -eq 'true') {
     Update-Php $php_dir >$null 2>&1
@@ -382,10 +361,4 @@ if($version -lt "5.5") {
   Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 }
 Update-PhpCAInfo -Path $php_dir -Source $cert_source
-if ($version -eq 'master') {
-  Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/php-extensions-windows/releases/latest/download/php_$env:phpts`_$arch`_pcov.dll" -OutFile $ext_dir"\php_pcov.dll" >$null 2>&1
-  Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/php-extensions-windows/releases/latest/download/php_$env:phpts`_$arch`_xdebug.dll" -OutFile $ext_dir"\php_xdebug.dll" >$null 2>&1
-  Set-PhpIniKey -Key 'opcache.jit_buffer_size' -Value '256M' -Path $php_dir
-  Set-PhpIniKey -Key 'opcache.jit' -Value '1235' -Path $php_dir
-}
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)"

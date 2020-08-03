@@ -16,6 +16,16 @@ add_log() {
   fi
 }
 
+# Function to log result of installing extension.
+add_extension_log() {
+  extension=$1
+  status=$2
+  extension_name=$(echo "$extension" | cut -d '-' -f 1)
+  (
+    check_extension "$extension_name" && add_log "$tick" "$extension_name" "$status"
+  ) || add_log "$cross" "$extension_name" "Could not install $extension on PHP $semver"
+}
+
 # Function to read env inputs.
 read_env() {
   [[ -z "${update}" ]] && update='false' && UPDATE='false' || update="${update}"
@@ -27,9 +37,9 @@ read_env() {
 # Function to setup environment for self-hosted runners.
 self_hosted_setup() {
   if [[ $(command -v brew) == "" ]]; then
-      step_log "Setup Brew"
-      curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash -s >/dev/null 2>&1
-      add_log "$tick" "Brew" "Installed Homebrew"
+    step_log "Setup Brew"
+    curl "${curl_opts[@]}" https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash -s >/dev/null 2>&1
+    add_log "$tick" "Brew" "Installed Homebrew"
   fi
 }
 
@@ -41,7 +51,7 @@ remove_extension() {
     sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
     sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
     (! check_extension "$extension" && add_log "$tick" ":$extension" "Removed") ||
-    add_log "$cross" ":$extension" "Could not remove $extension on PHP $semver"
+      add_log "$cross" ":$extension" "Could not remove $extension on PHP $semver"
   else
     add_log "$tick" ":$extension" "Could not find $extension on PHP $semver"
   fi
@@ -62,12 +72,18 @@ get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
   pecl_rest='https://pecl.php.net/rest/r/'
-  response=$(curl -q -sSL "$pecl_rest$extension"/allreleases.xml)
+  response=$(curl "${curl_opts[@]}" "$pecl_rest$extension"/allreleases.xml)
   pecl_version=$(echo "$response" | grep -m 1 -Eio "(\d*\.\d*\.\d*$stability\d*)")
   if [ ! "$pecl_version" ]; then
     pecl_version=$(echo "$response" | grep -m 1 -Eo "(\d*\.\d*\.\d*)")
   fi
   echo "$pecl_version"
+}
+
+# Function to install PECL extensions and accept default options
+pecl_install() {
+  local extension=$1
+  yes '' | sudo pecl install -f "$extension" >/dev/null 2>&1
 }
 
 # Function to install a specific version of PECL extension.
@@ -86,11 +102,8 @@ add_pecl_extension() {
     add_log "$tick" "$extension" "Enabled"
   else
     remove_extension "$extension" >/dev/null 2>&1
-    (
-      sudo pecl install -f "$extension-$pecl_version" >/dev/null 2>&1 &&
-      check_extension "$extension" &&
-      add_log "$tick" "$extension" "Installed and enabled"
-    ) || add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"
+    pecl_install "$extension-$pecl_version"
+    add_extension_log "$extension-$pecl_version" "Installed and enabled"
   fi
 }
 
@@ -115,9 +128,8 @@ add_extension() {
     add_log "$tick" "$extension" "Enabled"
   elif ! check_extension "$extension"; then
     eval "$install_command" >/dev/null 2>&1 &&
-    if [[ "$version" =~ $old_versions ]]; then echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"; fi
-    (check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled") ||
-    add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
+      if [[ "$version" =~ $old_versions ]]; then echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"; fi
+    add_extension_log "$extension" "Installed and enabled"
   fi
 }
 
@@ -137,16 +149,12 @@ configure_composer() {
   php -r "try {\$p=new Phar('$tool_path.phar', 0);exit(0);} catch(Exception \$e) {exit(1);}"
   if [ $? -eq 1 ]; then
     add_log "$cross" "composer" "Could not download composer"
-    exit 1;
+    exit 1
   fi
   composer -q global config process-timeout 0
   echo "::add-path::/Users/$USER/.composer/vendor/bin"
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
-  fi
-  # TODO: Remove after composer 2.0 update, fixes peer fingerprint error
-  if [[ "$version" =~ $old_versions ]]; then
-    composer -q global config repos.packagist composer https://repo-ca-bhs-1.packagist.org
   fi
 }
 
@@ -159,18 +167,18 @@ add_tool() {
     rm -rf "$tool_path"
   fi
 
-  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" -L "$url")
+  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
       configure_composer "$tool_path"
     elif [ "$tool" = "phan" ]; then
-      add_extension fileinfo "sudo pecl install -f fileinfo" extension >/dev/null 2>&1
-      add_extension ast "sudo pecl install -f ast" extension >/dev/null 2>&1
+      add_extension fileinfo "pecl_install fileinfo" extension >/dev/null 2>&1
+      add_extension ast "pecl_install ast" extension >/dev/null 2>&1
     elif [ "$tool" = "phive" ]; then
-      add_extension curl "sudo pecl install -f curl" extension >/dev/null 2>&1
-      add_extension mbstring "sudo pecl install -f mbstring" extension >/dev/null 2>&1
-      add_extension xml "sudo pecl install -f xml" extension >/dev/null 2>&1
+      add_extension curl "pecl_install curl" extension >/dev/null 2>&1
+      add_extension mbstring "pecl_install mbstring" extension >/dev/null 2>&1
+      add_extension xml "pecl_install xml" extension >/dev/null 2>&1
     elif [ "$tool" = "cs2pr" ]; then
       sudo sed -i '' 's/exit(9)/exit(0)/' "$tool_path"
       tr -d '\r' <"$tool_path" | sudo tee "$tool_path.tmp" >/dev/null 2>&1 && sudo mv "$tool_path.tmp" "$tool_path"
@@ -190,24 +198,8 @@ add_composertool() {
   release=$2
   prefix=$3
   (
-    composer global require "$prefix$release" >/dev/null 2>&1 &&
-    add_log "$tick" "$tool" "Added"
+    composer global require "$prefix$release" >/dev/null 2>&1 && add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
-}
-
-add_blackfire() {
-  sudo mkdir -p usr/local/var/run
-  brew tap --shallow blackfireio/homebrew-blackfire >/dev/null 2>&1
-  brew install blackfire-agent >/dev/null 2>&1
-  if [[ -n $BLACKFIRE_SERVER_ID ]] && [[ -n $BLACKFIRE_SERVER_TOKEN ]]; then
-    blackfire-agent --register --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN" >/dev/null 2>&1
-    brew services start blackfire-agent >/dev/null 2>&1
-  fi
-  if [[ -n $BLACKFIRE_CLIENT_ID ]] && [[ -n $BLACKFIRE_CLIENT_TOKEN ]]; then
-    blackfire config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN" >/dev/null 2>&1
-  fi
-  add_log "$tick" "blackfire" "Added"
-  add_log "$tick" "blackfire-agent" "Added"
 }
 
 # Function to configure PECL
@@ -243,6 +235,7 @@ version=$1
 nodot_version=${1/./}
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
+curl_opts=(-sSL --retry 5 --retry-delay 1)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 read_env
@@ -258,7 +251,7 @@ fi
 # Setup PHP
 step_log "Setup PHP"
 if [[ "$version" =~ $old_versions ]]; then
-  curl -sSL https://github.com/shivammathur/php5-darwin/releases/latest/download/install.sh | bash -s "$nodot_version" >/dev/null 2>&1 &&
+  curl "${curl_opts[@]}" https://github.com/shivammathur/php5-darwin/releases/latest/download/install.sh | bash -s "$nodot_version" >/dev/null 2>&1
   status="Installed"
 elif [ "$existing_version" != "$version" ]; then
   setup_php "install" >/dev/null 2>&1

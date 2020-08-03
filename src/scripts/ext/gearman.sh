@@ -1,9 +1,23 @@
-release_version=$(lsb_release -s -r)
-sudo DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/pkg-gearman -y
-sudo DEBIAN_FRONTEND=noninteractive apt-get update -y
+# Helper function to add gearman extension.
+add_gearman_helper() {
+  sudo "${debconf_fix:?}" add-apt-repository ppa:ondrej/pkg-gearman -y
+  if [ -e "${ext_dir:?}/gearman.so" ] && [ "$DISTRIB_RELEASE" != "16.04" ]; then
+    ${apt_install:?} libgearman-dev
+    echo "extension=gearman.so" | sudo tee -a "${scan_dir:?}/20-gearman.ini" >/dev/null 2>&1
+  else
+    status="Installed and enabled"
+    if [ "$DISTRIB_RELEASE" = "16.04" ]; then
+      sudo "${debconf_fix:?}" apt-get update -y
+      ${apt_install:?} php"${version:?}"-gearman
+    else
+      ${apt_install:?} libgearman-dev php"${version:?}"-gearman
+    fi
+  fi
+}
 
-if [ "$release_version" = "18.04" ]; then
-  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y libgearman-dev php"$1"-gearman
-elif [ "$release_version" = "16.04" ]; then
-  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1"-gearman
-fi
+# Function to add gearman extension.
+add_gearman() {
+  status="Enabled"
+  add_gearman_helper >/dev/null 2>&1
+  add_extension_log "gearman" "$status"
+}

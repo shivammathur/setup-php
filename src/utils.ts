@@ -259,3 +259,57 @@ export async function suppressOutput(os_version: string): Promise<string> {
       );
   }
 }
+
+/**
+ * Function to get script to log unsupported extensions.
+ *
+ * @param extension
+ * @param version
+ * @param os_version
+ */
+export async function getUnsupportedLog(
+  extension: string,
+  version: string,
+  os_version: string
+): Promise<string> {
+  return (
+    '\n' +
+    (await addLog(
+      '$cross',
+      extension,
+      [extension, 'is not supported on PHP', version].join(' '),
+      os_version
+    )) +
+    '\n'
+  );
+}
+
+/**
+ * Function to join strings with space
+ *
+ * @param str
+ */
+export async function joins(...str: string[]): Promise<string> {
+  return [...str].join(' ');
+}
+
+/**
+ * Function to get script extensions
+ *
+ * @param os_version
+ */
+export async function scriptExtension(os_version: string): Promise<string> {
+  switch (os_version) {
+    case 'win32':
+      return '.ps1';
+    case 'linux':
+    case 'darwin':
+      return '.sh';
+    default:
+      return await log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
+  }
+}

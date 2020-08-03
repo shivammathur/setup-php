@@ -1,6 +1,7 @@
 import * as utils from './utils';
 import * as httpm from '@actions/http-client';
 import {IHttpClientResponse as hcr} from '@actions/http-client/interfaces';
+import * as path from 'path';
 
 /**
  * Function to get command to setup tools
@@ -38,6 +39,8 @@ export async function getToolVersion(version: string): Promise<string> {
   const composer_regex = /^stable$|^preview$|^snapshot$|^v?[1|2]$/;
   version = version.replace(/[><=^]*/, '');
   switch (true) {
+    case version.charAt(0) == 'v':
+      return version.replace('v', '');
     case composer_regex.test(version):
     case semver_regex.test(version):
       return version;
@@ -361,7 +364,7 @@ export async function getCleanedToolsList(
       return extension
         .trim()
         .replace(
-          /hirak\/|laravel\/|narrowspark\/automatic-|overtrue\/|robmorgan\/|symfony\//,
+          /-agent|hirak\/|laravel\/|narrowspark\/automatic-|overtrue\/|robmorgan\/|symfony\//,
           ''
         );
     })
@@ -440,6 +443,27 @@ export async function addPackage(
 }
 
 /**
+ * Function to get script to add tools with custom support.
+ *
+ * @param tool
+ * @param version
+ * @param os_version
+ */
+export async function addCustomTool(
+  tool: string,
+  version: string,
+  os_version: string
+): Promise<string> {
+  const script_extension: string = await utils.scriptExtension(os_version);
+  const script: string = path.join(
+    __dirname,
+    '../src/scripts/tools/' + tool + script_extension
+  );
+  const command: string = await getCommand(os_version, tool);
+  return '. ' + script + '\n' + command + version;
+}
+
+/**
  * Setup tools
  *
  * @param tools_csv
@@ -470,8 +494,9 @@ export async function addTools(
     let url = '';
     switch (tool) {
       case 'blackfire':
-      case 'blackfire-agent':
-        script += await getCommand(os_version, 'blackfire');
+      case 'grpc_php_plugin':
+      case 'protoc':
+        script += await addCustomTool(tool, version, os_version);
         break;
       case 'blackfire-player':
         url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);

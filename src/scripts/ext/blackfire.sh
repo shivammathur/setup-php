@@ -1,11 +1,17 @@
-version=${1/./}
-extension=${2}
-extension_version=$(echo "$extension" | cut -d '-' -f 2)
-if [ "$extension_version" = "blackfire" ]; then
-  extension_version=$(curl -sSL https://blackfire.io/docs/up-and-running/update | grep 'class="version"' | sed -e 's/<[^>]*>\| //g' | sed -n '3,3p')
-fi
-ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
-scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
-ini_file="$scan_dir/50-blackfire.ini"
-sudo curl -o $ext_dir/blackfire.so -SL https://packages.blackfire.io/binaries/blackfire-php/$extension_version/blackfire-php-linux_amd64-php-$version.so
-echo "extension=blackfire.so" | sudo tee -a "$ini_file"
+# Function to install blackfire extension.
+add_blackfire() {
+  extension=$1
+  version=${version:?}
+  no_dot_version=${version/./}
+  platform=$(uname -s | tr '[:upper:]' '[:lower:]')
+  extension_version=$(echo "$extension" | cut -d '-' -f 2)
+  blackfire_ini_file="${scan_dir:?}/50-blackfire.ini"
+  if [ ! -e "${ext_dir:?}/blackfire.so" ]; then
+    if [ "$extension_version" = "blackfire" ]; then
+      extension_version=$(curl -sSL https://blackfire.io/api/v1/releases | grep -Eo 'php":"([0-9]+.[0-9]+.[0-9]+)' | cut -d '"' -f 3)
+    fi
+    sudo curl -o "${ext_dir:?}/blackfire.so" "${curl_opts[@]:?}" https://packages.blackfire.io/binaries/blackfire-php/"$extension_version"/blackfire-php-"$platform"_amd64-php-"$no_dot_version".so >/dev/null 2>&1
+  fi
+  echo "extension=blackfire.so" | sudo tee -a "$blackfire_ini_file" >/dev/null 2>&1
+  add_extension_log "$extension-$extension_version" "Installed and enabled"
+}

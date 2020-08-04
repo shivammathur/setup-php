@@ -19,7 +19,7 @@ add_protoc() {
     [ "$(uname -s)" = "Darwin" ] && platform='osx'
     curl -o /tmp/protobuf.zip "${curl_opts[@]:?}" "https://github.com/protocolbuffers/protobuf/releases/download/$protobuf_tag/protoc-${protobuf_tag:1}-$platform-x86_64.zip"
     sudo unzip /tmp/protobuf.zip -d /usr/local/
-    sudo chmod a+x /usr/local/bin/protoc
+    sudo chmod 777 /usr/local/bin/protoc -R /usr/local/include/google
   ) >/dev/null 2>&1
   add_log "${tick:?}" "protoc" "Added"
   printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "protoc" "Click to read the protoc related license information"

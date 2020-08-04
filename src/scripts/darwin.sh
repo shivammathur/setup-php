@@ -241,7 +241,7 @@ version=$1
 nodot_version=${1/./}
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
-curl_opts=(-sSL --retry 5 --retry-delay 1)
+curl_opts=(-sL)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 read_env

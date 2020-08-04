@@ -398,7 +398,7 @@ debconf_fix="DEBIAN_FRONTEND=noninteractive"
 github="https://github.com/shivammathur"
 apt_install="sudo $debconf_fix apt-fast install -y"
 tool_path_dir="/usr/local/bin"
-curl_opts=(-sSL --retry 5 --retry-delay 1)
+curl_opts=(-sSL --retry 5)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 read_env

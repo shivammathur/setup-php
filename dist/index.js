@@ -2229,21 +2229,24 @@ exports.addComposer = addComposer;
  * @param version
  */
 async function getComposerUrl(version) {
+    const cache_url = 'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-' +
+        version.replace('latest', 'stable') +
+        '.phar,';
     const getComposerUrlHelper = async function (version) {
         const client = new httpm.HttpClient('setup-php');
         const response = await client.get('https://getcomposer.org/versions');
         const data = JSON.parse(await response.readBody());
-        return 'https://getcomposer.org' + data[version][0]['path'];
+        return cache_url + 'https://getcomposer.org' + data[version][0]['path'];
     };
     switch (version) {
         case 'snapshot':
-            return 'https://getcomposer.org/composer.phar';
+            return cache_url + 'https://getcomposer.org/composer.phar';
         case 'preview':
         case '1':
         case '2':
             return await getComposerUrlHelper(version);
         default:
-            return 'https://getcomposer.org/composer-stable.phar';
+            return cache_url + 'https://getcomposer.org/composer-stable.phar';
     }
 }
 exports.getComposerUrl = getComposerUrl;

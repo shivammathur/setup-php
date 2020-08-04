@@ -187,8 +187,6 @@ Function Add-Tool() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     [ValidateNotNull()]
-    [ValidateLength(1, [int]::MaxValue)]
-    [string]
     $url,
     [Parameter(Position = 1, Mandatory = $true)]
     [ValidateNotNull()]
@@ -199,6 +197,7 @@ Function Add-Tool() {
   if (Test-Path $bin_dir\$tool) {
     Remove-Item $bin_dir\$tool
   }
+  if($url.Count -gt 1) { $url = $url[0] }
   if ($tool -eq "symfony") {
     Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\$tool.exe
     Add-ToProfile $current_profile $tool "New-Alias $tool $bin_dir\$tool.exe" >$null 2>&1

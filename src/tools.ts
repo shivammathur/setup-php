@@ -1,32 +1,6 @@
 import * as utils from './utils';
 import * as httpm from '@actions/http-client';
 import {IHttpClientResponse as hcr} from '@actions/http-client/interfaces';
-import * as path from 'path';
-
-/**
- * Function to get command to setup tools
- *
- * @param os_version
- * @param suffix
- */
-export async function getCommand(
-  os_version: string,
-  suffix: string
-): Promise<string> {
-  switch (os_version) {
-    case 'linux':
-    case 'darwin':
-      return 'add_' + suffix + ' ';
-    case 'win32':
-      return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
-    default:
-      return await utils.log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
-  }
-}
 
 /**
  * Function to get tool version
@@ -194,12 +168,12 @@ export async function addPhive(
   switch (version) {
     case 'latest':
       return (
-        (await getCommand(os_version, 'tool')) +
+        (await utils.getCommand(os_version, 'tool')) +
         'https://phar.io/releases/phive.phar phive'
       );
     default:
       return (
-        (await getCommand(os_version, 'tool')) +
+        (await utils.getCommand(os_version, 'tool')) +
         'https://github.com/phar-io/phive/releases/download/' +
         version +
         '/phive-' +
@@ -390,7 +364,7 @@ export async function addArchive(
   url: string,
   os_version: string
 ): Promise<string> {
-  return (await getCommand(os_version, 'tool')) + url + ' ' + tool;
+  return (await utils.getCommand(os_version, 'tool')) + url + ' ' + tool;
 }
 
 /**
@@ -442,29 +416,8 @@ export async function addPackage(
   prefix: string,
   os_version: string
 ): Promise<string> {
-  const tool_command = await getCommand(os_version, 'composertool');
+  const tool_command = await utils.getCommand(os_version, 'composertool');
   return tool_command + tool + ' ' + release + ' ' + prefix;
-}
-
-/**
- * Function to get script to add tools with custom support.
- *
- * @param tool
- * @param version
- * @param os_version
- */
-export async function addCustomTool(
-  tool: string,
-  version: string,
-  os_version: string
-): Promise<string> {
-  const script_extension: string = await utils.scriptExtension(os_version);
-  const script: string = path.join(
-    __dirname,
-    '../src/scripts/tools/' + tool + script_extension
-  );
-  const command: string = await getCommand(os_version, tool);
-  return '. ' + script + '\n' + command + version;
 }
 
 /**
@@ -500,7 +453,7 @@ export async function addTools(
       case 'blackfire':
       case 'grpc_php_plugin':
       case 'protoc':
-        script += await addCustomTool(tool, version, os_version);
+        script += await utils.customPackage(tool, 'tools', version, os_version);
         break;
       case 'blackfire-player':
         url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
@@ -556,7 +509,7 @@ export async function addTools(
         script += await addArchive(tool, version, url, os_version);
         break;
       case 'pecl':
-        script += await getCommand(os_version, 'pecl');
+        script += await utils.getCommand(os_version, 'pecl');
         break;
       case 'phan':
         url = github + 'phan/phan/' + uri;

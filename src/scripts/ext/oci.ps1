@@ -21,7 +21,7 @@ Function Add-InstantClient() {
 }
 
 # Function to install oci8 and pdo_oci.
-Function Add-OCI() {
+Function Add-Oci() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     [ValidateNotNull()]

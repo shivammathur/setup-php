@@ -13,8 +13,8 @@ describe('Extension tests', () => {
     expect(win32).toContain('Remove-Extension intl');
     expect(win32).toContain('Add-Phalcon phalcon4');
     expect(win32).toContain('Add-Ioncube');
-    expect(win32).toContain('Add-OCI oci8');
-    expect(win32).toContain('Add-OCI pdo_oci');
+    expect(win32).toContain('Add-Oci oci8');
+    expect(win32).toContain('Add-Oci pdo_oci');
     expect(win32).toContain('Add-Extension ast beta');
     expect(win32).toContain('Add-Extension grpc stable 1.2.3');
     expect(win32).toContain('Add-Extension inotify alpha 1.2.3');

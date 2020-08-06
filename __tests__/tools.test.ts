@@ -17,15 +17,6 @@ httpm.HttpClient.prototype.get = jest.fn().mockImplementation(() => {
 });
 
 describe('Tools tests', () => {
-  it('checking getCommand', async () => {
-    expect(await tools.getCommand('linux', 'tool')).toBe('add_tool ');
-    expect(await tools.getCommand('darwin', 'tool')).toBe('add_tool ');
-    expect(await tools.getCommand('win32', 'tool')).toBe('Add-Tool ');
-    expect(await tools.getCommand('fedora', 'tool')).toContain(
-      'Platform fedora is not supported'
-    );
-  });
-
   it('checking parseToolVersion', async () => {
     expect(await tools.getToolVersion('latest')).toBe('latest');
     expect(await tools.getToolVersion('1.2.3')).toBe('1.2.3');
@@ -400,17 +391,6 @@ describe('Tools tests', () => {
 
     script = await tools.addPackage('tool', 'tool:1.2.3', 'user/', 'fedora');
     expect(script).toContain('Platform fedora is not supported');
-  });
-
-  it('checking addCustomTool', async () => {
-    let script: string = await tools.addCustomTool('tool', '1.2.3', 'linux');
-    expect(script).toContain('tool.sh\nadd_tool 1.2.3');
-
-    script = await tools.addCustomTool('tool', '1.2.3', 'darwin');
-    expect(script).toContain('tool.sh\nadd_tool 1.2.3');
-
-    script = await tools.addCustomTool('tool', '1.2.3', 'win32');
-    expect(script).toContain('tool.ps1\nAdd-Tool 1.2.3');
   });
 
   it('checking addTools on linux', async () => {

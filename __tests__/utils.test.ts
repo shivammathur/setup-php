@@ -174,6 +174,15 @@ describe('Utils tests', () => {
     );
   });
 
+  it('checking getCommand', async () => {
+    expect(await utils.getCommand('linux', 'tool')).toBe('add_tool ');
+    expect(await utils.getCommand('darwin', 'tool')).toBe('add_tool ');
+    expect(await utils.getCommand('win32', 'tool')).toBe('Add-Tool ');
+    expect(await utils.getCommand('fedora', 'tool')).toContain(
+      'Platform fedora is not supported'
+    );
+  });
+
   it('checking joins', async () => {
     expect(await utils.joins('a', 'b', 'c')).toBe('a b c');
   });
@@ -185,5 +194,18 @@ describe('Utils tests', () => {
     expect(await utils.scriptExtension('fedora')).toContain(
       'Platform fedora is not supported'
     );
+  });
+
+  it('checking customPackage', async () => {
+    const script_path: string = path.join('ext', 'pkg.sh');
+    expect(await utils.customPackage('pkg', 'ext', '1.2.3', 'linux')).toContain(
+      script_path + '\nadd_pkg 1.2.3'
+    );
+    expect(
+      await utils.customPackage('pdo_pkg', 'ext', '1.2.3', 'linux')
+    ).toContain(script_path + '\nadd_pkg 1.2.3');
+    expect(
+      await utils.customPackage('pkg8', 'ext', '1.2.3', 'linux')
+    ).toContain(script_path + '\nadd_pkg 1.2.3');
   });
 });

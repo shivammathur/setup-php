@@ -95,6 +95,11 @@ describe('Extension tests', () => {
     linux = await extensions.addExtension('gearman', '7.4', 'linux');
     expect(linux).toContain('add_gearman');
 
+    linux = await extensions.addExtension('pdo_cubrid', '7.0', 'linux');
+    expect(linux).toContain('add_cubrid pdo_cubrid');
+    linux = await extensions.addExtension('cubrid', '7.4', 'linux');
+    expect(linux).toContain('add_cubrid cubrid');
+
     linux = await extensions.addExtension('xdebug', '7.2', 'fedora');
     expect(linux).toContain('Platform fedora is not supported');
 

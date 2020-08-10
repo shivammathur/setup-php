@@ -21,7 +21,7 @@ Function Add-InstantClient() {
 }
 
 # Function to install oci8 and pdo_oci.
-Function Add-OCI() {
+Function Add-Oci() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     [ValidateNotNull()]
@@ -35,16 +35,19 @@ Function Add-OCI() {
     if ($extension -eq "pdo_oci") {
       Enable-PhpExtension pdo_oci -Path $php_dir
     } else {
-      $status = 'Installed and enabled'
-      $ociVersion = '2.2.0'
-      if ($version -eq '7.0') {
-        $ociVersion = '2.1.8'
-      } elseif ($version -lt '7.0') {
-        $ociVersion = '2.0.12'
+      if(-not(Test-Path $ext_dir\php_oci8.dll)) {
+        $status = 'Installed and enabled'
+        $ociVersion = '2.2.0'
+        if ($version -eq '7.0') {
+          $ociVersion = '2.1.8'
+        } elseif ($version -lt '7.0') {
+          $ociVersion = '2.0.12'
+        }
+        $ociUrl = Get-PeclArchiveUrl oci8 $ociVersion $installed
+        Invoke-WebRequest -UseBasicParsing -Uri $ociUrl -OutFile $php_dir\oci8.zip
+        Expand-Archive -Path $php_dir\oci8.zip -DestinationPath $ext_dir -Force
+
       }
-      $ociUrl = Get-PeclArchiveUrl oci8 $ociVersion $installed
-      Invoke-WebRequest -UseBasicParsing -Uri $ociUrl -OutFile $php_dir\oci8.zip
-      Expand-Archive -Path $php_dir\oci8.zip -DestinationPath $ext_dir -Force
       Add-Content -Value "`r`nextension=php_oci8.dll" -Path $php_dir\php.ini
     }
     Add-Log $tick $extension $status

@@ -13,8 +13,8 @@ describe('Extension tests', () => {
     expect(win32).toContain('Remove-Extension intl');
     expect(win32).toContain('Add-Phalcon phalcon4');
     expect(win32).toContain('Add-Ioncube');
-    expect(win32).toContain('Add-OCI oci8');
-    expect(win32).toContain('Add-OCI pdo_oci');
+    expect(win32).toContain('Add-Oci oci8');
+    expect(win32).toContain('Add-Oci pdo_oci');
     expect(win32).toContain('Add-Extension ast beta');
     expect(win32).toContain('Add-Extension grpc stable 1.2.3');
     expect(win32).toContain('Add-Extension inotify alpha 1.2.3');
@@ -94,6 +94,11 @@ describe('Extension tests', () => {
     expect(linux).toContain('add_gearman');
     linux = await extensions.addExtension('gearman', '7.4', 'linux');
     expect(linux).toContain('add_gearman');
+
+    linux = await extensions.addExtension('pdo_cubrid', '7.0', 'linux');
+    expect(linux).toContain('add_cubrid pdo_cubrid');
+    linux = await extensions.addExtension('cubrid', '7.4', 'linux');
+    expect(linux).toContain('add_cubrid cubrid');
 
     linux = await extensions.addExtension('xdebug', '7.2', 'fedora');
     expect(linux).toContain('Platform fedora is not supported');

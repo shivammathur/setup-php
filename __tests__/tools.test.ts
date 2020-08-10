@@ -17,15 +17,6 @@ httpm.HttpClient.prototype.get = jest.fn().mockImplementation(() => {
 });
 
 describe('Tools tests', () => {
-  it('checking getCommand', async () => {
-    expect(await tools.getCommand('linux', 'tool')).toBe('add_tool ');
-    expect(await tools.getCommand('darwin', 'tool')).toBe('add_tool ');
-    expect(await tools.getCommand('win32', 'tool')).toBe('Add-Tool ');
-    expect(await tools.getCommand('fedora', 'tool')).toContain(
-      'Platform fedora is not supported'
-    );
-  });
-
   it('checking parseToolVersion', async () => {
     expect(await tools.getToolVersion('latest')).toBe('latest');
     expect(await tools.getToolVersion('1.2.3')).toBe('1.2.3');
@@ -402,17 +393,6 @@ describe('Tools tests', () => {
     expect(script).toContain('Platform fedora is not supported');
   });
 
-  it('checking addCustomTool', async () => {
-    let script: string = await tools.addCustomTool('tool', '1.2.3', 'linux');
-    expect(script).toContain('tool.sh\nadd_tool 1.2.3');
-
-    script = await tools.addCustomTool('tool', '1.2.3', 'darwin');
-    expect(script).toContain('tool.sh\nadd_tool 1.2.3');
-
-    script = await tools.addCustomTool('tool', '1.2.3', 'win32');
-    expect(script).toContain('tool.ps1\nAdd-Tool 1.2.3');
-  });
-
   it('checking addTools on linux', async () => {
     const script: string = await tools.addTools(
       'blackfire, blackfire-player, cs2pr, flex, grpc_php_plugin, php-cs-fixer, phplint, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, protoc, symfony, wp-cli',
@@ -424,7 +404,7 @@ describe('Tools tests', () => {
       'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player'
     );
     expect(script).toContain(
-      'add_tool https://getcomposer.org/composer-stable.phar composer'
+      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
@@ -499,7 +479,7 @@ describe('Tools tests', () => {
       'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player'
     );
     expect(script).toContain(
-      'add_tool https://getcomposer.org/composer-stable.phar composer'
+      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'add_tool https://github.com/ergebnis/composer-normalize/releases/latest/download/composer-normalize.phar composer-normalize'
@@ -590,7 +570,7 @@ describe('Tools tests', () => {
       'Add-Tool https://get.blackfire.io/blackfire-player-v1.8.1.phar blackfire-player'
     );
     expect(script).toContain(
-      'Add-Tool https://getcomposer.org/composer-stable.phar composer'
+      'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'Add-Tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
@@ -631,7 +611,7 @@ describe('Tools tests', () => {
     );
 
     expect(script).toContain(
-      'Add-Tool https://getcomposer.org/composer-stable.phar composer'
+      'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain('Add-Composertool prestissimo prestissimo hirak/');
     expect(script).toContain('Add-Composertool phinx phinx robmorgan/');
@@ -649,12 +629,12 @@ describe('Tools tests', () => {
     );
 
     expect(script).toContain(
-      'add_tool https://getcomposer.org/composer-1.phar composer'
+      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-1.phar,https://getcomposer.org/composer-1.phar composer'
     );
 
     script = await tools.addTools('composer:preview', '7.4', 'linux');
     expect(script).toContain(
-      'add_tool https://getcomposer.org/composer-preview.phar composer'
+      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-preview.phar,https://getcomposer.org/composer-preview.phar composer'
     );
     script = await tools.addTools(
       'composer:v1, composer:preview, composer:snapshot',
@@ -662,7 +642,7 @@ describe('Tools tests', () => {
       'linux'
     );
     expect(script).toContain(
-      'add_tool https://getcomposer.org/composer.phar composer'
+      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-snapshot.phar,https://getcomposer.org/composer.phar composer'
     );
   });
 });

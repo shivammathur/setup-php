@@ -285,6 +285,31 @@ export async function getUnsupportedLog(
 }
 
 /**
+ * Function to get command to setup tools
+ *
+ * @param os_version
+ * @param suffix
+ */
+export async function getCommand(
+  os_version: string,
+  suffix: string
+): Promise<string> {
+  switch (os_version) {
+    case 'linux':
+    case 'darwin':
+      return 'add_' + suffix + ' ';
+    case 'win32':
+      return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
+    default:
+      return await log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
+  }
+}
+
+/**
  * Function to join strings with space
  *
  * @param str
@@ -312,4 +337,28 @@ export async function scriptExtension(os_version: string): Promise<string> {
         'error'
       );
   }
+}
+
+/**
+ * Function to get script to add tools with custom support.
+ *
+ * @param pkg
+ * @param type
+ * @param version
+ * @param os_version
+ */
+export async function customPackage(
+  pkg: string,
+  type: string,
+  version: string,
+  os_version: string
+): Promise<string> {
+  const pkg_name: string = pkg.replace(/\d+|pdo[_-]/, '');
+  const script_extension: string = await scriptExtension(os_version);
+  const script: string = path.join(
+    __dirname,
+    '../src/scripts/' + type + '/' + pkg_name + script_extension
+  );
+  const command: string = await getCommand(os_version, pkg_name);
+  return '\n. ' + script + '\n' + command + version;
 }

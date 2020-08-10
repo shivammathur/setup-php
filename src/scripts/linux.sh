@@ -261,7 +261,13 @@ add_tool() {
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
   fi
-  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
+  if [ "$tool" = "composer" ]; then
+    IFS="," read -r -a urls <<< "$url"
+    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[0]}") ||
+    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[1]}")
+  else
+    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
+  fi
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
@@ -392,7 +398,7 @@ debconf_fix="DEBIAN_FRONTEND=noninteractive"
 github="https://github.com/shivammathur"
 apt_install="sudo $debconf_fix apt-fast install -y"
 tool_path_dir="/usr/local/bin"
-curl_opts=(-sSL --retry 5 --retry-delay 1)
+curl_opts=(-sL)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 read_env

@@ -167,7 +167,13 @@ add_tool() {
     rm -rf "$tool_path"
   fi
 
-  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
+  if [ "$tool" = "composer" ]; then
+    IFS="," read -r -a urls <<< "$url"
+    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[0]}") ||
+    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[1]}")
+  else
+    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
+  fi
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
@@ -235,7 +241,7 @@ version=$1
 nodot_version=${1/./}
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
-curl_opts=(-sSL --retry 5 --retry-delay 1)
+curl_opts=(-sL)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 read_env

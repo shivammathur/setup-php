@@ -143,7 +143,7 @@ with:
 
 - Extensions which cannot be added or removed gracefully leave an error message in the logs, the action is not interrupted.
 
-- These extensions have custom support - `gearman` on `Ubuntu`, `blackfire`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
+- These extensions have custom support - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`, and `blackfire`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
 
 ## :wrench: Tools Support
 
@@ -178,7 +178,7 @@ with:
 ```
 
 **Notes**
-- Both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified in tools input.
+- Latest versions of both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified in tools input.
 - Tools which cannot be setup gracefully leave an error message in the logs, the action is not interrupted.
 
 ## :signal_strength: Coverage Support
@@ -455,45 +455,8 @@ To debug any issues, you can use the `verbose` tag instead of `v2`.
 
 ### Cache Extensions
 
-You can cache PHP extensions using [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") and [`action/cache`](https://github.com/actions/cache "GitHub Action to cache files") GitHub Actions. Extensions which take very long to setup when cached are available in the next workflow run and are enabled directly. This reduces the workflow execution time.
-
-```yaml
-runs-on: ${{ matrix.operating-system }}
-strategy:
-  matrix:
-    operating-system: [ubuntu-latest, windows-latest, macos-latest]
-    php-versions: ['7.2', '7.3', '7.4']
-name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
-env:
-  extensions: intl, pcov
-  key: cache-v1 # can be any string, change to clear the extension cache.
-steps:
-- name: Checkout
-  uses: actions/checkout@v2
-
-- name: Setup cache environment
-  id: extcache
-  uses: shivammathur/cache-extensions@v1
-  with:
-    php-version: ${{ matrix.php-versions }}
-    extensions: ${{ env.extensions }}
-    key: ${{ env.key }}
-
-- name: Cache extensions
-  uses: actions/cache@v2
-  with:
-    path: ${{ steps.extcache.outputs.dir }}
-    key: ${{ steps.extcache.outputs.key }}
-    restore-keys: ${{ steps.extcache.outputs.key }}
-
-- name: Setup PHP
-  uses: shivammathur/setup-php@v2
-  with:
-    php-version: ${{ matrix.php-versions }}
-    extensions: ${{ env.extensions }}
-```
-
-**Note:** If you setup both `TS` and `NTS` PHP versions on `windows`, add `${{ env.phpts }}` to `key` and `restore-keys` inputs in `actions/cache` step.
+You can cache PHP extensions using `shivammathur/cache-extensions` and `action/cache` GitHub Actions. Extensions which take very long to setup when cached are available in the next workflow run and are enabled directly. This reduces the workflow execution time.  
+Refer to [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") for details. 
 
 ### Cache Composer Dependencies
 
@@ -646,9 +609,23 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 ## :sparkling_heart: Support This Project
 
-If this action helped you.
+**Thanks for supporting this project**
 
-- Sponsor the project by subscribing on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") or by contributing using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal"). This project is also available as part of the [Tidelift Subscription](https://tidelift.com/subscription/pkg/npm-setup-php?utm_source=npm-setup-php&utm_medium=referral&utm_campaign=enterprise&utm_term=repo "Tidelift Subscription for setup-php") to support delivering enterprise-level maintenance.
+<p> 
+  <a href="https://www.jetbrains.com/?from=setup-php">
+    <img src="https://shivammathur.com/jetbrains.svg" alt="JetBrains" width="150" height="85">
+  </a>  
+  <img src="https://shivammathur.com/blank.svg" alt="spacer" width="40" height="85">  
+  <a href="https://tidelift.com/subscription/pkg/npm-setup-php">  
+    <img src="https://shivammathur.com/tidelift.png" alt="Tidelift" width="100" height="85">
+  </a>
+</p>
+
+*If this action helped you*
+
+- Sponsor the project by contributing using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal") or by subscribing on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon").
+- If you have an open-source support program, please [contact](mailto:contact@shivammathur.com) to sponsor this project.
+- This project is also available as part of the [Tidelift Subscription](https://tidelift.com/subscription/pkg/npm-setup-php?utm_source=npm-setup-php&utm_medium=referral&utm_campaign=enterprise&utm_term=repo "Tidelift Subscription for setup-php") to support delivering enterprise-level maintenance.
 - Please star the project and dependencies. If you blog, please share your experience of using this action with the community.
 
 ## :package: Dependencies
@@ -658,9 +635,12 @@ If this action helped you.
 - [mlocati/powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager "Package to handle PHP on windows")
 - [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Packaging active PHP packages")
 - [shivammathur/cache-extensions](https://github.com/shivammathur/cache-extensions "GitHub action to help with caching PHP extensions")
-- [shivammathur/homebrew-php](https://github.com/shivammathur/homebrew-php "Tap for PHP builds on MacOS")
+- [shivammathur/composer-cache](https://github.com/shivammathur/composer-cache "Cache composer releases")
 - [shivammathur/homebrew-extensions](https://github.com/shivammathur/homebrew-extensions "Tap for PHP extensions on MacOS")
-- [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Nightly PHP package")
+- [shivammathur/homebrew-php](https://github.com/shivammathur/homebrew-php "Tap for PHP builds on MacOS")
+- [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Nightly PHP package for Ubuntu")
+- [shivammathur/php-builder-windows](https://github.com/shivammathur/php-builder-windows "Nightly PHP package for Windows")
+- [shivammathur/php-ubuntu](https://github.com/shivammathur/php-ubuntu "Cache stable PHP Packages for Ubuntu")
 - [shivammathur/php5-darwin](https://github.com/shivammathur/php5-darwin "Scripts to setup PHP5 versions on darwin")
 - [shivammathur/php5-ubuntu](https://github.com/shivammathur/php5-ubuntu "Scripts to setup PHP5 versions on ubuntu")
 

@@ -1314,7 +1314,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.scriptExtension = exports.joins = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.getInput = void 0;
+exports.customPackage = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.getInput = void 0;
 const fs = __importStar(__webpack_require__(747));
 const path = __importStar(__webpack_require__(622));
 const core = __importStar(__webpack_require__(470));
@@ -1543,6 +1543,24 @@ async function getUnsupportedLog(extension, version, os_version) {
 }
 exports.getUnsupportedLog = getUnsupportedLog;
 /**
+ * Function to get command to setup tools
+ *
+ * @param os_version
+ * @param suffix
+ */
+async function getCommand(os_version, suffix) {
+    switch (os_version) {
+        case 'linux':
+        case 'darwin':
+            return 'add_' + suffix + ' ';
+        case 'win32':
+            return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
+        default:
+            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+    }
+}
+exports.getCommand = getCommand;
+/**
  * Function to join strings with space
  *
  * @param str
@@ -1568,6 +1586,22 @@ async function scriptExtension(os_version) {
     }
 }
 exports.scriptExtension = scriptExtension;
+/**
+ * Function to get script to add tools with custom support.
+ *
+ * @param pkg
+ * @param type
+ * @param version
+ * @param os_version
+ */
+async function customPackage(pkg, type, version, os_version) {
+    const pkg_name = pkg.replace(/\d+|pdo[_-]/, '');
+    const script_extension = await scriptExtension(os_version);
+    const script = path.join(__dirname, '../src/scripts/' + type + '/' + pkg_name + script_extension);
+    const command = await getCommand(os_version, pkg_name);
+    return '\n. ' + script + '\n' + command + version;
+}
+exports.customPackage = customPackage;
 
 
 /***/ }),
@@ -1947,28 +1981,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addTools = exports.addCustomTool = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.getComposerUrl = exports.addComposer = exports.getWpCliUrl = exports.getSymfonyUri = exports.getDeployerUrl = exports.getPharUrl = exports.addPhive = exports.getCodeceptionUri = exports.getCodeceptionUriBuilder = exports.getUri = exports.parseTool = exports.getToolVersion = exports.getCommand = void 0;
+exports.addTools = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.getComposerUrl = exports.addComposer = exports.getWpCliUrl = exports.getSymfonyUri = exports.getDeployerUrl = exports.getPharUrl = exports.addPhive = exports.getCodeceptionUri = exports.getCodeceptionUriBuilder = exports.getUri = exports.parseTool = exports.getToolVersion = void 0;
 const utils = __importStar(__webpack_require__(163));
 const httpm = __importStar(__webpack_require__(539));
-const path = __importStar(__webpack_require__(622));
-/**
- * Function to get command to setup tools
- *
- * @param os_version
- * @param suffix
- */
-async function getCommand(os_version, suffix) {
-    switch (os_version) {
-        case 'linux':
-        case 'darwin':
-            return 'add_' + suffix + ' ';
-        case 'win32':
-            return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
-        default:
-            return await utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
-    }
-}
-exports.getCommand = getCommand;
 /**
  * Function to get tool version
  *
@@ -2116,10 +2131,10 @@ exports.getCodeceptionUri = getCodeceptionUri;
 async function addPhive(version, os_version) {
     switch (version) {
         case 'latest':
-            return ((await getCommand(os_version, 'tool')) +
+            return ((await utils.getCommand(os_version, 'tool')) +
                 'https://phar.io/releases/phive.phar phive');
         default:
-            return ((await getCommand(os_version, 'tool')) +
+            return ((await utils.getCommand(os_version, 'tool')) +
                 'https://github.com/phar-io/phive/releases/download/' +
                 version +
                 '/phive-' +
@@ -2229,21 +2244,24 @@ exports.addComposer = addComposer;
  * @param version
  */
 async function getComposerUrl(version) {
+    const cache_url = 'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-' +
+        version.replace('latest', 'stable') +
+        '.phar,';
     const getComposerUrlHelper = async function (version) {
         const client = new httpm.HttpClient('setup-php');
         const response = await client.get('https://getcomposer.org/versions');
         const data = JSON.parse(await response.readBody());
-        return 'https://getcomposer.org' + data[version][0]['path'];
+        return cache_url + 'https://getcomposer.org' + data[version][0]['path'];
     };
     switch (version) {
         case 'snapshot':
-            return 'https://getcomposer.org/composer.phar';
+            return cache_url + 'https://getcomposer.org/composer.phar';
         case 'preview':
         case '1':
         case '2':
             return await getComposerUrlHelper(version);
         default:
-            return 'https://getcomposer.org/composer-stable.phar';
+            return cache_url + 'https://getcomposer.org/composer-stable.phar';
     }
 }
 exports.getComposerUrl = getComposerUrl;
@@ -2274,7 +2292,7 @@ exports.getCleanedToolsList = getCleanedToolsList;
  * @param os_version
  */
 async function addArchive(tool, version, url, os_version) {
-    return (await getCommand(os_version, 'tool')) + url + ' ' + tool;
+    return (await utils.getCommand(os_version, 'tool')) + url + ' ' + tool;
 }
 exports.addArchive = addArchive;
 /**
@@ -2307,24 +2325,10 @@ exports.addDevTools = addDevTools;
  * @param os_version
  */
 async function addPackage(tool, release, prefix, os_version) {
-    const tool_command = await getCommand(os_version, 'composertool');
+    const tool_command = await utils.getCommand(os_version, 'composertool');
     return tool_command + tool + ' ' + release + ' ' + prefix;
 }
 exports.addPackage = addPackage;
-/**
- * Function to get script to add tools with custom support.
- *
- * @param tool
- * @param version
- * @param os_version
- */
-async function addCustomTool(tool, version, os_version) {
-    const script_extension = await utils.scriptExtension(os_version);
-    const script = path.join(__dirname, '../src/scripts/tools/' + tool + script_extension);
-    const command = await getCommand(os_version, tool);
-    return '. ' + script + '\n' + command + version;
-}
-exports.addCustomTool = addCustomTool;
 /**
  * Setup tools
  *
@@ -2347,7 +2351,7 @@ async function addTools(tools_csv, php_version, os_version) {
             case 'blackfire':
             case 'grpc_php_plugin':
             case 'protoc':
-                script += await addCustomTool(tool, version, os_version);
+                script += await utils.customPackage(tool, 'tools', version, os_version);
                 break;
             case 'blackfire-player':
                 url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
@@ -2398,7 +2402,7 @@ async function addTools(tools_csv, php_version, os_version) {
                 script += await addArchive(tool, version, url, os_version);
                 break;
             case 'pecl':
-                script += await getCommand(os_version, 'pecl');
+                script += await utils.getCommand(os_version, 'pecl');
                 break;
             case 'phan':
                 url = github + 'phan/phan/' + uri;
@@ -3625,22 +3629,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addExtension = exports.addExtensionLinux = exports.addExtensionWindows = exports.addExtensionDarwin = exports.customExtension = void 0;
-const path = __importStar(__webpack_require__(622));
+exports.addExtension = exports.addExtensionLinux = exports.addExtensionWindows = exports.addExtensionDarwin = void 0;
 const utils = __importStar(__webpack_require__(163));
-/**
- * Function to get script to install custom extensions
- *
- * @param script
- * @param command
- */
-async function customExtension(script, ...command) {
-    return ('\n. ' +
-        path.join(__dirname, '../src/scripts/ext/' + script) +
-        '\n' +
-        (await utils.joins(...command)));
-}
-exports.customExtension = customExtension;
 /**
  * Install and enable extensions for darwin
  *
@@ -3665,20 +3655,14 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
                 return;
             // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
             // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
-            case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
-                add_script += await customExtension('blackfire.sh', 'add_blackfire', extension);
-                return;
             // match pdo_oci and oci8
-            case /^pdo_oci$|^oci8$/.test(extension):
-                add_script += await customExtension('oci.sh', 'add_oci', extension);
-                return;
             // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
-            case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
-                add_script += await customExtension('ioncube.sh', 'add_ioncube');
-                return;
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+            case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
+            case /^pdo_oci$|^oci8$/.test(extension):
+            case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-                add_script += await customExtension('phalcon.sh', 'add_phalcon', extension);
+                add_script += await utils.customPackage(ext_name, 'ext', extension, 'darwin');
                 return;
             // match pre-release versions. For example - xdebug-beta
             case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
@@ -3741,23 +3725,17 @@ async function addExtensionWindows(extension_csv, version) {
             case /^:/.test(ext_name):
                 remove_script += '\nRemove-Extension ' + ext_name.slice(1);
                 break;
-            // match 5.4blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
-            // match 5.4blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
-            case /^(5\.[4-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
-                add_script += await customExtension('blackfire.ps1', 'Add-Blackfire', extension);
-                break;
+            // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
+            // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
             // match pdo_oci and oci8
-            case /^pdo_oci$|^oci8$/.test(extension):
-                add_script += await customExtension('oci.ps1', 'Add-OCI', extension);
-                break;
             // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
-            case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
-                add_script += await customExtension('ioncube.ps1', 'Add-Ioncube');
-                break;
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+            case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
+            case /^pdo_oci$|^oci8$/.test(extension):
+            case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-                add_script += await customExtension('phalcon.ps1', 'Add-Phalcon', extension);
-                break;
+                add_script += await utils.customPackage(ext_name, 'ext', extension, 'win32');
+                return;
             // match pre-release versions. For example - xdebug-beta
             case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
                 add_script += await utils.joins('\nAdd-Extension', ext_name, ext_version);
@@ -3824,25 +3802,19 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                 remove_script += '\nremove_extension ' + ext_name.slice(1);
                 return;
             // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
-            // match 5.3blackfire-{semver}...5.6blackfire-{semver}, 7.0blackfire-{semver}...7.4blackfire-{semver}
-            case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
-                add_script += await customExtension('blackfire.sh', 'add_blackfire', extension);
-                return;
+            // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+            // match 5.3pdo_cubrid...7.2php_cubrid, 5.3cubrid...7.4cubrid
             // match pdo_oci and oci8
-            case /^pdo_oci$|^oci8$/.test(extension):
-                add_script += await customExtension('oci.sh', 'add_oci', extension);
-                return;
             // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
-            case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
-                add_script += await customExtension('ioncube.sh', 'add_ioncube');
-                return;
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-            case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-                add_script += await customExtension('phalcon.sh', 'add_phalcon', extension);
-                return;
             // match 5.6gearman..7.4gearman
+            case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
+            case /^((5\.[3-6])|(7\.[0-2]))pdo_cubrid$|^((5\.[3-6])|(7\.[0-4]))cubrid$/.test(version_extension):
+            case /^pdo_oci$|^oci8$/.test(extension):
+            case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
+            case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
             case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
-                add_script += await customExtension('gearman.sh', 'add_gearman');
+                add_script += await utils.customPackage(ext_name, 'ext', extension, 'linux');
                 return;
             // match pre-release versions. For example - xdebug-beta
             case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):

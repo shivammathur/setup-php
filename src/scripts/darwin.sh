@@ -45,7 +45,7 @@ get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
   pecl_rest='https://pecl.php.net/rest/r/'
-  response=$(curl -q -sSL "$pecl_rest$extension"/allreleases.xml)
+  response=$(curl -sL "$pecl_rest$extension"/allreleases.xml)
   pecl_version=$(echo "$response" | grep -m 1 -Eio "(\d*\.\d*\.\d*$stability\d*)")
   if [ ! "$pecl_version" ]; then
     pecl_version=$(echo "$response" | grep -m 1 -Eo "(\d*\.\d*\.\d*)")

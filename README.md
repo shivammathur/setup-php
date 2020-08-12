@@ -11,6 +11,7 @@
   <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://codecov.io/gh/shivammathur/setup-php/branch/master/graph/badge.svg"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg"></a>
   <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-%3E%3D%205.3-8892BF.svg"></a>
+  <a href="https://twitter.com/setup_php" title="setup-php twitter"><img alt="setup-php twitter" src="https://img.shields.io/badge/twitter-follow-1DA1F2?logo=twitter"></a>
 </p>
 
 Setup PHP with required extensions, php.ini configuration, code-coverage support and various tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross platform interface to setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
@@ -179,6 +180,7 @@ with:
 
 **Notes**
 - Latest versions of both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified in tools input.
+- If you have a tool in your `composer.json`, do not setup it globally using this action as the two instances of the tool might conflict.
 - Tools which cannot be setup gracefully leave an error message in the logs, the action is not interrupted.
 
 ## :signal_strength: Coverage Support
@@ -315,7 +317,7 @@ jobs:
 
 - This version is currently in development.
 - `PECL` is installed by default with this version on `ubuntu` and `macOS`.
-- Some extensions might not support this version currently.
+- Some user space extensions might not support this version currently.
 - Refer to this [RFC](https://wiki.php.net/rfc/jit "PHP JIT RFC configuration") for configuring `PHP JIT` on this version.
 - Refer to this [list of RFCs](https://wiki.php.net/rfc#php_80 "List of RFCs implemented in PHP8") implemented in this version.
 
@@ -363,6 +365,10 @@ jobs:
       env:
         runner: self-hosted # Specify the runner.
 ```
+
+**Notes**
+- Do not setup multiple self-hosted runners on the a single server instance as parallel workflow will conflict with each other.
+- Do not setup self-hosted runners on the side on your development environment or your production server.
 
 ### Local Testing Setup
 
@@ -609,7 +615,11 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 ## :sparkling_heart: Support This Project
 
-**Thanks for supporting this project**
+- Please star the project and share it. If you blog, please share your experience of using this action.
+- Please consider supporting our work by sponsoring using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal") or by subscribing on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon").
+- If you use `setup-php` at your company, please [reach out](mailto:contact@setup-php.com) to sponsor the project.
+
+*Huge thanks to the following companies for supporting `setup-php`*
 
 <p> 
   <a href="https://www.jetbrains.com/?from=setup-php">
@@ -620,13 +630,6 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
     <img src="https://shivammathur.com/tidelift.png" alt="Tidelift" width="100" height="85">
   </a>
 </p>
-
-*If this action helped you*
-
-- Sponsor the project by contributing using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal") or by subscribing on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon").
-- If you have an open-source support program, please [contact](mailto:contact@shivammathur.com) to sponsor this project.
-- This project is also available as part of the [Tidelift Subscription](https://tidelift.com/subscription/pkg/npm-setup-php?utm_source=npm-setup-php&utm_medium=referral&utm_campaign=enterprise&utm_term=repo "Tidelift Subscription for setup-php") to support delivering enterprise-level maintenance.
-- Please star the project and dependencies. If you blog, please share your experience of using this action with the community.
 
 ## :package: Dependencies
 

@@ -124,6 +124,7 @@ delete_extension() {
   sudo sed -i "/$extension/d" "$pecl_file"
   sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
+  [ "$runner" = "self-hosted" ] && $apt_remove "php-$extension"
 }
 
 # Function to disable and delete extensions.
@@ -397,6 +398,7 @@ old_versions="5.[3-5]"
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 github="https://github.com/shivammathur"
 apt_install="sudo $debconf_fix apt-fast install -y"
+apt_remove="sudo $debconf_fix apt-fast remove -y"
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)

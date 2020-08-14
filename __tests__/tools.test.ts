@@ -1,20 +1,4 @@
-import * as httpm from '@actions/http-client';
 import * as tools from '../src/tools';
-
-httpm.HttpClient.prototype.get = jest.fn().mockImplementation(() => {
-  return {
-    message: null,
-    readBody: jest.fn().mockImplementation(() => {
-      return JSON.stringify({
-        stable: [{path: '/composer-stable.phar'}],
-        preview: [{path: '/composer-preview.phar'}],
-        snapshot: [{path: '/composer.phar'}],
-        '1': [{path: '/composer-1.phar'}],
-        '2': [{path: '/composer-2.phar'}]
-      });
-    })
-  };
-});
 
 describe('Tools tests', () => {
   it('checking parseToolVersion', async () => {

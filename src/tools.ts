@@ -1,6 +1,4 @@
 import * as utils from './utils';
-import * as httpm from '@actions/http-client';
-import {IHttpClientResponse as hcr} from '@actions/http-client/interfaces';
 
 /**
  * Function to get command to setup tools
@@ -305,23 +303,21 @@ export async function addComposer(tools_list: string[]): Promise<string[]> {
  * @param version
  */
 export async function getComposerUrl(version: string): Promise<string> {
-  const getComposerUrlHelper = async function (
-    version: string
-  ): Promise<string> {
-    const client: httpm.HttpClient = new httpm.HttpClient('setup-php');
-    const response: hcr = await client.get('https://getcomposer.org/versions');
-    const data = JSON.parse(await response.readBody());
-    return 'https://getcomposer.org' + data[version][0]['path'];
-  };
+  const cache_url =
+    'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-' +
+    version.replace('latest', 'stable') +
+    '.phar,';
   switch (version) {
     case 'snapshot':
-      return 'https://getcomposer.org/composer.phar';
+      return cache_url + 'https://getcomposer.org/composer.phar';
     case 'preview':
     case '1':
     case '2':
-      return await getComposerUrlHelper(version);
+      return (
+        cache_url + 'https://getcomposer.org/composer-' + version + '.phar'
+      );
     default:
-      return 'https://getcomposer.org/composer-stable.phar';
+      return cache_url + 'https://getcomposer.org/composer-stable.phar';
   }
 }
 

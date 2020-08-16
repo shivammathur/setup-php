@@ -45,7 +45,7 @@ get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
   pecl_rest='https://pecl.php.net/rest/r/'
-  response=$(curl -sL "$pecl_rest$extension"/allreleases.xml)
+  response=$(curl "${curl_opts[@]}" "$pecl_rest$extension"/allreleases.xml)
   pecl_version=$(echo "$response" | grep -m 1 -Eio "(\d*\.\d*\.\d*$stability\d*)")
   if [ ! "$pecl_version" ]; then
     pecl_version=$(echo "$response" | grep -m 1 -Eo "(\d*\.\d*\.\d*)")
@@ -138,8 +138,13 @@ add_tool() {
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
   fi
-
-  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" -L "$url")
+  if [ "$tool" = "composer" ]; then
+    IFS="," read -r -a urls <<< "$url"
+    status_code=$(sudo curl -f -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[0]}") ||
+    status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[1]}")
+  else
+    status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
+  fi
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
@@ -200,6 +205,7 @@ tick="✓"
 cross="✗"
 version=$1
 tool_path_dir="/usr/local/bin"
+curl_opts=(-sL)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 # Setup PHP

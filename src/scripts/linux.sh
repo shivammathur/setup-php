@@ -16,7 +16,7 @@ add_log() {
   fi
 }
 
-# Function to backup and cleanup package lists.
+# Function to backup and cleanup package lists
 cleanup_lists() {
   if [ ! -e /etc/apt/sources.list.d.save ]; then
     sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save || true
@@ -51,7 +51,7 @@ get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
   pecl_rest='https://pecl.php.net/rest/r/'
-  response=$(curl -sL "$pecl_rest$extension"/allreleases.xml)
+  response=$(curl "${curl_opts[@]}" "$pecl_rest$extension"/allreleases.xml)
   pecl_version=$(echo "$response" | grep -m 1 -Pio "(\d*\.\d*\.\d*$stability\d*)")
   if [ ! "$pecl_version" ]; then
     pecl_version=$(echo "$response" | grep -m 1 -Po "(\d*\.\d*\.\d*)")
@@ -169,7 +169,13 @@ add_tool() {
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
   fi
-  status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" -L "$url")
+  if [ "$tool" = "composer" ]; then
+    IFS="," read -r -a urls <<< "$url"
+    status_code=$(sudo curl -f -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[0]}") ||
+    status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[1]}")
+  else
+    status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
+  fi
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
@@ -184,6 +190,7 @@ add_tool() {
     add_log "$tick" "$tool" "Added"
   else
     add_log "$cross" "$tool" "Could not setup $tool"
+    [ "$tool" = "composer" ] && exit 1
   fi
 }
 
@@ -210,7 +217,7 @@ add_devtools() {
 
 # Function to setup the nightly build from master branch
 setup_master() {
-  curl -sL https://github.com/shivammathur/php-builder/releases/latest/download/install.sh | bash -s "github"
+  curl "${curl_opts[@]}" https://github.com/shivammathur/php-builder/releases/latest/download/install.sh | bash -s "github"
 }
 
 # Function to setup PECL
@@ -250,6 +257,7 @@ version=$1
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y"
 tool_path_dir="/usr/local/bin"
+curl_opts=(-sL)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 # Setup PHP

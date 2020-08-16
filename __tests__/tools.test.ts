@@ -1,20 +1,4 @@
-import * as httpm from '@actions/http-client';
 import * as tools from '../src/tools';
-
-httpm.HttpClient.prototype.get = jest.fn().mockImplementation(() => {
-  return {
-    message: null,
-    readBody: jest.fn().mockImplementation(() => {
-      return JSON.stringify({
-        stable: [{path: '/composer-stable.phar'}],
-        preview: [{path: '/composer-preview.phar'}],
-        snapshot: [{path: '/composer.phar'}],
-        '1': [{path: '/composer-1.phar'}],
-        '2': [{path: '/composer-2.phar'}]
-      });
-    })
-  };
-});
 
 describe('Tools tests', () => {
   it('checking getCommand', async () => {
@@ -424,7 +408,7 @@ describe('Tools tests', () => {
       'linux'
     );
     expect(script).toContain(
-      'add_tool https://getcomposer.org/composer-stable.phar composer'
+      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
@@ -458,7 +442,7 @@ describe('Tools tests', () => {
       'darwin'
     );
     expect(script).toContain(
-      'add_tool https://getcomposer.org/composer-stable.phar composer'
+      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr'
@@ -501,7 +485,7 @@ describe('Tools tests', () => {
       'win32'
     );
     expect(script).toContain(
-      'Add-Tool https://getcomposer.org/composer-stable.phar composer'
+      'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
       'Add-Tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
@@ -531,7 +515,7 @@ describe('Tools tests', () => {
       'win32'
     );
     expect(script).toContain(
-      'Add-Tool https://getcomposer.org/composer-stable.phar composer'
+      'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain('Add-Composertool prestissimo prestissimo hirak/');
     expect(script).toContain('Add-Composertool phinx phinx robmorgan/');
@@ -546,12 +530,12 @@ describe('Tools tests', () => {
       'linux'
     );
     expect(script).toContain(
-      'add_tool https://getcomposer.org/composer-1.phar composer'
+      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-1.phar,https://getcomposer.org/composer-1.phar composer'
     );
 
     script = await tools.addTools('composer:preview', '7.4', 'linux');
     expect(script).toContain(
-      'add_tool https://getcomposer.org/composer-preview.phar composer'
+      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-preview.phar,https://getcomposer.org/composer-preview.phar composer'
     );
     script = await tools.addTools(
       'composer:v1, composer:preview, composer:snapshot',
@@ -559,7 +543,7 @@ describe('Tools tests', () => {
       'linux'
     );
     expect(script).toContain(
-      'add_tool https://getcomposer.org/composer.phar composer'
+      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-snapshot.phar,https://getcomposer.org/composer.phar composer'
     );
   });
 });

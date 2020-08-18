@@ -166,13 +166,12 @@ add_tool() {
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
   fi
-
   if [ "$tool" = "composer" ]; then
     IFS="," read -r -a urls <<< "$url"
-    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[0]}") ||
-    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[1]}")
+    status_code=$(sudo curl -f -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[0]}") ||
+    status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[1]}")
   else
-    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
+    status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
   fi
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"

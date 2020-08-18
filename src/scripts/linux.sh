@@ -124,6 +124,7 @@ delete_extension() {
   sudo sed -i "/$extension/d" "$pecl_file"
   sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
+  [ "$runner" = "self-hosted" ] && $apt_remove "php-$extension"
 }
 
 # Function to disable and delete extensions.
@@ -263,10 +264,10 @@ add_tool() {
   fi
   if [ "$tool" = "composer" ]; then
     IFS="," read -r -a urls <<< "$url"
-    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[0]}") ||
-    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[1]}")
+    status_code=$(sudo curl -f -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[0]}") ||
+    status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[1]}")
   else
-    status_code=$(sudo curl -s -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
+    status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
   fi
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
@@ -397,6 +398,7 @@ old_versions="5.[3-5]"
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 github="https://github.com/shivammathur"
 apt_install="sudo $debconf_fix apt-fast install -y"
+apt_remove="sudo $debconf_fix apt-fast remove -y"
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
@@ -444,5 +446,6 @@ scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 pecl_file="$scan_dir"/99-pecl.ini
 echo '' | sudo tee "$pecl_file" >/dev/null 2>&1
+sudo rm -rf /usr/local/bin/phpunit >/dev/null 2>&1
 sudo chmod 777 "$ini_file" "$pecl_file" "$tool_path_dir"
 add_log "$tick" "PHP" "$status PHP $semver"

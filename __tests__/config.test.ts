@@ -12,9 +12,9 @@ describe('Config tests', () => {
 
     win32 = await config.addINIValues(
       'post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata',
-      'fedora'
+      'openbsd'
     );
-    expect(win32).toContain('Platform fedora is not supported');
+    expect(win32).toContain('Platform openbsd is not supported');
   });
 
   it('checking addINIValuesOnLinux', async () => {
@@ -29,9 +29,9 @@ describe('Config tests', () => {
 
     linux = await config.addINIValues(
       'post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata',
-      'fedora'
+      'openbsd'
     );
-    expect(linux).toContain('Platform fedora is not supported');
+    expect(linux).toContain('Platform openbsd is not supported');
   });
 
   it('checking addINIValuesOnDarwin', async () => {
@@ -45,8 +45,8 @@ describe('Config tests', () => {
 
     darwin = await config.addINIValues(
       'post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata',
-      'fedora'
+      'openbsd'
     );
-    expect(darwin).toContain('Platform fedora is not supported');
+    expect(darwin).toContain('Platform openbsd is not supported');
   });
 });

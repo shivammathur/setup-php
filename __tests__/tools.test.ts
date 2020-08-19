@@ -270,8 +270,8 @@ describe('Tools tests', () => {
     expect(await tools.getSymfonyUri('1.2.3', 'win32')).toContain(
       'releases/download/v1.2.3/symfony_windows_amd64'
     );
-    expect(await tools.getSymfonyUri('1.2.3', 'fedora')).toContain(
-      'Platform fedora is not supported'
+    expect(await tools.getSymfonyUri('1.2.3', 'openbsd')).toContain(
+      'Platform openbsd is not supported'
     );
   });
 
@@ -320,9 +320,9 @@ describe('Tools tests', () => {
     script = await tools.addArchive(
       'tool',
       'https://tool.com/tool.phar',
-      'fedora'
+      'openbsd'
     );
-    expect(script).toContain('Platform fedora is not supported');
+    expect(script).toContain('Platform openbsd is not supported');
   });
 
   it('checking addDevTools', async () => {
@@ -350,8 +350,8 @@ describe('Tools tests', () => {
       'Add-Log "$cross" "php-config" "php-config is not a windows tool"'
     );
 
-    script = await tools.addDevTools('tool', 'fedora');
-    expect(script).toContain('Platform fedora is not supported');
+    script = await tools.addDevTools('tool', 'openbsd');
+    expect(script).toContain('Platform openbsd is not supported');
   });
 
   it('checking addPackage', async () => {
@@ -369,8 +369,8 @@ describe('Tools tests', () => {
     script = await tools.addPackage('tool', 'tool:1.2.3', 'user/', 'win32');
     expect(script).toContain('Add-Composertool tool tool:1.2.3 user/');
 
-    script = await tools.addPackage('tool', 'tool:1.2.3', 'user/', 'fedora');
-    expect(script).toContain('Platform fedora is not supported');
+    script = await tools.addPackage('tool', 'tool:1.2.3', 'user/', 'openbsd');
+    expect(script).toContain('Platform openbsd is not supported');
   });
 
   it('checking addTools on linux', async () => {

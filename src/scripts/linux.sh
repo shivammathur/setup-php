@@ -165,7 +165,7 @@ add_pdo_extension() {
       read -r ext ext_name <<< "sqlite3 sqlite3"
     fi
     add_extension "$ext_name" "$apt_install php$version-$ext" "extension" >/dev/null 2>&1
-    enable_extension "$pdo_ext" "extension"
+    add_extension "$pdo_ext" "pecl_install $pdo_ext" "extension" >/dev/null 2>&1
     add_extension_log "$pdo_ext" "Enabled"
   fi
 }

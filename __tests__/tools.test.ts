@@ -375,7 +375,7 @@ describe('Tools tests', () => {
 
   it('checking addTools on linux', async () => {
     const script: string = await tools.addTools(
-      'blackfire, blackfire-player, cs2pr, flex, grpc_php_plugin, php-cs-fixer, phplint, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, protoc, symfony, wp-cli',
+      'blackfire, blackfire-player, cs2pr, flex, grpc_php_plugin, php-cs-fixer, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, php-config, phpize, protoc, symfony, wp-cli',
       '7.4',
       'linux'
     );
@@ -394,6 +394,9 @@ describe('Tools tests', () => {
     );
     expect(script).toContain(
       'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar phpstan'
+    );
+    expect(script).toContain(
+      'add_tool https://www.phing.info/get/phing-latest.phar phing'
     );
     expect(script).toContain(
       'add_tool https://phar.io/releases/phive.phar phive'
@@ -432,6 +435,7 @@ describe('Tools tests', () => {
       'infection',
       'phan',
       'phan:2.7.2',
+      'phing:1.2.3',
       'phinx',
       'phive:1.2.3',
       'php-config',
@@ -478,6 +482,9 @@ describe('Tools tests', () => {
     );
     expect(script).toContain(
       'add_tool https://github.com/phan/phan/releases/latest/download/phan.phar phan'
+    );
+    expect(script).toContain(
+      'add_tool https://www.phing.info/get/phing-1.2.3.phar phing'
     );
     expect(script).toContain(
       'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar phpcs'

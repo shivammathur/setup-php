@@ -2106,6 +2106,10 @@ async function addTools(tools_csv, php_version, os_version) {
                 url = github + 'phan/phan/' + uri;
                 script += await addArchive(tool, url, os_version);
                 break;
+            case 'phing':
+                url = 'https://www.phing.info/get/phing-' + version + '.phar';
+                script += await addArchive(tool, url, os_version);
+                break;
             case 'phinx':
                 script += await addPackage(tool, release, 'robmorgan/', os_version);
                 break;

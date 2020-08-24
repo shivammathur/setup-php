@@ -76,7 +76,7 @@ Function Get-CleanPSProfile {
 # Function to install PhpManager.
 Function Install-PhpManager() {
   $repo = "mlocati/powershell-phpmanager"
-  $tag = (Invoke-RestMethod https://api.github.com/repos/$repo/tags)[0].Name
+  $tag = (Invoke-RestMethod https://api.github.com/repos/$repo/releases/latest).tag_name
   $module_path = "$bin_dir\PhpManager\powershell-phpmanager-$tag\PhpManager\PhpManager.psm1"
   if(-not (Test-Path $module_path -PathType Leaf)) {
     $zip_file = "$bin_dir\PhpManager.zip"

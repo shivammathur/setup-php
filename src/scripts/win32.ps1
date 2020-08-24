@@ -45,13 +45,15 @@ Function Add-ToProfile {
 
 Function Install-PhpManager() {
   $repo = "mlocati/powershell-phpmanager"
-  $zip_file = "$php_dir\PhpManager.zip"
-  $tag = (Invoke-RestMethod https://api.github.com/repos/$repo/tags)[0].Name
-  $module_path = "$php_dir\PhpManager\powershell-phpmanager-$tag\PhpManager"
-  Invoke-WebRequest -UseBasicParsing -Uri https://github.com/$repo/archive/$tag.zip -OutFile $zip_file
-  Expand-Archive -Path $zip_file -DestinationPath $php_dir\PhpManager -Force
+  $tag = (Invoke-RestMethod https://api.github.com/repos/$repo/releases/latest).tag_name
+  $module_path = "$bin_dir\PhpManager\powershell-phpmanager-$tag\PhpManager\PhpManager.psm1"
+  if(-not (Test-Path $module_path -PathType Leaf)) {
+    $zip_file = "$bin_dir\PhpManager.zip"
+    Invoke-WebRequest -UseBasicParsing -Uri https://github.com/$repo/archive/$tag.zip -OutFile $zip_file
+    Expand-Archive -Path $zip_file -DestinationPath $bin_dir\PhpManager -Force
+  }
   Import-Module $module_path
-  Add-ToProfile $current_profile "PhpManager" "Import-Module $module_path"
+  Add-ToProfile $current_profile 'powershell-phpmanager' "Import-Module $module_path"
 }
 
 Function Add-Extension {

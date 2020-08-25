@@ -75,13 +75,12 @@ Function Get-CleanPSProfile {
 
 # Function to install PhpManager.
 Function Install-PhpManager() {
-  $repo = "mlocati/powershell-phpmanager"
-  $tag = (Invoke-RestMethod https://api.github.com/repos/$repo/releases/latest).tag_name
-  $module_path = "$bin_dir\PhpManager\powershell-phpmanager-$tag\PhpManager\PhpManager.psm1"
+  $module_path = "$bin_dir\PhpManager\PhpManager.psm1"
   if(-not (Test-Path $module_path -PathType Leaf)) {
+    $release = Invoke-RestMethod https://api.github.com/repos/mlocati/powershell-phpmanager/releases/latest
     $zip_file = "$bin_dir\PhpManager.zip"
-    Invoke-WebRequest -UseBasicParsing -Uri https://github.com/$repo/archive/$tag.zip -OutFile $zip_file
-    Expand-Archive -Path $zip_file -DestinationPath $bin_dir\PhpManager -Force
+    Invoke-WebRequest -UseBasicParsing -Uri $release.assets[0].browser_download_url -OutFile $zip_file
+    Expand-Archive -Path $zip_file -DestinationPath $bin_dir -Force
   }
   Import-Module $module_path
   Add-ToProfile $current_profile 'powershell-phpmanager' "Import-Module $module_path"

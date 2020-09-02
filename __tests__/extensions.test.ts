@@ -119,6 +119,12 @@ describe('Extension tests', () => {
 
     linux = await extensions.addExtension('blackfire-1.31.0', '7.3', 'linux');
     expect(linux).toContain('add_blackfire blackfire-1.31.0');
+
+    linux = await extensions.addExtension('intl-65.1', '5.6', 'linux');
+    expect(linux).toContain('add_intl intl-65.1');
+
+    linux = await extensions.addExtension('intl-67.1', '7.3', 'linux');
+    expect(linux).toContain('add_intl intl-67.1');
   });
 
   it('checking addExtensionOnDarwin', async () => {

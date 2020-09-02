@@ -230,7 +230,7 @@ add_extension_from_source() {
   (
     add_devtools
     delete_extension "$extension"
-    curl -o /tmp/"$extension".tar.gz "${curl_opts[@]}" https://github.com/"$repo"/archive/"$release".tar.gz
+    curl -o /tmp/"$extension".tar.gz  "${curl_opts[@]}" https://github.com/"$repo"/archive/"$release".tar.gz
     tar xf /tmp/"$extension".tar.gz -C /tmp
     cd /tmp/"$extension-$release" || exit 1
     phpize  && ./configure "$args" && make && sudo make install

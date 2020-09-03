@@ -125,7 +125,10 @@ delete_extension() {
   sudo sed -i "/$extension/d" "$pecl_file"
   sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
-  [ "$runner" = "self-hosted" ] && $apt_remove "php-$extension"
+  if [ "$runner" = "self-hosted" ]; then
+    $apt_remove "php-$extension" >/dev/null 2>&1 || true
+    $apt_remove "php$version-$extension" >/dev/null 2>&1 || true
+  fi
 }
 
 # Function to disable and delete extensions.

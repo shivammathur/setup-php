@@ -1,5 +1,6 @@
 # These are supported funding model platforms
 
+open_collective: setup-php
 tidelift: "npm/setup-php"
 community_bridge: setup-php
 patreon: shivammathur

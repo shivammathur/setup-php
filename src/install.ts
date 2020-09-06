@@ -19,6 +19,8 @@ export async function build(
   version: string,
   os_version: string
 ): Promise<string> {
+  const name = 'setup-php';
+  const url = 'setup-php.com/support';
   // taking inputs
   const extension_csv: string =
     (await utils.getInput('extensions', false)) ||
@@ -47,6 +49,9 @@ export async function build(
   if (ini_values_csv) {
     script += await config.addINIValues(ini_values_csv, os_version);
   }
+
+  script += '\n' + (await utils.stepLog('Support this project', os_version));
+  script += '\n' + (await utils.addLog('$tick', name, url, os_version));
 
   return await utils.writeScript(filename, script);
 }

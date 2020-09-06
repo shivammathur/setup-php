@@ -43,6 +43,19 @@ Function Add-ToProfile {
   }
 }
 
+Function Add-Printf {
+  if (-not(Test-Path "C:\Program Files\Git\usr\bin\printf.exe")) {
+    if(Test-Path "C:\msys64\usr\bin\printf.exe") {
+      New-Item -Path $php_dir\printf.exe -ItemType SymbolicLink -Value C:\msys64\usr\bin\printf.exe
+    } else {
+      Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$php_dir\printf.zip"
+      Expand-Archive -Path $php_dir\printf.zip -DestinationPath $php_dir -Force
+    }
+  } else {
+    New-Item -Path $php_dir\printf.exe -ItemType SymbolicLink -Value "C:\Program Files\Git\usr\bin\printf.exe"
+  }
+}
+
 Function Install-PhpManager() {
   $module_path = "$php_dir\PhpManager\PhpManager.psm1"
   if(-not (Test-Path $module_path -PathType Leaf)) {
@@ -238,6 +251,7 @@ if(-not(Test-Path -LiteralPath $current_profile)) {
   New-Item -Path $current_profile -ItemType "file" -Force >$null 2>&1
 }
 
+Add-Printf >$null 2>&1
 Step-Log "Setup PhpManager"
 Install-PhpManager >$null 2>&1
 Add-Log $tick "PhpManager" "Installed"

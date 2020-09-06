@@ -35,8 +35,8 @@ describe('Extension tests', () => {
     expect(win32).toContain('phalcon.ps1 phalcon3');
     expect(win32).toContain('Add-Extension does_not_exist');
 
-    win32 = await extensions.addExtension('xdebug', '7.2', 'fedora');
-    expect(win32).toContain('Platform fedora is not supported');
+    win32 = await extensions.addExtension('xdebug', '7.2', 'openbsd');
+    expect(win32).toContain('Platform openbsd is not supported');
   });
 
   it('checking addExtensionOnLinux', async () => {
@@ -68,8 +68,8 @@ describe('Extension tests', () => {
     linux = await extensions.addExtension('gearman', '7.4', 'linux');
     expect(linux).toContain('gearman.sh 7.4');
 
-    linux = await extensions.addExtension('xdebug', '7.2', 'fedora');
-    expect(linux).toContain('Platform fedora is not supported');
+    linux = await extensions.addExtension('xdebug', '7.2', 'openbsd');
+    expect(linux).toContain('Platform openbsd is not supported');
 
     linux = await extensions.addExtension('phalcon3, phalcon4', '7.3', 'linux');
     expect(linux).toContain('phalcon.sh phalcon3 7.3');
@@ -133,7 +133,7 @@ describe('Extension tests', () => {
     );
     expect(darwin).toContain('add_extension does_not_exist');
 
-    darwin = await extensions.addExtension('xdebug', '7.2', 'fedora');
-    expect(darwin).toContain('Platform fedora is not supported');
+    darwin = await extensions.addExtension('xdebug', '7.2', 'openbsd');
+    expect(darwin).toContain('Platform openbsd is not supported');
   });
 });

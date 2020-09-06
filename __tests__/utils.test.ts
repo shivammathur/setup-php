@@ -131,8 +131,8 @@ describe('Utils tests', () => {
     expect(step_log).toEqual('step_log "Test message"');
     step_log = await utils.stepLog(message, 'darwin');
     expect(step_log).toEqual('step_log "Test message"');
-    step_log = await utils.stepLog(message, 'fedora');
-    expect(step_log).toContain('Platform fedora is not supported');
+    step_log = await utils.stepLog(message, 'openbsd');
+    expect(step_log).toContain('Platform openbsd is not supported');
 
     let add_log: string = await utils.addLog(
       'tick',
@@ -145,8 +145,8 @@ describe('Utils tests', () => {
     expect(add_log).toEqual('add_log "tick" "xdebug" "enabled"');
     add_log = await utils.addLog('tick', 'xdebug', 'enabled', 'darwin');
     expect(add_log).toEqual('add_log "tick" "xdebug" "enabled"');
-    add_log = await utils.addLog('tick', 'xdebug', 'enabled', 'fedora');
-    expect(add_log).toContain('Platform fedora is not supported');
+    add_log = await utils.addLog('tick', 'xdebug', 'enabled', 'openbsd');
+    expect(add_log).toContain('Platform openbsd is not supported');
   });
 
   it('checking getExtensionPrefix', async () => {
@@ -162,8 +162,8 @@ describe('Utils tests', () => {
     expect(await utils.suppressOutput('win32')).toEqual(' >$null 2>&1');
     expect(await utils.suppressOutput('linux')).toEqual(' >/dev/null 2>&1');
     expect(await utils.suppressOutput('darwin')).toEqual(' >/dev/null 2>&1');
-    expect(await utils.suppressOutput('fedora')).toContain(
-      'Platform fedora is not supported'
+    expect(await utils.suppressOutput('openbsd')).toContain(
+      'Platform openbsd is not supported'
     );
   });
 });

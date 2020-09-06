@@ -289,10 +289,8 @@ $master_version = '8.0'
 $cert_source='CurrentUser'
 
 $arch = 'x64'
-$arch_name ='amd64'
 if(-not([Environment]::Is64BitOperatingSystem) -or $version -lt '7.0') {
   $arch = 'x86'
-  $arch_name = '386'
 }
 
 $ts = $env:PHPTS -eq 'ts'

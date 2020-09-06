@@ -324,21 +324,18 @@ describe('Tools tests', () => {
   it('checking addArchive', async () => {
     let script: string = await tools.addArchive(
       'tool',
-      '1.2.3',
       'https://tool.com/tool.phar',
       'linux'
     );
     expect(script).toContain('add_tool https://tool.com/tool.phar tool');
     script = await tools.addArchive(
       'tool',
-      '1.2.3',
       'https://tool.com/tool.phar',
       'darwin'
     );
     expect(script).toContain('add_tool https://tool.com/tool.phar tool');
     script = await tools.addArchive(
       'tool',
-      '1.2.3',
       'https://tool.com/tool.phar',
       'win32'
     );
@@ -346,7 +343,6 @@ describe('Tools tests', () => {
 
     script = await tools.addArchive(
       'tool',
-      '1.2.3',
       'https://tool.com/tool.phar',
       'fedora'
     );

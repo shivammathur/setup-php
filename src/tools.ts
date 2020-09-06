@@ -345,13 +345,11 @@ export async function getCleanedToolsList(
  * Helper function to get script to setup a tool using a phar url
  *
  * @param tool
- * @param version
  * @param url
  * @param os_version
  */
 export async function addArchive(
   tool: string,
-  version: string,
   url: string,
   os_version: string
 ): Promise<string> {
@@ -444,51 +442,51 @@ export async function addTools(
       case 'cs2pr':
         uri = await getUri(tool, '', version, 'releases', '', 'download');
         url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
-        script += await addArchive(tool, version, url, os_version);
+        script += await addArchive(tool, url, os_version);
         break;
       case 'php-cs-fixer':
         uri = await getUri(tool, '.phar', version, 'releases', 'v', 'download');
         url = github + 'FriendsOfPHP/PHP-CS-Fixer/' + uri;
-        script += await addArchive(tool, version, url, os_version);
+        script += await addArchive(tool, url, os_version);
         break;
       case 'phpcs':
       case 'phpcbf':
         url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
-        script += await addArchive(tool, version, url, os_version);
+        script += await addArchive(tool, url, os_version);
         break;
       case 'phive':
         script += await addPhive(version, os_version);
         break;
       case 'phpstan':
         url = github + 'phpstan/phpstan/' + uri;
-        script += await addArchive(tool, version, url, os_version);
+        script += await addArchive(tool, url, os_version);
         break;
       case 'phpmd':
         url = github + 'phpmd/phpmd/' + uri;
-        script += await addArchive(tool, version, url, os_version);
+        script += await addArchive(tool, url, os_version);
         break;
       case 'psalm':
         url = github + 'vimeo/psalm/' + uri;
-        script += await addArchive(tool, version, url, os_version);
+        script += await addArchive(tool, url, os_version);
         break;
       case 'composer':
         url = await getComposerUrl(version);
-        script += await addArchive('composer', version, url, os_version);
+        script += await addArchive('composer', url, os_version);
         break;
       case 'codeception':
         url =
           'https://codeception.com/' +
           (await getCodeceptionUri(version, php_version));
-        script += await addArchive(tool, version, url, os_version);
+        script += await addArchive(tool, url, os_version);
         break;
       case 'phpcpd':
       case 'phpunit':
         url = await getPharUrl('https://phar.phpunit.de', tool, '', version);
-        script += await addArchive(tool, version, url, os_version);
+        script += await addArchive(tool, url, os_version);
         break;
       case 'deployer':
         url = await getDeployerUrl(version);
-        script += await addArchive(tool, version, url, os_version);
+        script += await addArchive(tool, url, os_version);
         break;
       case 'phinx':
         script += await addPackage(tool, release, 'robmorgan/', os_version);
@@ -515,7 +513,7 @@ export async function addTools(
       case 'symfony-cli':
         uri = await getSymfonyUri(version, os_version);
         url = github + 'symfony/cli/' + uri;
-        script += await addArchive('symfony', version, url, os_version);
+        script += await addArchive('symfony', url, os_version);
         break;
       default:
         script += await utils.addLog(

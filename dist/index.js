@@ -973,7 +973,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -1029,7 +1029,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -1604,7 +1604,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -1910,11 +1910,10 @@ exports.getCleanedToolsList = getCleanedToolsList;
  * Helper function to get script to setup a tool using a phar url
  *
  * @param tool
- * @param version
  * @param url
  * @param os_version
  */
-async function addArchive(tool, version, url, os_version) {
+async function addArchive(tool, url, os_version) {
     return (await getCommand(os_version, 'tool')) + url + ' ' + tool;
 }
 exports.addArchive = addArchive;
@@ -1974,51 +1973,51 @@ async function addTools(tools_csv, php_version, os_version) {
             case 'cs2pr':
                 uri = await getUri(tool, '', version, 'releases', '', 'download');
                 url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
-                script += await addArchive(tool, version, url, os_version);
+                script += await addArchive(tool, url, os_version);
                 break;
             case 'php-cs-fixer':
                 uri = await getUri(tool, '.phar', version, 'releases', 'v', 'download');
                 url = github + 'FriendsOfPHP/PHP-CS-Fixer/' + uri;
-                script += await addArchive(tool, version, url, os_version);
+                script += await addArchive(tool, url, os_version);
                 break;
             case 'phpcs':
             case 'phpcbf':
                 url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
-                script += await addArchive(tool, version, url, os_version);
+                script += await addArchive(tool, url, os_version);
                 break;
             case 'phive':
                 script += await addPhive(version, os_version);
                 break;
             case 'phpstan':
                 url = github + 'phpstan/phpstan/' + uri;
-                script += await addArchive(tool, version, url, os_version);
+                script += await addArchive(tool, url, os_version);
                 break;
             case 'phpmd':
                 url = github + 'phpmd/phpmd/' + uri;
-                script += await addArchive(tool, version, url, os_version);
+                script += await addArchive(tool, url, os_version);
                 break;
             case 'psalm':
                 url = github + 'vimeo/psalm/' + uri;
-                script += await addArchive(tool, version, url, os_version);
+                script += await addArchive(tool, url, os_version);
                 break;
             case 'composer':
                 url = await getComposerUrl(version);
-                script += await addArchive('composer', version, url, os_version);
+                script += await addArchive('composer', url, os_version);
                 break;
             case 'codeception':
                 url =
                     'https://codeception.com/' +
                         (await getCodeceptionUri(version, php_version));
-                script += await addArchive(tool, version, url, os_version);
+                script += await addArchive(tool, url, os_version);
                 break;
             case 'phpcpd':
             case 'phpunit':
                 url = await getPharUrl('https://phar.phpunit.de', tool, '', version);
-                script += await addArchive(tool, version, url, os_version);
+                script += await addArchive(tool, url, os_version);
                 break;
             case 'deployer':
                 url = await getDeployerUrl(version);
-                script += await addArchive(tool, version, url, os_version);
+                script += await addArchive(tool, url, os_version);
                 break;
             case 'phinx':
                 script += await addPackage(tool, release, 'robmorgan/', os_version);
@@ -2040,7 +2039,7 @@ async function addTools(tools_csv, php_version, os_version) {
             case 'symfony-cli':
                 uri = await getSymfonyUri(version, os_version);
                 url = github + 'symfony/cli/' + uri;
-                script += await addArchive('symfony', version, url, os_version);
+                script += await addArchive('symfony', url, os_version);
                 break;
             default:
                 script += await utils.addLog('$cross', tool, 'Tool ' + tool + ' is not supported', os_version);
@@ -2088,7 +2087,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -2227,7 +2226,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -2323,7 +2322,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -2646,7 +2645,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };

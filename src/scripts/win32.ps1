@@ -64,6 +64,20 @@ Function Add-Path {
   Get-PathFromRegistry
 }
 
+# Function to make sure printf is in PATH.
+Function Add-Printf {
+  if (-not(Test-Path "C:\Program Files\Git\usr\bin\printf.exe")) {
+    if(Test-Path "C:\msys64\usr\bin\printf.exe") {
+      New-Item -Path $bin_dir\printf.exe -ItemType SymbolicLink -Value C:\msys64\usr\bin\printf.exe
+    } else {
+      Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$bin_dir\printf.zip"
+      Expand-Archive -Path $bin_dir\printf.zip -DestinationPath $bin_dir -Force
+    }
+  } else {
+    New-Item -Path $bin_dir\printf.exe -ItemType SymbolicLink -Value "C:\Program Files\Git\usr\bin\printf.exe"
+  }
+}
+
 # Function to get a clean Powershell profile.
 Function Get-CleanPSProfile {
   if(-not(Test-Path -LiteralPath $profile)) {
@@ -285,7 +299,6 @@ $ts = $env:PHPTS -eq 'ts'
 if($env:PHPTS -ne 'ts') {
   $env:PHPTS = 'nts'
 }
-
 if($env:RUNNER -eq 'self-hosted') {
   $bin_dir = 'C:\tools\bin'
   $php_dir = "$php_dir$version"
@@ -294,10 +307,6 @@ if($env:RUNNER -eq 'self-hosted') {
   Get-CleanPSProfile >$null 2>&1
   New-Item $bin_dir -Type Directory 2>&1 | Out-Null
   Add-Path -PathItem $bin_dir
-  if(-not(Test-Path $bin_dir\printf.exe)) {
-    Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/printf/releases/latest/download/printf-$arch.zip" -OutFile "$bin_dir\printf.zip" >$null 2>&1
-    Expand-Archive -Path $bin_dir\printf.zip -DestinationPath $bin_dir -Force >$null 2>&1
-  }
   if($version -lt 5.6) {
     Add-Log $cross "PHP" "PHP $version is not supported on self-hosted runner"
     Start-Sleep 1
@@ -315,6 +324,8 @@ if($env:RUNNER -eq 'self-hosted') {
     New-Item -Path $current_profile -ItemType "file" -Force >$null 2>&1
   }
 }
+
+Add-Printf >$null 2>&1
 Step-Log "Setup PhpManager"
 Install-PhpManager >$null 2>&1
 Add-Log $tick "PhpManager" "Installed"

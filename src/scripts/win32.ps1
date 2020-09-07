@@ -64,6 +64,20 @@ Function Add-Path {
   Get-PathFromRegistry
 }
 
+# Function to make sure printf is in PATH.
+Function Add-Printf {
+  if (-not(Test-Path "C:\Program Files\Git\usr\bin\printf.exe")) {
+    if(Test-Path "C:\msys64\usr\bin\printf.exe") {
+      New-Item -Path $bin_dir\printf.exe -ItemType SymbolicLink -Value C:\msys64\usr\bin\printf.exe
+    } else {
+      Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$bin_dir\printf.zip"
+      Expand-Archive -Path $bin_dir\printf.zip -DestinationPath $bin_dir -Force
+    }
+  } else {
+    New-Item -Path $bin_dir\printf.exe -ItemType SymbolicLink -Value "C:\Program Files\Git\usr\bin\printf.exe"
+  }
+}
+
 # Function to get a clean Powershell profile.
 Function Get-CleanPSProfile {
   if(-not(Test-Path -LiteralPath $profile)) {
@@ -75,13 +89,12 @@ Function Get-CleanPSProfile {
 
 # Function to install PhpManager.
 Function Install-PhpManager() {
-  $repo = "mlocati/powershell-phpmanager"
-  $tag = (Invoke-RestMethod https://api.github.com/repos/$repo/tags)[0].Name
-  $module_path = "$bin_dir\PhpManager\powershell-phpmanager-$tag\PhpManager\PhpManager.psm1"
+  $module_path = "$bin_dir\PhpManager\PhpManager.psm1"
   if(-not (Test-Path $module_path -PathType Leaf)) {
+    $release = Invoke-RestMethod https://api.github.com/repos/mlocati/powershell-phpmanager/releases/latest
     $zip_file = "$bin_dir\PhpManager.zip"
-    Invoke-WebRequest -UseBasicParsing -Uri https://github.com/$repo/archive/$tag.zip -OutFile $zip_file
-    Expand-Archive -Path $zip_file -DestinationPath $bin_dir\PhpManager -Force
+    Invoke-WebRequest -UseBasicParsing -Uri $release.assets[0].browser_download_url -OutFile $zip_file
+    Expand-Archive -Path $zip_file -DestinationPath $bin_dir -Force
   }
   Import-Module $module_path
   Add-ToProfile $current_profile 'powershell-phpmanager' "Import-Module $module_path"
@@ -276,17 +289,14 @@ $master_version = '8.0'
 $cert_source='CurrentUser'
 
 $arch = 'x64'
-$arch_name ='amd64'
 if(-not([Environment]::Is64BitOperatingSystem) -or $version -lt '7.0') {
   $arch = 'x86'
-  $arch_name = '386'
 }
 
 $ts = $env:PHPTS -eq 'ts'
 if($env:PHPTS -ne 'ts') {
   $env:PHPTS = 'nts'
 }
-
 if($env:RUNNER -eq 'self-hosted') {
   $bin_dir = 'C:\tools\bin'
   $php_dir = "$php_dir$version"
@@ -295,10 +305,6 @@ if($env:RUNNER -eq 'self-hosted') {
   Get-CleanPSProfile >$null 2>&1
   New-Item $bin_dir -Type Directory 2>&1 | Out-Null
   Add-Path -PathItem $bin_dir
-  if(-not(Test-Path $bin_dir\printf.exe)) {
-    Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/printf/releases/latest/download/printf-$arch.zip" -OutFile "$bin_dir\printf.zip" >$null 2>&1
-    Expand-Archive -Path $bin_dir\printf.zip -DestinationPath $bin_dir -Force >$null 2>&1
-  }
   if($version -lt 5.6) {
     Add-Log $cross "PHP" "PHP $version is not supported on self-hosted runner"
     Start-Sleep 1
@@ -316,6 +322,8 @@ if($env:RUNNER -eq 'self-hosted') {
     New-Item -Path $current_profile -ItemType "file" -Force >$null 2>&1
   }
 }
+
+Add-Printf >$null 2>&1
 Step-Log "Setup PhpManager"
 Install-PhpManager >$null 2>&1
 Add-Log $tick "PhpManager" "Installed"

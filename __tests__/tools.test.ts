@@ -270,8 +270,8 @@ describe('Tools tests', () => {
     expect(await tools.getSymfonyUri('1.2.3', 'win32')).toContain(
       'releases/download/v1.2.3/symfony_windows_amd64'
     );
-    expect(await tools.getSymfonyUri('1.2.3', 'fedora')).toContain(
-      'Platform fedora is not supported'
+    expect(await tools.getSymfonyUri('1.2.3', 'openbsd')).toContain(
+      'Platform openbsd is not supported'
     );
   });
 
@@ -300,21 +300,18 @@ describe('Tools tests', () => {
   it('checking addArchive', async () => {
     let script: string = await tools.addArchive(
       'tool',
-      '1.2.3',
       'https://tool.com/tool.phar',
       'linux'
     );
     expect(script).toContain('add_tool https://tool.com/tool.phar tool');
     script = await tools.addArchive(
       'tool',
-      '1.2.3',
       'https://tool.com/tool.phar',
       'darwin'
     );
     expect(script).toContain('add_tool https://tool.com/tool.phar tool');
     script = await tools.addArchive(
       'tool',
-      '1.2.3',
       'https://tool.com/tool.phar',
       'win32'
     );
@@ -322,11 +319,10 @@ describe('Tools tests', () => {
 
     script = await tools.addArchive(
       'tool',
-      '1.2.3',
       'https://tool.com/tool.phar',
-      'fedora'
+      'openbsd'
     );
-    expect(script).toContain('Platform fedora is not supported');
+    expect(script).toContain('Platform openbsd is not supported');
   });
 
   it('checking addDevTools', async () => {
@@ -354,8 +350,8 @@ describe('Tools tests', () => {
       'Add-Log "$cross" "php-config" "php-config is not a windows tool"'
     );
 
-    script = await tools.addDevTools('tool', 'fedora');
-    expect(script).toContain('Platform fedora is not supported');
+    script = await tools.addDevTools('tool', 'openbsd');
+    expect(script).toContain('Platform openbsd is not supported');
   });
 
   it('checking addPackage', async () => {
@@ -373,13 +369,13 @@ describe('Tools tests', () => {
     script = await tools.addPackage('tool', 'tool:1.2.3', 'user/', 'win32');
     expect(script).toContain('Add-Composertool tool tool:1.2.3 user/');
 
-    script = await tools.addPackage('tool', 'tool:1.2.3', 'user/', 'fedora');
-    expect(script).toContain('Platform fedora is not supported');
+    script = await tools.addPackage('tool', 'tool:1.2.3', 'user/', 'openbsd');
+    expect(script).toContain('Platform openbsd is not supported');
   });
 
   it('checking addTools on linux', async () => {
     const script: string = await tools.addTools(
-      'blackfire, blackfire-player, cs2pr, flex, grpc_php_plugin, php-cs-fixer, phplint, phpstan, phpunit, pecl, phinx, phinx:1.2.3, phive, php-config, phpize, protoc, symfony, wp-cli',
+      'blackfire, blackfire-player, cs2pr, flex, grpc_php_plugin, php-cs-fixer, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, php-config, phpize, protoc, symfony, wp-cli',
       '7.4',
       'linux'
     );
@@ -398,6 +394,9 @@ describe('Tools tests', () => {
     );
     expect(script).toContain(
       'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar phpstan'
+    );
+    expect(script).toContain(
+      'add_tool https://www.phing.info/get/phing-latest.phar phing'
     );
     expect(script).toContain(
       'add_tool https://phar.io/releases/phive.phar phive'
@@ -436,6 +435,7 @@ describe('Tools tests', () => {
       'infection',
       'phan',
       'phan:2.7.2',
+      'phing:1.2.3',
       'phinx',
       'phive:1.2.3',
       'php-config',
@@ -482,6 +482,9 @@ describe('Tools tests', () => {
     );
     expect(script).toContain(
       'add_tool https://github.com/phan/phan/releases/latest/download/phan.phar phan'
+    );
+    expect(script).toContain(
+      'add_tool https://www.phing.info/get/phing-1.2.3.phar phing'
     );
     expect(script).toContain(
       'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar phpcs'

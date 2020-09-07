@@ -46,8 +46,8 @@ describe('Extension tests', () => {
     expect(win32).toContain('Add-Phalcon phalcon3');
     expect(win32).toContain('Add-Extension does_not_exist');
 
-    win32 = await extensions.addExtension('xdebug', '7.2', 'fedora');
-    expect(win32).toContain('Platform fedora is not supported');
+    win32 = await extensions.addExtension('xdebug', '7.2', 'openbsd');
+    expect(win32).toContain('Platform openbsd is not supported');
 
     win32 = await extensions.addExtension('blackfire', '7.3', 'win32');
     expect(win32).toContain('Add-Blackfire blackfire');
@@ -100,8 +100,8 @@ describe('Extension tests', () => {
     linux = await extensions.addExtension('cubrid', '7.4', 'linux');
     expect(linux).toContain('add_cubrid cubrid');
 
-    linux = await extensions.addExtension('xdebug', '7.2', 'fedora');
-    expect(linux).toContain('Platform fedora is not supported');
+    linux = await extensions.addExtension('xdebug', '7.2', 'openbsd');
+    expect(linux).toContain('Platform openbsd is not supported');
 
     linux = await extensions.addExtension('phalcon3, phalcon4', '7.3', 'linux');
     expect(linux).toContain('add_phalcon phalcon3');
@@ -119,6 +119,12 @@ describe('Extension tests', () => {
 
     linux = await extensions.addExtension('blackfire-1.31.0', '7.3', 'linux');
     expect(linux).toContain('add_blackfire blackfire-1.31.0');
+
+    linux = await extensions.addExtension('intl-65.1', '5.6', 'linux');
+    expect(linux).toContain('add_intl intl-65.1');
+
+    linux = await extensions.addExtension('intl-67.1', '7.3', 'linux');
+    expect(linux).toContain('add_intl intl-67.1');
   });
 
   it('checking addExtensionOnDarwin', async () => {
@@ -195,7 +201,7 @@ describe('Extension tests', () => {
     );
     expect(darwin).toContain('add_extension does_not_exist');
 
-    darwin = await extensions.addExtension('xdebug', '7.2', 'fedora');
-    expect(darwin).toContain('Platform fedora is not supported');
+    darwin = await extensions.addExtension('xdebug', '7.2', 'openbsd');
+    expect(darwin).toContain('Platform openbsd is not supported');
   });
 });

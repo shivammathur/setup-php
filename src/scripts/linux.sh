@@ -41,6 +41,7 @@ cleanup_lists() {
     sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save
     sudo mkdir /etc/apt/sources.list.d
     sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
+    sudo mv /etc/apt/sources.list.d.save/*dotdeb*.list /etc/apt/sources.list.d/ 2>/dev/null || true
     trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/" exit
   fi
 }
@@ -124,7 +125,10 @@ delete_extension() {
   sudo sed -i "/$extension/d" "$pecl_file"
   sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
-  [ "$runner" = "self-hosted" ] && $apt_remove "php-$extension"
+  if [ "$runner" = "self-hosted" ]; then
+    $apt_remove "php-$extension" >/dev/null 2>&1 || true
+    $apt_remove "php$version-$extension" >/dev/null 2>&1 || true
+  fi
 }
 
 # Function to disable and delete extensions.
@@ -229,7 +233,7 @@ add_extension_from_source() {
   (
     add_devtools
     delete_extension "$extension"
-    curl -o /tmp/"$extension".tar.gz "${curl_opts[@]}" https://github.com/"$repo"/archive/"$release".tar.gz
+    curl -o /tmp/"$extension".tar.gz  "${curl_opts[@]}" https://github.com/"$repo"/archive/"$release".tar.gz
     tar xf /tmp/"$extension".tar.gz -C /tmp
     cd /tmp/"$extension-$release" || exit 1
     phpize  && ./configure "$args" && make && sudo make install

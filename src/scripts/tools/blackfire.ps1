@@ -1,5 +1,9 @@
 # Function to add blackfire and blackfire-agent.
 Function Add-Blackfire() {
+  $arch_name ='amd64'
+  if(-not([Environment]::Is64BitOperatingSystem) -or $version -lt '7.0') {
+    $arch_name = '386'
+  }
   $agent_version = (Invoke-RestMethod https://blackfire.io/api/v1/releases).agent
   $url = "https://packages.blackfire.io/binaries/blackfire-agent/${agent_version}/blackfire-agent-windows_${arch_name}.zip"
   Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\blackfire.zip >$null 2>&1

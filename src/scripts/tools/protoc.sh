@@ -1,12 +1,12 @@
 get_protobuf_tag() {
   if [ "$protobuf_tag" = "latest" ]; then
-    protobuf_tag=$(curl "${curl_opts[@]:?}" https://github.com/protocolbuffers/protobuf/releases/latest 2<&1 | grep -m 1 -Eo "(v[0-9]+.[0-9]+.[0-9]+)" | head -n 1)
+    protobuf_tag=$(curl "${curl_opts[@]:?}" https://github.com/protocolbuffers/protobuf/releases/latest 2<&1 | grep -m 1 -Eo "(v[0-9]+\.[0-9]+\.[0-9]+)" | head -n 1)
   else
     status_code=$(sudo curl -s -w "%{http_code}" -o /tmp/protobuf.tmp "${curl_opts[@]:?}" "https://github.com/protocolbuffers/protobuf/releases/tag/v$protobuf_tag")
     if [ "$status_code" = "200" ]; then
       protobuf_tag="v$protobuf_tag"
     else
-      protobuf_tag=$(curl "${curl_opts[@]:?}" https://github.com/protocolbuffers/protobuf/releases/latest 2<&1 | grep -m 1 -Eo "(v[0-9]+.[0-9]+.[0-9]+)" | head -n 1)
+      protobuf_tag=$(curl "${curl_opts[@]:?}" https://github.com/protocolbuffers/protobuf/releases/latest 2<&1 | grep -m 1 -Eo "(v[0-9]+\.[0-9]+\.[0-9]+)" | head -n 1)
     fi
   fi
 }

@@ -594,10 +594,10 @@ For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-p
   uses: shivammathur/setup-php@v2
   with:
     php-version: '7.4'
-    tools: cs2pr, phpstan
+    tools: phpstan
 
 - name: PHPStan
-  run: phpstan analyse src --error-format=checkstyle | cs2pr
+  run: phpstan analyse src
 ```
 
 ### Examples

@@ -167,7 +167,7 @@ export async function addPhive(
     case 'latest':
       return (
         (await utils.getCommand(os_version, 'tool')) +
-        'https://phar.io/releases/phive.phar phive'
+        'https://phar.io/releases/phive.phar phive status'
       );
     default:
       return (
@@ -176,7 +176,7 @@ export async function addPhive(
         version +
         '/phive-' +
         version +
-        '.phar phive'
+        '.phar phive status'
       );
   }
 }
@@ -334,7 +334,7 @@ export async function getCleanedToolsList(
       return extension
         .trim()
         .replace(
-          /-agent|hirak\/|laravel\/|narrowspark\/automatic-|overtrue\/|robmorgan\/|symfony\//,
+          /-agent|hirak\/|icanhazstring\/|laravel\/|narrowspark\/automatic-|overtrue\/|robmorgan\/|symfony\//,
           ''
         );
     })
@@ -348,13 +348,18 @@ export async function getCleanedToolsList(
  * @param tool
  * @param url
  * @param os_version
+ * @param ver_param
  */
 export async function addArchive(
   tool: string,
   url: string,
-  os_version: string
+  os_version: string,
+  ver_param: string
 ): Promise<string> {
-  return (await utils.getCommand(os_version, 'tool')) + url + ' ' + tool;
+  return (
+    (await utils.getCommand(os_version, 'tool')) +
+    (await utils.joins(url, tool, ver_param))
+  );
 }
 
 /**
@@ -369,13 +374,8 @@ export async function addDevTools(
 ): Promise<string> {
   switch (os_version) {
     case 'linux':
-      return (
-        'add_devtools' +
-        '\n' +
-        (await utils.addLog('$tick', tool, 'Added', 'linux'))
-      );
     case 'darwin':
-      return await utils.addLog('$tick', tool, 'Added', 'darwin');
+      return 'add_devtools ' + tool;
     case 'win32':
       return await utils.addLog(
         '$cross',
@@ -447,22 +447,22 @@ export async function addTools(
         break;
       case 'blackfire-player':
         url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"-V"');
         break;
       case 'codeception':
         url =
           'https://codeception.com/' +
           (await getCodeceptionUri(version, php_version));
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"-V"');
         break;
       case 'composer':
         url = await getComposerUrl(version);
-        script += await addArchive('composer', url, os_version);
+        script += await addArchive('composer', url, os_version, version);
         break;
       case 'composer-normalize':
         uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
         url = github + 'ergebnis/composer-normalize/' + uri;
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"-V"');
         break;
       case 'composer-prefetcher':
         script += await addPackage(
@@ -475,39 +475,37 @@ export async function addTools(
       case 'composer-require-checker':
         uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
         url = github + 'maglnet/ComposerRequireChecker/' + uri;
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"-V"');
         break;
       case 'composer-unused':
-        uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
-        url = github + 'composer-unused/composer-unused/' + uri;
-        script += await addArchive(tool, url, os_version);
+        script += await addPackage(tool, release, 'icanhazstring/', os_version);
         break;
       case 'cs2pr':
         uri = await getUri(tool, '', version, 'releases', '', 'download');
         url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"-V"');
         break;
       case 'deployer':
         url = await getDeployerUrl(version);
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"-V"');
         break;
       case 'flex':
         script += await addPackage(tool, release, 'symfony/', os_version);
         break;
       case 'infection':
         url = github + 'infection/infection/' + uri;
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"-V"');
         break;
       case 'pecl':
         script += await utils.getCommand(os_version, 'pecl');
         break;
       case 'phan':
         url = github + 'phan/phan/' + uri;
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"-v"');
         break;
       case 'phing':
         url = 'https://www.phing.info/get/phing-' + version + '.phar';
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"-v"');
         break;
       case 'phinx':
         script += await addPackage(tool, release, 'robmorgan/', os_version);
@@ -522,48 +520,48 @@ export async function addTools(
       case 'php-cs-fixer':
         uri = await getUri(tool, '.phar', version, 'releases', 'v', 'download');
         url = github + 'FriendsOfPHP/PHP-CS-Fixer/' + uri;
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"-V"');
         break;
       case 'phpcbf':
       case 'phpcs':
         url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"--version"');
         break;
       case 'phpcpd':
       case 'phpunit':
         url = await getPharUrl('https://phar.phpunit.de', tool, '', version);
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"--version"');
         break;
       case 'phplint':
         script += await addPackage(tool, release, 'overtrue/', os_version);
         break;
       case 'phpmd':
         url = github + 'phpmd/phpmd/' + uri;
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"--version"');
         break;
       case 'phpstan':
         url = github + 'phpstan/phpstan/' + uri;
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"-V"');
         break;
       case 'prestissimo':
         script += await addPackage(tool, release, 'hirak/', os_version);
         break;
       case 'psalm':
         url = github + 'vimeo/psalm/' + uri;
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"-v"');
         break;
       case 'symfony':
       case 'symfony-cli':
         uri = await getSymfonyUri(version, os_version);
         url = github + 'symfony/cli/' + uri;
-        script += await addArchive('symfony', url, os_version);
+        script += await addArchive('symfony', url, os_version, 'version');
         break;
       case 'vapor-cli':
         script += await addPackage(tool, release, 'laravel/', os_version);
         break;
       case 'wp-cli':
         url = github + (await getWpCliUrl(version));
-        script += await addArchive(tool, url, os_version);
+        script += await addArchive(tool, url, os_version, '"--version"');
         break;
       default:
         script += await utils.addLog(

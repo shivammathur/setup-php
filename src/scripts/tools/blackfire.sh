@@ -29,6 +29,7 @@ add_blackfire() {
   [ "$os" = "Linux" ] && add_blackfire_linux >/dev/null 2>&1
   [ "$os" = "Darwin" ] && add_blackfire_darwin >/dev/null 2>&1
   blackfire_config >/dev/null 2>&1
-  add_log "${tick:?}" "blackfire" "Added"
-  add_log "${tick:?}" "blackfire-agent" "Added"
+  tool_version=$(get_tool_version "blackfire" "version")
+  add_log "${tick:?}" "blackfire" "Added blackfire $tool_version"
+  add_log "${tick:?}" "blackfire-agent" "Added blackfire-agent $tool_version"
 }

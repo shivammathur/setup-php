@@ -195,6 +195,27 @@ Function Edit-ComposerConfig() {
   }
 }
 
+# Function to extract tool version.
+Function Get-ToolVersion() {
+  Param (
+      [Parameter(Position = 0, Mandatory = $true)]
+      $tool,
+      [Parameter(Position = 1, Mandatory = $true)]
+      $param
+  )
+  $version_regex = "[0-9]+((\.{1}[0-9]+)+)(\.{0})(-[a-z0-9]+){0,1}"
+  if($tool -eq 'composer') {
+    if ($param -eq 'snapshot') {
+      $trunk = Select-String -Pattern "const\sBRANCH_ALIAS_VERSION" -Path $bin_dir\composer -Raw | Select-String -Pattern $version_regex | ForEach-Object { $_.matches.Value }
+      $commit = Select-String -Pattern "const\sVERSION" -Path $bin_dir\composer -Raw | Select-String -Pattern "[a-zA-Z0-9]+" -AllMatches | ForEach-Object { $_.matches[2].Value }
+      return "$trunk+$commit"
+    } else {
+      return Select-String -Pattern "const\sVERSION" -Path $bin_dir\composer -Raw | Select-String -Pattern $version_regex | ForEach-Object { $_.matches.Value }
+    }
+  }
+  return . $tool $param 2> $null | ForEach-Object { $_ -replace "composer $version_regex", '' } | Select-String -Pattern $version_regex | Select-Object -First 1 | ForEach-Object { $_.matches.Value }
+}
+
 # Function to add tools.
 Function Add-Tool() {
   Param (
@@ -203,9 +224,10 @@ Function Add-Tool() {
     $url,
     [Parameter(Position = 1, Mandatory = $true)]
     [ValidateNotNull()]
-    [ValidateLength(1, [int]::MaxValue)]
-    [string]
-    $tool
+    $tool,
+    [Parameter(Position = 2, Mandatory = $true)]
+    [ValidateNotNull()]
+    $ver_param
   )
   if (Test-Path $bin_dir\$tool) {
     Remove-Item $bin_dir\$tool
@@ -239,7 +261,8 @@ Function Add-Tool() {
     Copy-Item $bin_dir\wp-cli.bat -Destination $bin_dir\wp.bat
   }
   if (((Get-ChildItem -Path $bin_dir/* | Where-Object Name -Match "^$tool(.exe|.phar)*$").Count -gt 0)) {
-    Add-Log $tick $tool "Added"
+    $tool_version = Get-ToolVersion $tool $ver_param
+    Add-Log $tick $tool "Added $tool $tool_version"
   } else {
     Add-Log $cross $tool "Could not add $tool"
   }
@@ -264,9 +287,11 @@ Function Add-Composertool() {
     [string]
     $prefix
   )
-  composer -q global require $prefix$release 2>&1 | out-null
-  if($?) {
-    Add-Log $tick $tool "Added"
+  composer global require $prefix$release 2>&1 | out-null
+  $json = findstr $prefix$tool $env:APPDATA\Composer\composer.json
+  if($json) {
+    $tool_version = Get-ToolVersion "Write-Output" "$json"
+    Add-Log $tick $tool "Added $tool $tool_version"
   } else {
     Add-Log $cross $tool "Could not setup $tool"
   }

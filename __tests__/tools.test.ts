@@ -301,44 +301,46 @@ describe('Tools tests', () => {
     let script: string = await tools.addArchive(
       'tool',
       'https://tool.com/tool.phar',
-      'linux'
+      'linux',
+      '-v'
     );
     expect(script).toContain('add_tool https://tool.com/tool.phar tool');
     script = await tools.addArchive(
       'tool',
       'https://tool.com/tool.phar',
-      'darwin'
+      'darwin',
+      '-v'
     );
     expect(script).toContain('add_tool https://tool.com/tool.phar tool');
     script = await tools.addArchive(
       'tool',
       'https://tool.com/tool.phar',
-      'win32'
+      'win32',
+      '-v'
     );
     expect(script).toContain('Add-Tool https://tool.com/tool.phar tool');
 
     script = await tools.addArchive(
       'tool',
       'https://tool.com/tool.phar',
-      'openbsd'
+      'openbsd',
+      '-v'
     );
     expect(script).toContain('Platform openbsd is not supported');
   });
 
   it('checking addDevTools', async () => {
     let script: string = await tools.addDevTools('phpize', 'linux');
-    expect(script).toContain('add_devtools');
-    expect(script).toContain('add_log "$tick" "phpize" "Added"');
+    expect(script).toContain('add_devtools phpize');
 
     script = await tools.addDevTools('php-config', 'linux');
-    expect(script).toContain('add_devtools');
-    expect(script).toContain('add_log "$tick" "php-config" "Added"');
+    expect(script).toContain('add_devtools php-config');
 
     script = await tools.addDevTools('phpize', 'darwin');
-    expect(script).toContain('add_log "$tick" "phpize" "Added"');
+    expect(script).toContain('add_devtools phpize');
 
     script = await tools.addDevTools('php-config', 'darwin');
-    expect(script).toContain('add_log "$tick" "php-config" "Added"');
+    expect(script).toContain('add_devtools php-config');
 
     script = await tools.addDevTools('phpize', 'win32');
     expect(script).toContain(
@@ -381,34 +383,34 @@ describe('Tools tests', () => {
     );
     expect(script).toContain('add_blackfire');
     expect(script).toContain(
-      'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player'
+      'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player "-V"'
     );
     expect(script).toContain(
       'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
-      'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
+      'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"'
     );
     expect(script).toContain(
-      'add_tool https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/latest/download/php-cs-fixer.phar php-cs-fixer'
+      'add_tool https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/latest/download/php-cs-fixer.phar php-cs-fixer "-V"'
     );
     expect(script).toContain(
-      'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar phpstan'
+      'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar phpstan "-V"'
     );
     expect(script).toContain(
-      'add_tool https://www.phing.info/get/phing-latest.phar phing'
+      'add_tool https://www.phing.info/get/phing-latest.phar phing "-v"'
     );
     expect(script).toContain(
-      'add_tool https://phar.io/releases/phive.phar phive'
+      'add_tool https://phar.io/releases/phive.phar phive status'
     );
     expect(script).toContain(
-      'add_tool https://phar.phpunit.de/phpunit.phar phpunit'
+      'add_tool https://phar.phpunit.de/phpunit.phar phpunit "--version"'
     );
     expect(script).toContain(
-      'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_linux_amd64 symfony'
+      'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_linux_amd64 symfony version'
     );
     expect(script).toContain(
-      'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli'
+      'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"'
     );
     expect(script).toContain('add_protoc latest');
     expect(script).toContain('add_grpc_php_plugin latest');
@@ -417,9 +419,8 @@ describe('Tools tests', () => {
     expect(script).toContain('add_composertool phinx phinx robmorgan/');
     expect(script).toContain('add_composertool phplint phplint overtrue/');
     expect(script).toContain('add_composertool phinx phinx:1.2.3 robmorgan/');
-    expect(script).toContain('add_devtools');
-    expect(script).toContain('add_log "$tick" "php-config" "Added"');
-    expect(script).toContain('add_log "$tick" "phpize" "Added"');
+    expect(script).toContain('add_devtools php-config');
+    expect(script).toContain('add_devtools phpize');
   });
   it('checking addTools on darwin', async () => {
     const listOfTools = [
@@ -460,46 +461,43 @@ describe('Tools tests', () => {
 
     expect(script).toContain('add_blackfire');
     expect(script).toContain(
-      'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player'
+      'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player "-V"'
     );
     expect(script).toContain(
       'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
-      'add_tool https://github.com/ergebnis/composer-normalize/releases/latest/download/composer-normalize.phar composer-normalize'
+      'add_tool https://github.com/ergebnis/composer-normalize/releases/latest/download/composer-normalize.phar composer-normalize "-V"'
     );
     expect(script).toContain(
-      'add_tool https://github.com/maglnet/ComposerRequireChecker/releases/latest/download/composer-require-checker.phar composer-require-checker'
+      'add_tool https://github.com/maglnet/ComposerRequireChecker/releases/latest/download/composer-require-checker.phar composer-require-checker "-V"'
     );
     expect(script).toContain(
-      'add_tool https://github.com/composer-unused/composer-unused/releases/latest/download/composer-unused.phar composer-unused'
+      'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr "-V"'
     );
     expect(script).toContain(
-      'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr'
+      'add_tool https://github.com/infection/infection/releases/latest/download/infection.phar infection "-V"'
     );
     expect(script).toContain(
-      'add_tool https://github.com/infection/infection/releases/latest/download/infection.phar infection'
+      'add_tool https://github.com/phan/phan/releases/latest/download/phan.phar phan "-v"'
     );
     expect(script).toContain(
-      'add_tool https://github.com/phan/phan/releases/latest/download/phan.phar phan'
+      'add_tool https://www.phing.info/get/phing-1.2.3.phar phing "-v"'
     );
     expect(script).toContain(
-      'add_tool https://www.phing.info/get/phing-1.2.3.phar phing'
+      'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar phpcs "--version"'
     );
     expect(script).toContain(
-      'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar phpcs'
+      'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcbf.phar phpcbf "--version"'
     );
     expect(script).toContain(
-      'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcbf.phar phpcbf'
+      'add_tool https://phar.phpunit.de/phpcpd.phar phpcpd "--version"'
     );
     expect(script).toContain(
-      'add_tool https://phar.phpunit.de/phpcpd.phar phpcpd'
+      'add_tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"'
     );
     expect(script).toContain(
-      'add_tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd'
-    );
-    expect(script).toContain(
-      'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar psalm'
+      'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar psalm "-v"'
     );
     expect(script).toContain('add_grpc_php_plugin 1.2.3');
     expect(script).toContain('add_protoc 1.2.3');
@@ -507,25 +505,28 @@ describe('Tools tests', () => {
     expect(script).toContain('add_composertool flex flex symfony/');
     expect(script).toContain('add_composertool phinx phinx robmorgan/');
     expect(script).toContain(
-      'add_tool https://github.com/phan/phan/releases/download/2.7.2/phan.phar phan'
+      'add_tool https://github.com/phan/phan/releases/download/2.7.2/phan.phar phan "-v"'
     );
     expect(script).toContain(
       'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'
     );
     expect(script).toContain(
+      'add_composertool composer-unused composer-unused icanhazstring/'
+    );
+    expect(script).toContain(
       'add_composertool composer-prefetcher composer-prefetcher:1.2.3 narrowspark/automatic-'
     );
     expect(script).toContain(
-      'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_darwin_amd64 symfony'
+      'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_darwin_amd64 symfony version'
     );
     expect(script).toContain(
-      'add_tool https://github.com/symfony/cli/releases/download/v1.2.3/symfony_darwin_amd64 symfony'
+      'add_tool https://github.com/symfony/cli/releases/download/v1.2.3/symfony_darwin_amd64 symfony version'
     );
     expect(script).toContain(
-      'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli'
+      'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"'
     );
-    expect(script).toContain('add_log "$tick" "phpize" "Added"');
-    expect(script).toContain('add_log "$tick" "php-config" "Added"');
+    expect(script).toContain('add_devtools phpize');
+    expect(script).toContain('add_devtools php-config');
   });
   it('checking addTools on windows', async () => {
     const listOfTools = [
@@ -554,31 +555,31 @@ describe('Tools tests', () => {
 
     expect(script).toContain('Add-Blackfire');
     expect(script).toContain(
-      'Add-Tool https://get.blackfire.io/blackfire-player-v1.8.1.phar blackfire-player'
+      'Add-Tool https://get.blackfire.io/blackfire-player-v1.8.1.phar blackfire-player "-V"'
     );
     expect(script).toContain(
       'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
     );
     expect(script).toContain(
-      'Add-Tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr'
+      'Add-Tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"'
     );
     expect(script).toContain('Add-Composertool flex flex symfony/');
     expect(script).toContain(
-      'Add-Tool https://deployer.org/deployer.phar deployer'
+      'Add-Tool https://deployer.org/deployer.phar deployer "-V"'
     );
     expect(script).toContain('Add-Composertool prestissimo prestissimo hirak/');
     expect(script).toContain(
-      'Add-Tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd'
+      'Add-Tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"'
     );
     expect(script).toContain('Add-Composertool phinx phinx robmorgan/');
     expect(script).toContain(
-      'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.2/phive-0.13.2.phar phive'
+      'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.2/phive-0.13.2.phar phive status'
     );
     expect(script).toContain(
-      'Add-Tool https://github.com/symfony/cli/releases/latest/download/symfony_windows_amd64.exe symfony'
+      'Add-Tool https://github.com/symfony/cli/releases/latest/download/symfony_windows_amd64.exe symfony version'
     );
     expect(script).toContain(
-      'Add-Tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli'
+      'Add-Tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"'
     );
     expect(script).toContain('phpize is not a windows tool');
     expect(script).toContain('php-config is not a windows tool');
@@ -621,7 +622,7 @@ describe('Tools tests', () => {
 
     script = await tools.addTools('composer:preview', '7.4', 'linux');
     expect(script).toContain(
-      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-preview.phar,https://getcomposer.org/composer-preview.phar composer'
+      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-preview.phar,https://getcomposer.org/composer-preview.phar composer preview'
     );
     script = await tools.addTools(
       'composer:v1, composer:preview, composer:snapshot',
@@ -629,7 +630,7 @@ describe('Tools tests', () => {
       'linux'
     );
     expect(script).toContain(
-      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-snapshot.phar,https://getcomposer.org/composer.phar composer'
+      'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-snapshot.phar,https://getcomposer.org/composer.phar composer snapshot'
     );
   });
 });

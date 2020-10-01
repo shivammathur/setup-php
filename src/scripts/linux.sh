@@ -252,7 +252,7 @@ configure_composer() {
     exit 1;
   fi
   composer -q global config process-timeout 0
-  echo "::add-path::/home/$USER/.composer/vendor/bin"
+  echo "/home/$USER/.composer/vendor/bin" >> $GITHUB_PATH
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
   fi

@@ -189,7 +189,7 @@ Function Edit-ComposerConfig() {
     exit 1;
   }
   composer -q global config process-timeout 0
-  Write-Output "::add-path::$env:APPDATA\Composer\vendor\bin"
+  Write-Output "$env:APPDATA\Composer\vendor\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
   if (Test-Path env:COMPOSER_TOKEN) {
     composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
   }

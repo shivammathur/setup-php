@@ -24,7 +24,7 @@
   "author": "shivammathur",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.5",
+    "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.4",
     "@actions/io": "^1.0.2",
     "fs": "0.0.1-security"

@@ -23,6 +23,25 @@ export async function getInput(
 }
 
 /**
+ * Function to parse PHP version.
+ *
+ * @param version
+ */
+export async function parseVersion(version: string): Promise<string> {
+  switch (version) {
+    case 'latest':
+      return '7.4';
+    default:
+      switch (true) {
+        case version.length > 1:
+          return version.slice(0, 3);
+        default:
+          return version + '.0';
+      }
+  }
+}
+
+/**
  * Async foreach loop
  *
  * @author https://github.com/Atinux

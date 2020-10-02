@@ -1097,10 +1097,25 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.customPackage = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.getInput = void 0;
+exports.customPackage = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.getInput = exports.readEnv = void 0;
 const fs = __importStar(__webpack_require__(747));
 const path = __importStar(__webpack_require__(622));
 const core = __importStar(__webpack_require__(470));
+/**
+ * Function to read environment variable and return a string value.
+ *
+ * @param property
+ */
+async function readEnv(property) {
+    const value = process.env[property];
+    switch (value) {
+        case undefined:
+            return '';
+        default:
+            return value;
+    }
+}
+exports.readEnv = readEnv;
 /**
  * Function to get inputs from both with and env annotations.
  *
@@ -1108,13 +1123,17 @@ const core = __importStar(__webpack_require__(470));
  * @param mandatory
  */
 async function getInput(name, mandatory) {
-    const input = process.env[name];
-    switch (input) {
-        case '':
-        case undefined:
-            return core.getInput(name, { required: mandatory });
-        default:
+    const input = core.getInput(name);
+    const env_input = await readEnv(name);
+    switch (true) {
+        case input != '':
             return input;
+        case input == '' && env_input != '':
+            return env_input;
+        case input == '' && env_input == '' && mandatory:
+            throw new Error(`Input required and not supplied: ${name}`);
+        default:
+            return '';
     }
 }
 exports.getInput = getInput;

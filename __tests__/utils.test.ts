@@ -26,6 +26,12 @@ describe('Utils tests', () => {
     expect(await utils.getInput('DoesNotExist', false)).toBe('');
   });
 
+  it('checking parseVersion', async () => {
+    expect(await utils.parseVersion('7')).toBe('7.0');
+    expect(await utils.parseVersion('7.4')).toBe('7.4');
+    expect(await utils.parseVersion('latest')).toBe('7.4');
+  });
+
   it('checking asyncForEach', async () => {
     const array: Array<string> = ['a', 'b', 'c'];
     let concat = '';

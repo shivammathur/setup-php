@@ -1097,7 +1097,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.customPackage = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.getInput = void 0;
+exports.customPackage = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.getInput = void 0;
 const fs = __importStar(__webpack_require__(747));
 const path = __importStar(__webpack_require__(622));
 const core = __importStar(__webpack_require__(470));
@@ -1118,6 +1118,25 @@ async function getInput(name, mandatory) {
     }
 }
 exports.getInput = getInput;
+/**
+ * Function to parse PHP version.
+ *
+ * @param version
+ */
+async function parseVersion(version) {
+    switch (version) {
+        case 'latest':
+            return '7.4';
+        default:
+            switch (true) {
+                case version.length > 1:
+                    return version.slice(0, 3);
+                default:
+                    return version + '.0';
+            }
+    }
+}
+exports.parseVersion = parseVersion;
 /**
  * Async foreach loop
  *
@@ -2567,8 +2586,7 @@ exports.build = build;
  */
 async function run() {
     try {
-        let version = await utils.getInput('php-version', true);
-        version = version.length > 1 ? version.slice(0, 3) : version + '.0';
+        const version = await utils.parseVersion(await utils.getInput('php-version', true));
         const os_version = process.platform;
         // check the os version and run the respective script
         let script_path = '';

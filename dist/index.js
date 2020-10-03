@@ -2506,6 +2506,9 @@ exports.build = build;
 async function run() {
     try {
         let version = await utils.getInput('php-version', true);
+        if (version === 'latest') {
+            version = '7.4';
+        }
         version = version.length > 1 ? version.slice(0, 3) : version + '.0';
         const os_version = process.platform;
         // check the os version and run the respective script

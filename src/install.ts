@@ -62,6 +62,9 @@ export async function build(
 export async function run(): Promise<void> {
   try {
     let version: string = await utils.getInput('php-version', true);
+    if (version === 'latest') {
+      version = '7.4';
+    }
     version = version.length > 1 ? version.slice(0, 3) : version + '.0';
     const os_version: string = process.platform;
 

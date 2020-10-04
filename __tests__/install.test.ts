@@ -4,7 +4,7 @@ import * as install from '../src/install';
  * Mock install.ts
  */
 jest.mock('../src/install', () => ({
-  build: jest.fn().mockImplementation(
+  getScript: jest.fn().mockImplementation(
     async (
       filename: string,
       version: string,
@@ -45,11 +45,19 @@ jest.mock('../src/install', () => ({
       switch (os_version) {
         case 'darwin':
         case 'linux':
-          script = await install.build(os_version + '.sh', version, os_version);
+          script = await install.getScript(
+            os_version + '.sh',
+            version,
+            os_version
+          );
           script += 'bash script.sh ' + version + ' ' + __dirname;
           break;
         case 'win32':
-          script = await install.build(os_version + '.sh', version, os_version);
+          script = await install.getScript(
+            os_version + '.sh',
+            version,
+            os_version
+          );
           script += 'pwsh script.ps1 ' + version + ' ' + __dirname;
           break;
         default:

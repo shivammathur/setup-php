@@ -378,6 +378,27 @@ export async function scriptExtension(os_version: string): Promise<string> {
 }
 
 /**
+ * Function to get script tool
+ *
+ * @param os_version
+ */
+export async function scriptTool(os_version: string): Promise<string> {
+  switch (os_version) {
+    case 'win32':
+      return 'pwsh';
+    case 'linux':
+    case 'darwin':
+      return 'bash';
+    default:
+      return await log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
+  }
+}
+
+/**
  * Function to get script to add tools with custom support.
  *
  * @param pkg

@@ -1097,7 +1097,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.customPackage = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.getInput = exports.readEnv = void 0;
+exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.getInput = exports.readEnv = void 0;
 const fs = __importStar(__webpack_require__(747));
 const path = __importStar(__webpack_require__(622));
 const core = __importStar(__webpack_require__(470));
@@ -1407,6 +1407,23 @@ async function scriptExtension(os_version) {
     }
 }
 exports.scriptExtension = scriptExtension;
+/**
+ * Function to get script tool
+ *
+ * @param os_version
+ */
+async function scriptTool(os_version) {
+    switch (os_version) {
+        case 'win32':
+            return 'pwsh';
+        case 'linux':
+        case 'darwin':
+            return 'bash';
+        default:
+            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+    }
+}
+exports.scriptTool = scriptTool;
 /**
  * Function to get script to add tools with custom support.
  *
@@ -2553,7 +2570,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.run = exports.build = void 0;
+exports.run = exports.getScript = void 0;
 const exec_1 = __webpack_require__(986);
 const core = __importStar(__webpack_require__(470));
 const config = __importStar(__webpack_require__(641));
@@ -2569,19 +2586,15 @@ const matchers = __importStar(__webpack_require__(86));
  * @param version
  * @param os_version
  */
-async function build(filename, version, os_version) {
+async function getScript(filename, version, os_version) {
     const name = 'setup-php';
-    const url = 'setup-php.com/support';
+    const url = 'https://setup-php.com/support';
     // taking inputs
-    const extension_csv = (await utils.getInput('extensions', false)) ||
-        (await utils.getInput('extension', false));
+    const extension_csv = await utils.getInput('extensions', false);
     const ini_values_csv = await utils.getInput('ini-values', false);
     const coverage_driver = await utils.getInput('coverage', false);
-    const pecl = await utils.getInput('pecl', false);
     let tools_csv = await utils.getInput('tools', false);
-    if (pecl == 'true' ||
-        /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv) ||
-        /.*-(\d+\.\d+\.\d+).*/.test(extension_csv)) {
+    if (/.*-(beta|alpha|devel|snapshot|\d+\.\d+\.\d+).*/.test(extension_csv)) {
         tools_csv = 'pecl, ' + tools_csv;
     }
     let script = await utils.readScript(filename);
@@ -2599,7 +2612,7 @@ async function build(filename, version, os_version) {
     script += '\n' + (await utils.addLog('$tick', name, url, os_version));
     return await utils.writeScript(filename, script);
 }
-exports.build = build;
+exports.getScript = getScript;
 /**
  * Run the script
  */
@@ -2607,19 +2620,10 @@ async function run() {
     try {
         const version = await utils.parseVersion(await utils.getInput('php-version', true));
         const os_version = process.platform;
-        // check the os version and run the respective script
-        let script_path = '';
-        switch (os_version) {
-            case 'darwin':
-            case 'linux':
-                script_path = await build(os_version + '.sh', version, os_version);
-                await exec_1.exec('bash ' + script_path + ' ' + version + ' ' + __dirname);
-                break;
-            case 'win32':
-                script_path = await build('win32.ps1', version, os_version);
-                await exec_1.exec('pwsh ' + script_path + ' ' + version + ' ' + __dirname);
-                break;
-        }
+        const tool = await utils.scriptTool(os_version);
+        const script = os_version + (await utils.scriptExtension(os_version));
+        const location = await getScript(script, version, os_version);
+        await exec_1.exec(await utils.joins(tool, location, version, __dirname));
         await matchers.addMatchers();
     }
     catch (error) {

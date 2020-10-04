@@ -209,6 +209,15 @@ describe('Utils tests', () => {
     );
   });
 
+  it('checking scriptTool', async () => {
+    expect(await utils.scriptTool('linux')).toBe('bash');
+    expect(await utils.scriptTool('darwin')).toBe('bash');
+    expect(await utils.scriptTool('win32')).toBe('pwsh');
+    expect(await utils.scriptTool('openbsd')).toContain(
+      'Platform openbsd is not supported'
+    );
+  });
+
   it('checking customPackage', async () => {
     const script_path: string = path.join('ext', 'pkg.sh');
     expect(await utils.customPackage('pkg', 'ext', '1.2.3', 'linux')).toContain(

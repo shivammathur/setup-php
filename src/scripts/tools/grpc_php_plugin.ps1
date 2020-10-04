@@ -10,7 +10,7 @@ Function Add-Msys2() {
 Function Add-Grpc_php_plugin() {
   $msys_location = Add-Msys2
   . $msys_location\usr\bin\bash -l -c "pacman -S --noconfirm mingw-w64-x86_64-grpc" >$null 2>&1
-  Write-Output "::add-path::$msys_location\mingw64\bin"
+  Write-Output "$msys_location\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
   Write-Output "::set-output name=grpc_php_plugin_path::$msys_location\mingw64\bin\grpc_php_plugin.exe"
   Add-ToProfile $current_profile 'grpc_php_plugin' "New-Alias grpc_php_plugin $msys_location\mingw64\bin\grpc_php_plugin.exe"
   Add-Log $tick "grpc_php_plugin" "Added"

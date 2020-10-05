@@ -168,7 +168,7 @@ Both `GitHub-hosted` runners and `self-hosted` runners are supported on the foll
 
 These tools can be setup globally using the `tools` input.
 
-`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `composer-require-checker`, `composer-unused`, `cs2pr`, `deployer`, `flex`, `grpc_php_plugin`, `infection`, `pecl`, `phan`, `phing`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `protoc`, `psalm`, `symfony`, `vapor-cli`
+`behat`, `blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `composer-require-checker`, `composer-unused`, `cs2pr`, `deployer`, `flex`, `grpc_php_plugin`, `infection`, `pecl`, `phan`, `phing`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpspec`, `phpstan`, `phpunit`, `prestissimo`, `protoc`, `psalm`, `symfony`, `vapor-cli`
 
 ```yaml
 - name: Setup PHP with tools

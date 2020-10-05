@@ -277,14 +277,19 @@ describe('Tools tests', () => {
 
   it('checking getCleanedToolsList', async () => {
     const tools_list: string[] = await tools.getCleanedToolsList(
-      'tool, composer:1.2.3, robmorgan/phinx, hirak/prestissimo, narrowspark/automatic-composer-prefetcher'
+      'tool, composer:1.2.3, behat/behat, icanhazstring/composer-unused, laravel/vapor-cli, robmorgan/phinx, hirak/prestissimo, narrowspark/automatic-composer-prefetcher, phpspec/phpspec, symfony/flex'
     );
     expect(tools_list).toStrictEqual([
       'composer',
       'tool',
+      'behat',
+      'composer-unused',
+      'vapor-cli',
       'phinx',
       'prestissimo',
-      'composer-prefetcher'
+      'composer-prefetcher',
+      'phpspec',
+      'flex'
     ]);
   });
 
@@ -424,6 +429,7 @@ describe('Tools tests', () => {
   });
   it('checking addTools on darwin', async () => {
     const listOfTools = [
+      'behat',
       'blackfire',
       'blackfire-player',
       'composer-normalize',
@@ -445,6 +451,7 @@ describe('Tools tests', () => {
       'phpcs',
       'phpize',
       'phpmd',
+      'phpspec',
       'protoc:v1.2.3',
       'psalm',
       'symfony',
@@ -501,6 +508,8 @@ describe('Tools tests', () => {
     );
     expect(script).toContain('add_grpc_php_plugin 1.2.3');
     expect(script).toContain('add_protoc 1.2.3');
+    expect(script).toContain('add_composertool behat behat behat/');
+    expect(script).toContain('add_composertool phpspec phpspec phpspec/');
     expect(script).toContain('add_composertool vapor-cli vapor-cli laravel/');
     expect(script).toContain('add_composertool flex flex symfony/');
     expect(script).toContain('add_composertool phinx phinx robmorgan/');

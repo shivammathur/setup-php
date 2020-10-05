@@ -300,31 +300,72 @@ If you have a number of workflows which setup multiple tools or have many compos
 
 ### Problem Matchers
 
-#### PHPUnit
+Problem matchers are `json` configurations which identify errors and warnings in your logs and surface that information prominently in the GitHub Actions UI by highlighting them and creating code annotations.
 
-You can setup problem matchers for your `PHPUnit` output by adding this step after the `setup-php` step. This will scan the logs for failing tests and surface that information prominently in the GitHub Actions UI by creating annotations and log file decorations.
+#### PHP
+
+Setup problem matchers for your `PHP` output by adding this step after the `setup-php` step.
 
 ```yaml
-- name: Setup Problem Matchers for PHPUnit
+- name: Setup problem matchers for PHP
+  run: echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+```
+
+#### PHPUnit
+
+Setup problem matchers for your `PHPUnit` output by adding this step after the `setup-php` step.
+
+```yaml
+- name: Setup problem matchers for PHPUnit
   run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 ```
 
-#### Other Tools
+#### PHPStan
 
-For tools that support `checkstyle` reporting like `phpstan`, `psalm`, `php-cs-fixer` and `phpcs` you can use `cs2pr` to annotate your code.  
-For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-pull-request-from-checkstyle).  
-
-> Here is an example with `phpstan`.
+PHPStan supports error reporting in GitHub Actions, so no problem matchers are required.
 
 ```yaml
 - name: Setup PHP
-  uses: shivammathur/setup-php@v1
+  uses: shivammathur/setup-php@v2
   with:
     php-version: '7.4'
-    tools: cs2pr, phpstan
+    tools: phpstan
 
-- name: PHPStan
-  run: phpstan analyse src --error-format=checkstyle | cs2pr
+- name: Run PHPStan
+  run: phpstan analyse src
+```
+
+#### Psalm
+
+Psalm supports error reporting in GitHub Actions with an output format `github`.
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+    tools: psalm
+
+- name: Run Psalm
+  run: psalm --output-format=github
+```
+
+#### Tools with checkstyle support
+
+For tools that support `checkstyle` reporting like `phpstan`, `psalm`, `php-cs-fixer` and `phpcs` you can use `cs2pr` to annotate your code.  
+For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-pull-request-from-checkstyle).   
+
+> Here is an example with `phpcs`.
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+    tools: cs2pr, phpcs
+
+- name: Run phpcs
+  run: phpcs -q --report=checkstyle src | cs2pr
 ```
 
 ### Examples

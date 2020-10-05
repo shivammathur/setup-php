@@ -17,13 +17,19 @@ async function cleanup(path: string): Promise<void> {
 }
 
 describe('Utils tests', () => {
-  it('checking getInput', async () => {
+  it('checking readEnv', async () => {
     process.env['test'] = 'setup-php';
-    process.env['undefined'] = '';
+    expect(await utils.readEnv('test')).toBe('setup-php');
+    expect(await utils.readEnv('undefined')).toBe('');
+  });
+
+  it('checking getInput', async () => {
     expect(await utils.getInput('test', false)).toBe('setup-php');
-    expect(await utils.getInput('undefined', false)).toBe('');
     expect(await utils.getInput('setup-php', false)).toBe('setup-php');
     expect(await utils.getInput('DoesNotExist', false)).toBe('');
+    expect(async () => {
+      await utils.getInput('DoesNotExist', true);
+    }).rejects.toThrow('Input required and not supplied: DoesNotExist');
   });
 
   it('checking asyncForEach', async () => {

@@ -3,6 +3,21 @@ import * as path from 'path';
 import * as core from '@actions/core';
 
 /**
+ * Function to read environment variable and return a string value.
+ *
+ * @param property
+ */
+export async function readEnv(property: string): Promise<string> {
+  const value = process.env[property];
+  switch (value) {
+    case undefined:
+      return '';
+    default:
+      return value;
+  }
+}
+
+/**
  * Function to get inputs from both with and env annotations.
  *
  * @param name
@@ -12,13 +27,17 @@ export async function getInput(
   name: string,
   mandatory: boolean
 ): Promise<string> {
-  const input = process.env[name];
-  switch (input) {
-    case '':
-    case undefined:
-      return core.getInput(name, {required: mandatory});
-    default:
+  const input = core.getInput(name);
+  const env_input = await readEnv(name);
+  switch (true) {
+    case input != '':
       return input;
+    case input == '' && env_input != '':
+      return env_input;
+    case input == '' && env_input == '' && mandatory:
+      throw new Error(`Input required and not supplied: ${name}`);
+    default:
+      return '';
   }
 }
 

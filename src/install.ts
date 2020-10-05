@@ -20,7 +20,7 @@ export async function build(
 ): Promise<string> {
   // taking inputs
   const name = 'setup-php';
-  const url = 'setup-php.com/support';
+  const url = 'https://setup-php.com/support';
   const extension_csv: string =
     (await utils.getInput('extensions', false)) ||
     (await utils.getInput('extension', false)) ||

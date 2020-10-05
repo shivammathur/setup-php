@@ -2387,7 +2387,7 @@ const utils = __importStar(__webpack_require__(163));
 async function build(filename, version, os_version) {
     // taking inputs
     const name = 'setup-php';
-    const url = 'setup-php.com/support';
+    const url = 'https://setup-php.com/support';
     const extension_csv = (await utils.getInput('extensions', false)) ||
         (await utils.getInput('extension', false)) ||
         (await utils.getInput('extension-csv', false));

@@ -979,48 +979,6 @@ exports.toCommandValue = toCommandValue;
 
 /***/ }),
 
-/***/ 86:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.addMatchers = void 0;
-const path = __importStar(__webpack_require__(622));
-const utils = __importStar(__webpack_require__(163));
-const io = __importStar(__webpack_require__(1));
-/**
- * Cache json files for problem matchers
- */
-async function addMatchers() {
-    const config_path = path.join(__dirname, '..', 'src', 'configs', 'phpunit.json');
-    const runner_dir = await utils.getInput('RUNNER_TOOL_CACHE', false);
-    await io.cp(config_path, runner_dir);
-}
-exports.addMatchers = addMatchers;
-
-
-/***/ }),
-
 /***/ 87:
 /***/ (function(module) {
 
@@ -2419,7 +2377,6 @@ const coverage = __importStar(__webpack_require__(635));
 const extensions = __importStar(__webpack_require__(911));
 const tools = __importStar(__webpack_require__(534));
 const utils = __importStar(__webpack_require__(163));
-const matchers = __importStar(__webpack_require__(86));
 /**
  * Build the script
  *
@@ -2480,7 +2437,6 @@ async function run() {
                 await exec_1.exec('pwsh ' + script_path + ' ' + version + ' ' + __dirname);
                 break;
         }
-        await matchers.addMatchers();
     }
     catch (error) {
         core.setFailed(error.message);

@@ -8,7 +8,7 @@ param (
   [ValidateNotNull()]
   [ValidateLength(1, [int]::MaxValue)]
   [string]
-  $dir
+  $dist
 )
 
 Function Step-Log($message) {
@@ -285,4 +285,5 @@ Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
 Set-PhpIniKey -Key 'memory_limit' -Value '-1' -Path $php_dir
 Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
+Move-Item -path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)"

@@ -204,6 +204,7 @@ setup_php() {
 tick="✓"
 cross="✗"
 version=$1
+dist=$2
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
@@ -224,4 +225,5 @@ scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo mkdir -p "$ext_dir"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
 configure_pecl
+sudo mv "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
 add_log "$tick" "PHP" "$status PHP $semver"

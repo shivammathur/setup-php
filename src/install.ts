@@ -5,7 +5,6 @@ import * as coverage from './coverage';
 import * as extensions from './extensions';
 import * as tools from './tools';
 import * as utils from './utils';
-import * as matchers from './matchers';
 
 /**
  * Build the script
@@ -62,7 +61,6 @@ export async function run(): Promise<void> {
     const script = os_version + (await utils.scriptExtension(os_version));
     const location = await getScript(script, version, os_version);
     await exec(await utils.joins(tool, location, version, __dirname));
-    await matchers.addMatchers();
   } catch (error) {
     core.setFailed(error.message);
   }

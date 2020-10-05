@@ -152,9 +152,27 @@ configure_composer() {
     exit 1
   fi
   composer -q global config process-timeout 0
-  echo "::add-path::/Users/$USER/.composer/vendor/bin"
+  echo "/Users/$USER/.composer/vendor/bin" >> "$GITHUB_PATH"
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
+  fi
+}
+
+# Function to extract tool version.
+get_tool_version() {
+  tool=$1
+  param=$2
+  version_regex="[0-9]+((\.{1}[0-9]+)+)(\.{0})(-[a-zA-Z0-9]+){0,1}"
+  if [ "$tool" = "composer" ]; then
+    if [ "$param" != "snapshot" ]; then
+      grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex"
+    else
+      trunk=$(grep -Ea "const\sBRANCH_ALIAS_VERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")
+      commit=$(grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "[a-zA-z0-9]+" | tail -n 1)
+      echo "$trunk+$commit"
+    fi
+  else
+    $tool "$param" 2>/dev/null | sed -Ee "s/[Cc]omposer(.)?$version_regex//g" | grep -Eo "$version_regex" | head -n 1
   fi
 }
 
@@ -162,6 +180,7 @@ configure_composer() {
 add_tool() {
   url=$1
   tool=$2
+  ver_param=$3
   tool_path="$tool_path_dir/$tool"
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
@@ -191,7 +210,8 @@ add_tool() {
     elif [ "$tool" = "wp-cli" ]; then
       sudo cp -p "$tool_path" "$tool_path_dir"/wp
     fi
-    add_log "$tick" "$tool" "Added"
+    tool_version=$(get_tool_version "$tool" "$ver_param")
+    add_log "$tick" "$tool" "Added $tool $tool_version"
   else
     add_log "$cross" "$tool" "Could not setup $tool"
   fi
@@ -203,8 +223,17 @@ add_composertool() {
   release=$2
   prefix=$3
   (
-    composer global require "$prefix$release" >/dev/null 2>&1 && add_log "$tick" "$tool" "Added"
+    composer global require "$prefix$release" >/dev/null 2>&1 &&
+    json=$(grep "$prefix$tool" /Users/$USER/.composer/composer.json) &&
+    tool_version=$(get_tool_version 'echo' "$json") &&
+    add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
+}
+
+# Function to handle request to add phpize and php-config.
+add_devtools() {
+  tool=$1
+  add_log "$tick" "$tool" "Added $tool $semver"
 }
 
 # Function to configure PECL
@@ -217,7 +246,8 @@ configure_pecl() {
 
 # Function to handle request to add PECL.
 add_pecl() {
-  add_log "$tick" "PECL" "Added"
+  pecl_version=$(get_tool_version "pecl" "version")
+  add_log "$tick" "PECL" "Found PECL $pecl_version"
 }
 
 # Function to setup PHP 5.6 and newer.
@@ -237,6 +267,7 @@ setup_php() {
 tick="✓"
 cross="✗"
 version=$1
+dist=$2
 nodot_version=${1/./}
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
@@ -275,4 +306,5 @@ scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo mkdir -p "$ext_dir"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
 if [[ ! "$version" =~ $old_versions ]]; then configure_pecl >/dev/null 2>&1; fi
+sudo mv "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
 add_log "$tick" "PHP" "$status PHP $semver"

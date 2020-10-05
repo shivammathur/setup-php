@@ -44,7 +44,7 @@ add_grpc_php_plugin() {
     sudo chmod a+x /usr/local/bin/grpc_php_plugin
   ) >/dev/null 2>&1
   echo "::set-output name=grpc_php_plugin_path::/usr/local/bin/grpc_php_plugin"
-  add_log "${tick:?}" "grpc_php_plugin" "Added"
+  add_log "${tick:?}" "grpc_php_plugin" "Added grpc_php_plugin ${grpc_tag:1}"
   printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "grpc_php_plugin" "Click to read the grpc_php_plugin related license information"
   cat "/tmp/grpc-${grpc_tag:1}/LICENSE"
   echo "::endgroup::"

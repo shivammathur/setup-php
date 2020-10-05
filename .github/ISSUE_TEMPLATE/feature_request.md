@@ -11,7 +11,7 @@ assignees: 'shivammathur'
 <!-- Please describe concisely the feature you want to add. -->
 
 **Version**
-- [ ] I have checked releases and the feature is missing in the latest patch version of `v2`.
+- [ ] I have checked releases, and the feature is missing in the latest patch version of `v2`.
 
 **Underlying issue**
 <!-- Please describe the issue this would solve. -->

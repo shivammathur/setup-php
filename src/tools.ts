@@ -334,7 +334,7 @@ export async function getCleanedToolsList(
       return extension
         .trim()
         .replace(
-          /-agent|hirak\/|icanhazstring\/|laravel\/|narrowspark\/automatic-|overtrue\/|robmorgan\/|symfony\//,
+          /-agent|behat\/|hirak\/|icanhazstring\/|laravel\/|narrowspark\/automatic-|overtrue\/|phpspec\/|robmorgan\/|symfony\//,
           ''
         );
     })
@@ -444,6 +444,10 @@ export async function addTools(
       case 'grpc_php_plugin':
       case 'protoc':
         script += await utils.customPackage(tool, 'tools', version, os_version);
+        break;
+      case 'behat':
+      case 'phpspec':
+        script += await addPackage(tool, release, tool + '/', os_version);
         break;
       case 'blackfire-player':
         url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);

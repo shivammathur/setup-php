@@ -231,7 +231,7 @@ add_extension_from_source() {
   args=$4
   prefix=$5
   (
-    add_devtools
+    add_devtools phpize
     delete_extension "$extension"
     curl -o /tmp/"$extension".tar.gz  "${curl_opts[@]}" https://github.com/"$repo"/archive/"$release".tar.gz
     tar xf /tmp/"$extension".tar.gz -C /tmp
@@ -252,9 +252,27 @@ configure_composer() {
     exit 1;
   fi
   composer -q global config process-timeout 0
-  echo "::add-path::/home/$USER/.composer/vendor/bin"
+  echo "/home/$USER/.composer/vendor/bin" >> "$GITHUB_PATH"
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
+  fi
+}
+
+# Function to extract tool version.
+get_tool_version() {
+  tool=$1
+  param=$2
+  version_regex="[0-9]+((\.{1}[0-9]+)+)(\.{0})(-[a-zA-Z0-9]+){0,1}"
+  if [ "$tool" = "composer" ]; then
+    if [ "$param" != "snapshot" ]; then
+      grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex"
+    else
+      trunk=$(grep -Ea "const\sBRANCH_ALIAS_VERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")
+      commit=$(grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "[a-zA-z0-9]+" | tail -n 1)
+      echo "$trunk+$commit"
+    fi
+  else
+    $tool "$param" 2>/dev/null | sed -Ee "s/[Cc]omposer(.)?$version_regex//g" | grep -Eo "$version_regex" | head -n 1
   fi
 }
 
@@ -262,6 +280,7 @@ configure_composer() {
 add_tool() {
   url=$1
   tool=$2
+  ver_param=$3
   tool_path="$tool_path_dir/$tool"
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
@@ -289,7 +308,8 @@ add_tool() {
     elif [ "$tool" = "wp-cli" ]; then
       sudo cp -p "$tool_path" "$tool_path_dir"/wp
     fi
-    add_log "$tick" "$tool" "Added"
+    tool_version=$(get_tool_version "$tool" "$ver_param")
+    add_log "$tick" "$tool" "Added $tool $tool_version"
   else
     add_log "$cross" "$tool" "Could not setup $tool"
   fi
@@ -302,18 +322,22 @@ add_composertool() {
   prefix=$3
   (
     composer global require "$prefix$release" >/dev/null 2>&1 &&
-    add_log "$tick" "$tool" "Added"
+    json=$(grep "$prefix$tool" /home/$USER/.composer/composer.json) &&
+    tool_version=$(get_tool_version 'echo' "$json") &&
+    add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
 }
 
 # Function to setup phpize and php-config.
 add_devtools() {
+  tool=$1
   if ! [ -e "/usr/bin/phpize$version" ] || ! [ -e "/usr/bin/php-config$version" ]; then
     update_lists && $apt_install php"$version"-dev php"$version"-xml >/dev/null 2>&1
   fi
   sudo update-alternatives --set php-config /usr/bin/php-config"$version" >/dev/null 2>&1
   sudo update-alternatives --set phpize /usr/bin/phpize"$version" >/dev/null 2>&1
   configure_pecl >/dev/null 2>&1
+  add_log "$tick" "$tool" "Added $tool $semver"
 }
 
 # Function to setup the nightly build from master branch.
@@ -330,12 +354,13 @@ setup_old_versions() {
 
 # Function to add PECL.
 add_pecl() {
-  add_devtools >/dev/null 2>&1
+  add_devtools phpize >/dev/null 2>&1
   if [ ! -e /usr/bin/pecl ]; then
     $apt_install php-pear >/dev/null 2>&1 || update_lists && $apt_install php-pear >/dev/null 2>&1
   fi
   configure_pecl >/dev/null 2>&1
-  add_log "$tick" "PECL" "Added"
+  pecl_version=$(get_tool_version "pecl" "version")
+  add_log "$tick" "PECL" "Added PECL $pecl_version"
 }
 
 # Function to switch versions of PHP binaries.
@@ -397,6 +422,7 @@ tick="✓"
 cross="✗"
 pecl_config="false"
 version=$1
+dist=$2
 master_version="8.0"
 old_versions="5.[3-5]"
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
@@ -452,4 +478,5 @@ pecl_file="$scan_dir"/99-pecl.ini
 echo '' | sudo tee "$pecl_file" >/dev/null 2>&1
 sudo rm -rf /usr/local/bin/phpunit >/dev/null 2>&1
 sudo chmod 777 "$ini_file" "$pecl_file" "$tool_path_dir"
+sudo mv "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
 add_log "$tick" "PHP" "$status PHP $semver"

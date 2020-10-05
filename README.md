@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
-  <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://codecov.io/gh/shivammathur/setup-php/branch/master/graph/badge.svg"></a>
+  <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://img.shields.io/codecov/c/github/shivammathur/setup-php?logo=codecov"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg?logo=open%20source%20initiative&logoColor=white&labelColor=555555"></a>
   <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.0-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>  
 </p>
@@ -168,7 +168,7 @@ Both `GitHub-hosted` runners and `self-hosted` runners are supported on the foll
 
 These tools can be setup globally using the `tools` input.
 
-`blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `composer-require-checker`, `composer-unused`, `cs2pr`, `deployer`, `flex`, `grpc_php_plugin`, `infection`, `pecl`, `phan`, `phing`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpstan`, `phpunit`, `prestissimo`, `protoc`, `psalm`, `symfony`, `vapor-cli`
+`behat`, `blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `composer-require-checker`, `composer-unused`, `cs2pr`, `deployer`, `flex`, `grpc_php_plugin`, `infection`, `pecl`, `phan`, `phing`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpspec`, `phpstan`, `phpunit`, `prestissimo`, `protoc`, `psalm`, `symfony`, `vapor-cli`
 
 ```yaml
 - name: Setup PHP with tools
@@ -204,6 +204,7 @@ For example to setup `PHPUnit` on `PHP 7.2`.
 ```
 
 **Notes**
+- This is useful to set up tools which you only use in GitHub Actions, thus keeping your `composer.json` tidy.
 - If you have a tool in your `composer.json`, do not setup it globally using this action as the two instances of the tool might conflict.
 - Tools which cannot be setup gracefully leave an error message in the logs, the action is not interrupted.
 
@@ -275,6 +276,7 @@ Consider disabling the coverage using this PHP action for these reasons.
 
 - Specify the PHP version you want to setup.
 - Accepts a `string`. For example `'7.4'`.
+- Accepts `latest` to set up the latest stable PHP version.
 - See [PHP support](#tada-php-support) for supported PHP versions.
 
 #### `extensions` (optional)
@@ -564,9 +566,11 @@ If you have a number of workflows which setup multiple tools or have many compos
 
 ### Problem Matchers
 
+Problem matchers are `json` configurations which identify errors and warnings in your logs and surface that information prominently in the GitHub Actions UI by highlighting them and creating code annotations.
+
 #### PHP
 
-Setup problem matchers for your `PHP` output by adding this step after the `setup-php` step. This will scan the logs for PHP errors and warnings, and surface them prominently in the GitHub Actions UI by creating annotations and log file decorations.
+Setup problem matchers for your `PHP` output by adding this step after the `setup-php` step.
 
 ```yaml
 - name: Setup problem matchers for PHP
@@ -575,29 +579,59 @@ Setup problem matchers for your `PHP` output by adding this step after the `setu
 
 #### PHPUnit
 
-Setup problem matchers for your `PHPUnit` output by adding this step after the `setup-php` step. This will scan the logs for failing tests and surface that information prominently in the GitHub Actions UI by creating annotations and log file decorations.
+Setup problem matchers for your `PHPUnit` output by adding this step after the `setup-php` step.
 
 ```yaml
 - name: Setup problem matchers for PHPUnit
   run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 ```
 
-#### Other Tools
+#### PHPStan
 
-For tools that support `checkstyle` reporting like `phpstan`, `psalm`, `php-cs-fixer` and `phpcs` you can use `cs2pr` to annotate your code.  
-For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-pull-request-from-checkstyle).  
-
-> Here is an example with `phpstan`.
+PHPStan supports error reporting in GitHub Actions, so no problem matchers are required.
 
 ```yaml
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
     php-version: '7.4'
-    tools: cs2pr, phpstan
+    tools: phpstan
 
-- name: PHPStan
-  run: phpstan analyse src --error-format=checkstyle | cs2pr
+- name: Run PHPStan
+  run: phpstan analyse src
+```
+
+#### Psalm
+
+Psalm supports error reporting in GitHub Actions with an output format `github`.
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+    tools: psalm
+
+- name: Run Psalm
+  run: psalm --output-format=github
+```
+
+#### Tools with checkstyle support
+
+For tools that support `checkstyle` reporting like `phpstan`, `psalm`, `php-cs-fixer` and `phpcs` you can use `cs2pr` to annotate your code.  
+For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-pull-request-from-checkstyle).   
+
+> Here is an example with `phpcs`.
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+    tools: cs2pr, phpcs
+
+- name: Run phpcs
+  run: phpcs -q --report=checkstyle src | cs2pr
 ```
 
 ### Examples

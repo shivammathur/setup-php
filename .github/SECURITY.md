@@ -7,7 +7,7 @@ The following versions of this project are supported for security updates.
 | Version | Supported          |
 | ------- | ------------------ |
 | 1.9.x   | :white_check_mark: |
-| 2.5.x   | :white_check_mark: |
+| 2.6.x   | :white_check_mark: |
 
 ## Supported PHP Versions
 

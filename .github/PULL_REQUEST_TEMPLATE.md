@@ -5,12 +5,12 @@ labels: bug or enhancement
 
 ---
 
-## A Pull Request should be associated with an Issue.
+## A Pull Request should be associated with a Discussion.
 
-> If you're fixing a bug, adding a new feature or improving something please provide the details in Issues,
+> If you're fixing a bug, adding a new feature or improving something please provide the details in discussions,
 > so that the development can be pointed in the intended direction.
 
-Related issue: <!-- Please link the related issue -->
+Related discussion: <!-- Please link the related discussion -->
 
 > Further notes in [Contribution Guidelines](.github/CONTRIBUTING.md)
 > Thank you for your contribution.

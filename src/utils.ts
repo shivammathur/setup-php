@@ -3,6 +3,21 @@ import * as path from 'path';
 import * as core from '@actions/core';
 
 /**
+ * Function to read environment variable and return a string value.
+ *
+ * @param property
+ */
+export async function readEnv(property: string): Promise<string> {
+  const value = process.env[property];
+  switch (value) {
+    case undefined:
+      return '';
+    default:
+      return value;
+  }
+}
+
+/**
  * Function to get inputs from both with and env annotations.
  *
  * @param name
@@ -12,13 +27,36 @@ export async function getInput(
   name: string,
   mandatory: boolean
 ): Promise<string> {
-  const input = process.env[name];
-  switch (input) {
-    case '':
-    case undefined:
-      return core.getInput(name, {required: mandatory});
-    default:
+  const input = core.getInput(name);
+  const env_input = await readEnv(name);
+  switch (true) {
+    case input != '':
       return input;
+    case input == '' && env_input != '':
+      return env_input;
+    case input == '' && env_input == '' && mandatory:
+      throw new Error(`Input required and not supplied: ${name}`);
+    default:
+      return '';
+  }
+}
+
+/**
+ * Function to parse PHP version.
+ *
+ * @param version
+ */
+export async function parseVersion(version: string): Promise<string> {
+  switch (version) {
+    case 'latest':
+      return '7.4';
+    default:
+      switch (true) {
+        case version.length > 1:
+          return version.slice(0, 3);
+        default:
+          return version + '.0';
+      }
   }
 }
 
@@ -330,6 +368,27 @@ export async function scriptExtension(os_version: string): Promise<string> {
     case 'linux':
     case 'darwin':
       return '.sh';
+    default:
+      return await log(
+        'Platform ' + os_version + ' is not supported',
+        os_version,
+        'error'
+      );
+  }
+}
+
+/**
+ * Function to get script tool
+ *
+ * @param os_version
+ */
+export async function scriptTool(os_version: string): Promise<string> {
+  switch (os_version) {
+    case 'win32':
+      return 'pwsh';
+    case 'linux':
+    case 'darwin':
+      return 'bash';
     default:
       return await log(
         'Platform ' + os_version + ' is not supported',

@@ -953,46 +953,29 @@ class ExecState extends events.EventEmitter {
 
 /***/ }),
 
-/***/ 86:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
+/***/ 82:
+/***/ (function(__unusedmodule, exports) {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addMatchers = void 0;
-const path = __importStar(__webpack_require__(622));
-const utils = __importStar(__webpack_require__(163));
-const io = __importStar(__webpack_require__(1));
 /**
- * Cache json files for problem matchers
+ * Sanitizes an input into a string so it can be passed into issueCommand safely
+ * @param input input to sanitize into a string
  */
-async function addMatchers() {
-    const config_path = path.join(__dirname, '..', 'src', 'configs');
-    const runner_dir = await utils.getInput('RUNNER_TOOL_CACHE', false);
-    await io.cp(path.join(config_path, 'phpunit.json'), runner_dir);
-    await io.cp(path.join(config_path, 'php.json'), runner_dir);
+function toCommandValue(input) {
+    if (input === null || input === undefined) {
+        return '';
+    }
+    else if (typeof input === 'string' || input instanceof String) {
+        return input;
+    }
+    return JSON.stringify(input);
 }
-exports.addMatchers = addMatchers;
-
+exports.toCommandValue = toCommandValue;
+//# sourceMappingURL=utils.js.map
 
 /***/ }),
 
@@ -1000,6 +983,42 @@ exports.addMatchers = addMatchers;
 /***/ (function(module) {
 
 module.exports = require("os");
+
+/***/ }),
+
+/***/ 102:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+// For internal use, subject to change.
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+// We use any as a valid input type
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const fs = __importStar(__webpack_require__(747));
+const os = __importStar(__webpack_require__(87));
+const utils_1 = __webpack_require__(82);
+function issueCommand(command, message) {
+    const filePath = process.env[`GITHUB_${command}`];
+    if (!filePath) {
+        throw new Error(`Unable to find environment variable for file command ${command}`);
+    }
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`Missing file at path: ${filePath}`);
+    }
+    fs.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
+        encoding: 'utf8'
+    });
+}
+exports.issueCommand = issueCommand;
+//# sourceMappingURL=file-command.js.map
 
 /***/ }),
 
@@ -1035,10 +1054,25 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.customPackage = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.getInput = void 0;
+exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.getInput = exports.readEnv = void 0;
 const fs = __importStar(__webpack_require__(747));
 const path = __importStar(__webpack_require__(622));
 const core = __importStar(__webpack_require__(470));
+/**
+ * Function to read environment variable and return a string value.
+ *
+ * @param property
+ */
+async function readEnv(property) {
+    const value = process.env[property];
+    switch (value) {
+        case undefined:
+            return '';
+        default:
+            return value;
+    }
+}
+exports.readEnv = readEnv;
 /**
  * Function to get inputs from both with and env annotations.
  *
@@ -1046,16 +1080,39 @@ const core = __importStar(__webpack_require__(470));
  * @param mandatory
  */
 async function getInput(name, mandatory) {
-    const input = process.env[name];
-    switch (input) {
-        case '':
-        case undefined:
-            return core.getInput(name, { required: mandatory });
-        default:
+    const input = core.getInput(name);
+    const env_input = await readEnv(name);
+    switch (true) {
+        case input != '':
             return input;
+        case input == '' && env_input != '':
+            return env_input;
+        case input == '' && env_input == '' && mandatory:
+            throw new Error(`Input required and not supplied: ${name}`);
+        default:
+            return '';
     }
 }
 exports.getInput = getInput;
+/**
+ * Function to parse PHP version.
+ *
+ * @param version
+ */
+async function parseVersion(version) {
+    switch (version) {
+        case 'latest':
+            return '7.4';
+        default:
+            switch (true) {
+                case version.length > 1:
+                    return version.slice(0, 3);
+                default:
+                    return version + '.0';
+            }
+    }
+}
+exports.parseVersion = parseVersion;
 /**
  * Async foreach loop
  *
@@ -1308,6 +1365,23 @@ async function scriptExtension(os_version) {
 }
 exports.scriptExtension = scriptExtension;
 /**
+ * Function to get script tool
+ *
+ * @param os_version
+ */
+async function scriptTool(os_version) {
+    switch (os_version) {
+        case 'win32':
+            return 'pwsh';
+        case 'linux':
+        case 'darwin':
+            return 'bash';
+        default:
+            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+    }
+}
+exports.scriptTool = scriptTool;
+/**
  * Function to get script to add tools with custom support.
  *
  * @param pkg
@@ -1348,6 +1422,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const os = __importStar(__webpack_require__(87));
+const utils_1 = __webpack_require__(82);
 /**
  * Commands
  *
@@ -1401,28 +1476,14 @@ class Command {
         return cmdStr;
     }
 }
-/**
- * Sanitizes an input into a string so it can be passed into issueCommand safely
- * @param input input to sanitize into a string
- */
-function toCommandValue(input) {
-    if (input === null || input === undefined) {
-        return '';
-    }
-    else if (typeof input === 'string' || input instanceof String) {
-        return input;
-    }
-    return JSON.stringify(input);
-}
-exports.toCommandValue = toCommandValue;
 function escapeData(s) {
-    return toCommandValue(s)
+    return utils_1.toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A');
 }
 function escapeProperty(s) {
-    return toCommandValue(s)
+    return utils_1.toCommandValue(s)
         .replace(/%/g, '%25')
         .replace(/\r/g, '%0D')
         .replace(/\n/g, '%0A')
@@ -1456,6 +1517,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const command_1 = __webpack_require__(431);
+const file_command_1 = __webpack_require__(102);
+const utils_1 = __webpack_require__(82);
 const os = __importStar(__webpack_require__(87));
 const path = __importStar(__webpack_require__(622));
 /**
@@ -1482,9 +1545,17 @@ var ExitCode;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function exportVariable(name, val) {
-    const convertedVal = command_1.toCommandValue(val);
+    const convertedVal = utils_1.toCommandValue(val);
     process.env[name] = convertedVal;
-    command_1.issueCommand('set-env', { name }, convertedVal);
+    const filePath = process.env['GITHUB_ENV'] || '';
+    if (filePath) {
+        const delimiter = '_GitHubActionsFileCommandDelimeter_';
+        const commandValue = `${name}<<${delimiter}${os.EOL}${convertedVal}${os.EOL}${delimiter}`;
+        file_command_1.issueCommand('ENV', commandValue);
+    }
+    else {
+        command_1.issueCommand('set-env', { name }, convertedVal);
+    }
 }
 exports.exportVariable = exportVariable;
 /**
@@ -1500,7 +1571,13 @@ exports.setSecret = setSecret;
  * @param inputPath
  */
 function addPath(inputPath) {
-    command_1.issueCommand('add-path', {}, inputPath);
+    const filePath = process.env['GITHUB_PATH'] || '';
+    if (filePath) {
+        file_command_1.issueCommand('PATH', inputPath);
+    }
+    else {
+        command_1.issueCommand('add-path', {}, inputPath);
+    }
     process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
 }
 exports.addPath = addPath;
@@ -1837,14 +1914,14 @@ async function addPhive(version, os_version) {
     switch (version) {
         case 'latest':
             return ((await utils.getCommand(os_version, 'tool')) +
-                'https://phar.io/releases/phive.phar phive');
+                'https://phar.io/releases/phive.phar phive status');
         default:
             return ((await utils.getCommand(os_version, 'tool')) +
                 'https://github.com/phar-io/phive/releases/download/' +
                 version +
                 '/phive-' +
                 version +
-                '.phar phive');
+                '.phar phive status');
     }
 }
 exports.addPhive = addPhive;
@@ -1976,7 +2053,7 @@ async function getCleanedToolsList(tools_csv) {
         .map(function (extension) {
         return extension
             .trim()
-            .replace(/-agent|hirak\/|laravel\/|narrowspark\/automatic-|overtrue\/|robmorgan\/|symfony\//, '');
+            .replace(/-agent|behat\/|hirak\/|icanhazstring\/|laravel\/|narrowspark\/automatic-|overtrue\/|phpspec\/|robmorgan\/|symfony\//, '');
     })
         .filter(Boolean);
     return [...new Set(tools_list)];
@@ -1988,9 +2065,11 @@ exports.getCleanedToolsList = getCleanedToolsList;
  * @param tool
  * @param url
  * @param os_version
+ * @param ver_param
  */
-async function addArchive(tool, url, os_version) {
-    return (await utils.getCommand(os_version, 'tool')) + url + ' ' + tool;
+async function addArchive(tool, url, os_version, ver_param) {
+    return ((await utils.getCommand(os_version, 'tool')) +
+        (await utils.joins(url, tool, ver_param)));
 }
 exports.addArchive = addArchive;
 /**
@@ -2002,11 +2081,8 @@ exports.addArchive = addArchive;
 async function addDevTools(tool, os_version) {
     switch (os_version) {
         case 'linux':
-            return ('add_devtools' +
-                '\n' +
-                (await utils.addLog('$tick', tool, 'Added', 'linux')));
         case 'darwin':
-            return await utils.addLog('$tick', tool, 'Added', 'darwin');
+            return 'add_devtools ' + tool;
         case 'win32':
             return await utils.addLog('$cross', tool, tool + ' is not a windows tool', 'win32');
         default:
@@ -2051,24 +2127,28 @@ async function addTools(tools_csv, php_version, os_version) {
             case 'protoc':
                 script += await utils.customPackage(tool, 'tools', version, os_version);
                 break;
+            case 'behat':
+            case 'phpspec':
+                script += await addPackage(tool, release, tool + '/', os_version);
+                break;
             case 'blackfire-player':
                 url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"-V"');
                 break;
             case 'codeception':
                 url =
                     'https://codeception.com/' +
                         (await getCodeceptionUri(version, php_version));
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"-V"');
                 break;
             case 'composer':
                 url = await getComposerUrl(version);
-                script += await addArchive('composer', url, os_version);
+                script += await addArchive('composer', url, os_version, version);
                 break;
             case 'composer-normalize':
                 uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
                 url = github + 'ergebnis/composer-normalize/' + uri;
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"-V"');
                 break;
             case 'composer-prefetcher':
                 script += await addPackage(tool, release, 'narrowspark/automatic-', os_version);
@@ -2076,39 +2156,37 @@ async function addTools(tools_csv, php_version, os_version) {
             case 'composer-require-checker':
                 uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
                 url = github + 'maglnet/ComposerRequireChecker/' + uri;
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"-V"');
                 break;
             case 'composer-unused':
-                uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
-                url = github + 'composer-unused/composer-unused/' + uri;
-                script += await addArchive(tool, url, os_version);
+                script += await addPackage(tool, release, 'icanhazstring/', os_version);
                 break;
             case 'cs2pr':
                 uri = await getUri(tool, '', version, 'releases', '', 'download');
                 url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"-V"');
                 break;
             case 'deployer':
                 url = await getDeployerUrl(version);
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"-V"');
                 break;
             case 'flex':
                 script += await addPackage(tool, release, 'symfony/', os_version);
                 break;
             case 'infection':
                 url = github + 'infection/infection/' + uri;
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"-V"');
                 break;
             case 'pecl':
                 script += await utils.getCommand(os_version, 'pecl');
                 break;
             case 'phan':
                 url = github + 'phan/phan/' + uri;
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"-v"');
                 break;
             case 'phing':
                 url = 'https://www.phing.info/get/phing-' + version + '.phar';
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"-v"');
                 break;
             case 'phinx':
                 script += await addPackage(tool, release, 'robmorgan/', os_version);
@@ -2123,48 +2201,48 @@ async function addTools(tools_csv, php_version, os_version) {
             case 'php-cs-fixer':
                 uri = await getUri(tool, '.phar', version, 'releases', 'v', 'download');
                 url = github + 'FriendsOfPHP/PHP-CS-Fixer/' + uri;
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"-V"');
                 break;
             case 'phpcbf':
             case 'phpcs':
                 url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"--version"');
                 break;
             case 'phpcpd':
             case 'phpunit':
                 url = await getPharUrl('https://phar.phpunit.de', tool, '', version);
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"--version"');
                 break;
             case 'phplint':
                 script += await addPackage(tool, release, 'overtrue/', os_version);
                 break;
             case 'phpmd':
                 url = github + 'phpmd/phpmd/' + uri;
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"--version"');
                 break;
             case 'phpstan':
                 url = github + 'phpstan/phpstan/' + uri;
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"-V"');
                 break;
             case 'prestissimo':
                 script += await addPackage(tool, release, 'hirak/', os_version);
                 break;
             case 'psalm':
                 url = github + 'vimeo/psalm/' + uri;
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"-v"');
                 break;
             case 'symfony':
             case 'symfony-cli':
                 uri = await getSymfonyUri(version, os_version);
                 url = github + 'symfony/cli/' + uri;
-                script += await addArchive('symfony', url, os_version);
+                script += await addArchive('symfony', url, os_version, 'version');
                 break;
             case 'vapor-cli':
                 script += await addPackage(tool, release, 'laravel/', os_version);
                 break;
             case 'wp-cli':
                 url = github + (await getWpCliUrl(version));
-                script += await addArchive(tool, url, os_version);
+                script += await addArchive(tool, url, os_version, '"--version"');
                 break;
             default:
                 script += await utils.addLog('$cross', tool, 'Tool ' + tool + ' is not supported', os_version);
@@ -2453,7 +2531,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.run = exports.build = void 0;
+exports.run = exports.getScript = void 0;
 const exec_1 = __webpack_require__(986);
 const core = __importStar(__webpack_require__(470));
 const config = __importStar(__webpack_require__(641));
@@ -2461,7 +2539,6 @@ const coverage = __importStar(__webpack_require__(635));
 const extensions = __importStar(__webpack_require__(911));
 const tools = __importStar(__webpack_require__(534));
 const utils = __importStar(__webpack_require__(163));
-const matchers = __importStar(__webpack_require__(86));
 /**
  * Build the script
  *
@@ -2469,19 +2546,15 @@ const matchers = __importStar(__webpack_require__(86));
  * @param version
  * @param os_version
  */
-async function build(filename, version, os_version) {
+async function getScript(filename, version, os_version) {
     const name = 'setup-php';
-    const url = 'setup-php.com/support';
+    const url = 'https://setup-php.com/support';
     // taking inputs
-    const extension_csv = (await utils.getInput('extensions', false)) ||
-        (await utils.getInput('extension', false));
+    const extension_csv = await utils.getInput('extensions', false);
     const ini_values_csv = await utils.getInput('ini-values', false);
     const coverage_driver = await utils.getInput('coverage', false);
-    const pecl = await utils.getInput('pecl', false);
     let tools_csv = await utils.getInput('tools', false);
-    if (pecl == 'true' ||
-        /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv) ||
-        /.*-(\d+\.\d+\.\d+).*/.test(extension_csv)) {
+    if (/.*-(beta|alpha|devel|snapshot|\d+\.\d+\.\d+).*/.test(extension_csv)) {
         tools_csv = 'pecl, ' + tools_csv;
     }
     let script = await utils.readScript(filename);
@@ -2499,29 +2572,18 @@ async function build(filename, version, os_version) {
     script += '\n' + (await utils.addLog('$tick', name, url, os_version));
     return await utils.writeScript(filename, script);
 }
-exports.build = build;
+exports.getScript = getScript;
 /**
  * Run the script
  */
 async function run() {
     try {
-        let version = await utils.getInput('php-version', true);
-        version = version.length > 1 ? version.slice(0, 3) : version + '.0';
+        const version = await utils.parseVersion(await utils.getInput('php-version', true));
         const os_version = process.platform;
-        // check the os version and run the respective script
-        let script_path = '';
-        switch (os_version) {
-            case 'darwin':
-            case 'linux':
-                script_path = await build(os_version + '.sh', version, os_version);
-                await exec_1.exec('bash ' + script_path + ' ' + version + ' ' + __dirname);
-                break;
-            case 'win32':
-                script_path = await build('win32.ps1', version, os_version);
-                await exec_1.exec('pwsh ' + script_path + ' ' + version + ' ' + __dirname);
-                break;
-        }
-        await matchers.addMatchers();
+        const tool = await utils.scriptTool(os_version);
+        const script = os_version + (await utils.scriptExtension(os_version));
+        const location = await getScript(script, version, os_version);
+        await exec_1.exec(await utils.joins(tool, location, version, __dirname));
     }
     catch (error) {
         core.setFailed(error.message);

@@ -1,10 +1,11 @@
 import * as install from '../src/install';
+import * as utils from '../src/utils';
 
 /**
  * Mock install.ts
  */
 jest.mock('../src/install', () => ({
-  build: jest.fn().mockImplementation(
+  getScript: jest.fn().mockImplementation(
     async (
       filename: string,
       version: string,
@@ -39,24 +40,18 @@ jest.mock('../src/install', () => ({
   run: jest.fn().mockImplementation(
     async (): Promise<string> => {
       const os_version: string = process.env['RUNNER_OS'] || '';
-      let version: string = process.env['php-version'] || '';
-      version = version.length > 1 ? version.slice(0, 3) : version + '.0';
-      let script = '';
-      switch (os_version) {
-        case 'darwin':
-        case 'linux':
-          script = await install.build(os_version + '.sh', version, os_version);
-          script += 'bash script.sh ' + version + ' ' + __dirname;
-          break;
-        case 'win32':
-          script = await install.build(os_version + '.sh', version, os_version);
-          script += 'pwsh script.ps1 ' + version + ' ' + __dirname;
-          break;
-        default:
-          script += os_version + ' is not supported';
-      }
-
-      return script;
+      const version: string = await utils.parseVersion(
+        await utils.getInput('php-version', true)
+      );
+      const tool = await utils.scriptTool(os_version);
+      const filename = os_version + (await utils.scriptExtension(os_version));
+      return [
+        await install.getScript(filename, version, os_version),
+        tool,
+        filename,
+        version,
+        __dirname
+      ].join(' ');
     }
   )
 }));
@@ -93,13 +88,13 @@ describe('Install', () => {
 
     let script: string = '' + (await install.run());
     expect(script).toContain('initial script');
-    expect(script).toContain('pwsh script.ps1 7.0 ' + __dirname);
+    expect(script).toContain('pwsh win32.ps1 7.0 ' + __dirname);
 
     setEnv('7.3', 'win32', '', '', '', '');
 
     script = '' + (await install.run());
     expect(script).toContain('initial script');
-    expect(script).toContain('pwsh script.ps1 7.3 ' + __dirname);
+    expect(script).toContain('pwsh win32.ps1 7.3 ' + __dirname);
 
     setEnv('7.3', 'win32', 'a, b', 'a=b', 'x', '');
 
@@ -108,7 +103,7 @@ describe('Install', () => {
     expect(script).toContain('install extensions');
     expect(script).toContain('edit php.ini');
     expect(script).toContain('set coverage driver');
-    expect(script).toContain('pwsh script.ps1 7.3 ' + __dirname);
+    expect(script).toContain('pwsh win32.ps1 7.3 ' + __dirname);
   });
 
   it('Test install on linux', async () => {
@@ -116,7 +111,13 @@ describe('Install', () => {
 
     let script: string = '' + (await install.run());
     expect(script).toContain('initial script');
-    expect(script).toContain('bash script.sh 7.3 ');
+    expect(script).toContain('bash linux.sh 7.3 ');
+
+    setEnv('latest', 'linux', '', '', '', '');
+
+    script = '' + (await install.run());
+    expect(script).toContain('initial script');
+    expect(script).toContain('bash linux.sh 7.4 ');
 
     setEnv('7.3', 'linux', 'a, b', 'a=b', 'x', 'phpunit');
 
@@ -125,7 +126,7 @@ describe('Install', () => {
     expect(script).toContain('install extensions');
     expect(script).toContain('edit php.ini');
     expect(script).toContain('set coverage driver');
-    expect(script).toContain('bash script.sh 7.3');
+    expect(script).toContain('bash linux.sh 7.3');
     expect(script).toContain('add_tool');
   });
 
@@ -134,7 +135,7 @@ describe('Install', () => {
 
     let script: string = '' + (await install.run());
     expect(script).toContain('initial script');
-    expect(script).toContain('bash script.sh 7.3 ' + __dirname);
+    expect(script).toContain('bash darwin.sh 7.3 ' + __dirname);
 
     setEnv('7.3', 'darwin', 'a, b', 'a=b', 'x', '');
 
@@ -143,7 +144,7 @@ describe('Install', () => {
     expect(script).toContain('install extensions');
     expect(script).toContain('edit php.ini');
     expect(script).toContain('set coverage driver');
-    expect(script).toContain('bash script.sh 7.3 ' + __dirname);
+    expect(script).toContain('bash darwin.sh 7.3 ' + __dirname);
   });
 
   it('Test malformed version inputs', async () => {
@@ -151,18 +152,18 @@ describe('Install', () => {
 
     let script: string = '' + '' + (await install.run());
     expect(script).toContain('initial script');
-    expect(script).toContain('bash script.sh 7.4 ' + __dirname);
+    expect(script).toContain('bash darwin.sh 7.4 ' + __dirname);
 
     setEnv(8.0, 'darwin', '', '', '', '');
 
     script = '' + (await install.run());
     expect(script).toContain('initial script');
-    expect(script).toContain('bash script.sh 8.0 ' + __dirname);
+    expect(script).toContain('bash darwin.sh 8.0 ' + __dirname);
 
     setEnv(8, 'darwin', '', '', '', '');
 
     script = '' + (await install.run());
     expect(script).toContain('initial script');
-    expect(script).toContain('bash script.sh 8.0 ' + __dirname);
+    expect(script).toContain('bash darwin.sh 8.0 ' + __dirname);
   });
 });

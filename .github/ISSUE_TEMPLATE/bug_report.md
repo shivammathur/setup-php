@@ -11,7 +11,7 @@ assignees: 'shivammathur'
 <!-- Please describe the bug concisely. -->
 
 **Version**
-- [ ] I have checked releases and the bug exists in the latest patch version of `v1` or `v2`.
+- [ ] I have checked releases, and the bug exists in the latest patch version of `v1` or `v2`.
 - [ ] `v2`
 - [ ] `v1`
 

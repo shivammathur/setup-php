@@ -17,13 +17,26 @@ async function cleanup(path: string): Promise<void> {
 }
 
 describe('Utils tests', () => {
+  it('checking readEnv', async () => {
+    process.env['test'] = 'setup-php';
+    expect(await utils.readEnv('test')).toBe('setup-php');
+    expect(await utils.readEnv('undefined')).toBe('');
+  });
+
   it('checking getInput', async () => {
     process.env['test'] = 'setup-php';
-    process.env['undefined'] = '';
     expect(await utils.getInput('test', false)).toBe('setup-php');
-    expect(await utils.getInput('undefined', false)).toBe('');
     expect(await utils.getInput('setup-php', false)).toBe('setup-php');
     expect(await utils.getInput('DoesNotExist', false)).toBe('');
+    expect(async () => {
+      await utils.getInput('DoesNotExist', true);
+    }).rejects.toThrow('Input required and not supplied: DoesNotExist');
+  });
+
+  it('checking parseVersion', async () => {
+    expect(await utils.parseVersion('7')).toBe('7.0');
+    expect(await utils.parseVersion('7.4')).toBe('7.4');
+    expect(await utils.parseVersion('latest')).toBe('7.4');
   });
 
   it('checking asyncForEach', async () => {
@@ -192,6 +205,15 @@ describe('Utils tests', () => {
     expect(await utils.scriptExtension('darwin')).toBe('.sh');
     expect(await utils.scriptExtension('win32')).toBe('.ps1');
     expect(await utils.scriptExtension('openbsd')).toContain(
+      'Platform openbsd is not supported'
+    );
+  });
+
+  it('checking scriptTool', async () => {
+    expect(await utils.scriptTool('linux')).toBe('bash');
+    expect(await utils.scriptTool('darwin')).toBe('bash');
+    expect(await utils.scriptTool('win32')).toBe('pwsh');
+    expect(await utils.scriptTool('openbsd')).toContain(
       'Platform openbsd is not supported'
     );
   });

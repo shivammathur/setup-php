@@ -8,7 +8,7 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 
 * Fork the project.
 * Make your bug fix or feature addition.
-* Add tests for it. This is important so we don't break it in a future version unintentionally.
+* Add tests for it, so we don't break it in a future version unintentionally.
 * If editing the scripts, create a demo integration test.
 * Send a pull request to the develop branch with all the details.
 

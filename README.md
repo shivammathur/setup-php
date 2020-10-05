@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
-  <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://codecov.io/gh/shivammathur/setup-php/branch/master/graph/badge.svg"></a>
+  <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://img.shields.io/codecov/c/github/shivammathur/setup-php?logo=codecov"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg?logo=open%20source%20initiative&logoColor=white&labelColor=555555"></a>
   <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.0-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>  
 </p>
@@ -204,6 +204,7 @@ For example to setup `PHPUnit` on `PHP 7.2`.
 ```
 
 **Notes**
+- This is useful to set up tools which you only use in GitHub Actions, thus keeping your `composer.json` tidy.
 - If you have a tool in your `composer.json`, do not setup it globally using this action as the two instances of the tool might conflict.
 - Tools which cannot be setup gracefully leave an error message in the logs, the action is not interrupted.
 
@@ -275,6 +276,7 @@ Consider disabling the coverage using this PHP action for these reasons.
 
 - Specify the PHP version you want to setup.
 - Accepts a `string`. For example `'7.4'`.
+- Accepts `latest` to set up the latest stable PHP version.
 - See [PHP support](#tada-php-support) for supported PHP versions.
 
 #### `extensions` (optional)

@@ -267,6 +267,7 @@ setup_php() {
 tick="✓"
 cross="✗"
 version=$1
+dist=$2
 nodot_version=${1/./}
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
@@ -305,4 +306,5 @@ scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo mkdir -p "$ext_dir"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
 if [[ ! "$version" =~ $old_versions ]]; then configure_pecl >/dev/null 2>&1; fi
+sudo mv "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
 add_log "$tick" "PHP" "$status PHP $semver"

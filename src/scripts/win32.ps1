@@ -8,7 +8,7 @@ param (
   [ValidateNotNull()]
   [ValidateLength(1, [int]::MaxValue)]
   [string]
-  $dir
+  $dist
 )
 
 # Function to log start of a operation.
@@ -393,4 +393,5 @@ if($version -lt "5.5") {
   Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 }
 Update-PhpCAInfo -Path $php_dir -Source $cert_source
+Move-Item -path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)"

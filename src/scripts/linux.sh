@@ -42,7 +42,7 @@ cleanup_lists() {
     sudo mkdir /etc/apt/sources.list.d
     sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
     sudo mv /etc/apt/sources.list.d.save/*dotdeb*.list /etc/apt/sources.list.d/ 2>/dev/null || true
-    trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/" exit
+    trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/ 2>/dev/null" exit
   fi
 }
 
@@ -89,7 +89,7 @@ configure_pecl() {
   fi
 }
 
-# Fuction to get the PECL version of an extension.
+# Function to get the PECL version of an extension.
 get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
@@ -153,7 +153,7 @@ enable_extension() {
   fi
 }
 
-# Funcion to add PDO extension.
+# Function to add PDO extension.
 add_pdo_extension() {
   pdo_ext="pdo_$1"
   if check_extension "$pdo_ext"; then
@@ -322,7 +322,7 @@ add_composertool() {
   prefix=$3
   (
     composer global require "$prefix$release" >/dev/null 2>&1 &&
-    json=$(grep "$prefix$tool" /home/$USER/.composer/composer.json) &&
+    json=$(grep "$prefix$tool" /home/"$USER"/.composer/composer.json) &&
     tool_version=$(get_tool_version 'echo' "$json") &&
     add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"

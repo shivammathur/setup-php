@@ -67,7 +67,7 @@ check_extension() {
   fi
 }
 
-# Fuction to get the PECL version.
+# Function to get the PECL version.
 get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
@@ -224,7 +224,7 @@ add_composertool() {
   prefix=$3
   (
     composer global require "$prefix$release" >/dev/null 2>&1 &&
-    json=$(grep "$prefix$tool" /Users/$USER/.composer/composer.json) &&
+    json=$(grep "$prefix$tool" /Users/"$USER"/.composer/composer.json) &&
     tool_version=$(get_tool_version 'echo' "$json") &&
     add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"

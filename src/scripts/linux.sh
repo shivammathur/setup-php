@@ -22,7 +22,7 @@ cleanup_lists() {
     sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save || true
     sudo mkdir /etc/apt/sources.list.d
     sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/ || true
-    trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/" exit
+    trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/ 2>/dev/null" exit
   fi
 }
 
@@ -46,7 +46,7 @@ configure_pecl() {
   fi
 }
 
-# Fuction to get the PECL version
+# Function to get the PECL version
 get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"

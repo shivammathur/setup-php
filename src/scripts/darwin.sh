@@ -40,7 +40,7 @@ pecl_install() {
   yes '' | sudo pecl install -f "$extension" >/dev/null 2>&1
 }
 
-# Fuction to get the PECL version
+# Function to get the PECL version
 get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"

@@ -391,7 +391,7 @@ if($version -lt "5.5") {
 }
 if($version -eq "master") {
   "xdebug", "pcov" | ForEach-Object { Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/php-extensions-windows/releases/latest/download/php_$env:PHPTS`_$arch`_$_.dll" -OutFile $ext_dir"\php`_$_.dll" }
-  Rename-Item $ext_dir\php_oci8_12c.dll -NewName $ext_dir\php_oci8.dll
+  Move-Item -Path $ext_dir\php_oci8_12c.dll -Destination $ext_dir\php_oci8.dll -Force
   Set-PhpIniKey -Key 'opcache.jit_buffer_size' -Value '256M' -Path $php_dir
   Set-PhpIniKey -Key 'opcache.jit' -Value '1235' -Path $php_dir
 }

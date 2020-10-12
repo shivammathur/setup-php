@@ -3,7 +3,11 @@ add_phalcon_helper() {
   status='Installed and enabled'
   if [ "$os_name" = "Linux" ]; then
     update_lists
-    ${apt_install:?} "php${version:?}-$extension"
+    if [ "$extension" = "phalcon4" ]; then
+      ${apt_install:?} "php${version:?}-psr" "php${version:?}-$extension"
+    else
+      ${apt_install:?} "php${version:?}-$extension"
+    fi
   else
     phalcon_ini_file=${ini_file:?}
     sed -i '' '/extension.*psr/d' "${ini_file:?}"

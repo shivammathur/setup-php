@@ -340,9 +340,9 @@ add_devtools() {
   add_log "$tick" "$tool" "Added $tool $semver"
 }
 
-# Function to setup the nightly build from master branch.
-setup_master() {
-  curl "${curl_opts[@]}" "$github"/php-builder/releases/latest/download/install.sh | bash -s "$runner"
+# Function to setup the nightly build from shivammathur/php-builder
+setup_nightly() {
+  curl "${curl_opts[@]}" "$github"/php-builder/releases/latest/download/install.sh | bash -s "$runner" "$version"
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
@@ -374,7 +374,7 @@ switch_version() {
 
 # Function to get PHP version in semver format.
 php_semver() {
-  if [ ! "$version" = "$master_version" ]; then
+  if ! [[ "$version" =~ $nightly_versions ]]; then
     php"$version" -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-'
   else
     php -v | head -n 1 | cut -f 2 -d ' '
@@ -407,8 +407,8 @@ update_php() {
 
 # Function to install PHP.
 add_php() {
-  if [ "$version" = "$master_version" ]; then
-    setup_master
+  if [[ "$version" =~ $nightly_versions ]]; then
+    setup_nightly
   elif [[ "$version" =~ $old_versions ]]; then
     setup_old_versions
   else
@@ -423,7 +423,7 @@ cross="✗"
 pecl_config="false"
 version=$1
 dist=$2
-master_version="8.0"
+nightly_versions="8.[0-1]"
 old_versions="5.[3-5]"
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 github="https://github.com/shivammathur"
@@ -464,7 +464,7 @@ else
     update_php >/dev/null 2>&1
   else
     status="Found"
-    if [ "$version" = "$master_version" ]; then
+    if [[ "$version" =~ $nightly_versions ]]; then
       switch_version >/dev/null 2>&1
     fi
   fi

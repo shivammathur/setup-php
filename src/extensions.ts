@@ -295,8 +295,8 @@ export async function addExtensionLinux(
         extension = extension.replace(/pdo[_-]|3/, '');
         add_script += '\nadd_pdo_extension ' + extension;
         return;
-      // match ast and uopz
-      case /^(ast|uopz)$/.test(extension):
+      // match uopz
+      case /^(uopz)$/.test(extension):
         command = command_prefix + '-' + extension + pipe;
         break;
       // match sqlite

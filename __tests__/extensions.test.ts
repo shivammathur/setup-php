@@ -70,7 +70,7 @@ describe('Extension tests', () => {
       'sudo $debconf_fix apt-get install -y php7.4-sqlite3'
     );
     expect(linux).toContain('remove_extension intl');
-    expect(linux).toContain('sudo $debconf_fix apt-get install -y php-ast');
+    expect(linux).toContain('sudo $debconf_fix apt-get install -y php7.4-ast');
     expect(linux).toContain('sudo $debconf_fix apt-get install -y php-uopz');
     expect(linux).toContain('add_unstable_extension ast beta extension');
     expect(linux).toContain('add_pdo_extension mysql');

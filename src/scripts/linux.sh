@@ -427,8 +427,8 @@ master_version="8.0"
 old_versions="5.[3-5]"
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 github="https://github.com/shivammathur"
-apt_install="sudo $debconf_fix apt-fast install -y"
-apt_remove="sudo $debconf_fix apt-fast remove -y"
+apt_install="sudo $debconf_fix apt-get install -y"
+apt_remove="sudo $debconf_fix apt-get remove -y"
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)

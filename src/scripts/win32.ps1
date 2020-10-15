@@ -59,9 +59,8 @@ Function Add-Printf {
 Function Install-PhpManager() {
   $module_path = "$php_dir\PhpManager\PhpManager.psm1"
   if(-not (Test-Path $module_path -PathType Leaf)) {
-    $release = Invoke-RestMethod https://api.github.com/repos/mlocati/powershell-phpmanager/releases/latest
     $zip_file = "$php_dir\PhpManager.zip"
-    Invoke-WebRequest -UseBasicParsing -Uri $release.assets[0].browser_download_url -OutFile $zip_file
+    Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip' -OutFile $zip_file
     Expand-Archive -Path $zip_file -DestinationPath $php_dir -Force
   }
   Import-Module $module_path

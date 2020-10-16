@@ -349,12 +349,12 @@ describe('Tools tests', () => {
 
     script = await tools.addDevTools('phpize', 'win32');
     expect(script).toContain(
-      'Add-Log "$cross" "phpize" "phpize is not a windows tool"'
+      'Add-Log "$tick" "phpize" "phpize is not a windows tool"'
     );
 
     script = await tools.addDevTools('php-config', 'win32');
     expect(script).toContain(
-      'Add-Log "$cross" "php-config" "php-config is not a windows tool"'
+      'Add-Log "$tick" "php-config" "php-config is not a windows tool"'
     );
 
     script = await tools.addDevTools('tool', 'openbsd');

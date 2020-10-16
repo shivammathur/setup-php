@@ -60,7 +60,10 @@ export async function run(): Promise<void> {
     const tool = await utils.scriptTool(os_version);
     const script = os_version + (await utils.scriptExtension(os_version));
     const location = await getScript(script, version, os_version);
-    await exec(await utils.joins(tool, location, version, __dirname));
+    const fail_fast = await utils.readEnv('fail-fast');
+    await exec(
+      await utils.joins(tool, location, version, __dirname, fail_fast)
+    );
   } catch (error) {
     core.setFailed(error.message);
   }

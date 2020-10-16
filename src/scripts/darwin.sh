@@ -13,6 +13,7 @@ add_log() {
     printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
   else
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
+    [ "$fail_fast" = "true" ] && exit 1;
   fi
 }
 
@@ -268,6 +269,7 @@ tick="✓"
 cross="✗"
 version=$1
 dist=$2
+fail_fast=$3
 nodot_version=${1/./}
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"

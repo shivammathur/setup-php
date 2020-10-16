@@ -378,7 +378,7 @@ export async function addDevTools(
       return 'add_devtools ' + tool;
     case 'win32':
       return await utils.addLog(
-        '$cross',
+        '$tick',
         tool,
         tool + ' is not a windows tool',
         'win32'

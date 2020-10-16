@@ -8,7 +8,10 @@ param (
   [ValidateNotNull()]
   [ValidateLength(1, [int]::MaxValue)]
   [string]
-  $dist
+  $dist,
+  [Parameter(Position = 2, Mandatory = $false)]
+  [string]
+  $fail_fast = 'false'
 )
 
 # Function to log start of a operation.
@@ -18,8 +21,14 @@ Function Step-Log($message) {
 
 # Function to log result of a operation.
 Function Add-Log($mark, $subject, $message) {
-  $code = if ($mark -eq $cross) { "31" } else { "32" }
-  printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $code $mark $subject $message
+  if ($mark -eq $tick) {
+    printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $mark $subject $message
+  } else {
+    printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $mark $subject $message
+    if($fail_fast -eq 'true') {
+      exit 1;
+    }
+  }
 }
 
 # Function to add a line to a powershell profile safely.

@@ -2084,7 +2084,7 @@ async function addDevTools(tool, os_version) {
         case 'darwin':
             return 'add_devtools ' + tool;
         case 'win32':
-            return await utils.addLog('$cross', tool, tool + ' is not a windows tool', 'win32');
+            return await utils.addLog('$tick', tool, tool + ' is not a windows tool', 'win32');
         default:
             return await utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
     }
@@ -2583,7 +2583,8 @@ async function run() {
         const tool = await utils.scriptTool(os_version);
         const script = os_version + (await utils.scriptExtension(os_version));
         const location = await getScript(script, version, os_version);
-        await exec_1.exec(await utils.joins(tool, location, version, __dirname));
+        const fail_fast = await utils.readEnv('fail-fast');
+        await exec_1.exec(await utils.joins(tool, location, version, __dirname, fail_fast));
     }
     catch (error) {
         core.setFailed(error.message);

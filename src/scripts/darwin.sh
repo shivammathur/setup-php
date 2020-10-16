@@ -225,5 +225,5 @@ scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo mkdir -p "$ext_dir"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
 configure_pecl
-sudo mv "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
+sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
 add_log "$tick" "PHP" "$status PHP $semver"

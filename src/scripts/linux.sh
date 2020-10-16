@@ -70,7 +70,6 @@ update_lists() {
 
 # Function to setup environment for self-hosted runners.
 self_hosted_setup() {
-  echo "Set disable_coredump false" | sudo tee -a /etc/sudo.conf
   if ! command -v apt-fast >/dev/null; then
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
   fi

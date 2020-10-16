@@ -53,6 +53,18 @@ describe('Config tests', () => {
     expect(linux).toContain('echo "xdebug.mode=coverage"');
   });
 
+  it('checking addCoverage with Xdebug3 on linux', async () => {
+    const linux: string = await coverage.addCoverage('xdebug3', '8.1', 'linux');
+    expect(linux).toContain('add_extension xdebug');
+    expect(linux).toContain('echo "xdebug.mode=coverage"');
+  });
+
+  it('checking addCoverage with Xdebug on linux', async () => {
+    const linux: string = await coverage.addCoverage('xdebug', '8.1', 'linux');
+    expect(linux).toContain('add_extension xdebug');
+    expect(linux).toContain('echo "xdebug.mode=coverage"');
+  });
+
   it('checking addCoverage with Xdebug on darwin', async () => {
     const darwin: string = await coverage.addCoverage(
       'xdebug',

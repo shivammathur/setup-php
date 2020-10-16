@@ -5,12 +5,10 @@ import * as utils from './utils';
  *
  * @param extension_csv
  * @param version
- * @param pipe
  */
 export async function addExtensionDarwin(
   extension_csv: string,
-  version: string,
-  pipe: string
+  version: string
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let add_script = '\n';
@@ -27,7 +25,7 @@ export async function addExtensionDarwin(
         remove_script += '\nremove_extension ' + ext_name.slice(1);
         return;
       // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
-      // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+      // match 5.3blackfire-(semver)...5.6blackfire-(semver), 7.0blackfire-(semver)...7.4blackfire-(semver)
       // match pdo_oci and oci8
       // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
@@ -66,9 +64,9 @@ export async function addExtensionDarwin(
       case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
         add_script += await utils.getUnsupportedLog('pcov', version, 'darwin');
         return;
-      // match 5.6xdebug to 8.0xdebug, 5.6swoole to 8.0swoole
+      // match 5.6xdebug to 8.9xdebug, 5.6swoole to 7.4swoole
       // match 5.6grpc to 7.4grpc, 5.6protobuf to 7.4protobuf
-      // match 7.1pcov to 8.0pcov
+      // match 7.1pcov to 8.9pcov
       case /(5\.6|7\.[0-4]|8\.[0-9])xdebug/.test(version_extension):
       case /(5\.6|7\.[0-4])(grpc|protobuf|swoole)/.test(version_extension):
       case /(7\.[1-4]|8\.[0-9])pcov/.test(version_extension):
@@ -127,7 +125,7 @@ export async function addExtensionWindows(
         remove_script += '\nRemove-Extension ' + ext_name.slice(1);
         break;
       // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
-      // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+      // match 5.3blackfire-(semver)...5.6blackfire-(semver), 7.0blackfire-(semver)...7.4blackfire-(semver)
       // match pdo_oci and oci8
       // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
@@ -186,9 +184,9 @@ export async function addExtensionWindows(
         add_script +=
           '\nAdd-Extension mysql\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
         break;
-      // match 7.0mysql..8.0mysql
-      // match 7.0mysqli..8.0mysqli
-      // match 7.0mysqlnd..8.0mysqlnd
+      // match 7.0mysql..8.9mysql
+      // match 7.0mysqli..8.9mysqli
+      // match 7.0mysqlnd..8.9mysqlnd
       case /[7-8]\.\d(mysql|mysqli|mysqlnd)$/.test(version_extension):
         add_script += '\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
         break;
@@ -232,7 +230,7 @@ export async function addExtensionLinux(
         remove_script += '\nremove_extension ' + ext_name.slice(1);
         return;
       // match 5.3blackfire...5.6blackfire, 7.0blackfire...7.4blackfire
-      // match 5.3blackfire-1.31.0...5.6blackfire-1.31.0, 7.0blackfire-1.31.0...7.4blackfire-1.31.0
+      // match 5.3blackfire-(semver)...5.6blackfire-(semver), 7.0blackfire-(semver)...7.4blackfire-(semver)
       // match 5.3pdo_cubrid...7.2php_cubrid, 5.3cubrid...7.4cubrid
       // match pdo_oci and oci8
       // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
@@ -285,7 +283,7 @@ export async function addExtensionLinux(
         add_script +=
           '\nadd_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension';
         return;
-      // match 8.0xdebug3
+      // match 8.0xdebug3...8.9xdebug3
       case /^8\.[0-9]xdebug3$/.test(version_extension):
         extension = 'xdebug';
         command = command_prefix + version + '-' + extension + pipe;
@@ -348,7 +346,7 @@ export async function addExtension(
     case 'win32':
       return script + (await addExtensionWindows(extension_csv, version));
     case 'darwin':
-      return script + (await addExtensionDarwin(extension_csv, version, pipe));
+      return script + (await addExtensionDarwin(extension_csv, version));
     case 'linux':
       return script + (await addExtensionLinux(extension_csv, version, pipe));
     default:

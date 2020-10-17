@@ -5,10 +5,12 @@ import * as utils from './utils';
  *
  * @param extension_csv
  * @param version
+ * @param pipe
  */
 export async function addExtensionDarwin(
   extension_csv: string,
-  version: string
+  version: string,
+  pipe: string
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let add_script = '\n';
@@ -65,10 +67,12 @@ export async function addExtensionDarwin(
         add_script += await utils.getUnsupportedLog('pcov', version, 'darwin');
         return;
       // match 5.6xdebug to 8.9xdebug, 5.6igbinary to 8.9igbinary
-      // match 5.6grpc to 7.4grpc, 5.6protobuf to 7.4protobuf, 5.6swoole to 7.4swoole
+      // match 5.6grpc to 7.4grpc, 5.6imagick to 7.4imagick, 5.6protobuf to 7.4protobuf, 5.6swoole to 7.4swoole
       // match 7.1pcov to 8.9pcov
       case /(5\.6|7\.[0-4]|8\.[0-9])(xdebug|igbinary)/.test(version_extension):
-      case /(5\.6|7\.[0-4])(grpc|protobuf|swoole)/.test(version_extension):
+      case /(5\.6|7\.[0-4])(grpc|imagick|protobuf|swoole)/.test(
+        version_extension
+      ):
       case /(7\.[1-4]|8\.[0-9])pcov/.test(version_extension):
         command = 'add_brew_extension ' + ext_name;
         break;
@@ -76,8 +80,8 @@ export async function addExtensionDarwin(
       case /5\.6redis/.test(version_extension):
         command = command_prefix + 'redis-2.2.8';
         break;
-      // match imagick
-      case /^imagick$/.test(extension):
+      // match 5.4imagick and 5.5imagick
+      case /^5\.[4-5]imagick$/.test(version_extension):
         command = await utils.joins(
           'brew install pkg-config imagemagick' + pipe,
           '&& ' + command_prefix + 'imagick' + pipe
@@ -346,7 +350,7 @@ export async function addExtension(
     case 'win32':
       return script + (await addExtensionWindows(extension_csv, version));
     case 'darwin':
-      return script + (await addExtensionDarwin(extension_csv, version));
+      return script + (await addExtensionDarwin(extension_csv, version, pipe));
     case 'linux':
       return script + (await addExtensionLinux(extension_csv, version, pipe));
     default:

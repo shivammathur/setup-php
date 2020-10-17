@@ -129,7 +129,7 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'Xdebug, pcov, grpc, igbinary, protobuf, swoole, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
+      'Xdebug, pcov, grpc, igbinary, imagick, protobuf, swoole, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
       '7.2',
       'darwin'
     );
@@ -137,6 +137,7 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension pcov');
     expect(darwin).toContain('add_brew_extension grpc');
     expect(darwin).toContain('add_brew_extension igbinary');
+    expect(darwin).toContain('add_brew_extension imagick');
     expect(darwin).toContain('add_brew_extension protobuf');
     expect(darwin).toContain('add_brew_extension swoole');
     expect(darwin).toContain('pecl_install sqlite3');
@@ -180,11 +181,7 @@ describe('Extension tests', () => {
     darwin = await extensions.addExtension('redis', '7.2', 'darwin');
     expect(darwin).toContain('pecl_install redis');
 
-    darwin = await extensions.addExtension('imagick', '5.6', 'darwin');
-    expect(darwin).toContain('brew install pkg-config imagemagick');
-    expect(darwin).toContain('pecl_install imagick');
-
-    darwin = await extensions.addExtension('imagick', '7.4', 'darwin');
+    darwin = await extensions.addExtension('imagick', '5.5', 'darwin');
     expect(darwin).toContain('brew install pkg-config imagemagick');
     expect(darwin).toContain('pecl_install imagick');
 

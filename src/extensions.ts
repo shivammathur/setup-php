@@ -64,10 +64,10 @@ export async function addExtensionDarwin(
       case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
         add_script += await utils.getUnsupportedLog('pcov', version, 'darwin');
         return;
-      // match 5.6xdebug to 8.9xdebug, 5.6swoole to 7.4swoole
-      // match 5.6grpc to 7.4grpc, 5.6protobuf to 7.4protobuf
+      // match 5.6xdebug to 8.9xdebug, 5.6igbinary to 8.9igbinary
+      // match 5.6grpc to 7.4grpc, 5.6protobuf to 7.4protobuf, 5.6swoole to 7.4swoole
       // match 7.1pcov to 8.9pcov
-      case /(5\.6|7\.[0-4]|8\.[0-9])xdebug/.test(version_extension):
+      case /(5\.6|7\.[0-4]|8\.[0-9])(xdebug|igbinary)/.test(version_extension):
       case /(5\.6|7\.[0-4])(grpc|protobuf|swoole)/.test(version_extension):
       case /(7\.[1-4]|8\.[0-9])pcov/.test(version_extension):
         command = 'add_brew_extension ' + ext_name;

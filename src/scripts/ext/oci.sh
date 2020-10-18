@@ -9,10 +9,11 @@ add_license_log() {
 
 # Function to get the tag for a php version.
 get_tag() {
-  master_version='8.0'
   tag='master'
-  if [ ! "${version:?}" = "$master_version" ]; then
+  if ! [[ ${version:?} =~ $nightly_versions ]]; then
     tag="php-$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')"
+  elif [ "${version:?}" = '8.0' ]; then
+    tag="PHP-8.0"
   fi
   echo "$tag"
 }
@@ -72,18 +73,23 @@ restore_phpize() {
 
 # Function to patch pdo_oci.
 patch_pdo_oci_config() {
-  curl -O "${curl_opts[@]}" https://raw.githubusercontent.com/php/php-src/master/ext/pdo_oci/config.m4
-  sudo sed -i '' "/PHP_CHECK_PDO_INCLUDES/d" config.m4 || sudo sed -i "/PHP_CHECK_PDO_INCLUDES/d" config.m4
+  curl -O "${curl_opts[@]}" https://raw.githubusercontent.com/php/php-src/PHP-8.0/ext/pdo_oci/config.m4
+  if [[ ${version:?} =~ 5.[3-6] ]]; then
+    sudo sed -i '' "/PHP_CHECK_PDO_INCLUDES/d" config.m4 2>/dev/null || sudo sed -i "/PHP_CHECK_PDO_INCLUDES/d" config.m4
+  fi
 }
 
 # Function to install the dependencies.
 add_dependencies() {
   if [ "$os" = 'Linux' ]; then
     if [ "${runner:?}" = "self-hosted" ]; then
-      ${apt_install:?} autoconf automake libaio-dev gcc g++ php"$version"-dev
+      if ! [[ ${version:?} =~ $nightly_versions ]]; then
+        ${apt_install:?} --no-upgrade --no-install-recommends autoconf automake libaio-dev gcc g++ php"$version"-dev
+      else
+        ${apt_install:?} --no-upgrade --no-install-recommends autoconf automake libaio-dev gcc g++
+      fi
     else
-      update_lists
-      ${apt_install:?} php"$version"-dev
+      ! [[ ${version:?} =~ $nightly_versions ]] && update_lists && ${apt_install:?} --no-upgrade --no-install-recommends php"$version"-dev
     fi
     sudo update-alternatives --set php-config /usr/bin/php-config"$version"
     sudo update-alternatives --set phpize /usr/bin/phpize"$version"
@@ -117,6 +123,7 @@ add_oci() {
   oracle_home='/opt/oracle'
   oracle_client=$oracle_home/instantclient
   os=$(uname -s)
+  nightly_versions='8.[0-1]'
   add_client >/dev/null 2>&1
   add_dependencies >/dev/null 2>&1
   add_oci_helper >/dev/null 2>&1

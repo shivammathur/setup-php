@@ -18,7 +18,7 @@
   <a href="https://setup-php.statuspage.io/" title="setup-php status"><img alt="setup-php status" src="https://img.shields.io/badge/status-subscribe-28A745?logo=statuspage&logoColor=28A745&labelColor=555555"></a>  
 </p>
 
-Setup PHP with required extensions, php.ini configuration, code-coverage support and various tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross platform interface to setup the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
+Setup PHP with required extensions, php.ini configuration, code-coverage support and various tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross platform interface to set up the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
 
 ## Contents
 
@@ -34,6 +34,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Disable Coverage](#disable-coverage)
 - [Usage](#memo-usage)
   - [Inputs](#inputs)
+  - [Flags](#flags)
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
   - [Nightly Build Setup](#nightly-build-setup)
@@ -69,12 +70,14 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |`7.3`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
 |`7.4`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
 |`8.0`|`Nightly`|`In development`|`GitHub-hosted`, `self-hosted`|
+|`8.1`|`Nightly`|`In development`|`GitHub-hosted`, `self-hosted`|
 
-**Note:** Specifying `8.0` in `php-version` input installs a nightly build of `PHP 8.0.0-dev` with `PHP JIT`, `Union Types v2` and other [new features](https://wiki.php.net/rfc#php_80 "New features implemented in PHP 8"). See [nightly build setup](#nightly-build-setup) for more information.
+**Note:** Specifying `8.0` and `8.1` in `php-version` input installs a nightly build of `PHP 8.0.0-dev` and `PHP 8.1.0-dev` respectively. See [nightly build setup](#nightly-build-setup) for more information.
+
 
 ## :cloud: OS/Platform Support
 
-Both `GitHub-hosted` runners and `self-hosted` runners are supported on the following operating systems.
+The action supports both `GitHub-hosted` runners and `self-hosted` runners on the following operating systems.
 
 ### GitHub-Hosted Runners
 
@@ -85,6 +88,7 @@ Both `GitHub-hosted` runners and `self-hosted` runners are supported on the foll
 |Ubuntu 20.04|`ubuntu-20.04`|`PHP 7.4`|
 |Windows Server 2019|`windows-latest` or `windows-2019`|`PHP 7.4`|
 |macOS Catalina 10.15|`macos-latest` or `macos-10.15`|`PHP 7.4`|
+|macOS Big Sur 11.0|`macos-11.0`|`PHP 7.4`|
 
 ### Self-Hosted Runners
 
@@ -96,6 +100,7 @@ Both `GitHub-hosted` runners and `self-hosted` runners are supported on the foll
 |Windows 7 and newer|`self-hosted` or `Windows`|
 |Windows Server 2012 R2 and newer|`self-hosted` or `Windows`|
 |macOS Catalina 10.15|`self-hosted` or `macOS`|
+|macOS Big Sur 11.0|`self-hosted` or `macOS`|
 
 - Refer to the [self-hosted setup](#self-hosted-setup) to use the action on self-hosted runners.
 
@@ -160,9 +165,19 @@ Both `GitHub-hosted` runners and `self-hosted` runners are supported on the foll
     extensions: intl-67.1
 ```
 
-- Extensions which cannot be added or removed gracefully leave an error message in the logs, the action is not interrupted.
-
 - These extensions have custom support - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`, and `blackfire`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
+
+- By default, extensions which cannot be added or removed gracefully leave an error message in the logs, the action is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`. 
+
+```yaml
+- name: Setup PHP with fail-fast
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+    extensions: oci8
+  env:
+    fail-fast: true
+```
 
 ## :wrench: Tools Support
 
@@ -178,8 +193,7 @@ These tools can be setup globally using the `tools` input.
     tools: php-cs-fixer, phpunit
 ```
 
-To setup a particular version of a tool, specify it in the form `tool:version`.  
-Latest stable version of `composer` is setup by default. You can setup the required version by specifying `v1`, `v2`, `snapshot` or `preview` as version.
+- To set up a particular version of a tool, specify it in the form `tool:version`. The latest stable version of `composer` is set up by default. You can set up the required version by specifying `v1`, `v2`, `snapshot` or `preview` as version.
 
 ```yaml
 - name: Setup PHP with composer v2
@@ -189,11 +203,9 @@ Latest stable version of `composer` is setup by default. You can setup the requi
     tools: composer:v2
 ```
 
-Latest versions of both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified in tools input. Please refer to the [official documentation](https://blackfire.io/docs/integrations/ci/github-actions "Blackfire.io documentation for GitHub Actions") for using `blackfire` with GitHub Actions.
+- The latest versions of both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified in tools input. Please refer to the [official documentation](https://blackfire.io/docs/integrations/ci/github-actions "Blackfire.io documentation for GitHub Actions") for using `blackfire` with GitHub Actions.
 
-Version for other tools should be in `semver` format and a valid release of the tool.  
-This is useful for installing tools for older versions of PHP.  
-For example to setup `PHPUnit` on `PHP 7.2`.
+- Version for other tools should be in `semver` format and a valid release of the tool. This is useful for installing tools for older versions of PHP. For example to set up `PHPUnit` on `PHP 7.2`.
 
 ```yaml
 - name: Setup PHP with tools
@@ -203,10 +215,22 @@ For example to setup `PHPUnit` on `PHP 7.2`.
     tools: phpunit:8.5.8
 ```
 
+- By default, tools which cannot be set up gracefully leave an error message in the logs, the action is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.
+
+```yaml
+- name: Setup PHP with fail-fast
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+    tools: deployer
+  env:
+    fail-fast: true
+```
+
 **Notes**
-- This is useful to set up tools which you only use in GitHub Actions, thus keeping your `composer.json` tidy.
-- If you have a tool in your `composer.json`, do not setup it globally using this action as the two instances of the tool might conflict.
-- Tools which cannot be setup gracefully leave an error message in the logs, the action is not interrupted.
+- Input `tools` is useful to set up tools which you only use in GitHub Actions, thus keeping your `composer.json` tidy.
+- If you do not want to use all your dev-dependencies in GitHub Actions workflow, you can run composer with `--no-dev` and install required tools using `tools` input to speed up your workflow.
+- If you have a tool in your `composer.json`, do not setup it with `tools` input as the two instances of the tool might conflict.
 
 ## :signal_strength: Coverage Support
 
@@ -272,9 +296,11 @@ Consider disabling the coverage using this PHP action for these reasons.
 
 ### Inputs
 
+> Specify using `with` keyword
+
 #### `php-version` (required)
 
-- Specify the PHP version you want to setup.
+- Specify the PHP version you want to set up.
 - Accepts a `string`. For example `'7.4'`.
 - Accepts `latest` to set up the latest stable PHP version.
 - See [PHP support](#tada-php-support) for supported PHP versions.
@@ -293,15 +319,40 @@ Consider disabling the coverage using this PHP action for these reasons.
 
 #### `coverage` (optional)
 
-- Specify the code coverage driver you want to setup.
+- Specify the code coverage driver you want to set up.
 - Accepts `xdebug`, `pcov` or `none`.
 - See [coverage support](#signal_strength-coverage-support) for more info.
 
 #### `tools` (optional)
 
-- Specify the tools you want to setup.
-- Accepts a `string` in csv-format. For example `phpunit, phpcs`
+- Specify the tools you want to set up.
+- Accepts a `string` in csv-format. For example: `phpunit, phpcs`
 - See [tools Support](#wrench-tools-support) for tools supported.
+
+### Flags
+
+> Specify using `env` keyword
+
+#### `fail-fast` (optional)
+
+- Specify to mark the workflow as failed if an extension or tool fails to set up.
+- This changes the default mode from graceful warnings to fail-fast.
+- By default, it is set to `false`.
+- Accepts `true` and `false`.
+
+#### `phpts` (optional)
+
+- Specify to set up thread-safe version of PHP on windows.
+- Accepts `ts` and `nts`.
+- By default, it is set to `nts`.
+- See [thread safe setup](#thread-safe-setup) for more info.
+
+#### `update` (optional)
+
+- Specify to update PHP on the runner to the latest patch version.
+- Accepts `true` and `false`.
+- By default, it is set to `false`.
+- See [force update](#force-update) for more info.
 
 See below for more info.
 
@@ -353,13 +404,13 @@ jobs:
 
 ### Nightly Build Setup
 
-> Setup a nightly build of `PHP 8.0.0-dev` from the [master branch](https://github.com/php/php-src/tree/master "Master branch on PHP source repository") of PHP.
+> Setup a nightly build of `PHP 8.0` or `PHP 8.1`. 
 
-- This version is currently in development.
-- `PECL` is installed by default with this version on `ubuntu` and `macOS`.
-- Some user space extensions might not support this version currently.
-- Refer to this [RFC](https://wiki.php.net/rfc/jit "PHP JIT RFC configuration") for configuring `PHP JIT` on this version.
-- Refer to this [list of RFCs](https://wiki.php.net/rfc#php_80 "List of RFCs implemented in PHP8") implemented in this version.
+- These versions are currently in development.
+- `PECL` is installed by default with these versions on `ubuntu` and `macOS`.
+- Some user space extensions might not support these versions currently.
+- Refer to this [RFC](https://wiki.php.net/rfc/jit "PHP JIT RFC configuration") for configuring `PHP JIT` on these versions.
+- Refer to this [list of RFCs](https://wiki.php.net/rfc#php_80 "List of RFCs implemented in PHP8") for features implemented in `PHP 8.0`.
 
 ```yaml
 steps:
@@ -369,7 +420,7 @@ steps:
 - name: Setup nightly PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.0'
+    php-version: '8.1'
     extensions: mbstring
     ini-values: opcache.jit_buffer_size=256M, opcache.jit=1235, pcre.jit=1
     coverage: pcov
@@ -380,8 +431,8 @@ steps:
 
 > Setup PHP on a self-hosted runner.
 
-- To setup a dockerized self-hosted runner, refer to this [guide](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Ubuntu) to setup in an `Ubuntu` container and refer to this [guide](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Windows) to setup in a `Windows` container.
-- To setup the runner directly on the host OS or in a virtual machine, follow this [requirements guide](https://github.com/shivammathur/setup-php/wiki/Requirements-for-self-hosted-runners "Requirements guide for self-hosted runner to run setup-php") before setting up the self-hosted runner.
+- To set up a dockerized self-hosted runner, refer to this [guide](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Ubuntu) to set up in an `Ubuntu` container and refer to this [guide](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Windows) to set up in a `Windows` container.
+- To set up the runner directly on the host OS or in a virtual machine, follow this [requirements guide](https://github.com/shivammathur/setup-php/wiki/Requirements-for-self-hosted-runners "Requirements guide for self-hosted runner to run setup-php") before setting up the self-hosted runner.
 - If your workflow uses [services](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idservices "GitHub Actions Services"), then setup the runner on a Linux host or in a Linux virtual machine. GitHub Actions does not support nested virtualization on Linux, so services will not work in a dockerized container.
 
 Specify the environment variable `runner` with the value `self-hosted`. Without this your workflow will fail.
@@ -407,7 +458,7 @@ jobs:
 ```
 
 **Notes**
-- Do not setup multiple self-hosted runners on the a single server instance as parallel workflow will conflict with each other.
+- Do not setup multiple self-hosted runners on a single server instance as parallel workflow will conflict with each other.
 - Do not setup self-hosted runners on the side on your development environment or your production server.
 
 ### Local Testing Setup
@@ -447,7 +498,7 @@ act -P ubuntu-16.04=shivammathur/node:xenial
 
 ### Thread Safe Setup
 
-> Setup both `TS` and `NTS` PHP on `Windows`.
+> Setup `TS` or `NTS` PHP on `Windows`.
 
 - `NTS` versions are setup by default.
 - On `Ubuntu` and `macOS` only `NTS` versions are supported.
@@ -472,7 +523,7 @@ jobs:
 
 ### Force Update
 
-> Update to latest patch of PHP versions.
+> Update to the latest patch of PHP versions.
 
 - Pre-installed PHP versions on the GitHub Actions runner are not updated to their latest patch release by default.
 - You can specify the `update` environment variable to `true` to force update to the latest release.
@@ -501,12 +552,12 @@ To debug any issues, you can use the `verbose` tag instead of `v2`.
 
 ### Cache Extensions
 
-You can cache PHP extensions using `shivammathur/cache-extensions` and `action/cache` GitHub Actions. Extensions which take very long to setup when cached are available in the next workflow run and are enabled directly. This reduces the workflow execution time.  
+You can cache PHP extensions using `shivammathur/cache-extensions` and `action/cache` GitHub Actions. Extensions which take very long to set up when cached are available in the next workflow run and are enabled directly. This reduces the workflow execution time.  
 Refer to [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") for details. 
 
 ### Cache Composer Dependencies
 
-If your project uses composer, you can persist composer's internal cache directory. Dependencies cached are loaded directly instead of downloading them while installation. The files cached are available across check-runs and will reduce the workflow execution time.
+If your project uses composer, you can persist the composer's internal cache directory. Dependencies cached are loaded directly instead of downloading them while installation. The files cached are available across check-runs and will reduce the workflow execution time.
 
 ```yaml
 - name: Get composer cache directory
@@ -525,7 +576,7 @@ If your project uses composer, you can persist composer's internal cache directo
 ```
 
 **Notes**
-- Please do not cache `vendor` directory using `action/cache` as that will have side-effects.
+- Please do not cache `vendor` directory using `action/cache` as that will have side effects.
 - In the above example, if you support a range of `composer` dependencies and do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
 
 ```yaml
@@ -534,7 +585,7 @@ key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
 
 ### Cache Node.js Dependencies
 
-If your project has node.js dependencies, you can persist npm's or yarn's cache directory. The cached files are available across check-runs and will reduce the workflow execution time.
+If your project has node.js dependencies, you can persist NPM or yarn cache directory. The cached files are available across check-runs and will reduce the workflow execution time.
 
 ```yaml
 - name: Get node.js cache directory
@@ -549,7 +600,7 @@ If your project has node.js dependencies, you can persist npm's or yarn's cache 
     restore-keys: ${{ runner.os }}-node-
 ```
 
-**Note:** Please do not cache `node_modules` directory as that will have side-effects.
+**Note:** Please do not cache `node_modules` directory as that will have side effects.
 
 ### Composer GitHub OAuth
 
@@ -566,7 +617,7 @@ If you have a number of workflows which setup multiple tools or have many compos
 
 ### Problem Matchers
 
-Problem matchers are `json` configurations which identify errors and warnings in your logs and surface that information prominently in the GitHub Actions UI by highlighting them and creating code annotations.
+Problem matchers are `json` configurations which identify errors and warnings in your logs and surface them prominently in the GitHub Actions UI by highlighting them and creating code annotations.
 
 #### PHP
 
@@ -588,7 +639,7 @@ Setup problem matchers for your `PHPUnit` output by adding this step after the `
 
 #### PHPStan
 
-PHPStan supports error reporting in GitHub Actions, so no problem matchers are required.
+PHPStan supports error reporting in GitHub Actions, so it does not require problem matchers.
 
 ```yaml
 - name: Setup PHP
@@ -666,15 +717,15 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 ## :bookmark: Versioning
 
-- It is highly recommended to use the `v2` tag as `setup-php` version. It is a rolling tag and is synced with latest minor and patch releases. With `v2` you automatically get the bug fixes, new features and support for latest PHP releases. For debugging any issues `verbose` tag can be used temporarily. It outputs all the logs and is also synced with the latest releases.
+- Use the `v2` tag as `setup-php` version. It is a rolling tag and is synced with the latest minor and patch releases. With `v2` you automatically get the bug fixes, new features and support for latest PHP releases. For debugging any issues `verbose` tag can be used temporarily. It outputs all the logs and is also synced with the latest releases.
 - Semantic release versions can also be used. It is recommended to [use dependabot](https://docs.github.com/en/github/administering-a-repository/keeping-your-actions-up-to-date-with-github-dependabot "Setup Dependabot with GitHub Actions") with semantic versioning to keep the actions in your workflows up to date.
 - Commit SHA can also be used, but are not recommended. They have to be updated with every release manually, without which you will not get any bug fixes or new features. 
-- Using the `master` branch as version is highly discouraged, it might break your workflow after major releases as they have breaking changes.
-- If you are using the `v1` tag or a `1.x.y` version, it is recommended that you [switch to v2](https://github.com/shivammathur/setup-php/wiki/Switch-to-v2 "Guide for switching from setup-php v1 to v2") as `v1` only gets critical bug fixes. Maintenance support for `v1` will be dropped with the last `PHP 8.0` release.
+- It is highly discouraged to use the `master` branch as version, it might break your workflow after major releases as they have breaking changes.
+- If you are using the `v1` tag or a `1.x.y` version, you should [switch to v2](https://github.com/shivammathur/setup-php/wiki/Switch-to-v2 "Guide for switching from setup-php v1 to v2") as `v1` only gets critical bug fixes. Maintenance support for `v1` will be dropped with the last `PHP 8.0` release.
 
 ## :scroll: License
 
-- The scripts and documentation in this project are released under the [MIT License](LICENSE "License for shivammathur/setup-php"). 
+- The scripts and documentation in this project are under the [MIT License](LICENSE "License for shivammathur/setup-php"). 
 - This project has multiple [dependencies](#package-dependencies "Dependencies for this PHP Action"). Their licenses can be found in their respective repositories.
 - The logo for `setup-php` is a derivative work of [php.net logo](https://www.php.net/download-logos.php) and is licensed under the [CC BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/ "Creative Commons License").
 
@@ -689,7 +740,7 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 <p align="center">
   <a href="https://github.com/shivammathur/setup-php/graphs/contributors">
-    <img src="https://opencollective.com/setup-php/contributors.svg?width=1024&button=false" alt="setup-php contributers" width="100%">
+    <img src="https://opencollective.com/setup-php/contributors.svg?width=1024&button=false" alt="setup-php contributors" width="100%">
   </a>
 </p>
 

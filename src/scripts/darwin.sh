@@ -13,6 +13,7 @@ add_log() {
     printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
   else
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
+    [ "$fail_fast" = "true" ] && exit 1;
   fi
 }
 
@@ -67,7 +68,7 @@ check_extension() {
   fi
 }
 
-# Fuction to get the PECL version.
+# Function to get the PECL version.
 get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
@@ -224,7 +225,7 @@ add_composertool() {
   prefix=$3
   (
     composer global require "$prefix$release" >/dev/null 2>&1 &&
-    json=$(grep "$prefix$tool" /Users/$USER/.composer/composer.json) &&
+    json=$(grep "$prefix$tool" /Users/"$USER"/.composer/composer.json) &&
     tool_version=$(get_tool_version 'echo' "$json") &&
     add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
@@ -268,6 +269,7 @@ tick="✓"
 cross="✗"
 version=$1
 dist=$2
+fail_fast=$3
 nodot_version=${1/./}
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
@@ -306,5 +308,5 @@ scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo mkdir -p "$ext_dir"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
 if [[ ! "$version" =~ $old_versions ]]; then configure_pecl >/dev/null 2>&1; fi
-sudo mv "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
+sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
 add_log "$tick" "PHP" "$status PHP $semver"

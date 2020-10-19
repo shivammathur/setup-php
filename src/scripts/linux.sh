@@ -13,6 +13,7 @@ add_log() {
     printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
   else
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
+    [ "$fail_fast" = "true" ] && exit 1;
   fi
 }
 
@@ -42,7 +43,7 @@ cleanup_lists() {
     sudo mkdir /etc/apt/sources.list.d
     sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
     sudo mv /etc/apt/sources.list.d.save/*dotdeb*.list /etc/apt/sources.list.d/ 2>/dev/null || true
-    trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/" exit
+    trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/ 2>/dev/null" exit
   fi
 }
 
@@ -69,7 +70,6 @@ update_lists() {
 
 # Function to setup environment for self-hosted runners.
 self_hosted_setup() {
-  echo "Set disable_coredump false" | sudo tee -a /etc/sudo.conf
   if ! command -v apt-fast >/dev/null; then
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
   fi
@@ -89,7 +89,7 @@ configure_pecl() {
   fi
 }
 
-# Fuction to get the PECL version of an extension.
+# Function to get the PECL version of an extension.
 get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot)")"
@@ -153,7 +153,7 @@ enable_extension() {
   fi
 }
 
-# Funcion to add PDO extension.
+# Function to add PDO extension.
 add_pdo_extension() {
   pdo_ext="pdo_$1"
   if check_extension "$pdo_ext"; then
@@ -322,7 +322,7 @@ add_composertool() {
   prefix=$3
   (
     composer global require "$prefix$release" >/dev/null 2>&1 &&
-    json=$(grep "$prefix$tool" /home/$USER/.composer/composer.json) &&
+    json=$(grep "$prefix$tool" /home/"$USER"/.composer/composer.json) &&
     tool_version=$(get_tool_version 'echo' "$json") &&
     add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
@@ -340,9 +340,9 @@ add_devtools() {
   add_log "$tick" "$tool" "Added $tool $semver"
 }
 
-# Function to setup the nightly build from master branch.
-setup_master() {
-  curl "${curl_opts[@]}" "$github"/php-builder/releases/latest/download/install.sh | bash -s "$runner"
+# Function to setup the nightly build from shivammathur/php-builder
+setup_nightly() {
+  curl "${curl_opts[@]}" "$github"/php-builder/releases/latest/download/install.sh | bash -s "$runner" "$version"
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
@@ -374,7 +374,7 @@ switch_version() {
 
 # Function to get PHP version in semver format.
 php_semver() {
-  if [ ! "$version" = "$master_version" ]; then
+  if ! [[ "$version" =~ $nightly_versions ]]; then
     php"$version" -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-'
   else
     php -v | head -n 1 | cut -f 2 -d ' '
@@ -407,8 +407,8 @@ update_php() {
 
 # Function to install PHP.
 add_php() {
-  if [ "$version" = "$master_version" ]; then
-    setup_master
+  if [[ "$version" =~ $nightly_versions ]]; then
+    setup_nightly
   elif [[ "$version" =~ $old_versions ]]; then
     setup_old_versions
   else
@@ -423,12 +423,13 @@ cross="✗"
 pecl_config="false"
 version=$1
 dist=$2
-master_version="8.0"
+fail_fast=$3
+nightly_versions="8.[0-1]"
 old_versions="5.[3-5]"
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 github="https://github.com/shivammathur"
-apt_install="sudo $debconf_fix apt-fast install -y"
-apt_remove="sudo $debconf_fix apt-fast remove -y"
+apt_install="sudo $debconf_fix apt-get install -y"
+apt_remove="sudo $debconf_fix apt-get remove -y"
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
@@ -464,7 +465,7 @@ else
     update_php >/dev/null 2>&1
   else
     status="Found"
-    if [ "$version" = "$master_version" ]; then
+    if [[ "$version" =~ $nightly_versions ]]; then
       switch_version >/dev/null 2>&1
     fi
   fi
@@ -478,5 +479,5 @@ pecl_file="$scan_dir"/99-pecl.ini
 echo '' | sudo tee "$pecl_file" >/dev/null 2>&1
 sudo rm -rf /usr/local/bin/phpunit >/dev/null 2>&1
 sudo chmod 777 "$ini_file" "$pecl_file" "$tool_path_dir"
-sudo mv "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
+sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
 add_log "$tick" "PHP" "$status PHP $semver"

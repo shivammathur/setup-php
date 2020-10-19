@@ -8,7 +8,10 @@ param (
   [ValidateNotNull()]
   [ValidateLength(1, [int]::MaxValue)]
   [string]
-  $dist
+  $dist,
+  [Parameter(Position = 2, Mandatory = $false)]
+  [string]
+  $fail_fast = 'false'
 )
 
 # Function to log start of a operation.
@@ -18,8 +21,14 @@ Function Step-Log($message) {
 
 # Function to log result of a operation.
 Function Add-Log($mark, $subject, $message) {
-  $code = if ($mark -eq $cross) { "31" } else { "32" }
-  printf "\033[%s;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $code $mark $subject $message
+  if ($mark -eq $tick) {
+    printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $mark $subject $message
+  } else {
+    printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $mark $subject $message
+    if($fail_fast -eq 'true') {
+      exit 1;
+    }
+  }
 }
 
 # Function to add a line to a powershell profile safely.
@@ -91,9 +100,8 @@ Function Get-CleanPSProfile {
 Function Install-PhpManager() {
   $module_path = "$bin_dir\PhpManager\PhpManager.psm1"
   if(-not (Test-Path $module_path -PathType Leaf)) {
-    $release = Invoke-RestMethod https://api.github.com/repos/mlocati/powershell-phpmanager/releases/latest
     $zip_file = "$bin_dir\PhpManager.zip"
-    Invoke-WebRequest -UseBasicParsing -Uri $release.assets[0].browser_download_url -OutFile $zip_file
+    Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip' -OutFile $zip_file
     Expand-Archive -Path $zip_file -DestinationPath $bin_dir -Force
   }
   Import-Module $module_path
@@ -310,7 +318,7 @@ $ext_dir = "$php_dir\ext"
 $bin_dir = $php_dir
 $current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'
-$master_version = '8.0'
+$nightly_version = '8.[0-9]'
 $cert_source='CurrentUser'
 
 $arch = 'x64'
@@ -365,10 +373,9 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   if ($version -lt '7.0' -and (Get-InstalledModule).Name -notcontains 'VcRedist') {
     Install-Module -Name VcRedist -Force
   }
-  if ($version -eq $master_version) {
-    $version = 'master'
-    Invoke-WebRequest -UseBasicParsing -Uri https://dl.bintray.com/shivammathur/php/Install-PhpMaster.ps1 -OutFile $php_dir\Install-PhpMaster.ps1 > $null 2>&1
-    & $php_dir\Install-PhpMaster.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir
+  if ($version -match $nightly_version) {
+    Invoke-WebRequest -UseBasicParsing -Uri https://dl.bintray.com/shivammathur/php/Install-PhpNightly.ps1 -OutFile $php_dir\Install-PhpNightly.ps1 > $null 2>&1
+    & $php_dir\Install-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir -Version $version > $null 2>&1
   } else {
     Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
   }
@@ -393,5 +400,5 @@ if($version -lt "5.5") {
   Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 }
 Update-PhpCAInfo -Path $php_dir -Source $cert_source
-Move-Item -path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE
+Copy-Item -Path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)"

@@ -32,7 +32,7 @@ export async function addCoverageXdebug(
   );
   switch (true) {
     case /^xdebug3$/.test(extension):
-    case /^8\.0$/.test(version):
+    case /^8\.\d$/.test(version):
       return '\n' + xdebug + '\n' + ini + '\n' + log;
     case /^xdebug$/.test(extension):
     default:

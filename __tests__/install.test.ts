@@ -165,5 +165,11 @@ describe('Install', () => {
     script = '' + (await install.run());
     expect(script).toContain('initial script');
     expect(script).toContain('bash darwin.sh 8.0 ' + __dirname);
+
+    setEnv(8.1, 'darwin', '', '', '', '');
+
+    script = '' + (await install.run());
+    expect(script).toContain('initial script');
+    expect(script).toContain('bash darwin.sh 8.1 ' + __dirname);
   });
 });

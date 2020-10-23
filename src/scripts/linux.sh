@@ -252,7 +252,7 @@ configure_composer() {
     exit 1;
   fi
   composer -q global config process-timeout 0
-  echo "/home/$USER/.composer/vendor/bin" >> "$GITHUB_PATH"
+  echo "$composer_bin" >> "$GITHUB_PATH"
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
   fi
@@ -326,6 +326,9 @@ add_composertool() {
     tool_version=$(get_tool_version 'echo' "$json") &&
     add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
+  if [ -e "$composer_bin/composer" ]; then
+    sudo cp -p "$tool_path_dir/composer" "$composer_bin"
+  fi
 }
 
 # Function to setup phpize and php-config.
@@ -430,6 +433,7 @@ debconf_fix="DEBIAN_FRONTEND=noninteractive"
 github="https://github.com/shivammathur"
 apt_install="sudo $debconf_fix apt-get install -y"
 apt_remove="sudo $debconf_fix apt-get remove -y"
+composer_bin="/home/$USER/.composer/vendor/bin"
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
@@ -446,7 +450,7 @@ fi
 
 # Setup PHP
 step_log "Setup PHP"
-sudo mkdir -p /var/run /run/php
+sudo mkdir -m 777 -p /home/"$USER"/.composer /var/run /run/php
 if [ "$existing_version" != "$version" ]; then
   if [ ! -e "/usr/bin/php$version" ]; then
     add_php >/dev/null 2>&1

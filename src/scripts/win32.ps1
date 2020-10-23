@@ -197,7 +197,7 @@ Function Edit-ComposerConfig() {
     exit 1;
   }
   composer -q global config process-timeout 0
-  Write-Output "$env:APPDATA\Composer\vendor\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+  Write-Output $composer_bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
   if (Test-Path env:COMPOSER_TOKEN) {
     composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
   }
@@ -297,6 +297,9 @@ Function Add-Composertool() {
   )
   composer global require $prefix$release 2>&1 | out-null
   $json = findstr $prefix$tool $env:APPDATA\Composer\composer.json
+  if(Test-Path $composer_bin\composer) {
+    Copy-Item -Path "$bin_dir\composer" -Destination "$composer_bin\composer" -Force
+  }
   if($json) {
     $tool_version = Get-ToolVersion "Write-Output" "$json"
     Add-Log $tick $tool "Added $tool $tool_version"
@@ -316,6 +319,7 @@ $cross = ([char]10007)
 $php_dir = 'C:\tools\php'
 $ext_dir = "$php_dir\ext"
 $bin_dir = $php_dir
+$composer_bin = "$env:APPDATA\Composer\vendor\bin"
 $current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $nightly_version = '8.[0-9]'
@@ -401,4 +405,5 @@ if($version -lt "5.5") {
 }
 Update-PhpCAInfo -Path $php_dir -Source $cert_source
 Copy-Item -Path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE
+New-Item -ItemType Directory -Path $composer_bin -Force 2>&1 | Out-Null
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)"

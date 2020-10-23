@@ -153,7 +153,7 @@ configure_composer() {
     exit 1
   fi
   composer -q global config process-timeout 0
-  echo "/Users/$USER/.composer/vendor/bin" >> "$GITHUB_PATH"
+  echo "$composer_bin" >> "$GITHUB_PATH"
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
   fi
@@ -229,6 +229,9 @@ add_composertool() {
     tool_version=$(get_tool_version 'echo' "$json") &&
     add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
+  if [ -e "$composer_bin/composer" ]; then
+    sudo cp -p "$tool_path_dir/composer" "$composer_bin"
+  fi
 }
 
 # Function to handle request to add phpize and php-config.
@@ -285,6 +288,7 @@ fail_fast=$3
 nodot_version=${1/./}
 nightly_versions="8.[0-1]"
 old_versions="5.[3-5]"
+composer_bin="/Users/$USER/.composer/vendor/bin"
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
@@ -318,7 +322,7 @@ sudo chmod 777 "$ini_file" "$tool_path_dir"
 echo -e "date.timezone=UTC\nmemory_limit=-1" >>"$ini_file"
 ext_dir=$(php -i | grep -Ei "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
-sudo mkdir -p "$ext_dir"
+sudo mkdir -m 777 -p "$ext_dir" "/Users/$USER/.composer"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
 if [[ ! "$version" =~ $old_versions ]]; then configure_pecl >/dev/null 2>&1; fi
 sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"

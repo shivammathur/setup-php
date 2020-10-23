@@ -251,11 +251,23 @@ add_pecl() {
   add_log "$tick" "PECL" "Found PECL $pecl_version"
 }
 
+# Function to update dependencies.
+update_dependencies() {
+  if [[ "$version" =~ $nightly_versions ]] && [ "$runner" != "self-hosted" ]; then
+    while read -r formula; do
+      curl -o "$(brew --prefix)/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/$formula.rb" "${curl_opts[@]}" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb" &
+      to_wait+=( $! )
+    done < "$(brew --prefix)/Homebrew/Library/Taps/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
+    wait "${to_wait[@]}"
+  fi
+}
+
 # Function to setup PHP 5.6 and newer.
 setup_php() {
   action=$1
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
   brew tap --shallow shivammathur/homebrew-php
+  update_dependencies
   if brew list php@"$version" 2>/dev/null | grep -q "Error" && [ "$action" != "upgrade" ]; then
     brew unlink php@"$version"
   else
@@ -271,6 +283,7 @@ version=$1
 dist=$2
 fail_fast=$3
 nodot_version=${1/./}
+nightly_versions="8.[0-1]"
 old_versions="5.[3-5]"
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)

@@ -192,8 +192,20 @@ add_pecl() {
   add_log "$tick" "PECL" "Added"
 }
 
+# Function to update dependencies
+update_dependencies() {
+  if [ "$version" = '8.0' ]; then
+    while read -r formula; do
+      curl -o "$(brew --prefix)/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/$formula.rb" "${curl_opts[@]}" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb" &
+      to_wait+=( $! )
+    done < "$(brew --prefix)/Homebrew/Library/Taps/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
+    wait "${to_wait[@]}"
+  fi
+}
+
 # Function to setup PHP and composer
 setup_php() {
+  update_dependencies
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
   brew tap --shallow shivammathur/homebrew-php
   brew install shivammathur/php/php@"$version"

@@ -261,6 +261,9 @@ describe('Tools tests', () => {
     expect(
       await tools.addComposer(['a', 'b', 'c', 'composer:v2'])
     ).toStrictEqual(['composer:2', 'a', 'b', 'c']);
+    expect(
+      await tools.addComposer(['hirak', 'b', 'c', 'composer:v2'])
+    ).toStrictEqual(['composer:1', 'hirak', 'b', 'c']);
   });
 
   it('checking getComposerUrl', async () => {
@@ -310,15 +313,9 @@ describe('Tools tests', () => {
 
   it('checking getCleanedToolsList', async () => {
     const tools_list: string[] = await tools.getCleanedToolsList(
-      'tool, composer:1.2.3, robmorgan/phinx, hirak/prestissimo, narrowspark/automatic-composer-prefetcher'
+      'tool, composer:1.2.3, robmorgan/phinx'
     );
-    expect(tools_list).toStrictEqual([
-      'composer',
-      'tool',
-      'phinx',
-      'prestissimo',
-      'composer-prefetcher'
-    ]);
+    expect(tools_list).toStrictEqual(['composer', 'tool', 'phinx']);
   });
 
   it('checking addArchive', async () => {
@@ -433,7 +430,7 @@ describe('Tools tests', () => {
   });
   it('checking addTools on darwin', async () => {
     const script: string = await tools.addTools(
-      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, cs2pr:1.2.3, composer-prefetcher:1.2.3, phpize, php-config, symfony, symfony:1.2.3',
+      'phpcs, phpcbf, phpcpd, phpmd, psalm, phinx, phive:1.2.3, cs2pr:1.2.3, phpize, php-config, symfony:1.2.3',
       '7.4',
       'darwin'
     );
@@ -463,12 +460,6 @@ describe('Tools tests', () => {
       'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'
     );
     expect(script).toContain(
-      'add_composertool composer-prefetcher composer-prefetcher:1.2.3 narrowspark/automatic-'
-    );
-    expect(script).toContain(
-      'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_darwin_amd64 symfony'
-    );
-    expect(script).toContain(
       'add_tool https://github.com/symfony/cli/releases/download/v1.2.3/symfony_darwin_amd64 symfony'
     );
     expect(script).toContain('add_log "$tick" "phpize" "Added"');
@@ -476,7 +467,7 @@ describe('Tools tests', () => {
   });
   it('checking addTools on windows', async () => {
     const script: string = await tools.addTools(
-      'codeception, cs2pr, deployer, prestissimo, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, does_not_exist',
+      'codeception, cs2pr, deployer, phpmd, phinx, phive:0.13.2, php-config, phpize, symfony, does_not_exist, composer',
       '7.4',
       'win32'
     );
@@ -489,7 +480,6 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'Add-Tool https://deployer.org/deployer.phar deployer'
     );
-    expect(script).toContain('Add-Composertool prestissimo prestissimo hirak/');
     expect(script).toContain(
       'Add-Tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd'
     );
@@ -511,7 +501,7 @@ describe('Tools tests', () => {
       'win32'
     );
     expect(script).toContain(
-      'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
+      'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-1.phar,https://getcomposer.org/composer-1.phar composer'
     );
     expect(script).toContain('Add-Composertool prestissimo prestissimo hirak/');
     expect(script).toContain('Add-Composertool phinx phinx robmorgan/');

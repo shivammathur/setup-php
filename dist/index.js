@@ -1895,11 +1895,15 @@ exports.getSymfonyUri = getSymfonyUri;
 async function addComposer(tools_list) {
     const regex_any = /^composer($|:.*)/;
     const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$)/;
+    const regex_composer1_tools = /hirak|prestissimo|narrowspark|composer-prefetcher/;
     const matches = tools_list.filter(tool => regex_valid.test(tool));
     let composer = 'composer';
     tools_list = tools_list.filter(tool => !regex_any.test(tool));
-    switch (matches[0]) {
-        case undefined:
+    switch (true) {
+        case regex_composer1_tools.test(tools_list.join(' ')):
+            composer = 'composer:1';
+            break;
+        case matches[0] == undefined:
             break;
         default:
             composer = matches[matches.length - 1].replace(/v([1-2])/, '$1');

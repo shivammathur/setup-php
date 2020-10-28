@@ -186,8 +186,12 @@ add_extension() {
     if [[ "$version" =~ 5.[4-5] ]]; then
       install_command="update_lists && ${install_command/5\.[4-5]-$extension/5-$extension=$release_version}"
     fi
-    eval "$install_command" >/dev/null 2>&1 ||
-    (update_lists && eval "$install_command" >/dev/null 2>&1) || pecl_install "$extension"
+    if [[ "$version" =~ $nightly_versions ]]; then
+      pecl_install "$extension"
+    else
+      eval "$install_command" >/dev/null 2>&1 ||
+      (update_lists && eval "$install_command" >/dev/null 2>&1) || pecl_install "$extension"
+    fi
     add_extension_log "$extension" "Installed and enabled"
   fi
   sudo chmod 777 "$ini_file"

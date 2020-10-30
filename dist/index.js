@@ -2058,6 +2058,10 @@ async function getComposerUrl(version) {
         case '2':
             return (cache_url + 'https://getcomposer.org/composer-' + version + '.phar');
         default:
+            if (/^\d+\.\d+\.\d+[\w-]*$/.test(version)) {
+                return (cache_url +
+                    `https://github.com/composer/composer/releases/download/${version}/composer.phar`);
+            }
             return cache_url + 'https://getcomposer.org/composer-stable.phar';
     }
 }

@@ -240,9 +240,17 @@ describe('Tools tests', () => {
       'a',
       'b'
     ]);
+    expect(await tools.addComposer(['a', 'b', 'composer:1.2'])).toStrictEqual([
+      'composer',
+      'a',
+      'b'
+    ]);
     expect(
       await tools.addComposer(['a', 'b', 'composer:1.2.3'])
-    ).toStrictEqual(['composer', 'a', 'b']);
+    ).toStrictEqual(['composer:1.2.3', 'a', 'b']);
+    expect(
+      await tools.addComposer(['a', 'b', 'composer:v1.2.3'])
+    ).toStrictEqual(['composer:1.2.3', 'a', 'b']);
     expect(
       await tools.addComposer(['a', 'b', 'composer:snapshot'])
     ).toStrictEqual(['composer:snapshot', 'a', 'b']);
@@ -324,7 +332,7 @@ describe('Tools tests', () => {
     const tools_list: string[] = await tools.getCleanedToolsList(
       'tool, composer:1.2.3, robmorgan/phinx'
     );
-    expect(tools_list).toStrictEqual(['composer', 'tool', 'phinx']);
+    expect(tools_list).toStrictEqual(['composer:1.2.3', 'tool', 'phinx']);
   });
 
   it('checking addArchive', async () => {

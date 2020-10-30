@@ -187,6 +187,21 @@ describe('Tools tests', () => {
     );
   });
 
+  it('checking getBlackfirePlayerUrl', async () => {
+    expect(await tools.getBlackfirePlayerUrl('latest', '7.4')).toBe(
+      'https://get.blackfire.io/blackfire-player.phar'
+    );
+    expect(await tools.getBlackfirePlayerUrl('latest', '5.5')).toBe(
+      'https://get.blackfire.io/blackfire-player-v1.9.3.phar'
+    );
+    expect(await tools.getBlackfirePlayerUrl('latest', '7.0')).toBe(
+      'https://get.blackfire.io/blackfire-player-v1.9.3.phar'
+    );
+    expect(await tools.getBlackfirePlayerUrl('1.2.3', '7.0')).toBe(
+      'https://get.blackfire.io/blackfire-player-v1.2.3.phar'
+    );
+  });
+
   it('checking getDeployerUri', async () => {
     expect(await tools.getDeployerUrl('latest')).toBe(
       'https://deployer.org/deployer.phar'

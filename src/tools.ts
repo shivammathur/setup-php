@@ -204,6 +204,31 @@ export async function getPharUrl(
 }
 
 /**
+ * Function to get blackfire player url for a PHP version.
+ *
+ * @param version
+ * @param php_version
+ */
+export async function getBlackfirePlayerUrl(
+  version: string,
+  php_version: string
+): Promise<string> {
+  switch (true) {
+    case /5\.[5-6]|7\.0/.test(php_version) && version == 'latest':
+      version = '1.9.3';
+      break;
+    default:
+      break;
+  }
+  return await getPharUrl(
+    'https://get.blackfire.io',
+    'blackfire-player',
+    'v',
+    version
+  );
+}
+
+/**
  * Function to get the Deployer url
  *
  * @param version
@@ -454,7 +479,7 @@ export async function addTools(
         script += await addPackage(tool, release, tool + '/', os_version);
         break;
       case 'blackfire-player':
-        url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
+        url = await getBlackfirePlayerUrl(version, php_version);
         script += await addArchive(tool, url, os_version, '"-V"');
         break;
       case 'codeception':

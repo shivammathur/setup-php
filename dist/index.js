@@ -1764,7 +1764,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addTools = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.getComposerUrl = exports.addComposer = exports.getWpCliUrl = exports.getSymfonyUri = exports.getDeployerUrl = exports.getPharUrl = exports.addPhive = exports.getCodeceptionUri = exports.getCodeceptionUriBuilder = exports.getUri = exports.parseTool = exports.getToolVersion = void 0;
+exports.addTools = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.getComposerUrl = exports.addComposer = exports.getWpCliUrl = exports.getSymfonyUri = exports.getDeployerUrl = exports.getBlackfirePlayerUrl = exports.getPharUrl = exports.addPhive = exports.getCodeceptionUri = exports.getCodeceptionUriBuilder = exports.getUri = exports.parseTool = exports.getToolVersion = void 0;
 const utils = __importStar(__webpack_require__(163));
 /**
  * Function to get tool version
@@ -1942,6 +1942,23 @@ async function getPharUrl(domain, tool, prefix, version) {
     }
 }
 exports.getPharUrl = getPharUrl;
+/**
+ * Function to get blackfire player url for a PHP version.
+ *
+ * @param version
+ * @param php_version
+ */
+async function getBlackfirePlayerUrl(version, php_version) {
+    switch (true) {
+        case /5\.[5-6]|7\.0/.test(php_version) && version == 'latest':
+            version = '1.9.3';
+            break;
+        default:
+            break;
+    }
+    return await getPharUrl('https://get.blackfire.io', 'blackfire-player', 'v', version);
+}
+exports.getBlackfirePlayerUrl = getBlackfirePlayerUrl;
 /**
  * Function to get the Deployer url
  *
@@ -2136,7 +2153,7 @@ async function addTools(tools_csv, php_version, os_version) {
                 script += await addPackage(tool, release, tool + '/', os_version);
                 break;
             case 'blackfire-player':
-                url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
+                url = await getBlackfirePlayerUrl(version, php_version);
                 script += await addArchive(tool, url, os_version, '"-V"');
                 break;
             case 'codeception':

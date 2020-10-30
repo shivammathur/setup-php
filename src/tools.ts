@@ -305,7 +305,7 @@ export async function getWpCliUrl(version: string): Promise<string> {
  */
 export async function addComposer(tools_list: string[]): Promise<string[]> {
   const regex_any = /^composer($|:.*)/;
-  const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$)/;
+  const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$|v?\d+\.\d+\.\d+[\w-]*$)/;
   const regex_composer1_tools = /hirak|prestissimo|narrowspark|composer-prefetcher/;
   const matches: string[] = tools_list.filter(tool => regex_valid.test(tool));
   let composer = 'composer';
@@ -317,7 +317,7 @@ export async function addComposer(tools_list: string[]): Promise<string[]> {
     case matches[0] == undefined:
       break;
     default:
-      composer = matches[matches.length - 1].replace(/v([1-2])/, '$1');
+      composer = matches[matches.length - 1].replace(/v(\d\S*)/, '$1');
       break;
   }
   tools_list.unshift(composer);
@@ -344,6 +344,12 @@ export async function getComposerUrl(version: string): Promise<string> {
         cache_url + 'https://getcomposer.org/composer-' + version + '.phar'
       );
     default:
+      if (/^\d+\.\d+\.\d+[\w-]*$/.test(version)) {
+        return (
+          cache_url +
+          `https://github.com/composer/composer/releases/download/${version}/composer.phar`
+        );
+      }
       return cache_url + 'https://getcomposer.org/composer-stable.phar';
   }
 }

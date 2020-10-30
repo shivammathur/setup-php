@@ -222,9 +222,17 @@ describe('Tools tests', () => {
       'a',
       'b'
     ]);
+    expect(await tools.addComposer(['a', 'b', 'composer:1.2'])).toStrictEqual([
+      'composer',
+      'a',
+      'b'
+    ]);
     expect(
       await tools.addComposer(['a', 'b', 'composer:1.2.3'])
-    ).toStrictEqual(['composer', 'a', 'b']);
+    ).toStrictEqual(['composer:1.2.3', 'a', 'b']);
+    expect(
+      await tools.addComposer(['a', 'b', 'composer:v1.2.3'])
+    ).toStrictEqual(['composer:1.2.3', 'a', 'b']);
     expect(
       await tools.addComposer(['a', 'b', 'composer:snapshot'])
     ).toStrictEqual(['composer:snapshot', 'a', 'b']);
@@ -267,6 +275,15 @@ describe('Tools tests', () => {
     expect(await tools.getComposerUrl('2')).toContain(
       'https://getcomposer.org/composer-2.phar'
     );
+    expect(await tools.getComposerUrl('1.7.2')).toContain(
+      'https://github.com/composer/composer/releases/download/1.7.2/composer.phar'
+    );
+    expect(await tools.getComposerUrl('2.0.0-RC2')).toContain(
+      'https://github.com/composer/composer/releases/download/2.0.0-RC2/composer.phar'
+    );
+    expect(await tools.getComposerUrl('wrong')).toContain(
+      'https://getcomposer.org/composer-stable.phar'
+    );
   });
 
   it('checking getSymfonyUri', async () => {
@@ -295,7 +312,7 @@ describe('Tools tests', () => {
 
   it('checking getCleanedToolsList', async () => {
     const tools_list: string[] = await tools.getCleanedToolsList(
-      'tool, composer:1.2.3, behat/behat, icanhazstring/composer-unused, laravel/vapor-cli, robmorgan/phinx, phpspec/phpspec, symfony/flex'
+      'tool, composer:1.2, behat/behat, icanhazstring/composer-unused, laravel/vapor-cli, robmorgan/phinx, phpspec/phpspec, symfony/flex'
     );
     expect(tools_list).toStrictEqual([
       'composer',

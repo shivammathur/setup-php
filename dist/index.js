@@ -2022,7 +2022,7 @@ exports.getWpCliUrl = getWpCliUrl;
  */
 async function addComposer(tools_list) {
     const regex_any = /^composer($|:.*)/;
-    const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$)/;
+    const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$|v?\d+\.\d+\.\d+[\w-]*$)/;
     const regex_composer1_tools = /hirak|prestissimo|narrowspark|composer-prefetcher/;
     const matches = tools_list.filter(tool => regex_valid.test(tool));
     let composer = 'composer';
@@ -2034,7 +2034,7 @@ async function addComposer(tools_list) {
         case matches[0] == undefined:
             break;
         default:
-            composer = matches[matches.length - 1].replace(/v([1-2])/, '$1');
+            composer = matches[matches.length - 1].replace(/v(\d\S*)/, '$1');
             break;
     }
     tools_list.unshift(composer);

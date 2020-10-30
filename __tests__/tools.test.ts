@@ -222,9 +222,17 @@ describe('Tools tests', () => {
       'a',
       'b'
     ]);
+    expect(await tools.addComposer(['a', 'b', 'composer:1.2'])).toStrictEqual([
+      'composer',
+      'a',
+      'b'
+    ]);
     expect(
       await tools.addComposer(['a', 'b', 'composer:1.2.3'])
-    ).toStrictEqual(['composer', 'a', 'b']);
+    ).toStrictEqual(['composer:1.2.3', 'a', 'b']);
+    expect(
+      await tools.addComposer(['a', 'b', 'composer:v1.2.3'])
+    ).toStrictEqual(['composer:1.2.3', 'a', 'b']);
     expect(
       await tools.addComposer(['a', 'b', 'composer:snapshot'])
     ).toStrictEqual(['composer:snapshot', 'a', 'b']);
@@ -304,7 +312,7 @@ describe('Tools tests', () => {
 
   it('checking getCleanedToolsList', async () => {
     const tools_list: string[] = await tools.getCleanedToolsList(
-      'tool, composer:1.2.3, behat/behat, icanhazstring/composer-unused, laravel/vapor-cli, robmorgan/phinx, phpspec/phpspec, symfony/flex'
+      'tool, composer:1.2, behat/behat, icanhazstring/composer-unused, laravel/vapor-cli, robmorgan/phinx, phpspec/phpspec, symfony/flex'
     );
     expect(tools_list).toStrictEqual([
       'composer',

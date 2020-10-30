@@ -193,7 +193,7 @@ These tools can be setup globally using the `tools` input.
     tools: php-cs-fixer, phpunit
 ```
 
-- To set up a particular version of a tool, specify it in the form `tool:version`. The latest stable version of `composer` is set up by default. You can set up the required version by specifying `v1`, `v2`, `snapshot` or `preview` as version.
+- To set up a particular version of a tool, specify it in the form `tool:version`. The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying `v1`, `v2`, `snapshot` or `preview` as versions or the exact version in semver format.
 
 ```yaml
 - name: Setup PHP with composer v2
@@ -202,6 +202,8 @@ These tools can be setup globally using the `tools` input.
     php-version: '7.4'
     tools: composer:v2
 ```
+
+- If you have specified composer plugins `prestissimo` or `composer-prefetcher` in tools, the latest stable version of `composer v1` will be setup. Unless some of your packages require `composer v1`, it is recommended to drop `prestissimo` and use `composer v2`.
 
 - The latest versions of both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified in tools input. Please refer to the [official documentation](https://blackfire.io/docs/integrations/ci/github-actions "Blackfire.io documentation for GitHub Actions") for using `blackfire` with GitHub Actions.
 

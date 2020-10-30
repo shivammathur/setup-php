@@ -2047,22 +2047,17 @@ exports.addComposer = addComposer;
  * @param version
  */
 async function getComposerUrl(version) {
-    const cache_url = 'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-' +
-        version.replace('latest', 'stable') +
-        '.phar,';
-    switch (version) {
-        case 'snapshot':
-            return cache_url + 'https://getcomposer.org/composer.phar';
-        case 'preview':
-        case '1':
-        case '2':
-            return (cache_url + 'https://getcomposer.org/composer-' + version + '.phar');
+    let cache_url = `https://github.com/shivammathur/composer-cache/releases/latest/download/composer-${version.replace('latest', 'stable')}.phar`;
+    switch (true) {
+        case /^snapshot$/.test(version):
+            return `${cache_url},https://getcomposer.org/composer.phar`;
+        case /^preview$|^[1-2]$/.test(version):
+            return `${cache_url},https://getcomposer.org/composer-${version}.phar`;
+        case /^\d+\.\d+\.\d+[\w-]*$/.test(version):
+            cache_url = `https://github.com/composer/composer/releases/download/${version}/composer.phar`;
+            return `${cache_url},https://getcomposer.org/composer-${version}.phar`;
         default:
-            if (/^\d+\.\d+\.\d+[\w-]*$/.test(version)) {
-                return (cache_url +
-                    `https://github.com/composer/composer/releases/download/${version}/composer.phar`);
-            }
-            return cache_url + 'https://getcomposer.org/composer-stable.phar';
+            return `${cache_url},https://getcomposer.org/composer-stable.phar`;
     }
 }
 exports.getComposerUrl = getComposerUrl;

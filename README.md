@@ -85,8 +85,9 @@ with:
   tools: php-cs-fixer, phpunit
 ```
 
-To setup a particular version of a tool, specify it in the form `tool:version`.  
-Latest stable version of `composer` is setup by default and accepts `v1`, `v2`, `snapshot` and `preview` as versions.
+To set up a particular version of a tool, specify it in the form `tool:version`. 
+
+The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying `v1`, `v2`, `snapshot` or `preview` as versions or the exact version in semver format.
 
 ```yaml
 uses: shivammathur/setup-php@v1
@@ -94,6 +95,8 @@ with:
   php-version: '7.4'
   tools: composer:v2
 ```
+
+If you have specified composer plugins `prestissimo` or `composer-prefetcher` in tools, the latest stable version of `composer v1` will be setup. Unless some of your packages require `composer v1`, it is recommended to drop `prestissimo` and use `composer v2`.
 
 Version for other tools should be in `semver` format and a valid release of the tool.
 

@@ -296,8 +296,14 @@ describe('Tools tests', () => {
     expect(await tools.getComposerUrl('1.7.2')).toContain(
       'https://github.com/composer/composer/releases/download/1.7.2/composer.phar'
     );
+    expect(await tools.getComposerUrl('1.7.2')).toContain(
+      'https://getcomposer.org/composer-1.7.2.phar'
+    );
     expect(await tools.getComposerUrl('2.0.0-RC2')).toContain(
       'https://github.com/composer/composer/releases/download/2.0.0-RC2/composer.phar'
+    );
+    expect(await tools.getComposerUrl('2.0.0-RC2')).toContain(
+      'https://getcomposer.org/composer-2.0.0-RC2.phar'
     );
     expect(await tools.getComposerUrl('wrong')).toContain(
       'https://getcomposer.org/composer-stable.phar'

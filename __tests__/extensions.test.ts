@@ -3,7 +3,7 @@ import * as extensions from '../src/extensions';
 describe('Extension tests', () => {
   it('checking addExtensionOnWindows', async () => {
     let win32: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, :intl, phalcon4, ioncube, oci8, pdo_oci, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2',
+      'Xdebug, pcov, sqlite, :intl, phalcon4, ioncube, oci8, pdo_oci, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2, sqlsrv-1.2.3preview1',
       '7.4',
       'win32'
     );
@@ -18,6 +18,7 @@ describe('Extension tests', () => {
     expect(win32).toContain('Add-Extension ast beta');
     expect(win32).toContain('Add-Extension grpc stable 1.2.3');
     expect(win32).toContain('Add-Extension inotify alpha 1.2.3');
+    expect(win32).toContain('Add-Extension sqlsrv devel 1.2.3');
 
     win32 = await extensions.addExtension('pcov', '5.6', 'win32');
     expect(win32).toContain(

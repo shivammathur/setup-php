@@ -30,7 +30,7 @@ This PR [briefly explain what it does]
 > In case this PR edits any scripts:
 
 - [ ] I have checked the edited scripts for syntax.
-- [ ] I have tested the changes in an integration test (If yes, provide workflow link).
+- [ ] I have tested the changes in an integration test (If yes, provide workflow YAML and link).
 
 <!--
 - Please target the develop branch when submitting the pull request.

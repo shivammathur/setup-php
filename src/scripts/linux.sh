@@ -339,7 +339,7 @@ add_composertool() {
 add_devtools() {
   tool=$1
   if ! [ -e "/usr/bin/phpize$version" ] || ! [ -e "/usr/bin/php-config$version" ]; then
-    update_lists && $apt_install php"$version"-dev php"$version"-xml >/dev/null 2>&1
+    $apt_install --no-upgrade php"$version"-dev php"$version"-xml >/dev/null 2>&1 || update_lists && $apt_install --no-upgrade php"$version"-dev php"$version"-xml >/dev/null 2>&1
   fi
   sudo update-alternatives --set php-config /usr/bin/php-config"$version" >/dev/null 2>&1
   sudo update-alternatives --set phpize /usr/bin/phpize"$version" >/dev/null 2>&1
@@ -363,7 +363,7 @@ setup_old_versions() {
 add_pecl() {
   add_devtools phpize >/dev/null 2>&1
   if [ ! -e /usr/bin/pecl ]; then
-    $apt_install php-pear >/dev/null 2>&1 || update_lists && $apt_install php-pear >/dev/null 2>&1
+    $apt_install --no-upgrade php-pear >/dev/null 2>&1 || update_lists && $apt_install php-pear >/dev/null 2>&1
   fi
   configure_pecl >/dev/null 2>&1
   pecl_version=$(get_tool_version "pecl" "version")

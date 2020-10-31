@@ -2974,9 +2974,9 @@ async function addExtensionWindows(extension_csv, version) {
                 add_script += await utils.joins('\nAdd-Extension', ext_name, 'stable', ext_version);
                 break;
             // match semver with state
-            case /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.test(version_extension):
-                matches = /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.exec(version_extension);
-                add_script += await utils.joins('\nAdd-Extension', ext_name, matches[2], matches[1]);
+            case /.*-(\d+\.\d+\.\d)([a-zA-Z+]+)\d*/.test(version_extension):
+                matches = /.*-(\d+\.\d+\.\d)([a-zA-Z+]+)\d*/.exec(version_extension);
+                add_script += await utils.joins('\nAdd-Extension', ext_name, matches[2].replace('preview', 'devel'), matches[1]);
                 break;
             // match 5.3pcov to 7.0pcov
             case /(5\.[3-6]|7\.0)pcov/.test(version_extension):

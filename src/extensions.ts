@@ -164,16 +164,14 @@ export async function addExtensionWindows(
         );
         break;
       // match semver with state
-      case /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.test(
-        version_extension
-      ):
-        matches = /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.exec(
+      case /.*-(\d+\.\d+\.\d)([a-zA-Z+]+)\d*/.test(version_extension):
+        matches = /.*-(\d+\.\d+\.\d)([a-zA-Z+]+)\d*/.exec(
           version_extension
         ) as RegExpExecArray;
         add_script += await utils.joins(
           '\nAdd-Extension',
           ext_name,
-          matches[2],
+          matches[2].replace('preview', 'devel'),
           matches[1]
         );
         break;

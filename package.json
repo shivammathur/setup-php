@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint **/*.ts --cache",
+    "lint": "eslint **/*.ts --cache --fix",
     "format": "prettier --write **/*.ts && git add .",
     "format-check": "prettier --check **/*.ts",
     "release": "ncc build src/install.ts -o dist && git add -f dist/",

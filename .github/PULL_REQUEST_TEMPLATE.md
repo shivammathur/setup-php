@@ -26,7 +26,12 @@ This PR [briefly explain what it does]
 - [ ] I have run `npm run format` before the commit.
 - [ ] I have run `npm run lint` before the commit.
 - [ ] I have run `npm run release` before the commit.
-- [ ] `npm test` returns with no unit test errors.
+- [ ] `npm test` returns with no unit test errors and all code covered.
+
+> In case this PR edits any scripts:
+
+- [ ] I have checked the edited scripts for syntax.
+- [ ] I have tested the changes in an integration test (If yes, provide workflow YAML and link).
 
 <!--
 - Please target the develop branch when submitting the pull request.

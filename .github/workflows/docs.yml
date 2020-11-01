@@ -1,0 +1,73 @@
+name: Docs workflow
+on:
+  repository_dispatch:
+  schedule:
+    - cron: '0 0 * * 2'
+jobs:
+  create:
+    name: Create
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-20.04, ubuntu-18.04, ubuntu-16.04, windows-2019, macos-10.15, macos-11.0]
+        php-versions: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+      - name: Save unix
+        env:
+          file: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
+          version: ${{ matrix.php-versions }}
+        if: matrix.operating-system != 'windows-2019'
+        run: |
+          echo "## PHP $version" >> "$file"
+          printf "\n" >> "$file"
+          echo "\`\`\`" >> "$file"
+          php -m >> "$file"
+          echo "\`\`\`" >> "$file"
+          printf "\n" >> "$file"
+      - name: Save Windows
+        env:
+          file: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
+          version: ${{ matrix.php-versions }}
+        if: matrix.operating-system == 'windows-2019'
+        run: |
+          Write-Output "## PHP $version`n" | Out-File -FilePath "$env:file"
+          Write-Output "``````" | Out-File -FilePath "$env:file" -Append
+          php -m | Out-File -FilePath "$env:file" -Append
+          Write-Output "```````n" | Out-File -FilePath "$env:file" -Append
+      - uses: actions/upload-artifact@v2
+        with:
+          name: lists
+          path: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
+  update:
+    name: Update
+    needs: create
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.repository }}.wiki
+      - uses: actions/download-artifact@v2
+        with:
+          path: ${{ github.workspace }}
+      - name: Combine
+        run: |
+          git config --local user.email "${{ secrets.email }}"
+          git config --local user.name "${{ github.repository_owner }}"
+          for os in ubuntu-20.04 ubuntu-18.04 ubuntu-16.04 windows-2019 macos-10.15 macos-11.0; do
+            echo "# PHP Extensions on $os" > Php-extensions-on-"$os".md
+            for version in 5.3 5.4 5.5 5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1; do
+              cat lists/php"$version"-"$os".md >> Php-extensions-on-"$os".md
+            done
+          done
+          rm -rf ./lists
+          if [ "$(git status --porcelain=v1 2>/dev/null | wc -l)" != "0" ]; then
+            git add .
+            git commit -m "Update PHP extensions on wiki - $(date +'%d-%m-%y')"
+            git push -f https://${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git master || true
+          fi

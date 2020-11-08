@@ -83,16 +83,9 @@ patch_pdo_oci_config() {
 add_dependencies() {
   if [ "$os" = 'Linux' ]; then
     if [ "${runner:?}" = "self-hosted" ]; then
-      if ! [[ ${version:?} =~ $nightly_versions ]]; then
-        ${apt_install:?} --no-upgrade --no-install-recommends autoconf automake libaio-dev gcc g++ php"$version"-dev
-      else
-        ${apt_install:?} --no-upgrade --no-install-recommends autoconf automake libaio-dev gcc g++
-      fi
-    else
-      ! [[ ${version:?} =~ $nightly_versions ]] && update_lists && ${apt_install:?} --no-upgrade --no-install-recommends php"$version"-dev
+      ${apt_install:?} --no-upgrade --no-install-recommends autoconf automake libaio-dev gcc g++
     fi
-    sudo update-alternatives --set php-config /usr/bin/php-config"$version"
-    sudo update-alternatives --set phpize /usr/bin/phpize"$version"
+    ! [[ ${version:?} =~ $nightly_versions ]] && add_devtools phpize
   fi
 }
 

@@ -97,7 +97,7 @@ Function Get-CleanPSProfile {
 }
 
 # Function to install a powershell package from GitHub.
-Function Install-GitHubPackage() {
+Function Install-PSPackage() {
   param(
     [Parameter(Position = 0, Mandatory = $true)]
     $package,
@@ -334,12 +334,15 @@ $cross = ([char]10007)
 $php_dir = 'C:\tools\php'
 $ext_dir = "$php_dir\ext"
 $bin_dir = $php_dir
+$bintray = 'https://dl.bintray.com/shivammathur/php'
 $github = 'https://github.com'
 $composer_bin = "$env:APPDATA\Composer\vendor\bin"
 $current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $nightly_version = '8.[0-9]'
 $cert_source='CurrentUser'
+$enable_extensions = ('openssl', 'curl', 'mbstring')
+$wc = New-Object System.Net.WebClient
 
 $arch = 'x64'
 if(-not([Environment]::Is64BitOperatingSystem) -or $version -lt '7.0') {
@@ -378,7 +381,7 @@ if($env:RUNNER -eq 'self-hosted') {
 
 Add-Printf >$null 2>&1
 Step-Log "Setup PhpManager"
-Install-GitHubPackage PhpManager PhpManager\PhpManager "$github/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip" >$null 2>&1
+Install-PSPackage PhpManager PhpManager\PhpManager "$github/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip" >$null 2>&1
 Add-Log $tick "PhpManager" "Installed"
 
 Step-Log "Setup PHP"
@@ -391,11 +394,11 @@ if (Test-Path -LiteralPath $php_dir -PathType Container) {
 $status = "Installed"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
   if ($version -lt '7.0' -and (Get-InstalledModule).Name -notcontains 'VcRedist') {
-    Install-GitHubPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" >$null 2>&1
+    Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" >$null 2>&1
   }
   if ($version -match $nightly_version) {
-    Invoke-WebRequest -UseBasicParsing -Uri https://dl.bintray.com/shivammathur/php/Install-PhpNightly.ps1 -OutFile $php_dir\Install-PhpNightly.ps1 > $null 2>&1
-    & $php_dir\Install-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir -Version $version > $null 2>&1
+    $wc.DownloadFile("$bintray/Get-PhpNightly.ps1", "$php_dir\Get-PhpNightly.ps1") > $null 2>&1
+    & $php_dir\Get-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir -Version $version > $null 2>&1
   } else {
     Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
   }
@@ -409,16 +412,13 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 }
 
 $installed = Get-Php -Path $php_dir
-Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
-Set-PhpIniKey -Key 'memory_limit' -Value '-1' -Path $php_dir
+('date.timezone=UTC', 'memory_limit=-1') | foreach { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
 if($version -lt "5.5") {
-  ForEach($lib in "libeay32.dll", "ssleay32.dll") {
-    Invoke-WebRequest -UseBasicParsing -Uri https://dl.bintray.com/shivammathur/php/$lib -OutFile $php_dir\$lib >$null 2>&1
-  }
-  Enable-PhpExtension -Extension openssl, curl, mbstring -Path $php_dir
+  ('libeay32.dll', 'ssleay32.dll') | ForEach { $wc.DownloadFile("$bintray/$_", "$php_dir\$_") >$null 2>&1 }
 } else {
-  Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
+  $enable_extensions += ('opcache')
 }
+Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source $cert_source
 Copy-Item -Path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE
 New-Item -ItemType Directory -Path $composer_bin -Force 2>&1 | Out-Null

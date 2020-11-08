@@ -21,7 +21,7 @@ describe('Config tests', () => {
 
   it('checking addCoverage with PCOV on darwin', async () => {
     const darwin: string = await coverage.addCoverage('pcov', '7.4', 'darwin');
-    expect(darwin).toContain('add_extension pcov');
+    expect(darwin).toContain('add_brew_extension pcov');
     expect(darwin).toContain('remove_extension xdebug');
   });
 
@@ -71,7 +71,7 @@ describe('Config tests', () => {
       '7.4',
       'darwin'
     );
-    expect(darwin).toContain('add_extension xdebug');
+    expect(darwin).toContain('add_brew_extension xdebug');
   });
 
   it('checking disableCoverage windows', async () => {

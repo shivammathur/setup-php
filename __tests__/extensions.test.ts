@@ -59,31 +59,21 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnLinux', async () => {
     let linux: string = await extensions.addExtension(
-      'Xdebug, xdebug3, pcov, sqlite, :intl, ast, uopz, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
+      'Xdebug, xdebug3, pcov, sqlite, :intl, ast, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
       '7.4',
       'linux'
     );
     expect(linux).toContain(
       'add_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension'
     );
-    expect(linux).toContain('sudo $debconf_fix apt-get install -y php7.4-pcov');
-    expect(linux).toContain(
-      'sudo $debconf_fix apt-get install -y php7.4-sqlite3'
-    );
+    expect(linux).toContain('add_extension sqlite3');
     expect(linux).toContain('remove_extension intl');
-    expect(linux).toContain('sudo $debconf_fix apt-get install -y php7.4-ast');
-    expect(linux).toContain('sudo $debconf_fix apt-get install -y php-uopz');
     expect(linux).toContain('add_unstable_extension ast beta extension');
     expect(linux).toContain('add_pdo_extension mysql');
     expect(linux).toContain('add_pdo_extension odbc');
     expect(linux).toContain('add_pecl_extension grpc 1.2.3 extension');
     expect(linux).toContain(
       'add_unstable_extension xdebug alpha zend_extension'
-    );
-
-    linux = await extensions.addExtension('xdebug3', '8.0', 'linux');
-    expect(linux).toContain(
-      'sudo $debconf_fix apt-get install -y php8.0-xdebug'
     );
 
     linux = await extensions.addExtension('pcov', '5.6', 'linux');
@@ -134,14 +124,14 @@ describe('Extension tests', () => {
       '7.2',
       'darwin'
     );
-    expect(darwin).toContain('add_brew_extension xdebug');
-    expect(darwin).toContain('add_brew_extension pcov');
-    expect(darwin).toContain('add_brew_extension grpc');
-    expect(darwin).toContain('add_brew_extension igbinary');
-    expect(darwin).toContain('add_brew_extension imagick');
-    expect(darwin).toContain('add_brew_extension protobuf');
-    expect(darwin).toContain('add_brew_extension swoole');
-    expect(darwin).toContain('pecl_install sqlite3');
+    expect(darwin).toContain('add_brew_extension xdebug zend_extension');
+    expect(darwin).toContain('add_brew_extension pcov extension');
+    expect(darwin).toContain('add_brew_extension grpc extension');
+    expect(darwin).toContain('add_brew_extension igbinary extension');
+    expect(darwin).toContain('add_brew_extension imagick extension');
+    expect(darwin).toContain('add_brew_extension protobuf extension');
+    expect(darwin).toContain('add_brew_extension swoole extension');
+    expect(darwin).toContain('add_extension sqlite3');
     expect(darwin).toContain('remove_extension intl');
     expect(darwin).toContain('add_unstable_extension ast beta extension');
     expect(darwin).toContain('add_pecl_extension grpc 1.2.3 extension');
@@ -177,14 +167,13 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension xdebug');
 
     darwin = await extensions.addExtension('redis', '5.6', 'darwin');
-    expect(darwin).toContain('pecl_install redis-2.2.8');
+    expect(darwin).toContain('add_extension redis-2.2.8');
 
     darwin = await extensions.addExtension('redis', '7.2', 'darwin');
-    expect(darwin).toContain('pecl_install redis');
+    expect(darwin).toContain('add_extension redis');
 
     darwin = await extensions.addExtension('imagick', '5.5', 'darwin');
-    expect(darwin).toContain('brew install pkg-config imagemagick');
-    expect(darwin).toContain('pecl_install imagick');
+    expect(darwin).toContain('add_extension imagick');
 
     darwin = await extensions.addExtension('blackfire', '7.3', 'darwin');
     expect(darwin).toContain('add_blackfire blackfire');

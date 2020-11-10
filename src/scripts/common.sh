@@ -7,7 +7,9 @@ export old_versions="5.[3-5]"
 export tool_path_dir="/usr/local/bin"
 export composer_bin="$HOME/.composer/vendor/bin"
 export composer_json="$HOME/.composer/composer.json"
+export latest="releases/latest/download"
 export github="https://github.com/shivammathur"
+export bintray="https://dl.bintray/shivammathur"
 
 # Function to log start of a operation.
 step_log() {
@@ -45,6 +47,36 @@ read_env() {
   [[ -z "${runner}" ]] && runner='github' && RUNNER='github' || runner="${runner}"
   [ "$runner" = false ] && [[ -n ${RUNNER} ]] && runner="${RUNNER}"
   [[ -z "${fail_fast}" ]] && fail_fast='false' || fail_fast="${fail_fast}"
+}
+
+# Function to download a file using cURL.
+# mode: -s pipe to stdout, -v save file and return status code
+# execute: -e save file as executable
+get() {
+  mode=$1
+  execute=$2
+  file_path=$3
+  shift 3
+  links=("$@")
+  if [ "$mode" = "-s" ]; then
+    sudo curl "${curl_opts[@]}" "${links[0]}"
+  else
+    for link in "${links[@]}"; do
+      status_code=$(sudo curl -w "%{http_code}" -o "$file_path" "${curl_opts[@]}" "$link")
+      [ "$status_code" = "200" ] && break
+    done
+    [ "$execute" = "-e" ] && sudo chmod a+x "$file_path"
+    [ "$mode" = "-v" ] && echo "$status_code"
+  fi
+}
+
+# Function to download and run scripts from GitHub releases with bintray fallback.
+run_script() {
+  repo=$1
+  shift
+  args=("$@")
+  get -q -e /tmp/install.sh "$github/$repo/$latest/install.sh" "$bintray/php/$repo.sh"
+  bash /tmp/install.sh "${args[@]}"
 }
 
 # Function to install required packages on self-hosted runners.
@@ -92,7 +124,7 @@ get_pecl_version() {
   extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot|preview)")"
   pecl_rest='https://pecl.php.net/rest/r/'
-  response=$(curl "${curl_opts[@]}" "$pecl_rest$extension"/allreleases.xml)
+  response=$(get -s -n "" "$pecl_rest$extension"/allreleases.xml)
   pecl_version=$(echo "$response" | grep -m 1 -Pio "(\d*\.\d*\.\d*$stability\d*)")
   if [ ! "$pecl_version" ]; then
     pecl_version=$(echo "$response" | grep -m 1 -Po "(\d*\.\d*\.\d*)")
@@ -158,19 +190,13 @@ add_tool() {
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
   fi
-  if [ "$tool" = "composer" ]; then
-    IFS="," read -r -a urls <<< "$url"
-    status_code=$(sudo curl -f -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[0]}") ||
-    status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "${urls[1]}")
-  else
-    status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
-    if [ "$status_code" != "200" ] && [[ "$url" =~ .*github.com.*releases.*latest.* ]]; then
-      url="${url//releases\/latest\/download/releases\/download/$(curl "${curl_opts[@]}" "$(echo "$url" | cut -d '/' -f '1-5')/releases" | grep -Eo -m 1 "([0-9]+\.[0-9]+\.[0-9]+)/$(echo "$url" | sed -e "s/.*\///")" | cut -d '/' -f 1)}"url="${url//releases\/latest\/download/releases\/download/$(curl "${curl_opts[@]}" "$(echo "$url" | cut -d '/' -f '1-5')/releases" | grep -Eo -m 1 "([0-9]+\.[0-9]+\.[0-9]+)/$(echo "$url" | sed -e "s/.*\///")" | cut -d '/' -f 1)}"
-      status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
-    fi
+  IFS="," read -r -a url <<< "$url"
+  status_code=$(get -v -e "$tool_path" "${url[@]}")
+  if [ "$status_code" != "200" ] && [[ "${url[0]}" =~ .*github.com.*releases.*latest.* ]]; then
+    url[0]="${url//releases\/latest\/download/releases\/download/$(get -s -n "$(echo "${url[0]}" | cut -d '/' -f '1-5')/releases" | grep -Eo -m 1 "([0-9]+\.[0-9]+\.[0-9]+)/$(echo "${url[0]}" | sed -e "s/.*\///")" | cut -d '/' -f 1)}"
+    status_code=$(get -v -e "$tool_path" "${url[0]}")
   fi
   if [ "$status_code" = "200" ]; then
-    sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then
       configure_composer "$tool_path"
     elif [ "$tool" = "cs2pr" ]; then

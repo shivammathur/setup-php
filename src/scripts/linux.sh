@@ -141,7 +141,7 @@ add_extension_from_source() {
   (
     add_devtools phpize
     delete_extension "$extension"
-    curl -o /tmp/"$extension".tar.gz "${curl_opts[@]:?}" https://github.com/"$repo"/archive/"$release".tar.gz
+    get -q -n "/tmp/$extension.tar.gz" "https://github.com/$repo/archive/$release.tar.gz"
     tar xf /tmp/"$extension".tar.gz -C /tmp
     cd /tmp/"$extension-$release" || exit 1
     phpize && ./configure "$args" && make -j"$(nproc)" && sudo make install
@@ -166,12 +166,12 @@ add_devtools() {
 
 # Function to setup the nightly build from shivammathur/php-builder
 setup_nightly() {
-  curl "${curl_opts[@]:?}" "${github:?}"/php-builder/releases/latest/download/install.sh | bash -s "$runner" "$version"
+  run_script "php-builder" "$runner" "$version"
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
 setup_old_versions() {
-  curl "${curl_opts[@]:?}" "${github:?}"/php5-ubuntu/releases/latest/download/install.sh | bash -s "$version"
+  run_script "php5-ubuntu" "$version"
   configure_pecl
   release_version=$(php -v | head -n 1 | cut -d' ' -f 2)
 }
@@ -205,7 +205,7 @@ add_packaged_php() {
     IFS=' ' read -r -a packages <<<"$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
     $apt_install "${packages[@]}"
   else
-    curl "${curl_opts[@]:?}" "${github:?}"/php-ubuntu/releases/latest/download/install.sh | bash -s "$version"
+    run_script "php-ubuntu" "$version"
   fi
 }
 

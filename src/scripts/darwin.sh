@@ -2,7 +2,7 @@
 self_hosted_helper() {
   if ! command -v brew >/dev/null; then
     step_log "Setup Brew"
-    curl "${curl_opts[@]:?}" https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash -s >/dev/null 2>&1
+    get -q -e "/tmp/install.sh" "https://raw.githubusercontent.com/Homebrew/install/master/install.sh" && /tmp/install.sh >/dev/null 2>&1
     add_log "${tick:?}" "Brew" "Installed Homebrew"
   fi
 }
@@ -88,7 +88,7 @@ update_dependencies() {
   if [[ "$version" =~ ${nightly_versions:?} ]] && [ "${runner:?}" != "self-hosted" ]; then
     tap_dir="$(brew --prefix)/Homebrew/Library/Taps"
     while read -r formula; do
-      curl -o "$tap_dir/homebrew/homebrew-core/Formula/$formula.rb" "${curl_opts[@]:?}" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb" &
+      get -q -n "$tap_dir/homebrew/homebrew-core/Formula/$formula.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb" &
       to_wait+=($!)
     done <"$tap_dir/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
     wait "${to_wait[@]}"
@@ -115,7 +115,7 @@ setup_php() {
   step_log "Setup PHP"
   existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
   if [[ "$version" =~ ${old_versions:?} ]]; then
-    curl "${curl_opts[@]:?}" "${github:?}/php5-darwin/releases/latest/download/install.sh" | bash -s "${version/./}" >/dev/null 2>&1
+    run_script "php5-darwin" "${version/./}" >/dev/null 2>&1
     status="Installed"
   elif [ "$existing_version" != "$version" ]; then
     add_php "install" >/dev/null 2>&1

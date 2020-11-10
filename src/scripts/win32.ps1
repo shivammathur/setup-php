@@ -79,7 +79,7 @@ Function Add-Printf {
     if(Test-Path "C:\msys64\usr\bin\printf.exe") {
       New-Item -Path $bin_dir\printf.exe -ItemType SymbolicLink -Value C:\msys64\usr\bin\printf.exe
     } else {
-      Invoke-WebRequest -UseBasicParsing -Uri "$github/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$bin_dir\printf.zip"
+      Invoke-WebRequest -Uri "$github/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$bin_dir\printf.zip"
       Expand-Archive -Path $bin_dir\printf.zip -DestinationPath $bin_dir -Force
     }
   } else {
@@ -109,7 +109,7 @@ Function Install-PSPackage() {
   $module_path = "$bin_dir\$psm1_path.psm1"
   if(-not (Test-Path $module_path -PathType Leaf)) {
     $zip_file = "$bin_dir\$package.zip"
-    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $zip_file
+    Invoke-WebRequest -Uri $url -OutFile $zip_file
     Expand-Archive -Path $zip_file -DestinationPath $bin_dir -Force
   }
   Import-Module $module_path
@@ -250,16 +250,16 @@ Function Add-Tool() {
   }
   if($url.Count -gt 1) { $url = $url[0] }
   if ($tool -eq "symfony") {
-    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\$tool.exe
+    Invoke-WebRequest -Uri $url -OutFile $bin_dir\$tool.exe
     Add-ToProfile $current_profile $tool "New-Alias $tool $bin_dir\$tool.exe" >$null 2>&1
   } else {
     try {
-      Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\$tool
+      Invoke-WebRequest -Uri $url -OutFile $bin_dir\$tool
     } catch {
       if($url -match '.*github.com.*releases.*latest.*') {
         try {
-          $url = $url.replace("releases/latest/download", "releases/download/" + ([regex]::match((Invoke-WebRequest -UseBasicParsing -Uri ($url.split('/release')[0] + "/releases")).Content, "([0-9]+\.[0-9]+\.[0-9]+)/" + ($url.Substring($url.LastIndexOf("/") + 1))).Groups[0].Value).split('/')[0])
-          Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\$tool
+          $url = $url.replace("releases/latest/download", "releases/download/" + ([regex]::match((Invoke-WebRequest -Uri ($url.split('/release')[0] + "/releases")).Content, "([0-9]+\.[0-9]+\.[0-9]+)/" + ($url.Substring($url.LastIndexOf("/") + 1))).Groups[0].Value).split('/')[0])
+          Invoke-WebRequest -Uri $url -OutFile $bin_dir\$tool
         } catch { }
       }
     }
@@ -342,7 +342,6 @@ $ProgressPreference = 'SilentlyContinue'
 $nightly_version = '8.[0-9]'
 $cert_source='CurrentUser'
 $enable_extensions = ('openssl', 'curl', 'mbstring')
-$wc = New-Object System.Net.WebClient
 
 $arch = 'x64'
 if(-not([Environment]::Is64BitOperatingSystem) -or $version -lt '7.0') {
@@ -397,7 +396,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
     Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" >$null 2>&1
   }
   if ($version -match $nightly_version) {
-    $wc.DownloadFile("$bintray/Get-PhpNightly.ps1", "$php_dir\Get-PhpNightly.ps1") > $null 2>&1
+    Invoke-WebRequest -Uri $bintray/Get-PhpNightly.ps1 -OutFile $php_dir\Get-PhpNightly.ps1 > $null 2>&1
     & $php_dir\Get-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir -Version $version > $null 2>&1
   } else {
     Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
@@ -414,7 +413,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 $installed = Get-Php -Path $php_dir
 ('date.timezone=UTC', 'memory_limit=-1') | foreach { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
 if($version -lt "5.5") {
-  ('libeay32.dll', 'ssleay32.dll') | ForEach { $wc.DownloadFile("$bintray/$_", "$php_dir\$_") >$null 2>&1 }
+  ('libeay32.dll', 'ssleay32.dll') | ForEach { Invoke-WebRequest -Uri $bintray/$_ -OutFile $php_dir\$_ >$null 2>&1 }
 } else {
   $enable_extensions += ('opcache')
 }

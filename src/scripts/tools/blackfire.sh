@@ -1,6 +1,6 @@
 add_blackfire_linux() {
   sudo mkdir -p /var/run/blackfire
-  sudo curl "${curl_opts[@]:?}" https://packages.blackfire.io/gpg.key | sudo apt-key add -
+  get -s -n "" https://packages.blackfire.io/gpg.key | sudo apt-key add -
   echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list
   sudo "${debconf_fix:?}" apt-get update
   ${apt_install:?} blackfire-agent

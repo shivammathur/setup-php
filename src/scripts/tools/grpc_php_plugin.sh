@@ -3,7 +3,7 @@ add_bazel() {
     os=$(uname -s)
     if [ "$os" = "Linux" ]; then
       ${apt_install:?} curl gnupg
-      curl "${curl_opts[@]:?}" https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
+      get -s -n "" https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
       echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
       sudo "${debconf_fix:?}" apt-get update -y
       ${apt_install:?} bazel
@@ -15,13 +15,13 @@ add_bazel() {
 
 get_grpc_tag() {
   if [ "$grpc_tag" = "latest" ]; then
-    grpc_tag=$(curl "${curl_opts[@]:?}" https://grpc.io/release)
+    grpc_tag=$(get -s -n "" https://grpc.io/release)
   else
-    status_code=$(sudo curl -s -w "%{http_code}" -o /tmp/grpc.tmp "${curl_opts[@]:?}" "https://github.com/grpc/grpc/releases/tag/v$grpc_tag")
+    status_code=$(get -v -n /tmp/grpc.tmp "https://github.com/grpc/grpc/releases/tag/v$grpc_tag")
     if [ "$status_code" = "200" ]; then
       grpc_tag="v$grpc_tag"
     else
-      grpc_tag=$(curl "${curl_opts[@]:?}" https://grpc.io/release)
+      grpc_tag=$(get -s -n "" https://grpc.io/release)
     fi
   fi
 }
@@ -30,7 +30,7 @@ add_grpc_php_plugin() {
   grpc_tag=$1
   get_grpc_tag
   (
-    curl "${curl_opts[@]:?}" "https://github.com/grpc/grpc/archive/$grpc_tag.tar.gz" | tar -xz -C /tmp
+    get -s -n "" "https://github.com/grpc/grpc/archive/$grpc_tag.tar.gz" | tar -xz -C /tmp
     cd "/tmp/grpc-${grpc_tag:1}" || exit
     add_bazel
     echo "os: $os"

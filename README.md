@@ -555,7 +555,7 @@ To debug any issues, you can use the `verbose` tag instead of `v2`.
 ### Cache Extensions
 
 You can cache PHP extensions using `shivammathur/cache-extensions` and `action/cache` GitHub Actions. Extensions which take very long to set up when cached are available in the next workflow run and are enabled directly. This reduces the workflow execution time.  
-Refer to [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") for details. 
+Refer to [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") for details.
 
 ### Cache Composer Dependencies
 
@@ -563,13 +563,13 @@ If your project uses composer, you can persist the composer's internal cache dir
 
 ```yaml
 - name: Get composer cache directory
-  id: composercache
+  id: composer-cache
   run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
 - name: Cache dependencies
   uses: actions/cache@v2
   with:
-    path: ${{ steps.composercache.outputs.dir }}
+    path: ${{ steps.composer-cache.outputs.dir }}
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
     restore-keys: ${{ runner.os }}-composer-
 
@@ -591,13 +591,13 @@ If your project has node.js dependencies, you can persist NPM or yarn cache dire
 
 ```yaml
 - name: Get node.js cache directory
-  id: nodecache
+  id: node-cache-dir
   run: echo "::set-output name=dir::$(npm config get cache)" # Use $(yarn cache dir) for yarn
 
 - name: Cache dependencies
   uses: actions/cache@v2
   with:
-    path: ${{ steps.nodecache.outputs.dir }}
+    path: ${{ steps.node-cache-dir.outputs.dir }}
     key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # Use '**/yarn.lock' for yarn
     restore-keys: ${{ runner.os }}-node-
 ```

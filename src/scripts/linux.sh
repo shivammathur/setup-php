@@ -273,8 +273,8 @@ setup_php() {
 version=$1
 dist=$2
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
-apt_install="sudo $debconf_fix apt-get install -y"
-apt_remove="sudo $debconf_fix apt-get remove -y"
+apt_install="sudo $debconf_fix apt-fast install -y"
+apt_remove="sudo $debconf_fix apt-fast remove -y"
 
 # shellcheck source=.
 . "${dist}"/../src/scripts/common.sh

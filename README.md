@@ -416,6 +416,7 @@ If this action helped you.
 ## :bookmark: Dependencies
 
 - [Node.js dependencies](https://github.com/shivammathur/setup-php/network/dependencies "Node.js dependencies")
+- [aaronparker/VcRedist](https://github.com/aaronparker/VcRedist "VcRedist PowerShell package")
 - [mlocati/powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager "Package to handle PHP on windows")
 - [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Packaging active PHP packages")
 - [shivammathur/homebrew-php](https://github.com/shivammathur/homebrew-php "Tap for PHP builds for MacOS")

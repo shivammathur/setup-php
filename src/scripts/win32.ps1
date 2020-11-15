@@ -48,7 +48,7 @@ Function Add-Printf {
     if(Test-Path "C:\msys64\usr\bin\printf.exe") {
       New-Item -Path $php_dir\printf.exe -ItemType SymbolicLink -Value C:\msys64\usr\bin\printf.exe
     } else {
-      Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$php_dir\printf.zip"
+      Invoke-WebRequest -UseBasicParsing -Uri "$github/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$php_dir\printf.zip"
       Expand-Archive -Path $php_dir\printf.zip -DestinationPath $php_dir -Force
     }
   } else {
@@ -56,15 +56,23 @@ Function Add-Printf {
   }
 }
 
-Function Install-PhpManager() {
-  $module_path = "$php_dir\PhpManager\PhpManager.psm1"
+Function Install-PSPackage() {
+  param(
+    [Parameter(Position = 0, Mandatory = $true)]
+    $package,
+    [Parameter(Position = 1, Mandatory = $true)]
+    $psm1_path,
+    [Parameter(Position = 2, Mandatory = $true)]
+    $url
+  )
+  $module_path = "$php_dir\$psm1_path.psm1"
   if(-not (Test-Path $module_path -PathType Leaf)) {
-    $zip_file = "$php_dir\PhpManager.zip"
-    Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip' -OutFile $zip_file
+    $zip_file = "$php_dir\$package.zip"
+    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $zip_file
     Expand-Archive -Path $zip_file -DestinationPath $php_dir -Force
   }
   Import-Module $module_path
-  Add-ToProfile $current_profile 'powershell-phpmanager' "Import-Module $module_path"
+  Add-ToProfile $current_profile "$package-search" "Import-Module $module_path"
 }
 
 Function Add-Extension {
@@ -243,6 +251,7 @@ $php_dir = 'C:\tools\php'
 $ext_dir = "$php_dir\ext"
 $current_profile = "$PSHOME\Profile.ps1"
 $ProgressPreference = 'SilentlyContinue'
+$github = 'https://github.com'
 $composer_bin = "$env:APPDATA\Composer\vendor\bin"
 $master_version = '8.0'
 $arch = 'x64'
@@ -256,7 +265,7 @@ if(-not(Test-Path -LiteralPath $current_profile)) {
 
 Add-Printf >$null 2>&1
 Step-Log "Setup PhpManager"
-Install-PhpManager >$null 2>&1
+Install-PSPackage PhpManager PhpManager\PhpManager "$github/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip" >$null 2>&1
 Add-Log $tick "PhpManager" "Installed"
 
 Step-Log "Setup PHP"
@@ -269,7 +278,7 @@ if (Test-Path -LiteralPath $php_dir -PathType Container) {
 $status = "Installed"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
   if ($version -lt '7.0') {
-    Install-Module -Name VcRedist -Force
+    Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" >$null 2>&1
     $arch='x86'
   }
   if ($version -eq $master_version) {

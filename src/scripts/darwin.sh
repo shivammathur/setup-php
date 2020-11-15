@@ -124,7 +124,7 @@ configure_composer() {
     exit 1;
   fi
   composer -q global config process-timeout 0
-  echo "/Users/$USER/.composer/vendor/bin" >> "$GITHUB_PATH"
+  echo "$composer_bin" >> "$GITHUB_PATH"
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
   fi
@@ -176,6 +176,9 @@ add_composertool() {
     composer global require "$prefix$release" >/dev/null 2>&1 &&
     add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
+  if [ -e "$composer_bin/composer" ]; then
+    sudo cp -p "$tool_path_dir/composer" "$composer_bin"
+  fi
 }
 
 # Function to configure PECL
@@ -219,6 +222,7 @@ version=$1
 dist=$2
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)
+composer_bin="$HOME/.composer/vendor/bin"
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 # Setup PHP
@@ -234,7 +238,7 @@ sudo chmod 777 "$ini_file" "$tool_path_dir"
 echo -e "date.timezone=UTC\nmemory_limit=-1" >>"$ini_file"
 ext_dir=$(php -i | grep -Ei "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
-sudo mkdir -p "$ext_dir"
+sudo mkdir -m 777 -p "$ext_dir" "$HOME/.composer"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
 configure_pecl
 sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"

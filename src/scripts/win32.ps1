@@ -148,7 +148,7 @@ Function Edit-ComposerConfig() {
     exit 1;
   }
   composer -q global config process-timeout 0
-  Write-Output "$env:APPDATA\Composer\vendor\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+  Write-Output $composer_bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
   if (Test-Path env:COMPOSER_TOKEN) {
     composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
   }
@@ -227,6 +227,9 @@ Function Add-Composertool() {
   } else {
     Add-Log $cross $tool "Could not setup $tool"
   }
+  if(Test-Path $composer_bin\composer) {
+    Copy-Item -Path "$php_dir\composer" -Destination "$composer_bin\composer" -Force
+  }
 }
 
 Function Add-Pecl() {
@@ -240,6 +243,7 @@ $php_dir = 'C:\tools\php'
 $ext_dir = "$php_dir\ext"
 $current_profile = "$PSHOME\Profile.ps1"
 $ProgressPreference = 'SilentlyContinue'
+$composer_bin = "$env:APPDATA\Composer\vendor\bin"
 $master_version = '8.0'
 $arch = 'x64'
 $ts = $env:PHPTS -eq 'ts'
@@ -285,4 +289,5 @@ Set-PhpIniKey -Key 'memory_limit' -Value '-1' -Path $php_dir
 Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
 Copy-Item -Path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE
+New-Item -ItemType Directory -Path $composer_bin -Force 2>&1 | Out-Null
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)"

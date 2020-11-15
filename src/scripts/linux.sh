@@ -155,7 +155,7 @@ configure_composer() {
     exit 1;
   fi
   composer -q global config process-timeout 0
-  echo "/home/$USER/.composer/vendor/bin" >> "$GITHUB_PATH"
+  echo "$composer_bin" >> "$GITHUB_PATH"
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
   fi
@@ -203,6 +203,9 @@ add_composertool() {
     composer global require "$prefix$release" >/dev/null 2>&1 &&
     add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
+  if [ -e "$composer_bin/composer" ]; then
+    sudo cp -p "$tool_path_dir/composer" "$composer_bin"
+  fi
 }
 
 # Function to setup phpize and php-config
@@ -259,11 +262,12 @@ debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y"
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)
+composer_bin="$HOME/.composer/vendor/bin"
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 # Setup PHP
 step_log "Setup PHP"
-sudo mkdir -p /var/run /run/php
+sudo mkdir -m 777 -p "$HOME/.composer" /var/run /run/php
 . /etc/lsb-release
 if [ "$DISTRIB_RELEASE" = "20.04" ]; then
   if ! apt-cache policy | grep -q ondrej/php; then

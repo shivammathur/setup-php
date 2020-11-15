@@ -62,11 +62,13 @@ remove_extension() {
   if check_extension "$extension"; then
     if [[ ! "$version" =~ ${old_versions:?} ]] && [ -e /etc/php/"$version"/mods-available/"$extension".ini ]; then
       sudo phpdismod -v "$version" "$extension" >/dev/null 2>&1
+      echo "$extension" | sudo tee -a /tmp/setup_php_dismod >/dev/null 2>&1
     fi
     delete_extension "$extension"
     (! check_extension "$extension" && add_log "${tick:?}" ":$extension" "Removed") ||
       add_log "${cross:?}" ":$extension" "Could not remove $extension on PHP ${semver:?}"
   else
+    delete_extension "$extension"
     add_log "${tick:?}" ":$extension" "Could not find $extension on PHP $semver"
   fi
 }

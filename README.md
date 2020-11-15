@@ -63,6 +63,8 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |Ubuntu 20.04|`ubuntu-20.04`|`PHP 7.4`|
 |Windows Server 2019|`windows-latest` or `windows-2019`|`PHP 7.4`|
 |macOS 10.15 Catalina|`macos-latest` or `macos-10.15`|`PHP 7.4`|
+|macOS 11.0 Big Sur|`macos-11.0`|`PHP 7.4`|
+
 
 ## :heavy_plus_sign: PHP Extension Support
 - On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl` in the tools input.
@@ -282,10 +284,15 @@ You can persist composer's internal cache directory using the [`action/cache`](h
   run: composer install --prefer-dist
 ```
 
-In the above example, if you support a range of `composer` dependencies and do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
-
+- If you do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
 ```yaml
-key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }} 
+key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+```
+
+- If you support a range of `composer` dependencies and use `prefer-lowest` and `prefer-stable` options, you can store them in your matrix add them to the keys.
+```yaml
+key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}-${{ matrix.prefer }}-
+restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-
 ```
 
 ### Composer GitHub OAuth

@@ -37,6 +37,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Flags](#flags)
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
+  - [Multi-Arch Setup](#multi-arch-setup)
   - [Nightly Build Setup](#nightly-build-setup)
   - [Self Hosted Setup](#self-hosted-setup)
   - [Local Testing Setup](#local-testing-setup)
@@ -106,6 +107,8 @@ The action supports both `GitHub-hosted` runners and `self-hosted` runners on th
 
 ## :heavy_plus_sign: PHP Extension Support
 
+- Extensions enabled by default after `setup-php` runs can be found on the [wiki](https://github.com/shivammathur/setup-php/wiki).
+
 - On `ubuntu` by default extensions which are available as a package can be installed. PECL extensions if not available as a package can be installed by specifying `pecl` in the tools input.
 
 ```yaml
@@ -165,7 +168,7 @@ The action supports both `GitHub-hosted` runners and `self-hosted` runners on th
     extensions: intl-67.1
 ```
 
-- These extensions have custom support - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`, and `blackfire`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
+- These extensions have custom support - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`, and `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
 
 - By default, extensions which cannot be added or removed gracefully leave an error message in the logs, the action is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`. 
 
@@ -404,6 +407,37 @@ jobs:
         tools: php-cs-fixer, phpunit
 ```
 
+### Multi-Arch Setup
+
+> Setup PHP on multiple architecture on Ubuntu GitHub Runners.
+
+- `PHP 5.6` to `PHP 7.4` are supported by `setup-php` on multiple architecture on `Ubuntu`.
+- For this, you can use `shivammathur/node` images as containers. These have compatible `Nodejs` and `spc` utility.
+- Using `spc` you can run `setup-php` on both `i386` and `amd64` containers as opposed to [default syntax](#basic-setup), which only supports `amd64`.
+- Currently, for `Arm` based setup, you will need [self-hosted runners](#self-hosted-setup).
+
+```yaml
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    container: shivammathur/node:latest-${{ matrix.arch }}
+    strategy:
+      matrix:
+        arch: ["amd64", "i386"]
+    steps:
+      - name: Install PHP
+        run: |
+          # Update spc (See https://github.com/shivammathur/spc for options)
+          spc -U
+
+          # Install PHP
+          spc --php-version "7.4" \
+              --extensions "mbstring, intl" \
+              --ini-values "post_max_size=256M, short_open_tag=On" \
+              --coverage "xdebug" \
+              --tools "php-cs-fixer, phpunit"
+```
+
 ### Nightly Build Setup
 
 > Setup a nightly build of `PHP 8.0` or `PHP 8.1`. 
@@ -462,6 +496,7 @@ jobs:
 **Notes**
 - Do not setup multiple self-hosted runners on a single server instance as parallel workflow will conflict with each other.
 - Do not setup self-hosted runners on the side on your development environment or your production server.
+- Avoid using the same labels for your `self-hosted` runners which are used by `GitHub-hosted` runners.
 
 ### Local Testing Setup
 
@@ -579,10 +614,15 @@ If your project uses composer, you can persist the composer's internal cache dir
 
 **Notes**
 - Please do not cache `vendor` directory using `action/cache` as that will have side effects.
-- In the above example, if you support a range of `composer` dependencies and do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
-
+- If you do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
 ```yaml
 key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+```
+
+- If you support a range of `composer` dependencies and use `prefer-lowest` and `prefer-stable` options, you can store them in your matrix add them to the keys.
+```yaml
+key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}-${{ matrix.prefer }}-
+restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-
 ```
 
 ### Cache Node.js Dependencies

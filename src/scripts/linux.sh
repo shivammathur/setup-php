@@ -103,9 +103,12 @@ add_extension() {
   elif check_extension "$extension"; then
     add_log "$tick" "$extension" "Enabled"
   elif ! check_extension "$extension"; then
-    eval "$install_command" >/dev/null 2>&1 ||
-    (update_lists && eval "$install_command" >/dev/null 2>&1) ||
-    sudo pecl install -f "$extension" >/dev/null 2>&1
+    if [ "$version" = "8.0" ]; then
+      pecl_install "$extension"
+    else
+      eval "$install_command" >/dev/null 2>&1 ||
+      (update_lists && eval "$install_command" >/dev/null 2>&1) || pecl_install "$extension"
+    fi
     (check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled") ||
     add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi

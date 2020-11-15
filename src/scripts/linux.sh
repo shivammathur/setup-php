@@ -179,6 +179,10 @@ add_tool() {
   else
     status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
   fi
+  if [ "$status_code" != "200" ] && [[ "$url" =~ .*github.com.*releases.*latest.* ]]; then
+    url=$(echo $url | sed -e "s|releases/latest/download|releases/download/$(curl "${curl_opts[@]}" "$(echo "$url" | cut -d '/' -f '1-5')/releases" | grep -Eo -m 1 "([0-9]+\.[0-9]+\.[0-9]+)/$(echo "$url" | sed -e "s/.*\///")" | cut -d '/' -f 1)|")
+    status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
+  fi
   if [ "$status_code" = "200" ]; then
     sudo chmod a+x "$tool_path"
     if [ "$tool" = "composer" ]; then

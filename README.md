@@ -264,14 +264,14 @@ You can persist composer's internal cache directory using the [`action/cache`](h
 **Note:** Please do not cache `vendor` directory using `action/cache` as that will have side-effects.
 
 ```yaml
-- name: Get composer cache directory
-  id: composercache
+- name: Get Composer Cache Directory
+  id: composer-cache
   run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
 - name: Cache dependencies
   uses: actions/cache@v2
   with:
-    path: ${{ steps.composercache.outputs.dir }}
+    path: ${{ steps.composer-cache.outputs.dir }}
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
     restore-keys: ${{ runner.os }}-composer-
 

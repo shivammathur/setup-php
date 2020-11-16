@@ -81,10 +81,15 @@ describe('Extension tests', () => {
       'add_log "$cross" "pcov" "pcov is not supported on PHP 5.6"'
     );
 
-    linux = await extensions.addExtension('gearman', '7.0', 'linux');
+    linux = await extensions.addExtension('gearman', '5.6', 'linux');
     expect(linux).toContain('add_gearman');
     linux = await extensions.addExtension('gearman', '7.4', 'linux');
     expect(linux).toContain('add_gearman');
+
+    linux = await extensions.addExtension('couchbase', '5.6', 'linux');
+    expect(linux).toContain('add_couchbase');
+    linux = await extensions.addExtension('couchbase', '7.4', 'linux');
+    expect(linux).toContain('add_couchbase');
 
     linux = await extensions.addExtension('pdo_cubrid', '7.0', 'linux');
     expect(linux).toContain('add_cubrid pdo_cubrid');
@@ -141,6 +146,12 @@ describe('Extension tests', () => {
 
     darwin = await extensions.addExtension('phalcon4', '7.3', 'darwin');
     expect(darwin).toContain('add_phalcon phalcon4');
+
+    darwin = await extensions.addExtension('couchbase', '5.6', 'darwin');
+    expect(darwin).toContain('add_couchbase');
+
+    darwin = await extensions.addExtension('couchbase', '7.3', 'darwin');
+    expect(darwin).toContain('add_couchbase');
 
     darwin = await extensions.addExtension('ioncube', '7.3', 'darwin');
     expect(darwin).toContain('add_ioncube');

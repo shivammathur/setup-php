@@ -204,6 +204,31 @@ export async function getPharUrl(
 }
 
 /**
+ * Function to get blackfire player url for a PHP version.
+ *
+ * @param version
+ * @param php_version
+ */
+export async function getBlackfirePlayerUrl(
+  version: string,
+  php_version: string
+): Promise<string> {
+  switch (true) {
+    case /5\.[5-6]|7\.0/.test(php_version) && version == 'latest':
+      version = '1.9.3';
+      break;
+    default:
+      break;
+  }
+  return await getPharUrl(
+    'https://get.blackfire.io',
+    'blackfire-player',
+    'v',
+    version
+  );
+}
+
+/**
  * Function to get the Deployer url
  *
  * @param version
@@ -280,15 +305,19 @@ export async function getWpCliUrl(version: string): Promise<string> {
  */
 export async function addComposer(tools_list: string[]): Promise<string[]> {
   const regex_any = /^composer($|:.*)/;
-  const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$)/;
+  const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$|v?\d+\.\d+\.\d+[\w-]*$)/;
+  const regex_composer1_tools = /hirak|prestissimo|narrowspark|composer-prefetcher/;
   const matches: string[] = tools_list.filter(tool => regex_valid.test(tool));
   let composer = 'composer';
   tools_list = tools_list.filter(tool => !regex_any.test(tool));
-  switch (matches[0]) {
-    case undefined:
+  switch (true) {
+    case regex_composer1_tools.test(tools_list.join(' ')):
+      composer = 'composer:1';
+      break;
+    case matches[0] == undefined:
       break;
     default:
-      composer = matches[matches.length - 1].replace(/v([1-2])/, '$1');
+      composer = matches[matches.length - 1].replace(/v(\d\S*)/, '$1');
       break;
   }
   tools_list.unshift(composer);
@@ -301,21 +330,20 @@ export async function addComposer(tools_list: string[]): Promise<string[]> {
  * @param version
  */
 export async function getComposerUrl(version: string): Promise<string> {
-  const cache_url =
-    'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-' +
-    version.replace('latest', 'stable') +
-    '.phar,';
-  switch (version) {
-    case 'snapshot':
-      return cache_url + 'https://getcomposer.org/composer.phar';
-    case 'preview':
-    case '1':
-    case '2':
-      return (
-        cache_url + 'https://getcomposer.org/composer-' + version + '.phar'
-      );
+  let cache_url = `https://github.com/shivammathur/composer-cache/releases/latest/download/composer-${version.replace(
+    'latest',
+    'stable'
+  )}.phar`;
+  switch (true) {
+    case /^snapshot$/.test(version):
+      return `${cache_url},https://getcomposer.org/composer.phar`;
+    case /^preview$|^[1-2]$/.test(version):
+      return `${cache_url},https://getcomposer.org/composer-${version}.phar`;
+    case /^\d+\.\d+\.\d+[\w-]*$/.test(version):
+      cache_url = `https://github.com/composer/composer/releases/download/${version}/composer.phar`;
+      return `${cache_url},https://getcomposer.org/composer-${version}.phar`;
     default:
-      return cache_url + 'https://getcomposer.org/composer-stable.phar';
+      return `${cache_url},https://getcomposer.org/composer-stable.phar`;
   }
 }
 
@@ -450,7 +478,7 @@ export async function addTools(
         script += await addPackage(tool, release, tool + '/', os_version);
         break;
       case 'blackfire-player':
-        url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
+        url = await getBlackfirePlayerUrl(version, php_version);
         script += await addArchive(tool, url, os_version, '"-V"');
         break;
       case 'codeception':

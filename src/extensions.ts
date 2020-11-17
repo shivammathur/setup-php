@@ -5,12 +5,10 @@ import * as utils from './utils';
  *
  * @param extension_csv
  * @param version
- * @param pipe
  */
 export async function addExtensionDarwin(
   extension_csv: string,
-  version: string,
-  pipe: string
+  version: string
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let add_script = '\n';
@@ -19,8 +17,6 @@ export async function addExtensionDarwin(
     const version_extension: string = version + extension;
     const [ext_name, ext_version]: string[] = extension.split('-');
     const ext_prefix = await utils.getExtensionPrefix(ext_name);
-    const command_prefix = 'pecl_install ';
-    let command = '';
     switch (true) {
       // match :extension
       case /^:/.test(ext_name):
@@ -31,12 +27,14 @@ export async function addExtensionDarwin(
       // match pdo_oci and oci8
       // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+      // match 5.6couchbase...7.4couchbase
       case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
       case /^pdo_oci$|^oci8$/.test(extension):
       case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+      case /^5\.6couchbase$|^7\.[0-4]couchbase$/.test(version_extension):
         add_script += await utils.customPackage(
           ext_name,
           'ext',
@@ -74,34 +72,24 @@ export async function addExtensionDarwin(
         version_extension
       ):
       case /(7\.[1-4]|8\.[0-9])pcov/.test(version_extension):
-        command = 'add_brew_extension ' + ext_name;
+        add_script += await utils.joins(
+          '\nadd_brew_extension',
+          ext_name,
+          ext_prefix
+        );
         break;
       // match 5.6redis
       case /5\.6redis/.test(version_extension):
-        command = command_prefix + 'redis-2.2.8';
-        break;
-      // match 5.4imagick and 5.5imagick
-      case /^5\.[4-5]imagick$/.test(version_extension):
-        command = await utils.joins(
-          'brew install pkg-config imagemagick' + pipe,
-          '&& ' + command_prefix + 'imagick' + pipe
-        );
+        extension = 'redis-2.2.8';
         break;
       // match sqlite
       case /^sqlite$/.test(extension):
         extension = 'sqlite3';
-        command = command_prefix + extension;
         break;
       default:
-        command = command_prefix + extension;
         break;
     }
-    add_script += await utils.joins(
-      '\nadd_extension',
-      extension,
-      '"' + command + '"',
-      ext_prefix
-    );
+    add_script += await utils.joins('\nadd_extension', extension, ext_prefix);
   });
   return add_script + remove_script;
 }
@@ -164,16 +152,14 @@ export async function addExtensionWindows(
         );
         break;
       // match semver with state
-      case /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.test(
-        version_extension
-      ):
-        matches = /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.exec(
+      case /.*-(\d+\.\d+\.\d)([a-zA-Z+]+)\d*/.test(version_extension):
+        matches = /.*-(\d+\.\d+\.\d)([a-zA-Z+]+)\d*/.exec(
           version_extension
         ) as RegExpExecArray;
         add_script += await utils.joins(
           '\nAdd-Extension',
           ext_name,
-          matches[2],
+          matches[2].replace('preview', 'devel'),
           matches[1]
         );
         break;
@@ -212,12 +198,10 @@ export async function addExtensionWindows(
  *
  * @param extension_csv
  * @param version
- * @param pipe
  */
 export async function addExtensionLinux(
   extension_csv: string,
-  version: string,
-  pipe: string
+  version: string
 ): Promise<string> {
   const extensions: Array<string> = await utils.extensionArray(extension_csv);
   let add_script = '\n';
@@ -226,8 +210,6 @@ export async function addExtensionLinux(
     const version_extension: string = version + extension;
     const [ext_name, ext_version]: string[] = extension.split('-');
     const ext_prefix = await utils.getExtensionPrefix(ext_name);
-    const command_prefix = 'sudo $debconf_fix apt-get install -y php';
-    let command = '';
     switch (true) {
       // Match :extension
       case /^:/.test(ext_name):
@@ -239,7 +221,7 @@ export async function addExtensionLinux(
       // match pdo_oci and oci8
       // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-      // match 5.6gearman..7.4gearman
+      // match 5.6gearman...7.4gearman, 5.6couchbase...7.4couchbase
       case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
@@ -252,7 +234,7 @@ export async function addExtensionLinux(
       ):
       case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-      case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
+      case /^((5\.6)|(7\.[0-4]))(gearman|couchbase)$/.test(version_extension):
         add_script += await utils.customPackage(
           ext_name,
           'ext',
@@ -290,32 +272,20 @@ export async function addExtensionLinux(
       // match 8.0xdebug3...8.9xdebug3
       case /^8\.[0-9]xdebug3$/.test(version_extension):
         extension = 'xdebug';
-        command = command_prefix + version + '-' + extension + pipe;
         break;
       // match pdo extensions
       case /.*pdo[_-].*/.test(version_extension):
         extension = extension.replace(/pdo[_-]|3/, '');
         add_script += '\nadd_pdo_extension ' + extension;
         return;
-      // match uopz
-      case /^(uopz)$/.test(extension):
-        command = command_prefix + '-' + extension + pipe;
-        break;
       // match sqlite
       case /^sqlite$/.test(extension):
         extension = 'sqlite3';
-        command = command_prefix + version + '-' + extension + pipe;
         break;
       default:
-        command = command_prefix + version + '-' + extension + pipe;
         break;
     }
-    add_script += await utils.joins(
-      '\nadd_extension',
-      extension,
-      '"' + command + '"',
-      ext_prefix
-    );
+    add_script += await utils.joins('\nadd_extension', extension, ext_prefix);
   });
   return add_script + remove_script;
 }
@@ -334,15 +304,15 @@ export async function addExtension(
   os_version: string,
   no_step = false
 ): Promise<string> {
-  const pipe: string = await utils.suppressOutput(os_version);
+  const log: string = await utils.stepLog('Setup Extensions', os_version);
   let script = '\n';
   switch (no_step) {
     case true:
-      script += (await utils.stepLog('Setup Extensions', os_version)) + pipe;
+      script += log + (await utils.suppressOutput(os_version));
       break;
     case false:
     default:
-      script += await utils.stepLog('Setup Extensions', os_version);
+      script += log;
       break;
   }
 
@@ -350,9 +320,9 @@ export async function addExtension(
     case 'win32':
       return script + (await addExtensionWindows(extension_csv, version));
     case 'darwin':
-      return script + (await addExtensionDarwin(extension_csv, version, pipe));
+      return script + (await addExtensionDarwin(extension_csv, version));
     case 'linux':
-      return script + (await addExtensionLinux(extension_csv, version, pipe));
+      return script + (await addExtensionLinux(extension_csv, version));
     default:
       return await utils.log(
         'Platform ' + os_version + ' is not supported',

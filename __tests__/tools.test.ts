@@ -187,6 +187,21 @@ describe('Tools tests', () => {
     );
   });
 
+  it('checking getBlackfirePlayerUrl', async () => {
+    expect(await tools.getBlackfirePlayerUrl('latest', '7.4')).toBe(
+      'https://get.blackfire.io/blackfire-player.phar'
+    );
+    expect(await tools.getBlackfirePlayerUrl('latest', '5.5')).toBe(
+      'https://get.blackfire.io/blackfire-player-v1.9.3.phar'
+    );
+    expect(await tools.getBlackfirePlayerUrl('latest', '7.0')).toBe(
+      'https://get.blackfire.io/blackfire-player-v1.9.3.phar'
+    );
+    expect(await tools.getBlackfirePlayerUrl('1.2.3', '7.0')).toBe(
+      'https://get.blackfire.io/blackfire-player-v1.2.3.phar'
+    );
+  });
+
   it('checking getDeployerUri', async () => {
     expect(await tools.getDeployerUrl('latest')).toBe(
       'https://deployer.org/deployer.phar'
@@ -207,9 +222,17 @@ describe('Tools tests', () => {
       'a',
       'b'
     ]);
+    expect(await tools.addComposer(['a', 'b', 'composer:1.2'])).toStrictEqual([
+      'composer',
+      'a',
+      'b'
+    ]);
     expect(
       await tools.addComposer(['a', 'b', 'composer:1.2.3'])
-    ).toStrictEqual(['composer', 'a', 'b']);
+    ).toStrictEqual(['composer:1.2.3', 'a', 'b']);
+    expect(
+      await tools.addComposer(['a', 'b', 'composer:v1.2.3'])
+    ).toStrictEqual(['composer:1.2.3', 'a', 'b']);
     expect(
       await tools.addComposer(['a', 'b', 'composer:snapshot'])
     ).toStrictEqual(['composer:snapshot', 'a', 'b']);
@@ -228,6 +251,9 @@ describe('Tools tests', () => {
     expect(
       await tools.addComposer(['a', 'b', 'c', 'composer:v2'])
     ).toStrictEqual(['composer:2', 'a', 'b', 'c']);
+    expect(
+      await tools.addComposer(['hirak', 'b', 'c', 'composer:v2'])
+    ).toStrictEqual(['composer:1', 'hirak', 'b', 'c']);
   });
 
   it('checking getComposerUrl', async () => {
@@ -248,6 +274,21 @@ describe('Tools tests', () => {
     );
     expect(await tools.getComposerUrl('2')).toContain(
       'https://getcomposer.org/composer-2.phar'
+    );
+    expect(await tools.getComposerUrl('1.7.2')).toContain(
+      'https://github.com/composer/composer/releases/download/1.7.2/composer.phar'
+    );
+    expect(await tools.getComposerUrl('1.7.2')).toContain(
+      'https://getcomposer.org/composer-1.7.2.phar'
+    );
+    expect(await tools.getComposerUrl('2.0.0-RC2')).toContain(
+      'https://github.com/composer/composer/releases/download/2.0.0-RC2/composer.phar'
+    );
+    expect(await tools.getComposerUrl('2.0.0-RC2')).toContain(
+      'https://getcomposer.org/composer-2.0.0-RC2.phar'
+    );
+    expect(await tools.getComposerUrl('wrong')).toContain(
+      'https://getcomposer.org/composer-stable.phar'
     );
   });
 
@@ -277,7 +318,7 @@ describe('Tools tests', () => {
 
   it('checking getCleanedToolsList', async () => {
     const tools_list: string[] = await tools.getCleanedToolsList(
-      'tool, composer:1.2.3, behat/behat, icanhazstring/composer-unused, laravel/vapor-cli, robmorgan/phinx, hirak/prestissimo, narrowspark/automatic-composer-prefetcher, phpspec/phpspec, symfony/flex'
+      'tool, composer:1.2, behat/behat, icanhazstring/composer-unused, laravel/vapor-cli, robmorgan/phinx, phpspec/phpspec, symfony/flex'
     );
     expect(tools_list).toStrictEqual([
       'composer',
@@ -286,8 +327,6 @@ describe('Tools tests', () => {
       'composer-unused',
       'vapor-cli',
       'phinx',
-      'prestissimo',
-      'composer-prefetcher',
       'phpspec',
       'flex'
     ]);
@@ -433,7 +472,6 @@ describe('Tools tests', () => {
       'blackfire',
       'blackfire-player',
       'composer-normalize',
-      'composer-prefetcher:1.2.3',
       'composer-require-checker',
       'composer-unused',
       'cs2pr:1.2.3',
@@ -523,9 +561,6 @@ describe('Tools tests', () => {
       'add_composertool composer-unused composer-unused icanhazstring/'
     );
     expect(script).toContain(
-      'add_composertool composer-prefetcher composer-prefetcher:1.2.3 narrowspark/automatic-'
-    );
-    expect(script).toContain(
       'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_darwin_amd64 symfony version'
     );
     expect(script).toContain(
@@ -551,7 +586,6 @@ describe('Tools tests', () => {
       'php-config',
       'phpize',
       'phpmd',
-      'prestissimo',
       'symfony',
       'wp-cli'
     ];
@@ -576,7 +610,6 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'Add-Tool https://deployer.org/deployer.phar deployer "-V"'
     );
-    expect(script).toContain('Add-Composertool prestissimo prestissimo hirak/');
     expect(script).toContain(
       'Add-Tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"'
     );
@@ -608,7 +641,7 @@ describe('Tools tests', () => {
     );
 
     expect(script).toContain(
-      'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer'
+      'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-1.phar,https://getcomposer.org/composer-1.phar composer'
     );
     expect(script).toContain('Add-Composertool prestissimo prestissimo hirak/');
     expect(script).toContain('Add-Composertool phinx phinx robmorgan/');

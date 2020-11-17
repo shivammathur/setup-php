@@ -79,7 +79,7 @@ Function Add-Printf {
     if(Test-Path "C:\msys64\usr\bin\printf.exe") {
       New-Item -Path $bin_dir\printf.exe -ItemType SymbolicLink -Value C:\msys64\usr\bin\printf.exe
     } else {
-      Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$bin_dir\printf.zip"
+      Invoke-WebRequest -Uri "$github/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$bin_dir\printf.zip"
       Expand-Archive -Path $bin_dir\printf.zip -DestinationPath $bin_dir -Force
     }
   } else {
@@ -96,16 +96,24 @@ Function Get-CleanPSProfile {
   Add-ToProfile $profile $current_profile.replace('\', '\\') ". $current_profile"
 }
 
-# Function to install PhpManager.
-Function Install-PhpManager() {
-  $module_path = "$bin_dir\PhpManager\PhpManager.psm1"
+# Function to install a powershell package from GitHub.
+Function Install-PSPackage() {
+  param(
+    [Parameter(Position = 0, Mandatory = $true)]
+    $package,
+    [Parameter(Position = 1, Mandatory = $true)]
+    $psm1_path,
+    [Parameter(Position = 2, Mandatory = $true)]
+    $url
+  )
+  $module_path = "$bin_dir\$psm1_path.psm1"
   if(-not (Test-Path $module_path -PathType Leaf)) {
-    $zip_file = "$bin_dir\PhpManager.zip"
-    Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip' -OutFile $zip_file
+    $zip_file = "$bin_dir\$package.zip"
+    Invoke-WebRequest -Uri $url -OutFile $zip_file
     Expand-Archive -Path $zip_file -DestinationPath $bin_dir -Force
   }
   Import-Module $module_path
-  Add-ToProfile $current_profile 'powershell-phpmanager' "Import-Module $module_path"
+  Add-ToProfile $current_profile "$package-search" "Import-Module $module_path"
 }
 
 # Function to add PHP extensions.
@@ -197,7 +205,7 @@ Function Edit-ComposerConfig() {
     exit 1;
   }
   composer -q global config process-timeout 0
-  Write-Output "$env:APPDATA\Composer\vendor\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+  Write-Output $composer_bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
   if (Test-Path env:COMPOSER_TOKEN) {
     composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
   }
@@ -242,33 +250,40 @@ Function Add-Tool() {
   }
   if($url.Count -gt 1) { $url = $url[0] }
   if ($tool -eq "symfony") {
-    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\$tool.exe
+    Invoke-WebRequest -Uri $url -OutFile $bin_dir\$tool.exe
     Add-ToProfile $current_profile $tool "New-Alias $tool $bin_dir\$tool.exe" >$null 2>&1
   } else {
     try {
-      Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\$tool
-      $bat_content = @()
-      $bat_content += "@ECHO off"
-      $bat_content += "setlocal DISABLEDELAYEDEXPANSION"
-      $bat_content += "SET BIN_TARGET=%~dp0/" + $tool
-      $bat_content += "php %BIN_TARGET% %*"
-      Set-Content -Path $bin_dir\$tool.bat -Value $bat_content
-      Add-ToProfile $current_profile $tool "New-Alias $tool $bin_dir\$tool.bat" >$null 2>&1
-    } catch { }
-  }
-  if($tool -eq "phan") {
-    Add-Extension fileinfo >$null 2>&1
-    Add-Extension ast >$null 2>&1
-  } elseif($tool -eq "phive") {
-    Add-Extension xml >$null 2>&1
-  } elseif($tool -eq "cs2pr") {
-    (Get-Content $bin_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $bin_dir/cs2pr
-  } elseif($tool -eq "composer") {
-    Edit-ComposerConfig $bin_dir\$tool
-  } elseif($tool -eq "wp-cli") {
-    Copy-Item $bin_dir\wp-cli.bat -Destination $bin_dir\wp.bat
+      Invoke-WebRequest -Uri $url -OutFile $bin_dir\$tool
+    } catch {
+      if($url -match '.*github.com.*releases.*latest.*') {
+        try {
+          $url = $url.replace("releases/latest/download", "releases/download/" + ([regex]::match((Invoke-WebRequest -Uri ($url.split('/release')[0] + "/releases")).Content, "([0-9]+\.[0-9]+\.[0-9]+)/" + ($url.Substring($url.LastIndexOf("/") + 1))).Groups[0].Value).split('/')[0])
+          Invoke-WebRequest -Uri $url -OutFile $bin_dir\$tool
+        } catch { }
+      }
+    }
   }
   if (((Get-ChildItem -Path $bin_dir/* | Where-Object Name -Match "^$tool(.exe|.phar)*$").Count -gt 0)) {
+    $bat_content = @()
+    $bat_content += "@ECHO off"
+    $bat_content += "setlocal DISABLEDELAYEDEXPANSION"
+    $bat_content += "SET BIN_TARGET=%~dp0/" + $tool
+    $bat_content += "php %BIN_TARGET% %*"
+    Set-Content -Path $bin_dir\$tool.bat -Value $bat_content
+    Add-ToProfile $current_profile $tool "New-Alias $tool $bin_dir\$tool.bat" >$null 2>&1
+    if($tool -eq "phan") {
+      Add-Extension fileinfo >$null 2>&1
+      Add-Extension ast >$null 2>&1
+    } elseif($tool -eq "phive") {
+      Add-Extension xml >$null 2>&1
+    } elseif($tool -eq "cs2pr") {
+      (Get-Content $bin_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $bin_dir/cs2pr
+    } elseif($tool -eq "composer") {
+      Edit-ComposerConfig $bin_dir\$tool
+    } elseif($tool -eq "wp-cli") {
+      Copy-Item $bin_dir\wp-cli.bat -Destination $bin_dir\wp.bat
+    }
     $tool_version = Get-ToolVersion $tool $ver_param
     Add-Log $tick $tool "Added $tool $tool_version"
   } else {
@@ -297,6 +312,9 @@ Function Add-Composertool() {
   )
   composer global require $prefix$release 2>&1 | out-null
   $json = findstr $prefix$tool $env:APPDATA\Composer\composer.json
+  if(Test-Path $composer_bin\composer) {
+    Copy-Item -Path "$bin_dir\composer" -Destination "$composer_bin\composer" -Force
+  }
   if($json) {
     $tool_version = Get-ToolVersion "Write-Output" "$json"
     Add-Log $tick $tool "Added $tool $tool_version"
@@ -316,10 +334,14 @@ $cross = ([char]10007)
 $php_dir = 'C:\tools\php'
 $ext_dir = "$php_dir\ext"
 $bin_dir = $php_dir
+$bintray = 'https://dl.bintray.com/shivammathur/php'
+$github = 'https://github.com'
+$composer_bin = "$env:APPDATA\Composer\vendor\bin"
 $current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $nightly_version = '8.[0-9]'
 $cert_source='CurrentUser'
+$enable_extensions = ('openssl', 'curl', 'mbstring')
 
 $arch = 'x64'
 if(-not([Environment]::Is64BitOperatingSystem) -or $version -lt '7.0') {
@@ -358,7 +380,7 @@ if($env:RUNNER -eq 'self-hosted') {
 
 Add-Printf >$null 2>&1
 Step-Log "Setup PhpManager"
-Install-PhpManager >$null 2>&1
+Install-PSPackage PhpManager PhpManager\PhpManager "$github/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip" >$null 2>&1
 Add-Log $tick "PhpManager" "Installed"
 
 Step-Log "Setup PHP"
@@ -371,11 +393,11 @@ if (Test-Path -LiteralPath $php_dir -PathType Container) {
 $status = "Installed"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
   if ($version -lt '7.0' -and (Get-InstalledModule).Name -notcontains 'VcRedist') {
-    Install-Module -Name VcRedist -Force
+    Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" >$null 2>&1
   }
   if ($version -match $nightly_version) {
-    Invoke-WebRequest -UseBasicParsing -Uri https://dl.bintray.com/shivammathur/php/Install-PhpNightly.ps1 -OutFile $php_dir\Install-PhpNightly.ps1 > $null 2>&1
-    & $php_dir\Install-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir -Version $version > $null 2>&1
+    Invoke-WebRequest -Uri $bintray/Get-PhpNightly.ps1 -OutFile $php_dir\Get-PhpNightly.ps1 > $null 2>&1
+    & $php_dir\Get-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir -Version $version > $null 2>&1
   } else {
     Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
   }
@@ -389,16 +411,14 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 }
 
 $installed = Get-Php -Path $php_dir
-Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
-Set-PhpIniKey -Key 'memory_limit' -Value '-1' -Path $php_dir
+('date.timezone=UTC', 'memory_limit=-1') | foreach { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
 if($version -lt "5.5") {
-  ForEach($lib in "libeay32.dll", "ssleay32.dll") {
-    Invoke-WebRequest -UseBasicParsing -Uri https://dl.bintray.com/shivammathur/php/$lib -OutFile $php_dir\$lib >$null 2>&1
-  }
-  Enable-PhpExtension -Extension openssl, curl, mbstring -Path $php_dir
+  ('libeay32.dll', 'ssleay32.dll') | ForEach { Invoke-WebRequest -Uri $bintray/$_ -OutFile $php_dir\$_ >$null 2>&1 }
 } else {
-  Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
+  $enable_extensions += ('opcache')
 }
+Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source $cert_source
 Copy-Item -Path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE
+New-Item -ItemType Directory -Path $composer_bin -Force 2>&1 | Out-Null
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)"

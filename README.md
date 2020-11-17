@@ -10,7 +10,7 @@
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
   <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://img.shields.io/codecov/c/github/shivammathur/setup-php?logo=codecov"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg?logo=open%20source%20initiative&logoColor=white&labelColor=555555"></a>
-  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.0-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>  
+  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.1-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>  
 </p>
 <p align="center">  
   <a href="https://reddit.com/r/setup_php" title="setup-php reddit"><img alt="setup-php reddit" src="https://img.shields.io/badge/reddit-join-FF5700?logo=reddit&logoColor=FF5700&labelColor=555555"></a>
@@ -37,6 +37,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Flags](#flags)
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
+  - [Multi-Arch Setup](#multi-arch-setup)
   - [Nightly Build Setup](#nightly-build-setup)
   - [Self Hosted Setup](#self-hosted-setup)
   - [Local Testing Setup](#local-testing-setup)
@@ -106,6 +107,8 @@ The action supports both `GitHub-hosted` runners and `self-hosted` runners on th
 
 ## :heavy_plus_sign: PHP Extension Support
 
+- Extensions enabled by default after `setup-php` runs can be found on the [wiki](https://github.com/shivammathur/setup-php/wiki).
+
 - On `ubuntu` by default extensions which are available as a package can be installed. PECL extensions if not available as a package can be installed by specifying `pecl` in the tools input.
 
 ```yaml
@@ -165,7 +168,7 @@ The action supports both `GitHub-hosted` runners and `self-hosted` runners on th
     extensions: intl-67.1
 ```
 
-- These extensions have custom support - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`, and `blackfire`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
+- These extensions have custom support - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`, and `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
 
 - By default, extensions which cannot be added or removed gracefully leave an error message in the logs, the action is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`. 
 
@@ -193,7 +196,7 @@ These tools can be setup globally using the `tools` input.
     tools: php-cs-fixer, phpunit
 ```
 
-- To set up a particular version of a tool, specify it in the form `tool:version`. The latest stable version of `composer` is set up by default. You can set up the required version by specifying `v1`, `v2`, `snapshot` or `preview` as version.
+- To set up a particular version of a tool, specify it in the form `tool:version`. The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying `v1`, `v2`, `snapshot` or `preview` as versions or the exact version in semver format.
 
 ```yaml
 - name: Setup PHP with composer v2
@@ -202,6 +205,8 @@ These tools can be setup globally using the `tools` input.
     php-version: '7.4'
     tools: composer:v2
 ```
+
+- If you have specified composer plugins `prestissimo` or `composer-prefetcher` in tools, the latest stable version of `composer v1` will be setup. Unless some of your packages require `composer v1`, it is recommended to drop `prestissimo` and use `composer v2`.
 
 - The latest versions of both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified in tools input. Please refer to the [official documentation](https://blackfire.io/docs/integrations/ci/github-actions "Blackfire.io documentation for GitHub Actions") for using `blackfire` with GitHub Actions.
 
@@ -402,6 +407,37 @@ jobs:
         tools: php-cs-fixer, phpunit
 ```
 
+### Multi-Arch Setup
+
+> Setup PHP on multiple architecture on Ubuntu GitHub Runners.
+
+- `PHP 5.6` to `PHP 7.4` are supported by `setup-php` on multiple architecture on `Ubuntu`.
+- For this, you can use `shivammathur/node` images as containers. These have compatible `Nodejs` and `spc` utility.
+- Using `spc` you can run `setup-php` on both `i386` and `amd64` containers as opposed to [default syntax](#basic-setup), which only supports `amd64`.
+- Currently, for `Arm` based setup, you will need [self-hosted runners](#self-hosted-setup).
+
+```yaml
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    container: shivammathur/node:latest-${{ matrix.arch }}
+    strategy:
+      matrix:
+        arch: ["amd64", "i386"]
+    steps:
+      - name: Install PHP
+        run: |
+          # Update spc (See https://github.com/shivammathur/spc for options)
+          spc -U
+
+          # Install PHP
+          spc --php-version "7.4" \
+              --extensions "mbstring, intl" \
+              --ini-values "post_max_size=256M, short_open_tag=On" \
+              --coverage "xdebug" \
+              --tools "php-cs-fixer, phpunit"
+```
+
 ### Nightly Build Setup
 
 > Setup a nightly build of `PHP 8.0` or `PHP 8.1`. 
@@ -460,6 +496,7 @@ jobs:
 **Notes**
 - Do not setup multiple self-hosted runners on a single server instance as parallel workflow will conflict with each other.
 - Do not setup self-hosted runners on the side on your development environment or your production server.
+- Avoid using the same labels for your `self-hosted` runners which are used by `GitHub-hosted` runners.
 
 ### Local Testing Setup
 
@@ -553,7 +590,7 @@ To debug any issues, you can use the `verbose` tag instead of `v2`.
 ### Cache Extensions
 
 You can cache PHP extensions using `shivammathur/cache-extensions` and `action/cache` GitHub Actions. Extensions which take very long to set up when cached are available in the next workflow run and are enabled directly. This reduces the workflow execution time.  
-Refer to [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") for details. 
+Refer to [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") for details.
 
 ### Cache Composer Dependencies
 
@@ -561,13 +598,13 @@ If your project uses composer, you can persist the composer's internal cache dir
 
 ```yaml
 - name: Get composer cache directory
-  id: composercache
+  id: composer-cache
   run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
 - name: Cache dependencies
   uses: actions/cache@v2
   with:
-    path: ${{ steps.composercache.outputs.dir }}
+    path: ${{ steps.composer-cache.outputs.dir }}
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
     restore-keys: ${{ runner.os }}-composer-
 
@@ -577,10 +614,15 @@ If your project uses composer, you can persist the composer's internal cache dir
 
 **Notes**
 - Please do not cache `vendor` directory using `action/cache` as that will have side effects.
-- In the above example, if you support a range of `composer` dependencies and do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
-
+- If you do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
 ```yaml
 key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+```
+
+- If you support a range of `composer` dependencies and use `prefer-lowest` and `prefer-stable` options, you can store them in your matrix and add them to the keys.
+```yaml
+key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}-${{ matrix.prefer }}-
+restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-
 ```
 
 ### Cache Node.js Dependencies
@@ -589,13 +631,13 @@ If your project has node.js dependencies, you can persist NPM or yarn cache dire
 
 ```yaml
 - name: Get node.js cache directory
-  id: nodecache
+  id: node-cache-dir
   run: echo "::set-output name=dir::$(npm config get cache)" # Use $(yarn cache dir) for yarn
 
 - name: Cache dependencies
   uses: actions/cache@v2
   with:
-    path: ${{ steps.nodecache.outputs.dir }}
+    path: ${{ steps.node-cache-dir.outputs.dir }}
     key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # Use '**/yarn.lock' for yarn
     restore-keys: ${{ runner.os }}-node-
 ```
@@ -769,6 +811,7 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 ## :package: Dependencies
 
 - [Node.js dependencies](https://github.com/shivammathur/setup-php/network/dependencies "Node.js dependencies")
+- [aaronparker/VcRedist](https://github.com/aaronparker/VcRedist "VcRedist PowerShell package")
 - [gplessis/dotdeb-php](https://github.com/gplessis/dotdeb-php "Packaging for end of life PHP versions")
 - [mlocati/powershell-phpmanager](https://github.com/mlocati/powershell-phpmanager "Package to handle PHP on windows")
 - [ppa:ondrej/php](https://launchpad.net/~ondrej/+archive/ubuntu/php "Packaging active PHP packages")

@@ -21,6 +21,7 @@ export async function getScript(
   const name = 'setup-php';
   const url = 'https://setup-php.com/support';
   // taking inputs
+  process.env['fail_fast'] = await utils.getInput('fail-fast', false);
   const extension_csv: string = await utils.getInput('extensions', false);
   const ini_values_csv: string = await utils.getInput('ini-values', false);
   const coverage_driver: string = await utils.getInput('coverage', false);
@@ -60,10 +61,7 @@ export async function run(): Promise<void> {
     const tool = await utils.scriptTool(os_version);
     const script = os_version + (await utils.scriptExtension(os_version));
     const location = await getScript(script, version, os_version);
-    const fail_fast = await utils.readEnv('fail-fast');
-    await exec(
-      await utils.joins(tool, location, version, __dirname, fail_fast)
-    );
+    await exec(await utils.joins(tool, location, version, __dirname));
   } catch (error) {
     core.setFailed(error.message);
   }

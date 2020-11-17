@@ -1764,7 +1764,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addTools = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.getComposerUrl = exports.addComposer = exports.getWpCliUrl = exports.getSymfonyUri = exports.getDeployerUrl = exports.getPharUrl = exports.addPhive = exports.getCodeceptionUri = exports.getCodeceptionUriBuilder = exports.getUri = exports.parseTool = exports.getToolVersion = void 0;
+exports.addTools = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.getComposerUrl = exports.addComposer = exports.getWpCliUrl = exports.getSymfonyUri = exports.getDeployerUrl = exports.getBlackfirePlayerUrl = exports.getPharUrl = exports.addPhive = exports.getCodeceptionUri = exports.getCodeceptionUriBuilder = exports.getUri = exports.parseTool = exports.getToolVersion = void 0;
 const utils = __importStar(__webpack_require__(163));
 /**
  * Function to get tool version
@@ -1943,6 +1943,23 @@ async function getPharUrl(domain, tool, prefix, version) {
 }
 exports.getPharUrl = getPharUrl;
 /**
+ * Function to get blackfire player url for a PHP version.
+ *
+ * @param version
+ * @param php_version
+ */
+async function getBlackfirePlayerUrl(version, php_version) {
+    switch (true) {
+        case /5\.[5-6]|7\.0/.test(php_version) && version == 'latest':
+            version = '1.9.3';
+            break;
+        default:
+            break;
+    }
+    return await getPharUrl('https://get.blackfire.io', 'blackfire-player', 'v', version);
+}
+exports.getBlackfirePlayerUrl = getBlackfirePlayerUrl;
+/**
  * Function to get the Deployer url
  *
  * @param version
@@ -2005,15 +2022,19 @@ exports.getWpCliUrl = getWpCliUrl;
  */
 async function addComposer(tools_list) {
     const regex_any = /^composer($|:.*)/;
-    const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$)/;
+    const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$|v?\d+\.\d+\.\d+[\w-]*$)/;
+    const regex_composer1_tools = /hirak|prestissimo|narrowspark|composer-prefetcher/;
     const matches = tools_list.filter(tool => regex_valid.test(tool));
     let composer = 'composer';
     tools_list = tools_list.filter(tool => !regex_any.test(tool));
-    switch (matches[0]) {
-        case undefined:
+    switch (true) {
+        case regex_composer1_tools.test(tools_list.join(' ')):
+            composer = 'composer:1';
+            break;
+        case matches[0] == undefined:
             break;
         default:
-            composer = matches[matches.length - 1].replace(/v([1-2])/, '$1');
+            composer = matches[matches.length - 1].replace(/v(\d\S*)/, '$1');
             break;
     }
     tools_list.unshift(composer);
@@ -2026,18 +2047,17 @@ exports.addComposer = addComposer;
  * @param version
  */
 async function getComposerUrl(version) {
-    const cache_url = 'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-' +
-        version.replace('latest', 'stable') +
-        '.phar,';
-    switch (version) {
-        case 'snapshot':
-            return cache_url + 'https://getcomposer.org/composer.phar';
-        case 'preview':
-        case '1':
-        case '2':
-            return (cache_url + 'https://getcomposer.org/composer-' + version + '.phar');
+    let cache_url = `https://github.com/shivammathur/composer-cache/releases/latest/download/composer-${version.replace('latest', 'stable')}.phar`;
+    switch (true) {
+        case /^snapshot$/.test(version):
+            return `${cache_url},https://getcomposer.org/composer.phar`;
+        case /^preview$|^[1-2]$/.test(version):
+            return `${cache_url},https://getcomposer.org/composer-${version}.phar`;
+        case /^\d+\.\d+\.\d+[\w-]*$/.test(version):
+            cache_url = `https://github.com/composer/composer/releases/download/${version}/composer.phar`;
+            return `${cache_url},https://getcomposer.org/composer-${version}.phar`;
         default:
-            return cache_url + 'https://getcomposer.org/composer-stable.phar';
+            return `${cache_url},https://getcomposer.org/composer-stable.phar`;
     }
 }
 exports.getComposerUrl = getComposerUrl;
@@ -2132,7 +2152,7 @@ async function addTools(tools_csv, php_version, os_version) {
                 script += await addPackage(tool, release, tool + '/', os_version);
                 break;
             case 'blackfire-player':
-                url = await getPharUrl('https://get.blackfire.io', tool, 'v', version);
+                url = await getBlackfirePlayerUrl(version, php_version);
                 script += await addArchive(tool, url, os_version, '"-V"');
                 break;
             case 'codeception':
@@ -2550,6 +2570,7 @@ async function getScript(filename, version, os_version) {
     const name = 'setup-php';
     const url = 'https://setup-php.com/support';
     // taking inputs
+    process.env['fail_fast'] = await utils.getInput('fail-fast', false);
     const extension_csv = await utils.getInput('extensions', false);
     const ini_values_csv = await utils.getInput('ini-values', false);
     const coverage_driver = await utils.getInput('coverage', false);
@@ -2583,8 +2604,7 @@ async function run() {
         const tool = await utils.scriptTool(os_version);
         const script = os_version + (await utils.scriptExtension(os_version));
         const location = await getScript(script, version, os_version);
-        const fail_fast = await utils.readEnv('fail-fast');
-        await exec_1.exec(await utils.joins(tool, location, version, __dirname, fail_fast));
+        await exec_1.exec(await utils.joins(tool, location, version, __dirname));
     }
     catch (error) {
         core.setFailed(error.message);
@@ -2845,9 +2865,8 @@ const utils = __importStar(__webpack_require__(163));
  *
  * @param extension_csv
  * @param version
- * @param pipe
  */
-async function addExtensionDarwin(extension_csv, version, pipe) {
+async function addExtensionDarwin(extension_csv, version) {
     const extensions = await utils.extensionArray(extension_csv);
     let add_script = '\n';
     let remove_script = '';
@@ -2855,8 +2874,6 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
-        const command_prefix = 'pecl_install ';
-        let command = '';
         switch (true) {
             // match :extension
             case /^:/.test(ext_name):
@@ -2867,10 +2884,12 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
             // match pdo_oci and oci8
             // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+            // match 5.6couchbase...7.4couchbase
             case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^pdo_oci$|^oci8$/.test(extension):
             case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+            case /^5\.6couchbase$|^7\.[0-4]couchbase$/.test(version_extension):
                 add_script += await utils.customPackage(ext_name, 'ext', extension, 'darwin');
                 return;
             // match pre-release versions. For example - xdebug-beta
@@ -2891,26 +2910,20 @@ async function addExtensionDarwin(extension_csv, version, pipe) {
             case /(5\.6|7\.[0-4]|8\.[0-9])(xdebug|igbinary)/.test(version_extension):
             case /(5\.6|7\.[0-4])(grpc|imagick|protobuf|swoole)/.test(version_extension):
             case /(7\.[1-4]|8\.[0-9])pcov/.test(version_extension):
-                command = 'add_brew_extension ' + ext_name;
+                add_script += await utils.joins('\nadd_brew_extension', ext_name, ext_prefix);
                 break;
             // match 5.6redis
             case /5\.6redis/.test(version_extension):
-                command = command_prefix + 'redis-2.2.8';
-                break;
-            // match 5.4imagick and 5.5imagick
-            case /^5\.[4-5]imagick$/.test(version_extension):
-                command = await utils.joins('brew install pkg-config imagemagick' + pipe, '&& ' + command_prefix + 'imagick' + pipe);
+                extension = 'redis-2.2.8';
                 break;
             // match sqlite
             case /^sqlite$/.test(extension):
                 extension = 'sqlite3';
-                command = command_prefix + extension;
                 break;
             default:
-                command = command_prefix + extension;
                 break;
         }
-        add_script += await utils.joins('\nadd_extension', extension, '"' + command + '"', ext_prefix);
+        add_script += await utils.joins('\nadd_extension', extension, ext_prefix);
     });
     return add_script + remove_script;
 }
@@ -2954,9 +2967,9 @@ async function addExtensionWindows(extension_csv, version) {
                 add_script += await utils.joins('\nAdd-Extension', ext_name, 'stable', ext_version);
                 break;
             // match semver with state
-            case /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.test(version_extension):
-                matches = /.*-(\d+\.\d+\.\d)(beta|alpha|devel|snapshot)\d*/.exec(version_extension);
-                add_script += await utils.joins('\nAdd-Extension', ext_name, matches[2], matches[1]);
+            case /.*-(\d+\.\d+\.\d)([a-zA-Z+]+)\d*/.test(version_extension):
+                matches = /.*-(\d+\.\d+\.\d)([a-zA-Z+]+)\d*/.exec(version_extension);
+                add_script += await utils.joins('\nAdd-Extension', ext_name, matches[2].replace('preview', 'devel'), matches[1]);
                 break;
             // match 5.3pcov to 7.0pcov
             case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
@@ -2993,9 +3006,8 @@ exports.addExtensionWindows = addExtensionWindows;
  *
  * @param extension_csv
  * @param version
- * @param pipe
  */
-async function addExtensionLinux(extension_csv, version, pipe) {
+async function addExtensionLinux(extension_csv, version) {
     const extensions = await utils.extensionArray(extension_csv);
     let add_script = '\n';
     let remove_script = '';
@@ -3003,8 +3015,6 @@ async function addExtensionLinux(extension_csv, version, pipe) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
-        const command_prefix = 'sudo $debconf_fix apt-get install -y php';
-        let command = '';
         switch (true) {
             // Match :extension
             case /^:/.test(ext_name):
@@ -3016,14 +3026,14 @@ async function addExtensionLinux(extension_csv, version, pipe) {
             // match pdo_oci and oci8
             // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-            // match 5.6gearman..7.4gearman
+            // match 5.6gearman...7.4gearman, 5.6couchbase...7.4couchbase
             case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^((5\.[3-6])|(7\.[0-2]))pdo_cubrid$|^((5\.[3-6])|(7\.[0-4]))cubrid$/.test(version_extension):
             case /^pdo_oci$|^oci8$/.test(extension):
             case /^5\.6intl-[\d]+\.[\d]+$|^7\.[0-4]intl-[\d]+\.[\d]+$/.test(version_extension):
             case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-            case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
+            case /^((5\.6)|(7\.[0-4]))(gearman|couchbase)$/.test(version_extension):
                 add_script += await utils.customPackage(ext_name, 'ext', extension, 'linux');
                 return;
             // match pre-release versions. For example - xdebug-beta
@@ -3046,27 +3056,20 @@ async function addExtensionLinux(extension_csv, version, pipe) {
             // match 8.0xdebug3...8.9xdebug3
             case /^8\.[0-9]xdebug3$/.test(version_extension):
                 extension = 'xdebug';
-                command = command_prefix + version + '-' + extension + pipe;
                 break;
             // match pdo extensions
             case /.*pdo[_-].*/.test(version_extension):
                 extension = extension.replace(/pdo[_-]|3/, '');
                 add_script += '\nadd_pdo_extension ' + extension;
                 return;
-            // match uopz
-            case /^(uopz)$/.test(extension):
-                command = command_prefix + '-' + extension + pipe;
-                break;
             // match sqlite
             case /^sqlite$/.test(extension):
                 extension = 'sqlite3';
-                command = command_prefix + version + '-' + extension + pipe;
                 break;
             default:
-                command = command_prefix + version + '-' + extension + pipe;
                 break;
         }
-        add_script += await utils.joins('\nadd_extension', extension, '"' + command + '"', ext_prefix);
+        add_script += await utils.joins('\nadd_extension', extension, ext_prefix);
     });
     return add_script + remove_script;
 }
@@ -3080,24 +3083,24 @@ exports.addExtensionLinux = addExtensionLinux;
  * @param no_step
  */
 async function addExtension(extension_csv, version, os_version, no_step = false) {
-    const pipe = await utils.suppressOutput(os_version);
+    const log = await utils.stepLog('Setup Extensions', os_version);
     let script = '\n';
     switch (no_step) {
         case true:
-            script += (await utils.stepLog('Setup Extensions', os_version)) + pipe;
+            script += log + (await utils.suppressOutput(os_version));
             break;
         case false:
         default:
-            script += await utils.stepLog('Setup Extensions', os_version);
+            script += log;
             break;
     }
     switch (os_version) {
         case 'win32':
             return script + (await addExtensionWindows(extension_csv, version));
         case 'darwin':
-            return script + (await addExtensionDarwin(extension_csv, version, pipe));
+            return script + (await addExtensionDarwin(extension_csv, version));
         case 'linux':
-            return script + (await addExtensionLinux(extension_csv, version, pipe));
+            return script + (await addExtensionLinux(extension_csv, version));
         default:
             return await utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
     }

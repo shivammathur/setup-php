@@ -157,12 +157,11 @@ get_tool_version() {
   version_regex="[0-9]+((\.{1}[0-9]+)+)(\.{0})(-[a-zA-Z0-9]+){0,1}"
   if [ "$tool" = "composer" ]; then
     if [ "$param" != "snapshot" ]; then
-      grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex"
+      composer_version="$(grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")"
     else
-      trunk=$(grep -Ea "const\sBRANCH_ALIAS_VERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")
-      commit=$(grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "[a-zA-z0-9]+" | tail -n 1)
-      echo "$trunk+$commit"
+      composer_version="$(grep -Ea "const\sBRANCH_ALIAS_VERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")+$(grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "[a-zA-z0-9]+" | tail -n 1)"
     fi
+    echo "$composer_version" | sudo tee /tmp/composer_version
   else
     $tool "$param" 2>/dev/null | sed -Ee "s/[Cc]omposer(.)?$version_regex//g" | grep -Eo "$version_regex" | head -n 1
   fi
@@ -227,6 +226,14 @@ add_composertool() {
   tool=$1
   release=$2
   prefix=$3
+  if [[ "$tool" =~ prestissimo|composer-prefetcher ]]; then
+    composer_version=$(cat /tmp/composer_version)
+    if [ "$(echo "$composer_version" | cut -d'.' -f 1)" != "1" ]; then
+      echo "::warning:: Skipping $tool, as it does not support Composer $composer_version. Specify composer:v1 in tools to use $tool"
+      add_log "$cross" "$tool" "Skipped"
+      return
+    fi
+  fi
   (
     composer global require "$prefix$release" >/dev/null 2>&1 &&
     json=$(grep "$prefix$tool" "$composer_json") &&

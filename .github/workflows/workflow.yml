@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup cache environment
-        id: extcache
+        id: cache-env
         uses: shivammathur/cache-extensions@develop
         with:
           php-version: ${{ matrix.php-versions }}
@@ -44,9 +44,9 @@ jobs:
       - name: Cache extensions
         uses: actions/cache@v2
         with:
-          path: ${{ steps.extcache.outputs.dir }}
-          key: ${{ steps.extcache.outputs.key }}
-          restore-keys: ${{ steps.extcache.outputs.key }}
+          path: ${{ steps.cache-env.outputs.dir }}
+          key: ${{ steps.cache-env.outputs.key }}
+          restore-keys: ${{ steps.cache-env.outputs.key }}
 
       - name: Setup PHP with extensions and custom config
         run: node dist/index.js

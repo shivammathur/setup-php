@@ -6,7 +6,7 @@ Function Add-Blackfire() {
   }
   $agent_version = (Invoke-RestMethod https://blackfire.io/api/v1/releases).agent
   $url = "https://packages.blackfire.io/binaries/blackfire-agent/${agent_version}/blackfire-agent-windows_${arch_name}.zip"
-  Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\blackfire.zip >$null 2>&1
+  Invoke-WebRequest -Uri $url -OutFile $bin_dir\blackfire.zip >$null 2>&1
   Expand-Archive -Path $bin_dir\blackfire.zip -DestinationPath $bin_dir -Force >$null 2>&1
   Add-ToProfile $current_profile 'blackfire' "New-Alias blackfire $bin_dir\blackfire.exe"
   Add-ToProfile $current_profile 'blackfire-agent' "New-Alias blackfire-agent $bin_dir\blackfire-agent.exe"

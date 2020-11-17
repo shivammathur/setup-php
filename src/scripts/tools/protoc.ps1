@@ -27,7 +27,7 @@ Function Add-Protoc() {
     $arch_num = '32'
   }
   $url = "https://github.com/protocolbuffers/protobuf/releases/download/$protobuf_tag/protoc-$($protobuf_tag -replace 'v', '')-win$arch_num.zip"
-  Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $bin_dir\protoc.zip >$null 2>&1
+  Invoke-WebRequest -Uri $url -OutFile $bin_dir\protoc.zip >$null 2>&1
   Expand-Archive -Path $bin_dir\protoc.zip -DestinationPath $bin_dir\protoc -Force >$null 2>&1
   Move-Item -Path $bin_dir\protoc\bin\protoc.exe -Destination $bin_dir\protoc.exe
   Add-ToProfile $current_profile 'protoc' "New-Alias protoc $bin_dir\protoc.exe"

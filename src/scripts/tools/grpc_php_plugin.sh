@@ -1,13 +1,12 @@
 add_bazel() {
-  if [ ! "$(command -v bazel)" ]; then
-    os=$(uname -s)
-    if [ "$os" = "Linux" ]; then
+  if ! command -v bazel; then
+    if [ "$(uname -s)" = "Linux" ]; then
       ${apt_install:?} curl gnupg
       get -s -n "" https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
       echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
       sudo "${debconf_fix:?}" apt-get update -y
       ${apt_install:?} bazel
-    elif [ "$os" = "Darwin" ]; then
+    else
       brew install bazel
     fi
   fi
@@ -33,8 +32,7 @@ add_grpc_php_plugin() {
     get -s -n "" "https://github.com/grpc/grpc/archive/$grpc_tag.tar.gz" | tar -xz -C /tmp
     cd "/tmp/grpc-${grpc_tag:1}" || exit
     add_bazel
-    echo "os: $os"
-    echo "release: $DISTRIB_RELEASE"
+    [ "$(uname -s)" = "Darwin" ] && sudo xcode-select -s /Applications/Xcode_11.7.app
     if [ "$DISTRIB_RELEASE" = "16.04" ]; then
       CC="$(command -v gcc)" CXX="$(command -v g++)" ./tools/bazel build src/compiler:grpc_php_plugin
     else

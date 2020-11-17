@@ -306,14 +306,10 @@ export async function getWpCliUrl(version: string): Promise<string> {
 export async function addComposer(tools_list: string[]): Promise<string[]> {
   const regex_any = /^composer($|:.*)/;
   const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$|v?\d+\.\d+\.\d+[\w-]*$)/;
-  const regex_composer1_tools = /hirak|prestissimo|narrowspark|composer-prefetcher/;
   const matches: string[] = tools_list.filter(tool => regex_valid.test(tool));
   let composer = 'composer';
   tools_list = tools_list.filter(tool => !regex_any.test(tool));
   switch (true) {
-    case regex_composer1_tools.test(tools_list.join(' ')):
-      composer = 'composer:1';
-      break;
     case matches[0] == undefined:
       break;
     default:

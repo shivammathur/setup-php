@@ -36,14 +36,15 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Inputs](#inputs)
   - [Flags](#flags)
   - [Basic Setup](#basic-setup)
-  - [Matrix Setup](#matrix-setup)
-  - [Multi-Arch Setup](#multi-arch-setup)
+  - [Matrix Setup](#matrix-setup)  
   - [Nightly Build Setup](#nightly-build-setup)
+  - [Thread Safe Setup](#thread-safe-setup)
+  - [Force Update Setup](#force-update-setup)
+  - [Verbose Setup](#verbose-setup)  
+  - [Multi-Arch Setup](#multi-arch-setup)
   - [Self Hosted Setup](#self-hosted-setup)
   - [Local Testing Setup](#local-testing-setup)
-  - [Thread Safe Setup](#thread-safe-setup)
-  - [Force Update](#force-update)
-  - [Verbose Setup](#verbose-setup)
+  - [JIT Configuration](#jit-configuration)
   - [Cache Extensions](#cache-extensions)
   - [Cache Composer Dependencies](#cache-composer-dependencies)
   - [Cache Node.js Dependencies](#cache-nodejs-dependencies)
@@ -67,14 +68,15 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |`5.6`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
 |`7.0`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
 |`7.1`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
-|`7.2`|`Stable`|`Security fixes only`|`GitHub-hosted`, `self-hosted`|
-|`7.3`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
+|`7.2`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
+|`7.3`|`Stable`|`Security fixes only`|`GitHub-hosted`, `self-hosted`|
 |`7.4`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
-|`8.0`|`Nightly`|`In development`|`GitHub-hosted`, `self-hosted`|
+|`8.0`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
 |`8.1`|`Nightly`|`In development`|`GitHub-hosted`, `self-hosted`|
 
-**Note:** Specifying `8.0` and `8.1` in `php-version` input installs a nightly build of `PHP 8.0.0-dev` and `PHP 8.1.0-dev` respectively. See [nightly build setup](#nightly-build-setup) for more information.
-
+**Notes:** 
+- Specifying `8.1` in `php-version` input installs a nightly build of `PHP 8.1.0-dev`. See [nightly build setup](#nightly-build-setup) for more information.
+- To use JIT on `PHP 8.0` and `PHP 8.1` refer to the [JIT configuration](#jit-configuration) section.
 
 ## :cloud: OS/Platform Support
 
@@ -107,7 +109,7 @@ The action supports both `GitHub-hosted` runners and `self-hosted` runners on th
 
 ## :heavy_plus_sign: PHP Extension Support
 
-- Extensions enabled by default after `setup-php` runs can be found on the [wiki](https://github.com/shivammathur/setup-php/wiki).
+- Extensions loaded by default after `setup-php` runs can be found on the [wiki](https://github.com/shivammathur/setup-php/wiki).
 
 - On `ubuntu` by default extensions which are available as a package can be installed. PECL extensions if not available as a package can be installed by specifying `pecl` in the tools input.
 
@@ -206,7 +208,7 @@ These tools can be setup globally using the `tools` input.
     tools: composer:v2
 ```
 
-- If you have specified composer plugins `prestissimo` or `composer-prefetcher` in tools, the latest stable version of `composer v1` will be setup. Unless some of your packages require `composer v1`, it is recommended to drop `prestissimo` and use `composer v2`.
+- Tools `prestissimo` and `composer-prefetcher` will be skipped unless `composer:v1` is also specified in tools input. It is recommended to drop `prestissimo` and use `composer v2`.
 
 - The latest versions of both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified in tools input. Please refer to the [official documentation](https://blackfire.io/docs/integrations/ci/github-actions "Blackfire.io documentation for GitHub Actions") for using `blackfire` with GitHub Actions.
 
@@ -269,7 +271,7 @@ If your source code directory is other than `src`, `lib` or, `app`, specify `pco
 ```
 
 `PHPUnit` 8 and above supports `PCOV` out of the box.  
-If you are using `PHPUnit` 5, 6 or 7, you will need `krakjoe/pcov-clobber`.  
+If you are using `PHPUnit` 5, 6 or 7, you will need `pcov/clobber`.  
 Before executing your tests add the following step.
 
 ```yaml
@@ -319,8 +321,8 @@ Consider disabling the coverage using this PHP action for these reasons.
 
 #### `ini-values` (optional)
 
-- Specify the values you want to add to `php.ini`.
-- Accepts a `string` in csv-format. For example `post_max_size=256M, short_open_tag=On`.
+- Specify the values you want to add to `php.ini`. 
+- Accepts a `string` in csv-format. For example `post_max_size=256M, max_execution_time=180`. 
 
 #### `coverage` (optional)
 
@@ -357,7 +359,7 @@ Consider disabling the coverage using this PHP action for these reasons.
 - Specify to update PHP on the runner to the latest patch version.
 - Accepts `true` and `false`.
 - By default, it is set to `false`.
-- See [force update](#force-update) for more info.
+- See [force update setup](#force-update-setup) for more info.
 
 See below for more info.
 
@@ -375,7 +377,7 @@ steps:
   with:
     php-version: '7.4'
     extensions: mbstring, intl
-    ini-values: post_max_size=256M, short_open_tag=On
+    ini-values: post_max_size=256M, max_execution_time=180
     coverage: xdebug    
     tools: php-cs-fixer, phpunit
 ```
@@ -402,9 +404,86 @@ jobs:
       with:
         php-version: ${{ matrix.php-versions }}
         extensions: mbstring, intl
-        ini-values: post_max_size=256M, short_open_tag=On
+        ini-values: post_max_size=256M, max_execution_time=180
         coverage: xdebug        
         tools: php-cs-fixer, phpunit
+```
+
+### Nightly Build Setup
+
+> Setup a nightly build of `PHP 8.1`. 
+
+- This version is currently in development.
+- `PECL` is installed by default with `PHP 8.1` on both `ubuntu` and `macOS`.
+- Some user space extensions might not support this version currently.
+
+```yaml
+steps:
+- name: Checkout
+  uses: actions/checkout@v2
+
+- name: Setup nightly PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '8.1'
+    extensions: mbstring
+    ini-values: post_max_size=256M, max_execution_time=180
+    coverage: xdebug
+    tools: php-cs-fixer, phpunit
+```
+
+### Thread Safe Setup
+
+> Setup `TS` or `NTS` PHP on `Windows`.
+
+- `NTS` versions are setup by default.
+- On `Ubuntu` and `macOS` only `NTS` versions are supported.
+- On `Windows` both `TS` and `NTS` versions are supported.
+
+```yaml
+jobs:
+  run:
+    runs-on: windows-latest
+    name: Setup PHP TS on Windows
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+      env:
+        phpts: ts # specify ts or nts
+```
+
+### Force Update Setup
+
+> Update to the latest patch of PHP versions.
+
+- Pre-installed PHP versions on the GitHub Actions runner are not updated to their latest patch release by default.
+- You can specify the `update` environment variable to `true` to force update to the latest release.
+
+```yaml
+- name: Setup PHP with latest versions
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+  env:
+    update: true # specify true or false
+```
+
+### Verbose Setup
+
+> Debug your workflow
+
+To debug any issues, you can use the `verbose` tag instead of `v2`.
+
+```yaml
+- name: Setup PHP with logs
+  uses: shivammathur/setup-php@verbose
+  with:
+    php-version: '7.4'
 ```
 
 ### Multi-Arch Setup
@@ -433,34 +512,9 @@ jobs:
           # Install PHP
           spc --php-version "7.4" \
               --extensions "mbstring, intl" \
-              --ini-values "post_max_size=256M, short_open_tag=On" \
+              --ini-values "post_max_size=256M, max_execution_time=180" \
               --coverage "xdebug" \
               --tools "php-cs-fixer, phpunit"
-```
-
-### Nightly Build Setup
-
-> Setup a nightly build of `PHP 8.0` or `PHP 8.1`. 
-
-- These versions are currently in development.
-- `PECL` is installed by default with these versions on `ubuntu` and `macOS`.
-- Some user space extensions might not support these versions currently.
-- Refer to this [RFC](https://wiki.php.net/rfc/jit "PHP JIT RFC configuration") for configuring `PHP JIT` on these versions.
-- Refer to this [list of RFCs](https://wiki.php.net/rfc#php_80 "List of RFCs implemented in PHP8") for features implemented in `PHP 8.0`.
-
-```yaml
-steps:
-- name: Checkout
-  uses: actions/checkout@v2
-
-- name: Setup nightly PHP
-  uses: shivammathur/setup-php@v2
-  with:
-    php-version: '8.1'
-    extensions: mbstring
-    ini-values: opcache.jit_buffer_size=256M, opcache.jit=1235, pcre.jit=1
-    coverage: pcov
-    tools: php-cs-fixer, phpunit
 ```
 
 ### Self Hosted Setup
@@ -533,58 +587,22 @@ act -P ubuntu-18.04=shivammathur/node:bionic
 act -P ubuntu-16.04=shivammathur/node:xenial
 ```
 
-### Thread Safe Setup
+### JIT Configuration
 
-> Setup `TS` or `NTS` PHP on `Windows`.
+> Enable Just-in-time(JIT) on PHP 8.0 and PHP 8.1.
 
-- `NTS` versions are setup by default.
-- On `Ubuntu` and `macOS` only `NTS` versions are supported.
-- On `Windows` both `TS` and `NTS` versions are supported.
+- To enable JIT, enable `opcache` in cli mode by setting `opcache.enable_cli=1`.
+- By default, `opcache.jit=1235` and `opcache.jit_buffer_size=256M` are set which can be changed using `ini-values` input.
+- For detailed information about JIT related directives refer to the [`official PHP documentation`](https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.jit "opcache.jit documentation").
 
-```yaml
-jobs:
-  run:
-    runs-on: windows-latest
-    name: Setup PHP TS on Windows
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-      env:
-        phpts: ts # specify ts or nts
-```
-
-### Force Update
-
-> Update to the latest patch of PHP versions.
-
-- Pre-installed PHP versions on the GitHub Actions runner are not updated to their latest patch release by default.
-- You can specify the `update` environment variable to `true` to force update to the latest release.
+For example to enable JIT in `tracing` mode with buffer size of `64 MB`. 
 
 ```yaml
-- name: Setup PHP with latest versions
+- name: Setup PHP with JIT in tracing mode
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
-  env:
-    update: true # specify true or false
-```
-
-### Verbose Setup
-
-> Debug your workflow
-
-To debug any issues, you can use the `verbose` tag instead of `v2`.
-
-```yaml
-- name: Setup PHP with logs
-  uses: shivammathur/setup-php@verbose
-  with:
-    php-version: '7.4'
+    php-version: '8.0'
+    ini-values: opcache.enable_cli=1, opcache.jit=tracing, opcache.jit_buffer_size=64M
 ```
 
 ### Cache Extensions
@@ -776,7 +794,7 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 > Contributions are welcome!
 
 - See [Contributor's Guide](.github/CONTRIBUTING.md "shivammathur/setup-php contribution guide") before you start.
-- If you face any issues while using this or want to suggest a feature/improvement, create an issue [here](https://github.com/shivammathur/setup-php/issues "Issues reported").
+- If you face any issues or want to suggest a feature/improvement, start a discussion [here](https://github.com/shivammathur/setup-php/discussions "Setup PHP discussions").
 
 *Join the list of setup-php contributors*
 
@@ -788,9 +806,12 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 ## :sparkling_heart: Support This Project
 
+- If setup-php saved your developer time, please consider sponsoring setup-php:
+  - [Open Collective](https://opencollective.com/setup-php "setup-php Open Collective")
+  - [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal")
+  - [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon")
+- Please [reach out](mailto:contact@setup-php.com) if you have any questions regarding sponsoring setup-php.
 - Please star the project and share it. If you blog, please share your experience of using this action.
-- Please consider supporting our work by sponsoring using [Open Collective](https://opencollective.com/setup-php), [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal") or [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon").
-- If you use `setup-php` at your company, please [reach out](mailto:contact@setup-php.com) to sponsor the project.
 
 *Huge thanks to the following companies for supporting `setup-php`*
 

@@ -1,6 +1,6 @@
 name: 'Setup PHP Action'
 author: shivammathur
-description: 'Setup PHP with required extensions, php.ini configuration, code-coverage support and various tools like composer'
+description: 'GitHub Action for PHP'
 branding:
   color: 'purple'
   icon: 'play-circle'

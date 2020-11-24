@@ -48,8 +48,8 @@ install_packages() {
 # Function to delete extensions.
 delete_extension() {
   extension=$1
-  sudo sed -i "/$extension/d" "${ini_file:?}"
-  sudo sed -i "/$extension/d" "${pecl_file:?}"
+  sudo sed -Ei "/=(.*\/)?\"?$extension/d" "${ini_file:?}"
+  sudo sed -Ei "/=(.*\/)?\"?$extension/d" "${pecl_file:?}"
   sudo rm -rf "${scan_dir:?}"/*"$extension"* "${ext_dir:?}"/"$extension".so >/dev/null 2>&1
   if [ "${runner:?}" = "self-hosted" ]; then
     $apt_remove "php-$extension" "php$version-$extension" >/dev/null 2>&1 || true

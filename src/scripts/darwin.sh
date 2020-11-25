@@ -39,6 +39,14 @@ add_pecl_extension() {
   fi
 }
 
+# Function to add a brew tap.
+add_brew_tap() {
+  tap=$1
+  if ! [ -d "$tap_dir/$tap" ]; then
+    brew tap --shallow "$tap" >/dev/null 2>&1
+  fi
+}
+
 # Function to install a php extension from shivammathur/extensions tap.
 add_brew_extension() {
   extension=$1
@@ -47,13 +55,10 @@ add_brew_extension() {
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
-    if ! brew tap | grep -q shivammathur/extensions; then
-      brew tap --shallow shivammathur/extensions >/dev/null 2>&1
-    fi
-    tap_dir="$(brew --prefix)/Homebrew/Library/Taps"
+    add_brew_tap shivammathur/homebrew-extensions
     sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$extension"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
     brew install "$extension@$version" >/dev/null 2>&1
-    sudo cp "$(brew --prefix)/opt/$extension@$version/$extension.so" "$ext_dir"
+    sudo cp "$brew_prefix/opt/$extension@$version/$extension.so" "$ext_dir"
     add_extension_log "$extension" "Installed and enabled"
   fi
 }
@@ -88,7 +93,6 @@ add_pecl() {
 # Function to update dependencies.
 update_dependencies() {
   if [[ "$version" =~ ${nightly_versions:?} ]] && [ "${runner:?}" != "self-hosted" ]; then
-    tap_dir="$(brew --prefix)/Homebrew/Library/Taps"
     while read -r formula; do
       get -q -n "$tap_dir/homebrew/homebrew-core/Formula/$formula.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb" &
       to_wait+=($!)
@@ -100,16 +104,14 @@ update_dependencies() {
 # Function to setup PHP 5.6 and newer using Homebrew.
 add_php() {
   action=$1
-  if ! brew tap | grep -q shivammathur/php; then
-    brew tap --shallow shivammathur/php
-  fi
+  add_brew_tap shivammathur/homebrew-php
   update_dependencies
-  if brew list php@"$version" 2>/dev/null | grep -q "Error" && [ "$action" != "upgrade" ]; then
-    brew unlink php@"$version"
+  if ! [[ "$(find "$(brew --cellar)"/php/ -maxdepth 1 -name "$version*" | wc -l 2>/dev/null)" -eq 0 ]] && [ "$action" != "upgrade" ]; then
+    brew unlink shivammathur/php/php@"$version"
   else
-    brew "$action" shivammathur/php/php@"$version"
+    brew upgrade "shivammathur/php/php@$version" 2>/dev/null || brew install "shivammathur/php/php@$version"
   fi
-  brew link --force --overwrite php@"$version"
+  brew link --force --overwrite shivammathur/php/php@"$version"
 }
 
 # Function to Setup PHP
@@ -131,6 +133,7 @@ setup_php() {
   ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
   sudo chmod 777 "$ini_file" "${tool_path_dir:?}"
   echo -e "date.timezone=UTC\nmemory_limit=-1" >>"$ini_file"
+  [[ "$version" =~ ${jit_versions:?} ]] && echo -e "opcache.enable=1\nopcache.jit_buffer_size=256M\nopcache.jit=1235" >>"$ini_file"
   ext_dir=$(php -i | grep -Ei "extension_dir => /" | sed -e "s|.*=> s*||")
   scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
   sudo mkdir -m 777 -p "$ext_dir" "$HOME/.composer"
@@ -143,6 +146,10 @@ setup_php() {
 # Variables
 version=$1
 dist=$2
+nightly_versions="8.1"
+jit_versions="8.[0-1]"
+brew_prefix="$(brew --prefix)"
+tap_dir="$brew_prefix"/Homebrew/Library/Taps
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_AUTO_UPDATE=1
 

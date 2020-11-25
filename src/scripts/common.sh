@@ -2,7 +2,6 @@
 export tick="✓"
 export cross="✗"
 export curl_opts=(-sL)
-export nightly_versions="8.[0-1]"
 export old_versions="5.[3-5]"
 export tool_path_dir="/usr/local/bin"
 export composer_bin="$HOME/.composer/vendor/bin"

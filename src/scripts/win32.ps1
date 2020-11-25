@@ -8,10 +8,7 @@ param (
   [ValidateNotNull()]
   [ValidateLength(1, [int]::MaxValue)]
   [string]
-  $dist,
-  [Parameter(Position = 2, Mandatory = $false)]
-  [string]
-  $fail_fast = 'false'
+  $dist
 )
 
 # Function to log start of a operation.
@@ -25,7 +22,7 @@ Function Add-Log($mark, $subject, $message) {
     printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $mark $subject $message
   } else {
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $mark $subject $message
-    if($fail_fast -eq 'true') {
+    if($env:fail_fast -eq 'true') {
       exit 1;
     }
   }
@@ -416,9 +413,9 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 }
 
 $installed = Get-Php -Path $php_dir
-('date.timezone=UTC', 'memory_limit=-1') | foreach { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
+('date.timezone=UTC', 'memory_limit=-1') | ForEach-Object { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
 if($version -lt "5.5") {
-  ('libeay32.dll', 'ssleay32.dll') | ForEach { Invoke-WebRequest -Uri $bintray/$_ -OutFile $php_dir\$_ >$null 2>&1 }
+  ('libeay32.dll', 'ssleay32.dll') | ForEach-Object { Invoke-WebRequest -Uri $bintray/$_ -OutFile $php_dir\$_ >$null 2>&1 }
 } else {
   $enable_extensions += ('opcache')
 }

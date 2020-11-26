@@ -83,6 +83,8 @@ add_brew_extension() {
   if ! brew tap | grep shivammathur/extensions; then
     brew tap --shallow shivammathur/extensions
   fi
+  tap_dir="$(brew --prefix)/Homebrew/Library/Taps"
+  sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$extension"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
   brew install "$extension@$version"
   sudo cp "$(brew --prefix)/opt/$extension@$version/$extension.so" "$ext_dir"
 }

@@ -1102,7 +1102,7 @@ exports.getInput = getInput;
 async function parseVersion(version) {
     switch (version) {
         case 'latest':
-            return '7.4';
+            return '8.0';
         default:
             switch (true) {
                 case version.length > 1:
@@ -2023,14 +2023,10 @@ exports.getWpCliUrl = getWpCliUrl;
 async function addComposer(tools_list) {
     const regex_any = /^composer($|:.*)/;
     const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$|v?\d+\.\d+\.\d+[\w-]*$)/;
-    const regex_composer1_tools = /hirak|prestissimo|narrowspark|composer-prefetcher/;
     const matches = tools_list.filter(tool => regex_valid.test(tool));
     let composer = 'composer';
     tools_list = tools_list.filter(tool => !regex_any.test(tool));
     switch (true) {
-        case regex_composer1_tools.test(tools_list.join(' ')):
-            composer = 'composer:1';
-            break;
         case matches[0] == undefined:
             break;
         default:
@@ -2332,14 +2328,7 @@ async function addCoverageXdebug(extension, version, os_version, pipe) {
         pipe;
     const ini = await config.addINIValues('xdebug.mode=coverage', os_version, true);
     const log = await utils.addLog('$tick', extension, 'Xdebug enabled as coverage driver', os_version);
-    switch (true) {
-        case /^xdebug3$/.test(extension):
-        case /^8\.\d$/.test(version):
-            return '\n' + xdebug + '\n' + ini + '\n' + log;
-        case /^xdebug$/.test(extension):
-        default:
-            return xdebug + '\n' + log;
-    }
+    return [xdebug, ini, log].join('\n');
 }
 exports.addCoverageXdebug = addCoverageXdebug;
 /**
@@ -2893,7 +2882,7 @@ async function addExtensionDarwin(extension_csv, version) {
                 add_script += await utils.customPackage(ext_name, 'ext', extension, 'darwin');
                 return;
             // match pre-release versions. For example - xdebug-beta
-            case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+            case /.*-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(version_extension):
                 add_script += await utils.joins('\nadd_unstable_extension', ext_name, ext_version, ext_prefix);
                 return;
             // match semver
@@ -2959,8 +2948,8 @@ async function addExtensionWindows(extension_csv, version) {
                 add_script += await utils.customPackage(ext_name, 'ext', extension, 'win32');
                 return;
             // match pre-release versions. For example - xdebug-beta
-            case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-                add_script += await utils.joins('\nAdd-Extension', ext_name, ext_version);
+            case /.*-(stable|beta|alpha|devel|snapshot)/.test(version_extension):
+                add_script += await utils.joins('\nAdd-Extension', ext_name, ext_version.replace('stable', ''));
                 break;
             // match semver without state
             case /.*-\d+\.\d+\.\d+$/.test(version_extension):
@@ -2972,6 +2961,9 @@ async function addExtensionWindows(extension_csv, version) {
                 add_script += await utils.joins('\nAdd-Extension', ext_name, matches[2].replace('preview', 'devel'), matches[1]);
                 break;
             // match 5.3pcov to 7.0pcov
+            case /7\.2xdebug/.test(version_extension):
+                add_script += '\nAdd-Extension xdebug stable 2.9.8';
+                break;
             case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
                 add_script += await utils.getUnsupportedLog('pcov', version, 'win32');
                 break;
@@ -3037,7 +3029,7 @@ async function addExtensionLinux(extension_csv, version) {
                 add_script += await utils.customPackage(ext_name, 'ext', extension, 'linux');
                 return;
             // match pre-release versions. For example - xdebug-beta
-            case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+            case /.*-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(version_extension):
                 add_script += await utils.joins('\nadd_unstable_extension', ext_name, ext_version, ext_prefix);
                 return;
             // match semver versions
@@ -3053,6 +3045,10 @@ async function addExtensionLinux(extension_csv, version) {
                 add_script +=
                     '\nadd_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension';
                 return;
+            // match 7.2xdebug
+            case /^7\.2xdebug$/.test(version_extension):
+                add_script += await utils.joins('\nadd_pecl_extension', ext_name, '2.9.8', ext_prefix);
+                break;
             // match 8.0xdebug3...8.9xdebug3
             case /^8\.[0-9]xdebug3$/.test(version_extension):
                 extension = 'xdebug';

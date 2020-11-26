@@ -25,6 +25,9 @@ describe('Extension tests', () => {
       'Add-Log "$cross" "pcov" "pcov is not supported on PHP 5.6"'
     );
 
+    win32 = await extensions.addExtension('xdebug', '7.2', 'win32');
+    expect(win32).toContain('Add-Extension xdebug stable 2.9.8');
+
     win32 = await extensions.addExtension('mysql', '7.4', 'win32');
     expect(win32).toContain('Add-Extension mysqli');
     expect(win32).toContain('Add-Extension mysqlnd');
@@ -95,6 +98,9 @@ describe('Extension tests', () => {
     expect(linux).toContain('add_cubrid pdo_cubrid');
     linux = await extensions.addExtension('cubrid', '7.4', 'linux');
     expect(linux).toContain('add_cubrid cubrid');
+
+    linux = await extensions.addExtension('xdebug', '7.2', 'linux');
+    expect(linux).toContain('add_pecl_extension xdebug 2.9.8 zend_extension');
 
     linux = await extensions.addExtension('xdebug', '7.2', 'openbsd');
     expect(linux).toContain('Platform openbsd is not supported');

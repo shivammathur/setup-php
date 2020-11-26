@@ -8,10 +8,7 @@ param (
   [ValidateNotNull()]
   [ValidateLength(1, [int]::MaxValue)]
   [string]
-  $dist,
-  [Parameter(Position = 2, Mandatory = $false)]
-  [string]
-  $fail_fast = 'false'
+  $dist
 )
 
 # Function to log start of a operation.
@@ -25,7 +22,7 @@ Function Add-Log($mark, $subject, $message) {
     printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $mark $subject $message
   } else {
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $mark $subject $message
-    if($fail_fast -eq 'true') {
+    if($env:fail_fast -eq 'true') {
       exit 1;
     }
   }
@@ -222,12 +219,12 @@ Function Get-ToolVersion() {
   $version_regex = "[0-9]+((\.{1}[0-9]+)+)(\.{0})(-[a-z0-9]+){0,1}"
   if($tool -eq 'composer') {
     if ($param -eq 'snapshot') {
-      $trunk = Select-String -Pattern "const\sBRANCH_ALIAS_VERSION" -Path $bin_dir\composer -Raw | Select-String -Pattern $version_regex | ForEach-Object { $_.matches.Value }
-      $commit = Select-String -Pattern "const\sVERSION" -Path $bin_dir\composer -Raw | Select-String -Pattern "[a-zA-Z0-9]+" -AllMatches | ForEach-Object { $_.matches[2].Value }
-      return "$trunk+$commit"
+      $composer_version = (Select-String -Pattern "const\sBRANCH_ALIAS_VERSION" -Path $bin_dir\composer -Raw | Select-String -Pattern $version_regex | ForEach-Object { $_.matches.Value }) + '+' + (Select-String -Pattern "const\sVERSION" -Path $bin_dir\composer -Raw | Select-String -Pattern "[a-zA-Z0-9]+" -AllMatches | ForEach-Object { $_.matches[2].Value })
     } else {
-      return Select-String -Pattern "const\sVERSION" -Path $bin_dir\composer -Raw | Select-String -Pattern $version_regex | ForEach-Object { $_.matches.Value }
+      $composer_version = Select-String -Pattern "const\sVERSION" -Path $bin_dir\composer -Raw | Select-String -Pattern $version_regex | ForEach-Object { $_.matches.Value }
     }
+    Set-Variable -Name 'composer_version' -Value $composer_version -Scope Global
+    return "$composer_version"
   }
   return . $tool $param 2> $null | ForEach-Object { $_ -replace "composer $version_regex", '' } | Select-String -Pattern $version_regex | Select-Object -First 1 | ForEach-Object { $_.matches.Value }
 }
@@ -310,6 +307,11 @@ Function Add-Composertool() {
     [string]
     $prefix
   )
+  if($tool -match "prestissimo|composer-prefetcher" -and $composer_version.split('.')[0] -ne "1") {
+    Write-Output "::warning:: Skipping $tool, as it does not support Composer $composer_version. Specify composer:v1 in tools to use $tool"
+    Add-Log $cross $tool "Skipped"
+    Return
+  }
   composer global require $prefix$release 2>&1 | out-null
   $json = findstr $prefix$tool $env:APPDATA\Composer\composer.json
   if(Test-Path $composer_bin\composer) {
@@ -411,9 +413,9 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 }
 
 $installed = Get-Php -Path $php_dir
-('date.timezone=UTC', 'memory_limit=-1') | foreach { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
+('date.timezone=UTC', 'memory_limit=-1') | ForEach-Object { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
 if($version -lt "5.5") {
-  ('libeay32.dll', 'ssleay32.dll') | ForEach { Invoke-WebRequest -Uri $bintray/$_ -OutFile $php_dir\$_ >$null 2>&1 }
+  ('libeay32.dll', 'ssleay32.dll') | ForEach-Object { Invoke-WebRequest -Uri $bintray/$_ -OutFile $php_dir\$_ >$null 2>&1 }
 } else {
   $enable_extensions += ('opcache')
 }

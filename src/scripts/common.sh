@@ -2,7 +2,6 @@
 export tick="✓"
 export cross="✗"
 export curl_opts=(-sL)
-export nightly_versions="8.[0-1]"
 export old_versions="5.[3-5]"
 export tool_path_dir="/usr/local/bin"
 export composer_bin="$HOME/.composer/vendor/bin"
@@ -75,7 +74,7 @@ run_script() {
   repo=$1
   shift
   args=("$@")
-  get -q -e /tmp/install.sh "$github/$repo/$latest/install.sh" "$bintray/php/$repo.sh"
+  get -q -e /tmp/install.sh "$bintray/php/$repo.sh" "$github/$repo/$latest/install.sh"
   bash /tmp/install.sh "${args[@]}"
 }
 
@@ -113,7 +112,7 @@ enable_extension() {
 
 # Function to configure PECL.
 configure_pecl() {
-  if ! [ -e /tmp/pecl_config ] && command -v pecl >/dev/null; then
+  if ! [ -e /tmp/pecl_config ] && command -v pecl >/dev/null && command -v pear >/dev/null; then
     for script in pear pecl; do
       sudo "$script" config-set php_ini "${pecl_file:-$ini_file}"
       sudo "$script" channel-update "$script".php.net
@@ -125,12 +124,12 @@ configure_pecl() {
 # Function to get the PECL version of an extension.
 get_pecl_version() {
   extension=$1
-  stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot|preview)")"
+  stability="$(echo "$2" | grep -m 1 -Eio "(stable|alpha|beta|rc|snapshot|preview)")"
   pecl_rest='https://pecl.php.net/rest/r/'
   response=$(get -s -n "" "$pecl_rest$extension"/allreleases.xml)
-  pecl_version=$(echo "$response" | grep -m 1 -Pio "(\d*\.\d*\.\d*$stability\d*)")
+  pecl_version=$(echo "$response" | grep -m 1 -Eio "([0-9]+\.[0-9]+\.[0-9]+${stability}[0-9]+)")
   if [ ! "$pecl_version" ]; then
-    pecl_version=$(echo "$response" | grep -m 1 -Po "(\d*\.\d*\.\d*)")
+    pecl_version=$(echo "$response" | grep -m 1 -Eo "([0-9]+\.[0-9]+\.[0-9]+)")
   fi
   echo "$pecl_version"
 }
@@ -138,6 +137,7 @@ get_pecl_version() {
 # Function to install PECL extensions and accept default options
 pecl_install() {
   local extension=$1
+  configure_pecl >/dev/null 2>&1
   yes '' 2>/dev/null | sudo pecl install -f "$extension" >/dev/null 2>&1
 }
 

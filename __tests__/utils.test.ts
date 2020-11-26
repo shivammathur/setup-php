@@ -36,17 +36,18 @@ describe('Utils tests', () => {
   it('checking parseVersion', async () => {
     expect(await utils.parseVersion('7')).toBe('7.0');
     expect(await utils.parseVersion('7.4')).toBe('7.4');
-    expect(await utils.parseVersion('latest')).toBe('7.4');
+    expect(await utils.parseVersion('latest')).toBe('8.0');
   });
 
   it('checking asyncForEach', async () => {
     const array: Array<string> = ['a', 'b', 'c'];
     let concat = '';
-    await utils.asyncForEach(array, async function (
-      str: string
-    ): Promise<void> {
-      concat += str;
-    });
+    await utils.asyncForEach(
+      array,
+      async function (str: string): Promise<void> {
+        concat += str;
+      }
+    );
     expect(concat).toBe('abc');
   });
 
@@ -83,12 +84,12 @@ describe('Utils tests', () => {
     const runner_dir: string = process.env['RUNNER_TOOL_CACHE'] || '';
     const script_path: string = path.join(runner_dir, 'test.sh');
     await utils.writeScript('test.sh', testString);
-    await fs.readFile(script_path, function (
-      error: Error | null,
-      data: Buffer
-    ) {
-      expect(testString).toBe(data.toString());
-    });
+    await fs.readFile(
+      script_path,
+      function (error: Error | null, data: Buffer) {
+        expect(testString).toBe(data.toString());
+      }
+    );
     await cleanup(script_path);
   });
 

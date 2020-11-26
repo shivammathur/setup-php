@@ -43,7 +43,9 @@ export async function addExtensionDarwin(
         );
         return;
       // match pre-release versions. For example - xdebug-beta
-      case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+      case /.*-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(
+        version_extension
+      ):
         add_script += await utils.joins(
           '\nadd_unstable_extension',
           ext_name,
@@ -135,11 +137,11 @@ export async function addExtensionWindows(
         );
         return;
       // match pre-release versions. For example - xdebug-beta
-      case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+      case /.*-(stable|beta|alpha|devel|snapshot)/.test(version_extension):
         add_script += await utils.joins(
           '\nAdd-Extension',
           ext_name,
-          ext_version
+          ext_version.replace('stable', '')
         );
         break;
       // match semver without state
@@ -164,6 +166,9 @@ export async function addExtensionWindows(
         );
         break;
       // match 5.3pcov to 7.0pcov
+      case /7\.2xdebug/.test(version_extension):
+        add_script += '\nAdd-Extension xdebug stable 2.9.8';
+        break;
       case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
         add_script += await utils.getUnsupportedLog('pcov', version, 'win32');
         break;
@@ -243,7 +248,9 @@ export async function addExtensionLinux(
         );
         return;
       // match pre-release versions. For example - xdebug-beta
-      case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+      case /.*-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(
+        version_extension
+      ):
         add_script += await utils.joins(
           '\nadd_unstable_extension',
           ext_name,
@@ -269,6 +276,15 @@ export async function addExtensionLinux(
         add_script +=
           '\nadd_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension';
         return;
+      // match 7.2xdebug
+      case /^7\.2xdebug$/.test(version_extension):
+        add_script += await utils.joins(
+          '\nadd_pecl_extension',
+          ext_name,
+          '2.9.8',
+          ext_prefix
+        );
+        break;
       // match 8.0xdebug3...8.9xdebug3
       case /^8\.[0-9]xdebug3$/.test(version_extension):
         extension = 'xdebug';

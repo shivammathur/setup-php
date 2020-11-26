@@ -49,7 +49,7 @@ export async function getInput(
 export async function parseVersion(version: string): Promise<string> {
   switch (version) {
     case 'latest':
-      return '7.4';
+      return '8.0';
     default:
       switch (true) {
         case version.length > 1:

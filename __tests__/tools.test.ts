@@ -251,9 +251,6 @@ describe('Tools tests', () => {
     expect(
       await tools.addComposer(['a', 'b', 'c', 'composer:v2'])
     ).toStrictEqual(['composer:2', 'a', 'b', 'c']);
-    expect(
-      await tools.addComposer(['hirak', 'b', 'c', 'composer:v2'])
-    ).toStrictEqual(['composer:1', 'hirak', 'b', 'c']);
   });
 
   it('checking getComposerUrl', async () => {
@@ -629,6 +626,7 @@ describe('Tools tests', () => {
   });
   it('checking addTools with composer tool using user/tool as input', async () => {
     const listOfTools = [
+      'composer:v1',
       'hirak/prestissimo',
       'narrowspark/automatic-composer-prefetcher',
       'robmorgan/phinx'

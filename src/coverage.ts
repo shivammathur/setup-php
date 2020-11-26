@@ -27,13 +27,7 @@ export async function addCoverageXdebug(
     'Xdebug enabled as coverage driver',
     os_version
   );
-  switch (true) {
-    case /8.[0-9]/.test(version):
-      return xdebug + '\n' + ini + '\n' + log;
-    case /5\.[3-6]|7.[0-4]/.test(version):
-    default:
-      return xdebug + '\n' + log;
-  }
+  return xdebug + '\n' + ini + '\n' + log;
 }
 
 /**

@@ -2152,13 +2152,7 @@ async function addCoverageXdebug(version, os_version, pipe) {
     const xdebug = (await extensions.addExtension('xdebug', version, os_version, true)) + pipe;
     const ini = await config.addINIValues('xdebug.mode=coverage', os_version, true);
     const log = await utils.addLog('$tick', 'xdebug', 'Xdebug enabled as coverage driver', os_version);
-    switch (true) {
-        case /8.[0-9]/.test(version):
-            return xdebug + '\n' + ini + '\n' + log;
-        case /5\.[3-6]|7.[0-4]/.test(version):
-        default:
-            return xdebug + '\n' + log;
-    }
+    return xdebug + '\n' + ini + '\n' + log;
 }
 exports.addCoverageXdebug = addCoverageXdebug;
 /**
@@ -2791,6 +2785,10 @@ async function addExtensionWindows(extension_csv, version) {
                 script +=
                     '\nAdd-Extension mysql\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
                 break;
+            // match 7.2xdebug
+            case /7\.2xdebug/.test(version_extension):
+                script += '\nAdd-Extension xdebug stable 2.9.8';
+                break;
             // match 7.0mysql..8.0mysql
             // match 7.0mysqli..8.0mysqli
             // match 7.0mysqlnd..8.0mysqlnd
@@ -2866,6 +2864,10 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                         extension +
                         ' ' +
                         version;
+                return;
+            // match 7.2xdebug
+            case /^7\.2xdebug$/.test(version_extension):
+                script += '\nadd_pecl_extension xdebug 2.9.8 ' + ext_prefix;
                 return;
             // match sqlite
             case /^sqlite$/.test(extension):

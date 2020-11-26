@@ -13,6 +13,9 @@ describe('Extension tests', () => {
     expect(win32).toContain('phalcon.ps1 phalcon4');
     expect(win32).toContain('Add-Extension ast beta');
 
+    win32 = await extensions.addExtension('xdebug', '7.2', 'win32');
+    expect(win32).toContain('Add-Extension xdebug stable 2.9.8');
+
     win32 = await extensions.addExtension('mysql', '7.4', 'win32');
     expect(win32).toContain('Add-Extension mysqli');
     expect(win32).toContain('Add-Extension mysqlnd');
@@ -67,6 +70,9 @@ describe('Extension tests', () => {
 
     linux = await extensions.addExtension('gearman', '7.4', 'linux');
     expect(linux).toContain('gearman.sh 7.4');
+
+    linux = await extensions.addExtension('xdebug', '7.2', 'linux');
+    expect(linux).toContain('add_pecl_extension xdebug 2.9.8 zend_extension');
 
     linux = await extensions.addExtension('xdebug', '7.2', 'openbsd');
     expect(linux).toContain('Platform openbsd is not supported');

@@ -99,6 +99,10 @@ export async function addExtensionWindows(
         script +=
           '\nAdd-Extension mysql\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
         break;
+      // match 7.2xdebug
+      case /7\.2xdebug/.test(version_extension):
+        script += '\nAdd-Extension xdebug stable 2.9.8';
+        break;
       // match 7.0mysql..8.0mysql
       // match 7.0mysqli..8.0mysqli
       // match 7.0mysqlnd..8.0mysqlnd
@@ -178,6 +182,10 @@ export async function addExtensionLinux(
           extension +
           ' ' +
           version;
+        return;
+      // match 7.2xdebug
+      case /^7\.2xdebug$/.test(version_extension):
+        script += '\nadd_pecl_extension xdebug 2.9.8 ' + ext_prefix;
         return;
       // match sqlite
       case /^sqlite$/.test(extension):

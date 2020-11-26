@@ -2328,14 +2328,7 @@ async function addCoverageXdebug(extension, version, os_version, pipe) {
         pipe;
     const ini = await config.addINIValues('xdebug.mode=coverage', os_version, true);
     const log = await utils.addLog('$tick', extension, 'Xdebug enabled as coverage driver', os_version);
-    switch (true) {
-        case /^xdebug3$/.test(extension):
-        case /^8\.\d$/.test(version):
-            return '\n' + xdebug + '\n' + ini + '\n' + log;
-        case /^xdebug$/.test(extension):
-        default:
-            return xdebug + '\n' + log;
-    }
+    return [xdebug, ini, log].join('\n');
 }
 exports.addCoverageXdebug = addCoverageXdebug;
 /**
@@ -2968,6 +2961,9 @@ async function addExtensionWindows(extension_csv, version) {
                 add_script += await utils.joins('\nAdd-Extension', ext_name, matches[2].replace('preview', 'devel'), matches[1]);
                 break;
             // match 5.3pcov to 7.0pcov
+            case /7\.2xdebug/.test(version_extension):
+                add_script += '\nAdd-Extension xdebug stable 2.9.8';
+                break;
             case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
                 add_script += await utils.getUnsupportedLog('pcov', version, 'win32');
                 break;
@@ -3049,6 +3045,10 @@ async function addExtensionLinux(extension_csv, version) {
                 add_script +=
                     '\nadd_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension';
                 return;
+            // match 7.2xdebug
+            case /^7\.2xdebug$/.test(version_extension):
+                add_script += await utils.joins('\nadd_pecl_extension', ext_name, '2.9.8', ext_prefix);
+                break;
             // match 8.0xdebug3...8.9xdebug3
             case /^8\.[0-9]xdebug3$/.test(version_extension):
                 extension = 'xdebug';

@@ -14,13 +14,12 @@ add_bazel() {
 
 get_grpc_tag() {
   if [ "$grpc_tag" = "latest" ]; then
-    grpc_tag=$(get -s -n "" https://grpc.io/release)
+    grpc_tag=$(get -s -n "" https://github.com/grpc/grpc/releases/latest | grep -Eo -m 1 "v[0-9]+\.[0-9]+\.[0-9]+" | head -n 1)
   else
-    status_code=$(get -v -n /tmp/grpc.tmp "https://github.com/grpc/grpc/releases/tag/v$grpc_tag")
-    if [ "$status_code" = "200" ]; then
-      grpc_tag="v$grpc_tag"
-    else
-      grpc_tag=$(get -s -n "" https://grpc.io/release)
+    if [[ ${grpc_tag:0:1} != "v" ]] ; then grpc_tag="v$grpc_tag"; fi
+    status_code=$(get -v -n /tmp/grpc.tmp "https://github.com/grpc/grpc/releases/tag/$grpc_tag")
+    if [ "$status_code" != "200" ]; then
+      grpc_tag=$(get -s -n "" https://github.com/grpc/grpc/releases/latest | grep -Eo -m 1 "v[0-9]+\.[0-9]+\.[0-9]+" | head -n 1)
     fi
   fi
 }

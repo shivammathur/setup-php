@@ -212,8 +212,7 @@ Function Add-Tool() {
     } elseif($tool -eq "wp-cli") {
       Copy-Item $php_dir\wp-cli.bat -Destination $php_dir\wp.bat
     }
-    $tool_version = Get-ToolVersion $tool $ver_param
-    Add-Log $tick $tool "Added $tool $tool_version"
+    Add-Log $tick $tool "Added"
   } else {
     Add-Log $cross $tool "Could not add $tool"
   }

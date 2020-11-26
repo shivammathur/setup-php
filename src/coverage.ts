@@ -30,14 +30,8 @@ export async function addCoverageXdebug(
     'Xdebug enabled as coverage driver',
     os_version
   );
-  switch (true) {
-    case /^xdebug3$/.test(extension):
-    case /^8\.\d$/.test(version):
-      return '\n' + xdebug + '\n' + ini + '\n' + log;
-    case /^xdebug$/.test(extension):
-    default:
-      return xdebug + '\n' + log;
-  }
+
+  return '\n' + xdebug + '\n' + ini + '\n' + log;
 }
 
 /**

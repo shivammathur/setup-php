@@ -117,7 +117,7 @@ describe('Install', () => {
 
     script = '' + (await install.run());
     expect(script).toContain('initial script');
-    expect(script).toContain('bash linux.sh 7.4 ');
+    expect(script).toContain('bash linux.sh 8.0 ');
 
     setEnv('7.3', 'linux', 'a, b', 'a=b', 'x', 'phpunit');
 

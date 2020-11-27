@@ -36,7 +36,7 @@ describe('Utils tests', () => {
   it('checking parseVersion', async () => {
     expect(await utils.parseVersion('7')).toBe('7.0');
     expect(await utils.parseVersion('7.4')).toBe('7.4');
-    expect(await utils.parseVersion('latest')).toBe('7.4');
+    expect(await utils.parseVersion('latest')).toBe('8.0');
   });
 
   it('checking asyncForEach', async () => {

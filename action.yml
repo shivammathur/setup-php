@@ -7,7 +7,7 @@ branding:
 inputs:
   php-version:
     description: 'Setup PHP version.'
-    default: '7.4'
+    default: '8.0'
     required: true
   extensions:
     description: 'Setup PHP extensions.'

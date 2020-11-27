@@ -2882,7 +2882,7 @@ async function addExtensionDarwin(extension_csv, version) {
                 add_script += await utils.customPackage(ext_name, 'ext', extension, 'darwin');
                 return;
             // match pre-release versions. For example - xdebug-beta
-            case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+            case /.*-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(version_extension):
                 add_script += await utils.joins('\nadd_unstable_extension', ext_name, ext_version, ext_prefix);
                 return;
             // match semver
@@ -2948,8 +2948,8 @@ async function addExtensionWindows(extension_csv, version) {
                 add_script += await utils.customPackage(ext_name, 'ext', extension, 'win32');
                 return;
             // match pre-release versions. For example - xdebug-beta
-            case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
-                add_script += await utils.joins('\nAdd-Extension', ext_name, ext_version);
+            case /.*-(stable|beta|alpha|devel|snapshot)/.test(version_extension):
+                add_script += await utils.joins('\nAdd-Extension', ext_name, ext_version.replace('stable', ''));
                 break;
             // match semver without state
             case /.*-\d+\.\d+\.\d+$/.test(version_extension):
@@ -3029,7 +3029,7 @@ async function addExtensionLinux(extension_csv, version) {
                 add_script += await utils.customPackage(ext_name, 'ext', extension, 'linux');
                 return;
             // match pre-release versions. For example - xdebug-beta
-            case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+            case /.*-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(version_extension):
                 add_script += await utils.joins('\nadd_unstable_extension', ext_name, ext_version, ext_prefix);
                 return;
             // match semver versions

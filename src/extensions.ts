@@ -43,7 +43,9 @@ export async function addExtensionDarwin(
         );
         return;
       // match pre-release versions. For example - xdebug-beta
-      case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+      case /.*-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(
+        version_extension
+      ):
         add_script += await utils.joins(
           '\nadd_unstable_extension',
           ext_name,
@@ -135,11 +137,11 @@ export async function addExtensionWindows(
         );
         return;
       // match pre-release versions. For example - xdebug-beta
-      case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+      case /.*-(stable|beta|alpha|devel|snapshot)/.test(version_extension):
         add_script += await utils.joins(
           '\nAdd-Extension',
           ext_name,
-          ext_version
+          ext_version.replace('stable', '')
         );
         break;
       // match semver without state
@@ -246,7 +248,9 @@ export async function addExtensionLinux(
         );
         return;
       // match pre-release versions. For example - xdebug-beta
-      case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+      case /.*-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(
+        version_extension
+      ):
         add_script += await utils.joins(
           '\nadd_unstable_extension',
           ext_name,

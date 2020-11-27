@@ -160,9 +160,7 @@ add_devtools() {
   fi
   sudo update-alternatives --set php-config /usr/bin/php-config"$version" >/dev/null 2>&1
   sudo update-alternatives --set phpize /usr/bin/phpize"$version" >/dev/null 2>&1
-  if command -v pecl >/dev/null; then
-    configure_pecl >/dev/null 2>&1
-  fi
+  configure_pecl >/dev/null 2>&1
   add_log "${tick:?}" "$tool" "Added $tool $semver"
 }
 
@@ -174,7 +172,6 @@ setup_nightly() {
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
 setup_old_versions() {
   run_script "php5-ubuntu" "$version"
-  configure_pecl
   release_version=$(php -v | head -n 1 | cut -d' ' -f 2)
 }
 

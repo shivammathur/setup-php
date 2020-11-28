@@ -271,10 +271,10 @@ setup_php() {
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
   brew tap --shallow shivammathur/homebrew-php
   update_dependencies
-  if brew list php@"$version" 2>/dev/null | grep -q "Error" && [ "$action" != "upgrade" ]; then
-    brew unlink php@"$version"
+  if ! [[ "$(find "$(brew --cellar)"/php/ -maxdepth 1 -name "$version*" | wc -l 2>/dev/null)" -eq 0 ]] && [ "$action" != "upgrade" ]; then
+    brew unlink shivammathur/php/php@"$version"
   else
-    brew "$action" shivammathur/php/php@"$version"
+    brew upgrade "shivammathur/php/php@$version" 2>/dev/null || brew install "shivammathur/php/php@$version"
   fi
   brew link --force --overwrite php@"$version"
 }

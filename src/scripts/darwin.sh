@@ -217,7 +217,7 @@ setup_php() {
   update_dependencies
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
   brew tap --shallow shivammathur/homebrew-php
-  brew install shivammathur/php/php@"$version"
+  brew upgrade shivammathur/php/php@"$version" 2>/dev/null || brew install shivammathur/php/php@"$version"
   brew link --force --overwrite php@"$version"
 }
 

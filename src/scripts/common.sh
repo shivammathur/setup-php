@@ -106,7 +106,7 @@ enable_extension() {
     sudo phpenmod -v "$version" "$1" >/dev/null 2>&1
   fi
   if ! check_extension "$1" && [ -e "${ext_dir:?}/$1.so" ]; then
-    echo "$2=${ext_dir:?}/$1.so" >>"${pecl_file:-$ini_file}"
+    echo "$2=${ext_dir:?}/$1.so" >>"${pecl_file:-${ini_file[@]}}"
   fi
 }
 
@@ -114,7 +114,7 @@ enable_extension() {
 configure_pecl() {
   if ! [ -e /tmp/pecl_config ] && command -v pecl >/dev/null && command -v pear >/dev/null; then
     for script in pear pecl; do
-      sudo "$script" config-set php_ini "${pecl_file:-$ini_file}"
+      sudo "$script" config-set php_ini "${pecl_file:-${ini_file[@]}}"
       sudo "$script" channel-update "$script".php.net
     done
     echo '' | sudo tee /tmp/pecl_config >/dev/null 2>&1

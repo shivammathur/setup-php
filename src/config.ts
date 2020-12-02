@@ -14,7 +14,12 @@ export async function addINIValuesUnix(
     script +=
       '\n' + (await utils.addLog('$tick', line, 'Added to php.ini', 'linux'));
   });
-  return 'echo "' + ini_values.join('\n') + '" >> $ini_file' + script;
+  return (
+    'echo "' +
+    ini_values.join('\n') +
+    '" | sudo tee -a "${ini_file[@]}" >/dev/null 2>&1' +
+    script
+  );
 }
 
 /**

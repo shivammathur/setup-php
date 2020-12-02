@@ -9,7 +9,6 @@ add_phalcon_helper() {
       ${apt_install:?} "php${version:?}-$extension"
     fi
   else
-    phalcon_ini_file=${ini_file:?}
     sed -i '' '/extension.*psr/d' "${ini_file:?}"
     brew tap shivammathur/homebrew-phalcon
     brew install phalcon@"${version:?}"_"$extension_major_version"
@@ -29,7 +28,7 @@ add_phalcon3() {
     fi
   else
     add_phalcon_helper
-  fi  
+  fi
 }
 
 # Function to add phalcon4.
@@ -50,7 +49,7 @@ add_phalcon4() {
     fi
   else
     add_phalcon_helper
-  fi  
+  fi
 }
 
 # Function to add phalcon.
@@ -58,7 +57,7 @@ add_phalcon() {
   extension=$1
   status='Enabled'
   os_name=$(uname -s)
-  phalcon_ini_file="${scan_dir:?}/50-phalcon.ini"
+  phalcon_ini_file="${pecl_file:-${ini_file[@]}}"
   extension_major_version=${extension: -1}
   if [ "$extension_major_version" = "4" ]; then
     add_phalcon4 >/dev/null 2>&1

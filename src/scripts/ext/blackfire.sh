@@ -5,7 +5,7 @@ add_blackfire() {
   no_dot_version=${version/./}
   platform=$(uname -s | tr '[:upper:]' '[:lower:]')
   extension_version=$(echo "$extension" | cut -d '-' -f 2)
-  blackfire_ini_file="${scan_dir:?}/50-blackfire.ini"
+  blackfire_ini_file="${pecl_file:-${ini_file[@]}}"
   if [ ! -e "${ext_dir:?}/blackfire.so" ]; then
     if [ "$extension_version" = "blackfire" ]; then
       extension_version=$(get -s -n "" https://blackfire.io/api/v1/releases | grep -Eo 'php":"([0-9]+.[0-9]+.[0-9]+)' | cut -d '"' -f 3)

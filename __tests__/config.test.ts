@@ -24,7 +24,7 @@ describe('Config tests', () => {
       true
     );
     expect(linux).toContain(
-      'echo "post_max_size=256M\nshort_open_tag=On\ndate.timezone=Asia/Kolkata"'
+      'echo "post_max_size=256M\nshort_open_tag=On\ndate.timezone=Asia/Kolkata" | sudo tee -a "${ini_file[@]}"'
     );
 
     linux = await config.addINIValues(
@@ -40,7 +40,7 @@ describe('Config tests', () => {
       'darwin'
     );
     expect(darwin).toContain(
-      'echo "post_max_size=256M\nshort_open_tag=On\ndate.timezone=Asia/Kolkata"'
+      'echo "post_max_size=256M\nshort_open_tag=On\ndate.timezone=Asia/Kolkata" | sudo tee -a "${ini_file[@]}"'
     );
 
     darwin = await config.addINIValues(

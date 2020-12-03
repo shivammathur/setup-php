@@ -131,15 +131,17 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'Xdebug, pcov, grpc, igbinary, imagick, protobuf, swoole, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
+      'amqp, Xdebug, pcov, grpc, igbinary, imagick, imap, protobuf, swoole, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
       '7.2',
       'darwin'
     );
+    expect(darwin).toContain('add_brew_extension amqp extension');
     expect(darwin).toContain('add_brew_extension xdebug zend_extension');
     expect(darwin).toContain('add_brew_extension pcov extension');
     expect(darwin).toContain('add_brew_extension grpc extension');
     expect(darwin).toContain('add_brew_extension igbinary extension');
     expect(darwin).toContain('add_brew_extension imagick extension');
+    expect(darwin).toContain('add_brew_extension imap extension');
     expect(darwin).toContain('add_brew_extension protobuf extension');
     expect(darwin).toContain('add_brew_extension swoole extension');
     expect(darwin).toContain('add_extension sqlite3');

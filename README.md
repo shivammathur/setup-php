@@ -150,6 +150,16 @@ The action supports both `GitHub-hosted` runners and `self-hosted` runners on th
     extensions: xdebug-beta
 ```
 
+- Multiple extensions are expected as a comma separated list.
+
+```yaml
+- name: Setup PHP with multiple extensions
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+    extensions: swoole, sqlite
+```
+
 - Shared extensions can be removed by prefixing them with a `:`.
 
 ```yaml

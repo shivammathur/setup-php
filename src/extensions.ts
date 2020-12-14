@@ -29,7 +29,7 @@ export async function addExtensionDarwin(
       // match 5.3geos...7.4geos, 7.0geos...7.4geos
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
       // match 5.6couchbase...7.4couchbase
-      case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
+      case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
       case /^pdo_oci$|^oci8$/.test(extension):
@@ -126,7 +126,7 @@ export async function addExtensionWindows(
       // match pdo_oci and oci8
       // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-      case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
+      case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
       case /^pdo_oci$|^oci8$/.test(extension):
@@ -231,7 +231,7 @@ export async function addExtensionLinux(
       // match 5.3geos...7.4geos, 7.0geos...7.4geos
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
       // match 5.6gearman...7.4gearman, 5.6couchbase...7.4couchbase
-      case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
+      case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
       case /^((5\.[3-6])|(7\.[0-2]))pdo_cubrid$|^((5\.[3-6])|(7\.[0-4]))cubrid$/.test(

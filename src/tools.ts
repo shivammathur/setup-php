@@ -157,12 +157,29 @@ export async function getCodeceptionUri(
  * Helper function to get script to setup phive
  *
  * @param version
+ * @param php_version
  * @param os_version
  */
 export async function addPhive(
   version: string,
+  php_version: string,
   os_version: string
 ): Promise<string> {
+  switch (true) {
+    case /5\.[3-5]/.test(php_version):
+      return await utils.addLog(
+        '$cross',
+        'phive',
+        'Phive is not supported on PHP ' + php_version,
+        os_version
+      );
+    case /5\.6|7\.0/.test(php_version):
+      version = version.replace('latest', '0.12.1');
+      break;
+    case /7\.1/.test(php_version):
+      version = version.replace('latest', '0.13.5');
+      break;
+  }
   switch (version) {
     case 'latest':
       return (
@@ -539,7 +556,7 @@ export async function addTools(
         script += await addPackage(tool, release, 'robmorgan/', os_version);
         break;
       case 'phive':
-        script += await addPhive(version, os_version);
+        script += await addPhive(version, php_version, os_version);
         break;
       case 'php-config':
       case 'phpize':

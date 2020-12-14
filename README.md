@@ -22,10 +22,10 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 ## Contents
 
-- [PHP Support](#tada-php-support)
 - [OS/Platform Support](#cloud-osplatform-support)
   - [GitHub-Hosted Runners](#github-hosted-runners)
   - [Self-Hosted Runners](#self-hosted-runners)
+- [PHP Support](#tada-php-support)  
 - [PHP Extension Support](#heavy_plus_sign-php-extension-support)
 - [Tools Support](#wrench-tools-support)
 - [Coverage Support](#signal_strength-coverage-support)
@@ -58,29 +58,9 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 - [Dependencies](#package-dependencies)
 - [Further Reading](#bookmark_tabs-further-reading)
 
-## :tada: PHP Support
-
-|PHP Version|Stability|Release Support|Runner Support|
-|--- |--- |--- |--- |
-|`5.3`|`Stable`|`End of life`|`GitHub-hosted`|
-|`5.4`|`Stable`|`End of life`|`GitHub-hosted`|
-|`5.5`|`Stable`|`End of life`|`GitHub-hosted`|
-|`5.6`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
-|`7.0`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
-|`7.1`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
-|`7.2`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
-|`7.3`|`Stable`|`Security fixes only`|`GitHub-hosted`, `self-hosted`|
-|`7.4`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
-|`8.0`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
-|`8.1`|`Nightly`|`In development`|`GitHub-hosted`, `self-hosted`|
-
-**Notes:** 
-- Specifying `8.1` in `php-version` input installs a nightly build of `PHP 8.1.0-dev`. See [nightly build setup](#nightly-build-setup) for more information.
-- To use JIT on `PHP 8.0` and `PHP 8.1` refer to the [JIT configuration](#jit-configuration) section.
-
 ## :cloud: OS/Platform Support
 
-The action supports both `GitHub-hosted` runners and `self-hosted` runners on the following operating systems.
+Both `GitHub-hosted` and `self-hosted` runners are suppported by `setup-php` on the following OS/Platforms.
 
 ### GitHub-Hosted Runners
 
@@ -106,29 +86,54 @@ The action supports both `GitHub-hosted` runners and `self-hosted` runners on th
 |macOS Big Sur 11.0|`self-hosted` or `macOS`|
 
 - Refer to the [self-hosted setup](#self-hosted-setup) to use the action on self-hosted runners.
+- If the requested PHP version is pre-installed, `setup-php` switches to it, otherwise it installs the PHP version.
+
+## :tada: PHP Support
+
+On all supported OS/Platforms the following PHP versions are supported as per the runner.
+
+- PHP 5.3 to PHP 8.1 on GitHub-hosted runners.
+- PHP 5.6 to PHP 8.1 on self-hosted runners.
+
+|PHP Version|Stability|Release Support|Runner Support|
+|--- |--- |--- |--- |
+|`5.3`|`Stable`|`End of life`|`GitHub-hosted`|
+|`5.4`|`Stable`|`End of life`|`GitHub-hosted`|
+|`5.5`|`Stable`|`End of life`|`GitHub-hosted`|
+|`5.6`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
+|`7.0`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
+|`7.1`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
+|`7.2`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
+|`7.3`|`Stable`|`Security fixes only`|`GitHub-hosted`, `self-hosted`|
+|`7.4`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
+|`8.0`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
+|`8.1`|`Nightly`|`In development`|`GitHub-hosted`, `self-hosted`|
+
+**Notes:** 
+- Specifying `8.1` in `php-version` input installs a nightly build of `PHP 8.1.0-dev`. See [nightly build setup](#nightly-build-setup) for more information.
+- To use JIT on `PHP 8.0` and `PHP 8.1` refer to the [JIT configuration](#jit-configuration) section.
 
 ## :heavy_plus_sign: PHP Extension Support
 
-- Extensions loaded by default after `setup-php` runs can be found on the [wiki](https://github.com/shivammathur/setup-php/wiki).
+PHP extensions can be setup using the `extensions` input. It accepts a `string` in csv-format.
 
-- On `ubuntu` by default extensions which are available as a package can be installed. PECL extensions if not available as a package can be installed by specifying `pecl` in the tools input.
+- On `Ubuntu`, extensions which are available as a package or available on `PECL` can be setup.
 
 ```yaml
 - name: Setup PHP with pecl extension
   uses: shivammathur/setup-php@v2
   with:
     php-version: '7.4'
-    tools: pecl
-    extensions: swoole
+    extensions: imagick, swoole
 ```
 
-- On `windows` PECL extensions which have the `DLL` binary can be installed.
+- On `Windows`, extensions available on `PECL` which have the `DLL` binary can be setup.
 
-- On `macOS` PECL extensions can be installed.
+- On `macOS`, extensions available on `PECL` can be installed.
 
 - Extensions installed along with PHP if specified are enabled.
 
-- Specific versions of PECL extensions can be installed by suffixing the version. This is useful for installing old versions of extensions which support end of life PHP versions.
+- Specific versions of extensions available on `PECL` can be setup by suffixing the extension's name with the version. This is useful for installing old versions of extensions which support end of life PHP versions.
 
 ```yaml
 - name: Setup PHP with specific version of PECL extension
@@ -139,7 +144,7 @@ The action supports both `GitHub-hosted` runners and `self-hosted` runners on th
     extensions: swoole-1.9.3
 ```
 
-- Pre-release versions of PECL extensions can be setup by suffixing the extension with its state i.e `alpha`, `beta`, `devel` or `snapshot`.
+- Pre-release versions extensions available on `PECL` can be setup by suffixing the extension's name with its state i.e `alpha`, `beta`, `devel` or `snapshot`.
 
 ```yaml
 - name: Setup PHP with pre-release PECL extension
@@ -170,10 +175,12 @@ The action supports both `GitHub-hosted` runners and `self-hosted` runners on th
     extensions: intl-67.1
 ```
 
+- Extensions loaded by default after `setup-php` runs can be found on the [wiki](https://github.com/shivammathur/setup-php/wiki).
+
 - These extensions have custom support:
- - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`.
- - `geos` on `Ubuntu` and `macOS`.
- - `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
+  - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`.
+  - `geos` on `Ubuntu` and `macOS`.
+  - `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
 
 - By default, extensions which cannot be added or removed gracefully leave an error message in the logs, the action is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`. 
 
@@ -189,7 +196,7 @@ The action supports both `GitHub-hosted` runners and `self-hosted` runners on th
 
 ## :wrench: Tools Support
 
-These tools can be setup globally using the `tools` input.
+These tools can be setup globally using the `tools` input. It accepts a string in csv-format.
 
 `behat`, `blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `composer-require-checker`, `composer-unused`, `cs2pr`, `deployer`, `flex`, `grpc_php_plugin`, `infection`, `pecl`, `phan`, `phing`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpspec`, `phpstan`, `phpunit`, `prestissimo`, `protoc`, `psalm`, `symfony`, `vapor-cli`
 
@@ -395,9 +402,13 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
-        php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4']
-    name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
+        operating-system: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        php-versions: ['7.3', '7.4']
+        phpunit-versions: ['latest']
+        include:
+        - operating-system: 'ubuntu-latest'
+          php-versions: '7.2'
+          phpunit-versions: '8.5.13'    
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -409,7 +420,7 @@ jobs:
         extensions: mbstring, intl
         ini-values: post_max_size=256M, max_execution_time=180
         coverage: xdebug        
-        tools: php-cs-fixer, phpunit
+        tools: php-cs-fixer, phpunit:${{ matrix.phpunit-versions }}
 ```
 
 ### Nightly Build Setup
@@ -574,7 +585,7 @@ jobs:
         php-version: 7.4
 ```
 
-Run the workflow locally with `act` using [`shivammathur/node`](https://github.com/shivammathur/node-docker "Docker image to run setup-php") docker image.
+Run the workflow locally with `act` using [`shivammathur/node`](https://github.com/shivammathur/node-docker "Docker image to run setup-php") docker images.
 
 ```bash
 # For runs-on: ubuntu-latest

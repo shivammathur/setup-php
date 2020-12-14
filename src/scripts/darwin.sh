@@ -43,7 +43,14 @@ add_pecl_extension() {
 add_brew_tap() {
   tap=$1
   if ! [ -d "$tap_dir/$tap" ]; then
-    brew tap --shallow "$tap" >/dev/null 2>&1
+    tap_user=$(dirname "$tap")
+    tap_name=$(basename "$tap")
+    get -s -n "" "https://github.com/$tap/archive/master.tar.gz" | tar -xzf - -C "$tap_dir/$tap_user" >/dev/null 2>&1
+    if [ -d "$tap_dir/$tap_user/$tap_name-master" ]; then
+      sudo mv "$tap_dir/$tap_user/$tap_name-master" "$tap_dir/$tap_user/$tap_name"
+    else
+      brew tap --shallow "$tap" >/dev/null 2>&1
+    fi
   fi
 }
 

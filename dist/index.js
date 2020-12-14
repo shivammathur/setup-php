@@ -2875,11 +2875,12 @@ async function addExtensionDarwin(extension_csv, version) {
             // match 5.3blackfire-(semver)...5.6blackfire-(semver), 7.0blackfire-(semver)...7.4blackfire-(semver)
             // match pdo_oci and oci8
             // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
+            // match 5.3geos...7.4geos, 7.0geos...7.4geos
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
             // match 5.6couchbase...7.4couchbase
             case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^pdo_oci$|^oci8$/.test(extension):
-            case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
+            case /^(5\.[3-6]|7\.[0-4])(ioncube|geos)$/.test(version_extension):
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
             case /^5\.6couchbase$|^7\.[0-4]couchbase$/.test(version_extension):
                 add_script += await utils.customPackage(ext_name, 'ext', extension, 'darwin');
@@ -3020,13 +3021,14 @@ async function addExtensionLinux(extension_csv, version) {
             // match 5.3pdo_cubrid...7.2php_cubrid, 5.3cubrid...7.4cubrid
             // match pdo_oci and oci8
             // match 5.3ioncube...7.4ioncube, 7.0ioncube...7.4ioncube
+            // match 5.3geos...7.4geos, 7.0geos...7.4geos
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
             // match 5.6gearman...7.4gearman, 5.6couchbase...7.4couchbase
             case /^(5\.[3-6]|7\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^((5\.[3-6])|(7\.[0-2]))pdo_cubrid$|^((5\.[3-6])|(7\.[0-4]))cubrid$/.test(version_extension):
             case /^pdo_oci$|^oci8$/.test(extension):
             case /^5\.6intl-[\d]+\.[\d]+$|^7\.[0-4]intl-[\d]+\.[\d]+$/.test(version_extension):
-            case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
+            case /^(5\.[3-6]|7\.[0-4])(ioncube|geos)$/.test(version_extension):
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
             case /^((5\.6)|(7\.[0-4]))(gearman|couchbase)$/.test(version_extension):
                 add_script += await utils.customPackage(ext_name, 'ext', extension, 'linux');

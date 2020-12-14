@@ -170,7 +170,10 @@ The action supports both `GitHub-hosted` runners and `self-hosted` runners on th
     extensions: intl-67.1
 ```
 
-- These extensions have custom support - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`, and `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
+- These extensions have custom support:
+ - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`.
+ - `geos` on `Ubuntu` and `macOS`.
+ - `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
 
 - By default, extensions which cannot be added or removed gracefully leave an error message in the logs, the action is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`. 
 

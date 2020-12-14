@@ -112,6 +112,9 @@ describe('Extension tests', () => {
     linux = await extensions.addExtension('ioncube', '7.3', 'linux');
     expect(linux).toContain('add_ioncube');
 
+    linux = await extensions.addExtension('geos', '7.3', 'linux');
+    expect(linux).toContain('add_geos');
+
     linux = await extensions.addExtension('oci8, pdo_oci', '7.3', 'linux');
     expect(linux).toContain('add_oci oci8');
     expect(linux).toContain('add_oci pdo_oci');
@@ -163,6 +166,9 @@ describe('Extension tests', () => {
 
     darwin = await extensions.addExtension('ioncube', '7.3', 'darwin');
     expect(darwin).toContain('add_ioncube');
+
+    darwin = await extensions.addExtension('geos', '7.3', 'darwin');
+    expect(darwin).toContain('add_geos');
 
     darwin = await extensions.addExtension('oci8, pdo_oci', '7.3', 'darwin');
     expect(darwin).toContain('add_oci oci8');

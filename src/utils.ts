@@ -234,20 +234,20 @@ export async function writeScript(
 /**
  * Function to break extension csv into an array
  *
- * @param extension_csv
+ * @param package_csv
  */
-export async function extensionArray(
-  extension_csv: string
+export async function packageArray(
+  package_csv: string
 ): Promise<Array<string>> {
-  switch (extension_csv) {
+  switch (package_csv) {
     case '':
     case ' ':
       return [];
     default:
-      return extension_csv
+      return package_csv
         .split(',')
-        .map(function (extension: string) {
-          return extension
+        .map(function (package_name: string) {
+          return package_name
             .trim()
             .toLowerCase()
             .replace(/^php[-_]/, '');

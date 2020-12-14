@@ -18,6 +18,9 @@ inputs:
   coverage: 
     description: 'Setup code coverage driver.'
     required: false
+  sapi:
+    description: 'Setup PHP Server API.'
+    required: false
   tools:
     description: 'Setup popular tools globally.'
     required: false

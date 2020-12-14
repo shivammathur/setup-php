@@ -3,6 +3,7 @@ import * as core from '@actions/core';
 import * as config from './config';
 import * as coverage from './coverage';
 import * as extensions from './extensions';
+import * as sapi from './sapi';
 import * as tools from './tools';
 import * as utils from './utils';
 
@@ -26,10 +27,13 @@ export async function getScript(
   const ini_values_csv: string = await utils.getInput('ini-values', false);
   const coverage_driver: string = await utils.getInput('coverage', false);
   const tools_csv: string = await utils.getInput('tools', false);
+  const sapi_csv: string = await utils.getInput('sapi', false);
 
   let script: string = await utils.readScript(filename);
+  if (sapi_csv) {
+    script += await sapi.addSAPI(sapi_csv, os_version);
+  }
   script += await tools.addTools(tools_csv, version, os_version);
-
   if (extension_csv) {
     script += await extensions.addExtension(extension_csv, version, os_version);
   }

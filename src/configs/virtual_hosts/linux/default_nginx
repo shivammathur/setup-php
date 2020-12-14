@@ -1,0 +1,22 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm index.php;
+
+    server_name localhost;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/phpPHP_VERSION-fpm.sock;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}

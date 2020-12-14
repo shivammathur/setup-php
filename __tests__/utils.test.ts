@@ -107,16 +107,16 @@ describe('Utils tests', () => {
     await cleanup(script_path);
   });
 
-  it('checking extensionArray', async () => {
-    expect(await utils.extensionArray('a, b, php_c, php-d')).toEqual([
+  it('checking packageArray', async () => {
+    expect(await utils.packageArray('a, b, php_c, php-d')).toEqual([
       'a',
       'b',
       'c',
       'd'
     ]);
 
-    expect(await utils.extensionArray('')).toEqual([]);
-    expect(await utils.extensionArray(' ')).toEqual([]);
+    expect(await utils.packageArray('')).toEqual([]);
+    expect(await utils.packageArray(' ')).toEqual([]);
   });
 
   it('checking INIArray', async () => {

@@ -31,6 +31,23 @@ add_ppa() {
   fi
 }
 
+# Function to add SAPI
+add_sapi() {
+  sapi=$1
+  status='true'
+  if [ "$sapi" != "cli" ]; then
+    # shellcheck source=.
+    . "${dist}"/../src/scripts/sapi.sh
+    setup_sapi "$sapi" >/dev/null 2>&1
+  fi
+  check_sapi "$sapi"
+  if check_sapi "$sapi"; then
+    add_log "${tick:?}" "$sapi" "Added $sapi"
+  else
+    add_log "${cross:?}" "$sapi" "Could not setup $sapi"
+  fi
+}
+
 # Function to update the package lists.
 update_lists() {
   if [ ! -e /tmp/setup_php ]; then

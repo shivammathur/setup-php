@@ -831,16 +831,20 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 <p>
   <a href="https://www.jetbrains.com/?from=setup-php">
-    <img src="https://shivammathur.com/jetbrains.svg" alt="JetBrains" width="106" height="60">
+    <img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="106" height="60">
   </a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://blackfire.io/?utm_source=setup-php">
-    <img src="https://shivammathur.com/blackfire.svg" alt="Blackfire" width="212" height="60">
+    <img src="https://setup-php.com/sponsors//blackfire.svg" alt="Blackfire" width="212" height="60">
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://www.macstadium.com/?source=setup-php">
+    <img src="https://setup-php.com/sponsors//macstadium.png" alt="Mac Stadium" width="148" height="60">
   </a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://tidelift.com/subscription/pkg/npm-setup-php">
-    <img src="https://shivammathur.com/tidelift.png" alt="Tidelift" width="70" height="60">
-  </a>
+    <img src="https://setup-php.com/sponsors//tidelift.png" alt="Tidelift" width="70" height="60">
+  </a>  
 </p>
 
 ## :package: Dependencies

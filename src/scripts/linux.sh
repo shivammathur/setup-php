@@ -267,6 +267,10 @@ setup_php() {
       status="Found"
     fi
   fi
+  if ! command -v php"$version" >/dev/null; then
+    add_log "$cross" "PHP" "Could not setup PHP $version"
+    exit 1
+  fi
   semver=$(php_semver)
   ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
   scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")

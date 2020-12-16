@@ -397,12 +397,14 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   if ($version -lt '7.0' -and (Get-InstalledModule).Name -notcontains 'VcRedist') {
     Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" >$null 2>&1
   }
-  if ($version -match $nightly_version) {
-    Invoke-WebRequest -Uri $bintray/Get-PhpNightly.ps1 -OutFile $php_dir\Get-PhpNightly.ps1 > $null 2>&1
-    & $php_dir\Get-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir -Version $version > $null 2>&1
-  } else {
-    Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
-  }
+  try {
+    if ($version -match $nightly_version) {
+      Invoke-WebRequest -Uri $bintray/Get-PhpNightly.ps1 -OutFile $php_dir\Get-PhpNightly.ps1 > $null 2>&1
+      & $php_dir\Get-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir -Version $version > $null 2>&1
+    } else {
+      Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
+    }
+  } catch { }
 } else {
   if($env:update -eq 'true') {
     Update-Php $php_dir >$null 2>&1
@@ -413,6 +415,10 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 }
 
 $installed = Get-Php -Path $php_dir
+if($installed.MajorMinorVersion -ne $version) {
+  Add-Log $cross "PHP" "Could not setup PHP $version"
+  exit 1
+}
 ('date.timezone=UTC', 'memory_limit=-1') | ForEach-Object { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
 if($version -lt "5.5") {
   ('libeay32.dll', 'ssleay32.dll') | ForEach-Object { Invoke-WebRequest -Uri $bintray/$_ -OutFile $php_dir\$_ >$null 2>&1 }

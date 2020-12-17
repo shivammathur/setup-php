@@ -419,7 +419,7 @@ if($installed.MajorMinorVersion -ne $version) {
   Add-Log $cross "PHP" "Could not setup PHP $version"
   exit 1
 }
-('date.timezone=UTC', 'memory_limit=-1') | ForEach-Object { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
+('date.timezone=UTC', 'memory_limit=-1', 'xdebug.mode=coverage') | ForEach-Object { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
 if($version -lt "5.5") {
   ('libeay32.dll', 'ssleay32.dll') | ForEach-Object { Invoke-WebRequest -Uri $bintray/$_ -OutFile $php_dir\$_ >$null 2>&1 }
 } else {

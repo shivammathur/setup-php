@@ -3,7 +3,8 @@ export tick="✓"
 export cross="✗"
 export curl_opts=(-sL)
 export old_versions="5.[3-5]"
-export jit_versions="8.[0-1]"
+export jit_versions="8.[0-9]"
+export xdebug3_versions="7.[2-4]|8.[0-9]"
 export tool_path_dir="/usr/local/bin"
 export composer_bin="$HOME/.composer/vendor/bin"
 export composer_json="$HOME/.composer/composer.json"
@@ -107,8 +108,17 @@ enable_extension() {
     sudo phpenmod -v "$version" "$1" >/dev/null 2>&1
   fi
   if ! check_extension "$1" && [ -e "${ext_dir:?}/$1.so" ]; then
-    echo "$2=${ext_dir:?}/$1.so" >>"${pecl_file:-${ini_file[@]}}"
+    echo "$2=${ext_dir:?}/$1.so" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null
   fi
+}
+
+# Function to configure PHP
+configure_php() {
+  (
+    echo -e "date.timezone=UTC\nmemory_limit=-1"
+    [[ "$version" =~ $jit_versions ]] && echo -e "opcache.enable=1\nopcache.jit_buffer_size=256M\nopcache.jit=1235"
+    [[ "$version" =~ $xdebug3_versions ]] && echo -e "xdebug.mode=coverage"
+  ) | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null
 }
 
 # Function to configure PECL.

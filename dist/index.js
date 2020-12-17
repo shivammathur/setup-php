@@ -2337,9 +2337,8 @@ const config = __importStar(__webpack_require__(641));
 async function addCoverageXdebug(extension, version, os_version, pipe) {
     const xdebug = (await extensions.addExtension(extension, version, os_version, true)) +
         pipe;
-    const ini = await config.addINIValues('xdebug.mode=coverage', os_version, true);
     const log = await utils.addLog('$tick', extension, 'Xdebug enabled as coverage driver', os_version);
-    return [xdebug, ini, log].join('\n');
+    return xdebug + '\n' + log;
 }
 exports.addCoverageXdebug = addCoverageXdebug;
 /**
@@ -2474,7 +2473,7 @@ async function addINIValuesUnix(ini_values_csv) {
     });
     return ('echo "' +
         ini_values.join('\n') +
-        '" | sudo tee -a "${ini_file[@]}" >/dev/null 2>&1' +
+        '" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null 2>&1' +
         script);
 }
 exports.addINIValuesUnix = addINIValuesUnix;

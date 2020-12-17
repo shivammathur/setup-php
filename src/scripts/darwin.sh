@@ -139,8 +139,7 @@ setup_php() {
   fi
   ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
   sudo chmod 777 "$ini_file" "${tool_path_dir:?}"
-  echo -e "date.timezone=UTC\nmemory_limit=-1" >>"$ini_file"
-  [[ "$version" =~ ${jit_versions:?} ]] && echo -e "opcache.enable=1\nopcache.jit_buffer_size=256M\nopcache.jit=1235" >>"$ini_file"
+  configure_php
   ext_dir=$(php -i | grep -Ei "extension_dir => /" | sed -e "s|.*=> s*||")
   scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
   sudo mkdir -m 777 -p "$ext_dir" "$HOME/.composer"

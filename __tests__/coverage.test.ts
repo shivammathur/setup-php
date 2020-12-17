@@ -28,43 +28,36 @@ describe('Config tests', () => {
   it('checking addCoverage with Xdebug on windows', async () => {
     const win32: string = await coverage.addCoverage('xdebug', '7.4', 'win32');
     expect(win32).toContain('Add-Extension xdebug');
-    expect(win32).toContain('xdebug.mode=coverage');
   });
 
   it('checking addCoverage with Xdebug on linux', async () => {
     const linux: string = await coverage.addCoverage('xdebug', '8.0', 'linux');
     expect(linux).toContain('add_extension xdebug');
-    expect(linux).toContain('echo "xdebug.mode=coverage"');
   });
 
   it('checking addCoverage with Xdebug3 on linux', async () => {
     const linux: string = await coverage.addCoverage('xdebug3', '7.4', 'linux');
     expect(linux).toContain('add_extension_from_source xdebug');
-    expect(linux).toContain('echo "xdebug.mode=coverage"');
   });
 
   it('checking addCoverage with Xdebug3 on linux', async () => {
     const linux: string = await coverage.addCoverage('xdebug3', '8.0', 'linux');
     expect(linux).toContain('add_extension xdebug');
-    expect(linux).toContain('echo "xdebug.mode=coverage"');
   });
 
   it('checking addCoverage with Xdebug on linux', async () => {
     const linux: string = await coverage.addCoverage('xdebug', '8.0', 'linux');
     expect(linux).toContain('add_extension xdebug');
-    expect(linux).toContain('echo "xdebug.mode=coverage"');
   });
 
   it('checking addCoverage with Xdebug3 on linux', async () => {
     const linux: string = await coverage.addCoverage('xdebug3', '8.1', 'linux');
     expect(linux).toContain('add_extension xdebug');
-    expect(linux).toContain('echo "xdebug.mode=coverage"');
   });
 
   it('checking addCoverage with Xdebug on linux', async () => {
     const linux: string = await coverage.addCoverage('xdebug', '8.1', 'linux');
     expect(linux).toContain('add_extension xdebug');
-    expect(linux).toContain('echo "xdebug.mode=coverage"');
   });
 
   it('checking addCoverage with Xdebug on darwin', async () => {

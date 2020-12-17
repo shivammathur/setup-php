@@ -157,7 +157,6 @@ setup_php() {
 version=$1
 dist=$2
 nightly_versions="8.1"
-jit_versions="8.[0-1]"
 brew_prefix="$(brew --prefix)"
 tap_dir="$brew_prefix"/Homebrew/Library/Taps
 export HOMEBREW_NO_INSTALL_CLEANUP=1

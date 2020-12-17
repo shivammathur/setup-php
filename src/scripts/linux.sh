@@ -281,6 +281,7 @@ setup_php() {
   sudo rm -rf /usr/local/bin/phpunit >/dev/null 2>&1
   sudo chmod 777 "${ini_file[@]}" "$pecl_file" "${tool_path_dir:?}"
   sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
+  [[ "$version" =~ ${jit_versions:?} ]] && echo -e "opcache.enable=1\nopcache.jit_buffer_size=256M\nopcache.jit=1235" | sudo tee -a "${ini_file[@]}" >/dev/null 2>&1
   add_log "${tick:?}" "PHP" "$status PHP $semver"
 }
 

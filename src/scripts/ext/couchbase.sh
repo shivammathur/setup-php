@@ -32,6 +32,8 @@ add_couchbase() {
   else
     if [[ ${version:?} =~ 5.6|7.[0-1] ]]; then
       pecl_install couchbase-2.6.2 >/dev/null 2>&1
+    elif [[ ${version:?} =~ 7.2 ]]; then
+      pecl_install couchbase-3.0.4 >/dev/null 2>&1
     else
       pecl_install couchbase >/dev/null 2>&1
     fi

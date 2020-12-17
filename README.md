@@ -120,7 +120,7 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
 - On `Ubuntu`, extensions which are available as a package or available on `PECL` can be setup.
 
 ```yaml
-- name: Setup PHP with pecl extension
+- name: Setup PHP with PECL extension
   uses: shivammathur/setup-php@v2
   with:
     php-version: '7.4'
@@ -140,7 +140,6 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
   uses: shivammathur/setup-php@v2
   with:
     php-version: '5.4'
-    tools: pecl
     extensions: swoole-1.9.3
 ```
 
@@ -151,7 +150,6 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
   uses: shivammathur/setup-php@v2
   with:
     php-version: '7.4'
-    tools: pecl
     extensions: xdebug-beta
 ```
 
@@ -428,7 +426,6 @@ jobs:
 > Setup a nightly build of `PHP 8.1`. 
 
 - This version is currently in development.
-- `PECL` is installed by default with `PHP 8.1` on both `ubuntu` and `macOS`.
 - Some user space extensions might not support this version currently.
 
 ```yaml

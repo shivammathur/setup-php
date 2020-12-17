@@ -112,7 +112,10 @@ enable_extension() {
 
 # Function to configure PECL.
 configure_pecl() {
-  if ! [ -e /tmp/pecl_config ] && command -v pecl >/dev/null && command -v pear >/dev/null; then
+  if ! [ -e /tmp/pecl_config ]; then
+    if ! command -v pecl >/dev/null || ! command -v pear >/dev/null; then
+      add_pecl >/dev/null 2>&1
+    fi
     for script in pear pecl; do
       sudo "$script" config-set php_ini "${pecl_file:-${ini_file[@]}}"
       sudo "$script" channel-update "$script".php.net

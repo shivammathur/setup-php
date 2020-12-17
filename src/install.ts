@@ -25,10 +25,7 @@ export async function getScript(
   const extension_csv: string = await utils.getInput('extensions', false);
   const ini_values_csv: string = await utils.getInput('ini-values', false);
   const coverage_driver: string = await utils.getInput('coverage', false);
-  let tools_csv: string = await utils.getInput('tools', false);
-  if (/.*-(beta|alpha|devel|snapshot|\d+\.\d+\.\d+).*/.test(extension_csv)) {
-    tools_csv = 'pecl, ' + tools_csv;
-  }
+  const tools_csv: string = await utils.getInput('tools', false);
 
   let script: string = await utils.readScript(filename);
   script += await tools.addTools(tools_csv, version, os_version);

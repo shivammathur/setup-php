@@ -288,7 +288,6 @@ setup_php() {
 # Variables
 version=$1
 dist=$2
-nightly_versions="8.[0-1]"
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y"
 apt_remove="sudo $debconf_fix apt-fast remove -y"

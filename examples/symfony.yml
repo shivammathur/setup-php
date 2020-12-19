@@ -34,5 +34,6 @@ jobs:
         run: |
           composer require symfony/orm-pack
           composer install --no-progress --prefer-dist --optimize-autoloader
+          php bin/phpunit install
       - name: Run Tests
         run: php bin/phpunit --coverage-text

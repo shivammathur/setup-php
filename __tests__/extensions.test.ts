@@ -130,6 +130,9 @@ describe('Extension tests', () => {
 
     linux = await extensions.addExtension('intl-67.1', '7.3', 'linux');
     expect(linux).toContain('add_intl intl-67.1');
+
+    linux = await extensions.addExtension('intl-68.2', '8.0', 'linux');
+    expect(linux).toContain('add_intl intl-68.2');
   });
 
   it('checking addExtensionOnDarwin', async () => {

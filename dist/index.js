@@ -3032,7 +3032,7 @@ async function addExtensionLinux(extension_csv, version) {
             case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^((5\.[3-6])|(7\.[0-2]))pdo_cubrid$|^((5\.[3-6])|(7\.[0-4]))cubrid$/.test(version_extension):
             case /^pdo_oci$|^oci8$/.test(extension):
-            case /^5\.6intl-[\d]+\.[\d]+$|^7\.[0-4]intl-[\d]+\.[\d]+$/.test(version_extension):
+            case /^(5\.6|7\.[0-4]|8\.0)intl-[\d]+\.[\d]+$/.test(version_extension):
             case /^(5\.[3-6]|7\.[0-4])(ioncube|geos)$/.test(version_extension):
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
             case /^((5\.6)|(7\.[0-4]))(gearman|couchbase)$/.test(version_extension):

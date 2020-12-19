@@ -163,14 +163,14 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
     extensions: :opcache
 ```
 
-- Extension `intl` can be setup with specific `ICU` version for `PHP 5.6` to `PHP 7.4` in `Ubuntu` workflows by suffixing `intl` with the `ICU` version. `ICU 50.2` and newer versions are supported. Refer to [`ICU builds`](https://github.com/shivammathur/icu-intl#icu4c-builds) for the specific versions supported.
+- Extension `intl` can be setup with specific `ICU` version for `PHP 5.6` to `PHP 8.0` in `Ubuntu` workflows by suffixing `intl` with the `ICU` version. `ICU 50.2` and newer versions are supported. Refer to [`ICU builds`](https://github.com/shivammathur/icu-intl#icu4c-builds) for the specific versions supported.
 
 ```yaml
 - name: Setup PHP with intl
   uses: shivammathur/setup-php@v2
   with:
     php-version: '7.4'
-    extensions: intl-67.1
+    extensions: intl-68.2
 ```
 
 - Extensions loaded by default after `setup-php` runs can be found on the [wiki](https://github.com/shivammathur/setup-php/wiki).

@@ -66,13 +66,9 @@ export async function addExtensionDarwin(
       case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
         add_script += await utils.getUnsupportedLog('pcov', version, 'darwin');
         return;
-      // 5.6igbinary to 8.9igbinary, 5.6imap to 8.9imap, match 5.6xdebug to 8.9xdebug,
-      // match 5.6amqp to 7.4amqp, 5.6grpc to 7.4grpc, 5.6imagick to 7.4imagick, 5.6protobuf to 7.4protobuf, 5.6swoole to 7.4swoole
-      // match 7.1pcov to 8.9pcov
-      case /(5\.6|7\.[0-4]|8\.[0-9])(igbinary|imap|xdebug)/.test(
-        version_extension
-      ):
-      case /(5\.6|7\.[0-4])(amqp|grpc|imagick|protobuf|swoole)/.test(
+      // match 5.6 to 8.9 for amqp, grpc, igbinary, imagick, imap, protobuf, swoole and xdebug
+      // match 7.1 to 8.9 for pcov
+      case /(5\.6|7\.[0-4]|8\.[0-9])(amqp|grpc|igbinary|imagick|imap|protobuf|swoole|xdebug)/.test(
         version_extension
       ):
       case /(7\.[1-4]|8\.[0-9])pcov/.test(version_extension):

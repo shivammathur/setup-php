@@ -39,17 +39,29 @@ add_pecl_extension() {
   fi
 }
 
+# Function to fetch a brew tap
+fetch_brew_tap() {
+  tap=$1
+  tap_user=$(dirname "$tap")
+  tap_name=$(basename "$tap")
+  mkdir -p "$tap_dir/$tap_user"
+  get -s -n "" "https://github.com/$tap/archive/master.tar.gz" | sudo tar -xzf - -C "$tap_dir/$tap_user"
+  if [ -d "$tap_dir/$tap_user/$tap_name-master" ]; then
+    sudo mv "$tap_dir/$tap_user/$tap_name-master" "$tap_dir/$tap_user/$tap_name"
+  fi
+}
+
 # Function to add a brew tap.
 add_brew_tap() {
   tap=$1
   if ! [ -d "$tap_dir/$tap" ]; then
-    tap_user=$(dirname "$tap")
-    tap_name=$(basename "$tap")
-    get -s -n "" "https://github.com/$tap/archive/master.tar.gz" | tar -xzf - -C "$tap_dir/$tap_user" >/dev/null 2>&1
-    if [ -d "$tap_dir/$tap_user/$tap_name-master" ]; then
-      sudo mv "$tap_dir/$tap_user/$tap_name-master" "$tap_dir/$tap_user/$tap_name"
-    else
+    if [ "${runner:?}" = "self-hosted" ]; then
       brew tap --shallow "$tap" >/dev/null 2>&1
+    else
+      fetch_brew_tap "$tap" >/dev/null 2>&1
+      if ! [ -d "$tap_dir/$tap" ]; then
+        brew tap --shallow "$tap" >/dev/null 2>&1
+      fi
     fi
   fi
 }
@@ -62,6 +74,7 @@ add_brew_extension() {
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
+    add_brew_tap shivammathur/homebrew-php
     add_brew_tap shivammathur/homebrew-extensions
     sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$extension"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
     brew install "$extension@$version" >/dev/null 2>&1
@@ -144,7 +157,7 @@ setup_php() {
   scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
   sudo mkdir -m 777 -p "$ext_dir" "$HOME/.composer"
   semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
-  if [ ${semver%.*} != "$version" ]; then
+  if [ "${semver%.*}" != "$version" ]; then
     add_log "$cross" "PHP" "Could not setup PHP $version"
     exit 1
   fi

@@ -68,8 +68,9 @@ add_brew_tap() {
 
 # Function to install a php extension from shivammathur/extensions tap.
 add_brew_extension() {
-  extension=$1
+  formula=$1
   prefix=$2
+  extension=${formula//[0-9]/}
   enable_extension "$extension" "$prefix"
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
@@ -77,8 +78,8 @@ add_brew_extension() {
     add_brew_tap shivammathur/homebrew-php
     add_brew_tap shivammathur/homebrew-extensions
     sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$extension"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
-    brew install "$extension@$version" >/dev/null 2>&1
-    sudo cp "$brew_prefix/opt/$extension@$version/$extension.so" "$ext_dir"
+    brew install "$formula@$version" >/dev/null 2>&1
+    sudo cp "$brew_prefix/opt/$formula@$version/$extension.so" "$ext_dir"
     add_extension_log "$extension" "Installed and enabled"
   fi
 }

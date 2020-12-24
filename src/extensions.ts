@@ -163,10 +163,11 @@ export async function addExtensionWindows(
           matches[1]
         );
         break;
-      // match 5.3pcov to 7.0pcov
-      case /7\.2xdebug/.test(version_extension):
+      // match 7.2xdebug2 to 7.4xdebug2
+      case /7\.[2-4]xdebug2/.test(version_extension):
         add_script += '\nAdd-Extension xdebug stable 2.9.8';
         break;
+      // match 5.3pcov to 7.0pcov
       case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
         add_script += await utils.getUnsupportedLog('pcov', version, 'win32');
         break;
@@ -267,24 +268,15 @@ export async function addExtensionLinux(
       case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
         add_script += await utils.getUnsupportedLog('pcov', version, 'linux');
         return;
-      // match 7.2xdebug3..7.4xdebug3
-      case /^7\.[2-4]xdebug3$/.test(version_extension):
-        add_script +=
-          '\nadd_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension';
-        return;
-      // match 7.2xdebug
-      case /^7\.2xdebug$/.test(version_extension):
+      // match 7.2xdebug2...7.4xdebug2
+      case /^7\.[2-4]xdebug2$/.test(version_extension):
         add_script += await utils.joins(
           '\nadd_pecl_extension',
-          ext_name,
+          'xdebug',
           '2.9.8',
           ext_prefix
         );
-        break;
-      // match 8.0xdebug3...8.9xdebug3
-      case /^8\.[0-9]xdebug3$/.test(version_extension):
-        extension = 'xdebug';
-        break;
+        return;
       // match pdo extensions
       case /.*pdo[_-].*/.test(version_extension):
         extension = extension.replace(/pdo[_-]|3/, '');

@@ -25,7 +25,7 @@ describe('Extension tests', () => {
       'Add-Log "$cross" "pcov" "pcov is not supported on PHP 5.6"'
     );
 
-    win32 = await extensions.addExtension('xdebug', '7.2', 'win32');
+    win32 = await extensions.addExtension('xdebug2', '7.2', 'win32');
     expect(win32).toContain('Add-Extension xdebug stable 2.9.8');
 
     win32 = await extensions.addExtension('mysql', '7.4', 'win32');
@@ -62,13 +62,11 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnLinux', async () => {
     let linux: string = await extensions.addExtension(
-      'Xdebug, xdebug3, pcov, sqlite, :intl, ast, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
+      'Xdebug, pcov, sqlite, :intl, ast, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
       '7.4',
       'linux'
     );
-    expect(linux).toContain(
-      'add_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension'
-    );
+    expect(linux).toContain('add_extension xdebug');
     expect(linux).toContain('add_extension sqlite3');
     expect(linux).toContain('remove_extension intl');
     expect(linux).toContain('add_unstable_extension ast beta extension');
@@ -99,7 +97,7 @@ describe('Extension tests', () => {
     linux = await extensions.addExtension('cubrid', '7.4', 'linux');
     expect(linux).toContain('add_cubrid cubrid');
 
-    linux = await extensions.addExtension('xdebug', '7.2', 'linux');
+    linux = await extensions.addExtension('xdebug2', '7.2', 'linux');
     expect(linux).toContain('add_pecl_extension xdebug 2.9.8 zend_extension');
 
     linux = await extensions.addExtension('xdebug', '7.2', 'openbsd');
@@ -193,6 +191,9 @@ describe('Extension tests', () => {
 
     darwin = await extensions.addExtension('xdebug', '7.2', 'darwin');
     expect(darwin).toContain('add_brew_extension xdebug');
+
+    darwin = await extensions.addExtension('xdebug2', '7.2', 'darwin');
+    expect(darwin).toContain('add_brew_extension xdebug2');
 
     darwin = await extensions.addExtension('redis', '5.6', 'darwin');
     expect(darwin).toContain('add_extension redis-2.2.8');

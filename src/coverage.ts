@@ -140,8 +140,11 @@ export async function addCoverage(
     case 'xdebug':
     case 'xdebug3':
       return (
-        script +
-        (await addCoverageXdebug(coverage_driver, version, os_version, pipe))
+        script + (await addCoverageXdebug('xdebug', version, os_version, pipe))
+      );
+    case 'xdebug2':
+      return (
+        script + (await addCoverageXdebug('xdebug2', version, os_version, pipe))
       );
     case 'none':
       return script + (await disableCoverage(version, os_version, pipe));

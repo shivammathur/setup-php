@@ -1275,18 +1275,11 @@ exports.CSVArray = CSVArray;
  * @param extension
  */
 async function getExtensionPrefix(extension) {
-    const zend = [
-        'xdebug',
-        'xdebug3',
-        'opcache',
-        'ioncube',
-        'eaccelerator'
-    ];
-    switch (zend.indexOf(extension)) {
+    switch (true) {
         default:
-            return 'zend_extension';
-        case -1:
             return 'extension';
+        case /xdebug([2-3])?$|opcache|ioncube|eaccelerator/.test(extension):
+            return 'zend_extension';
     }
 }
 exports.getExtensionPrefix = getExtensionPrefix;
@@ -2419,8 +2412,9 @@ async function addCoverage(coverage_driver, version, os_version) {
             return script + (await addCoveragePCOV(version, os_version, pipe));
         case 'xdebug':
         case 'xdebug3':
-            return (script +
-                (await addCoverageXdebug(coverage_driver, version, os_version, pipe)));
+            return (script + (await addCoverageXdebug('xdebug', version, os_version, pipe)));
+        case 'xdebug2':
+            return (script + (await addCoverageXdebug('xdebug2', version, os_version, pipe)));
         case 'none':
             return script + (await disableCoverage(version, os_version, pipe));
         default:
@@ -2968,10 +2962,11 @@ async function addExtensionWindows(extension_csv, version) {
                 matches = /.*-(\d+\.\d+\.\d)([a-zA-Z+]+)\d*/.exec(version_extension);
                 add_script += await utils.joins('\nAdd-Extension', ext_name, matches[2].replace('preview', 'devel'), matches[1]);
                 break;
-            // match 5.3pcov to 7.0pcov
-            case /7\.2xdebug/.test(version_extension):
+            // match 7.2xdebug2 to 7.4xdebug2
+            case /7\.[2-4]xdebug2/.test(version_extension):
                 add_script += '\nAdd-Extension xdebug stable 2.9.8';
                 break;
+            // match 5.3pcov to 7.0pcov
             case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
                 add_script += await utils.getUnsupportedLog('pcov', version, 'win32');
                 break;
@@ -3048,19 +3043,10 @@ async function addExtensionLinux(extension_csv, version) {
             case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
                 add_script += await utils.getUnsupportedLog('pcov', version, 'linux');
                 return;
-            // match 7.2xdebug3..7.4xdebug3
-            case /^7\.[2-4]xdebug3$/.test(version_extension):
-                add_script +=
-                    '\nadd_extension_from_source xdebug xdebug/xdebug master --enable-xdebug zend_extension';
+            // match 7.2xdebug2...7.4xdebug2
+            case /^7\.[2-4]xdebug2$/.test(version_extension):
+                add_script += await utils.joins('\nadd_pecl_extension', 'xdebug', '2.9.8', ext_prefix);
                 return;
-            // match 7.2xdebug
-            case /^7\.2xdebug$/.test(version_extension):
-                add_script += await utils.joins('\nadd_pecl_extension', ext_name, '2.9.8', ext_prefix);
-                break;
-            // match 8.0xdebug3...8.9xdebug3
-            case /^8\.[0-9]xdebug3$/.test(version_extension):
-                extension = 'xdebug';
-                break;
             // match pdo extensions
             case /.*pdo[_-].*/.test(version_extension):
                 extension = extension.replace(/pdo[_-]|3/, '');

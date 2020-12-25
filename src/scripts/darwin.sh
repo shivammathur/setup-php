@@ -113,7 +113,7 @@ add_pecl() {
 
 # Function to update dependencies.
 update_dependencies() {
-  if [[ "$version" =~ ${nightly_versions:?} ]] && [ "${runner:?}" != "self-hosted" ]; then
+  if [[ "$version" =~ ${nightly_versions:?} ]] && [ "${runner:?}" != "self-hosted" ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
     while read -r formula; do
       get -q -n "$tap_dir/homebrew/homebrew-core/Formula/$formula.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb" &
       to_wait+=($!)
@@ -170,7 +170,9 @@ setup_php() {
 version=$1
 dist=$2
 brew_prefix="$(brew --prefix)"
-tap_dir="$brew_prefix"/Homebrew/Library/Taps
+brew_repo="$(brew --repository)"
+tap_dir="$brew_repo"/Library/Taps
+export HOMEBREW_CHANGE_ARCH_TO_ARM=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_AUTO_UPDATE=1
 

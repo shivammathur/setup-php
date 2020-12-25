@@ -204,6 +204,8 @@ add_tool() {
   tool=$2
   ver_param=$3
   tool_path="$tool_path_dir/$tool"
+  export PATH=$PATH:$tool_path_dir
+  echo "$tool_path_dir" >> "$GITHUB_PATH"
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
   fi

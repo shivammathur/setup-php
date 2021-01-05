@@ -45,12 +45,19 @@ install_packages() {
   $apt_install "${packages[@]}" >/dev/null 2>&1 || update_lists && $apt_install "${packages[@]}" >/dev/null 2>&1
 }
 
-# Function to delete extensions.
-delete_extension() {
+# Function to disable an extension.
+disable_extension() {
   extension=$1
   sudo sed -Ei "/=(.*\/)?\"?$extension/d" "${ini_file[@]}"
   sudo sed -Ei "/=(.*\/)?\"?$extension/d" "$pecl_file"
-  sudo rm -rf "$scan_dir"/*"$extension"* "$ext_dir"/"$extension".so >/dev/null 2>&1
+  sudo find "$ini_dir"/.. -name "*$extension.ini" -delete >/dev/null 2>&1 || true
+}
+
+# Function to delete an extension.
+delete_extension() {
+  extension=$1
+  disable_extension "$extension"
+  sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
   if [ "${runner:?}" = "self-hosted" ]; then
     $apt_remove "php-$extension" "php$version-$extension" >/dev/null 2>&1 || true
   fi
@@ -81,8 +88,8 @@ add_pdo_extension() {
   else
     ext=$1
     ext_name=$1
-    sudo rm -rf "$scan_dir"/*pdo.ini >/dev/null 2>&1
-    if ! check_extension "pdo" 2>/dev/null; then echo "extension=pdo.so" | sudo tee -a "${ini_file[@]}" >/dev/null 2>&1; fi
+    disable_extension pdo
+    echo "extension=pdo.so" | sudo tee "${ini_file[@]/php.ini/conf.d/10-pdo.ini}" >/dev/null 2>&1
     if [ "$ext" = "mysql" ]; then
       enable_extension "mysqlnd" "extension"
       ext_name="mysqli"

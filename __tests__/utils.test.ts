@@ -111,6 +111,17 @@ describe('Utils tests', () => {
       'b=2',
       'c=3'
     ]);
+    expect(await utils.CSVArray('\'a=1,2\', "b=3, 4", c=5, d=~e~')).toEqual([
+      'a=1,2',
+      'b=3, 4',
+      'c=5',
+      "d='~e~'"
+    ]);
+    expect(await utils.CSVArray('a=\'1,2\', b="3, 4", c=5')).toEqual([
+      'a=1,2',
+      'b=3, 4',
+      'c=5'
+    ]);
     expect(await utils.CSVArray('')).toEqual([]);
     expect(await utils.CSVArray(' ')).toEqual([]);
   });

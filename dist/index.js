@@ -1241,8 +1241,7 @@ async function extensionArray(extension_csv) {
                 return extension
                     .trim()
                     .toLowerCase()
-                    .replace('php-', '')
-                    .replace('php_', '');
+                    .replace(/^php[-_]/, '');
             })
                 .filter(Boolean);
     }
@@ -1261,9 +1260,12 @@ async function CSVArray(values_csv) {
             return [];
         default:
             return values_csv
-                .split(',')
+                .split(/,(?=(?:(?:[^"']*["']){2})*[^"']*$)/)
                 .map(function (value) {
-                return value.trim();
+                return value
+                    .trim()
+                    .replace(/^["']|["']$|(?<==)["']/g, '')
+                    .replace(/=(.*[?{}|&~![()^]+.*)/, "='$1'");
             })
                 .filter(Boolean);
     }

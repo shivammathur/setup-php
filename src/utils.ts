@@ -228,8 +228,7 @@ export async function extensionArray(
           return extension
             .trim()
             .toLowerCase()
-            .replace('php-', '')
-            .replace('php_', '');
+            .replace(/^php[-_]/, '');
         })
         .filter(Boolean);
   }
@@ -248,9 +247,12 @@ export async function CSVArray(values_csv: string): Promise<Array<string>> {
       return [];
     default:
       return values_csv
-        .split(',')
-        .map(function (value: string) {
-          return value.trim();
+        .split(/,(?=(?:(?:[^"']*["']){2})*[^"']*$)/)
+        .map(function (value) {
+          return value
+            .trim()
+            .replace(/^["']|["']$|(?<==)["']/g, '')
+            .replace(/=(.*[?{}|&~![()^]+.*)/, "='$1'");
         })
         .filter(Boolean);
   }

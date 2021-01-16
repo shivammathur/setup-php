@@ -54,11 +54,15 @@ export async function run(): Promise<void> {
     const version: string = await utils.parseVersion(
       await utils.getInput('php-version', true)
     );
-    const os_version: string = process.platform;
-    const tool = await utils.scriptTool(os_version);
-    const script = os_version + (await utils.scriptExtension(os_version));
-    const location = await getScript(script, version, os_version);
-    await exec(await utils.joins(tool, location, version, __dirname));
+    if (version) {
+      const os_version: string = process.platform;
+      const tool = await utils.scriptTool(os_version);
+      const script = os_version + (await utils.scriptExtension(os_version));
+      const location = await getScript(script, version, os_version);
+      await exec(await utils.joins(tool, location, version, __dirname));
+    } else {
+      core.setFailed('Unable to get the PHP version');
+    }
   } catch (error) {
     core.setFailed(error.message);
   }

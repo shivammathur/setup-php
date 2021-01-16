@@ -8,6 +8,12 @@ jest.mock('@actions/core', () => ({
   })
 }));
 
+jest.spyOn(utils, 'fetch').mockImplementation(
+  async (url): Promise<string> => {
+    return `{ "latest": "8.0", "5.x": "5.6", "url": "${url}" }`;
+  }
+);
+
 async function cleanup(path: string): Promise<void> {
   fs.unlink(path, error => {
     if (error) {
@@ -33,10 +39,18 @@ describe('Utils tests', () => {
     }).rejects.toThrow('Input required and not supplied: DoesNotExist');
   });
 
+  it('checking fetch', async () => {
+    expect(await utils.fetch('test_url')).toBe(
+      '{ "latest": "8.0", "5.x": "5.6", "url": "test_url" }'
+    );
+  });
+
   it('checking parseVersion', async () => {
+    expect(await utils.parseVersion('latest')).toBe('8.0');
     expect(await utils.parseVersion('7')).toBe('7.0');
     expect(await utils.parseVersion('7.4')).toBe('7.4');
-    expect(await utils.parseVersion('latest')).toBe('8.0');
+    expect(await utils.parseVersion('5.x')).toBe('5.6');
+    expect(await utils.parseVersion('4.x')).toBe(undefined);
   });
 
   it('checking asyncForEach', async () => {

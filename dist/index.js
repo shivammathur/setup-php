@@ -1054,8 +1054,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.getInput = exports.readEnv = void 0;
+exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.fetch = exports.getInput = exports.readEnv = void 0;
 const fs = __importStar(__webpack_require__(747));
+const https = __importStar(__webpack_require__(211));
 const path = __importStar(__webpack_require__(622));
 const core = __importStar(__webpack_require__(470));
 /**
@@ -1095,14 +1096,33 @@ async function getInput(name, mandatory) {
 }
 exports.getInput = getInput;
 /**
+ * Function to fetch an URL
+ *
+ * @param url
+ */
+async function fetch(url) {
+    const fetch_promise = new Promise(resolve => {
+        const req = https.get(url, (res) => {
+            res.setEncoding('utf8');
+            let body = '';
+            res.on('data', chunk => (body += chunk));
+            res.on('end', () => resolve(body));
+        });
+        req.end();
+    });
+    return await fetch_promise;
+}
+exports.fetch = fetch;
+/**
  * Function to parse PHP version.
  *
  * @param version
  */
 async function parseVersion(version) {
-    switch (version) {
-        case 'latest':
-            return '8.0';
+    const manifest = 'https://dl.bintray.com/shivammathur/php/php-versions.json';
+    switch (true) {
+        case /latest|\d.x/.test(version):
+            return JSON.parse(await fetch(manifest))[version];
         default:
             switch (true) {
                 case version.length > 1:
@@ -1393,6 +1413,13 @@ async function customPackage(pkg, type, version, os_version) {
 }
 exports.customPackage = customPackage;
 
+
+/***/ }),
+
+/***/ 211:
+/***/ (function(module) {
+
+module.exports = require("https");
 
 /***/ }),
 
@@ -2595,11 +2622,16 @@ exports.getScript = getScript;
 async function run() {
     try {
         const version = await utils.parseVersion(await utils.getInput('php-version', true));
-        const os_version = process.platform;
-        const tool = await utils.scriptTool(os_version);
-        const script = os_version + (await utils.scriptExtension(os_version));
-        const location = await getScript(script, version, os_version);
-        await exec_1.exec(await utils.joins(tool, location, version, __dirname));
+        if (version) {
+            const os_version = process.platform;
+            const tool = await utils.scriptTool(os_version);
+            const script = os_version + (await utils.scriptExtension(os_version));
+            const location = await getScript(script, version, os_version);
+            await exec_1.exec(await utils.joins(tool, location, version, __dirname));
+        }
+        else {
+            core.setFailed('Unable to get the PHP version');
+        }
     }
     catch (error) {
         core.setFailed(error.message);

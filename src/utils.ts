@@ -1,4 +1,6 @@
+import {IncomingMessage} from 'http';
 import * as fs from 'fs';
+import * as https from 'https';
 import * as path from 'path';
 import * as core from '@actions/core';
 
@@ -42,14 +44,33 @@ export async function getInput(
 }
 
 /**
+ * Function to fetch an URL
+ *
+ * @param url
+ */
+export async function fetch(url: string): Promise<string> {
+  const fetch_promise: Promise<string> = new Promise(resolve => {
+    const req = https.get(url, (res: IncomingMessage) => {
+      res.setEncoding('utf8');
+      let body = '';
+      res.on('data', chunk => (body += chunk));
+      res.on('end', () => resolve(body));
+    });
+    req.end();
+  });
+  return await fetch_promise;
+}
+
+/**
  * Function to parse PHP version.
  *
  * @param version
  */
 export async function parseVersion(version: string): Promise<string> {
-  switch (version) {
-    case 'latest':
-      return '8.0';
+  const manifest = 'https://dl.bintray.com/shivammathur/php/php-versions.json';
+  switch (true) {
+    case /latest|\d.x/.test(version):
+      return JSON.parse(await fetch(manifest))[version];
     default:
       switch (true) {
         case version.length > 1:

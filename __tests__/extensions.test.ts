@@ -58,6 +58,15 @@ describe('Extension tests', () => {
 
     win32 = await extensions.addExtension('blackfire-1.31.0', '7.3', 'win32');
     expect(win32).toContain('Add-Blackfire blackfire-1.31.0');
+
+    win32 = await extensions.addExtension(
+      'mongodb-mongodb/mongo-php-driver@master',
+      '7.3',
+      'win32'
+    );
+    expect(win32).toContain(
+      'Add-Log "$cross" "mongodb-mongodb/mongo-php-driver@master" "mongodb-mongodb/mongo-php-driver@master is not supported on PHP 7.3"'
+    );
   });
 
   it('checking addExtensionOnLinux', async () => {
@@ -131,6 +140,15 @@ describe('Extension tests', () => {
 
     linux = await extensions.addExtension('intl-68.2', '8.0', 'linux');
     expect(linux).toContain('add_intl intl-68.2');
+
+    linux = await extensions.addExtension(
+      'mongodb-mongodb/mongo-php-driver@master',
+      '7.3',
+      'linux'
+    );
+    expect(linux).toContain(
+      'add_extension_from_github mongodb mongodb mongo-php-driver master'
+    );
   });
 
   it('checking addExtensionOnDarwin', async () => {
@@ -220,5 +238,14 @@ describe('Extension tests', () => {
 
     darwin = await extensions.addExtension('xdebug', '7.2', 'openbsd');
     expect(darwin).toContain('Platform openbsd is not supported');
+
+    darwin = await extensions.addExtension(
+      'mongodb-mongodb/mongo-php-driver@master',
+      '7.3',
+      'darwin'
+    );
+    expect(darwin).toContain(
+      'add_extension_from_github mongodb mongodb mongo-php-driver master'
+    );
   });
 });

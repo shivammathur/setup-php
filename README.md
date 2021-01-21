@@ -117,7 +117,7 @@ On all supported OS/Platforms the following PHP versions are supported as per th
 
 PHP extensions can be setup using the `extensions` input. It accepts a `string` in csv-format.
 
-- On `Ubuntu`, extensions which are available as a package or available on `PECL` can be setup.
+- On `Ubuntu`, extensions which are available as a package, available on `PECL`, or hosted on GitHub can be setup.
 
 ```yaml
 - name: Setup PHP with PECL extension
@@ -129,7 +129,7 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
 
 - On `Windows`, extensions available on `PECL` which have the `DLL` binary can be setup.
 
-- On `macOS`, extensions available on `PECL` can be installed.
+- On `macOS`, extensions available on `PECL` or hosted on GitHub can be installed.
 
 - Extensions installed along with PHP if specified are enabled.
 
@@ -191,6 +191,18 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
   env:
     fail-fast: true
 ```
+
+- Extensions can be compiled from source if they are hosted on GitHub. In this case, the version specification contains the repository and branch/tag to clone: 
+
+```yaml
+- name: Setup PHP and remove shared extension
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'  
+    extensions: mongodb-mongodb/mongo-php-driver@v1.9
+```
+
+The version can be a branch name or tag as supported by `git clone -b <name>`. The clone is performed recursively, i.e. submodules will be cloned as well.
 
 ## :wrench: Tools Support
 

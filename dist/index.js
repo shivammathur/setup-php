@@ -2901,6 +2901,13 @@ async function addExtensionDarwin(extension_csv, version) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
+        // Install extensions from a GitHub tarball. This needs to be checked first
+        // as the version may also match the semver check below.
+        const urlMatches = extension.match(/.*-(.*)\/(.*)@(.*)/);
+        if (urlMatches != null) {
+            add_script += await utils.joins('\nadd_extension_from_github', ext_name, urlMatches[1], urlMatches[2], urlMatches[3], ext_prefix);
+            return;
+        }
         switch (true) {
             // match :extension
             case /^:/.test(ext_name):
@@ -2987,6 +2994,11 @@ async function addExtensionWindows(extension_csv, version) {
             case /.*-(stable|beta|alpha|devel|snapshot)/.test(version_extension):
                 add_script += await utils.joins('\nAdd-Extension', ext_name, ext_version.replace('stable', ''));
                 break;
+            // match extensions from GitHub. Do this before checking for semver as
+            // the version may match that as well
+            case /.*-(.*)\/(.*)@(.*)/.test(extension):
+                add_script += await utils.getUnsupportedLog(extension, version, 'win32');
+                break;
             // match semver without state
             case /.*-\d+\.\d+\.\d+$/.test(version_extension):
                 add_script += await utils.joins('\nAdd-Extension', ext_name, 'stable', ext_version);
@@ -3044,6 +3056,13 @@ async function addExtensionLinux(extension_csv, version) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
+        // Install extensions from a GitHub tarball. This needs to be checked first
+        // as the version may also match the semver check below.
+        const urlMatches = extension.match(/.*-(.*)\/(.*)@(.*)/);
+        if (urlMatches != null) {
+            add_script += await utils.joins('\nadd_extension_from_github', ext_name, urlMatches[1], urlMatches[2], urlMatches[3], ext_prefix);
+            return;
+        }
         switch (true) {
             // Match :extension
             case /^:/.test(ext_name):

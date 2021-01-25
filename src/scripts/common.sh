@@ -279,8 +279,10 @@ add_extension_from_github() {
   (
     add_devtools phpize
     delete_extension "$extension"
-    git clone --recurse-submodules -b "$release" https://github.com/"$org"/"$repo" /tmp/"$repo-$release" || exit 1
+    git clone -n https://github.com/"$org"/"$repo" /tmp/"$repo-$release" || exit 1
     cd /tmp/"$repo-$release" || exit 1
+    git checkout "$release" || exit 1
+    git submodule update --init --recursive || exit 1
     phpize && ./configure && make -j"$(nproc)" && sudo make install
     enable_extension "$extension" "$prefix"
   ) >/dev/null 2>&1

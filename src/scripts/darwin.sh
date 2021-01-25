@@ -39,24 +39,6 @@ add_pecl_extension() {
   fi
 }
 
-# Function to install extension from a GitHub repository
-add_extension_from_github() {
-  extension=$1
-  org=$2
-  repo=$3
-  release=$4
-  prefix=$5
-  (
-    add_devtools phpize
-    delete_extension "$extension"
-    git clone --recurse-submodules -b "$release" https://github.com/"$org"/"$repo" /tmp/"$repo-$release" || exit 1
-    cd /tmp/"$repo-$release" || exit 1
-    phpize && ./configure && make -j"$(nproc)" && sudo make install
-    enable_extension "$extension" "$prefix"
-  ) >/dev/null 2>&1
-  add_extension_log "$extension-$org/$repo@$release" "Installed and enabled"
-}
-
 # Function to fetch a brew tap
 fetch_brew_tap() {
   tap=$1

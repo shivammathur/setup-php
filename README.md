@@ -83,7 +83,7 @@ Both `GitHub-hosted` and `self-hosted` runners are suppported by `setup-php` on 
 |Windows 7 and newer|`self-hosted` or `Windows`|
 |Windows Server 2012 R2 and newer|`self-hosted` or `Windows`|
 |macOS Catalina 10.15|`self-hosted` or `macOS`|
-|macOS Big Sur 11.0|`self-hosted` or `macOS`|
+|macOS Big Sur 11.x x86_64/arm64|`self-hosted` or `macOS`|
 
 - Refer to the [self-hosted setup](#self-hosted-setup) to use the action on self-hosted runners.
 - If the requested PHP version is pre-installed, `setup-php` switches to it, otherwise it installs the PHP version.
@@ -262,12 +262,24 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
     coverage: xdebug
 ```
 
+- The latest version of Xdebug compatible with the PHP version is set up by default.
+- If you need Xdebug 2.x on PHP 7.2, 7.3 or 7.4, you can specify `coverage: xdebug2`.
+
+```yaml
+- name: Setup PHP with Xdebug 2.x
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+    coverage: xdebug2
+```
+
 ### PCOV
 
-Specify `coverage: pcov` to use `PCOV` and disable `Xdebug`.  
-`PCOV` supports `PHP 7.1` and newer PHP versions.  
-Tests with `PCOV` run much faster than with `Xdebug`.  
-If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.  
+Specify `coverage: pcov` to use PCOV and disable Xdebug.  
+Runs on PHP 7.1 and newer PHP versions.
+  
+- In most cases, tests with `PCOV` execute much faster than with `Xdebug`.  
+- If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.  
 
 ```yaml
 - name: Setup PHP with PCOV
@@ -278,9 +290,8 @@ If your source code directory is other than `src`, `lib` or, `app`, specify `pco
     coverage: pcov
 ```
 
-`PHPUnit` 8 and above supports `PCOV` out of the box.  
-If you are using `PHPUnit` 5, 6 or 7, you will need `pcov/clobber`.  
-Before executing your tests add the following step.
+- PHPUnit 8.x and above supports PCOV out of the box.  
+- If you are using PHPUnit 5.x, 6.x or 7.x, you need to set up `pcov/clobber` before executing your tests.
 
 ```yaml
 - name: Setup PCOV
@@ -318,6 +329,7 @@ Consider disabling the coverage using this PHP action for these reasons.
 - Specify the PHP version you want to set up.
 - Accepts a `string`. For example `'7.4'`.
 - Accepts `latest` to set up the latest stable PHP version.
+- Accepts the format `d.x`, where `d` is the major version. For example `5.x`, `7.x` and `8.x`.  
 - See [PHP support](#tada-php-support) for supported PHP versions.
 
 #### `extensions` (optional)
@@ -330,7 +342,8 @@ Consider disabling the coverage using this PHP action for these reasons.
 #### `ini-values` (optional)
 
 - Specify the values you want to add to `php.ini`. 
-- Accepts a `string` in csv-format. For example `post_max_size=256M, max_execution_time=180`. 
+- Accepts a `string` in csv-format. For example `post_max_size=256M, max_execution_time=180`.
+- Accepts ini values with commas if wrapped in quotes. For example `xdebug.mode="develop,coverage"`.  
 
 #### `coverage` (optional)
 

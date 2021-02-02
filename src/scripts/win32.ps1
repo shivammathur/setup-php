@@ -201,10 +201,10 @@ Function Edit-ComposerConfig() {
     Add-Log "$cross" "composer" "Could not download composer"
     exit 1;
   }
-  composer -q global config process-timeout 0
+  composer -q config -g process-timeout 0
   Write-Output $composer_bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
   if (Test-Path env:COMPOSER_TOKEN) {
-    composer -q global config github-oauth.github.com $env:COMPOSER_TOKEN
+    composer -q config -g github-oauth.github.com $env:COMPOSER_TOKEN
   }
 }
 

@@ -1121,7 +1121,7 @@ exports.fetch = fetch;
 async function parseVersion(version) {
     const manifest = 'https://dl.bintray.com/shivammathur/php/php-versions.json';
     switch (true) {
-        case /latest|\d.x/.test(version):
+        case /^(latest|\d+\.x)$/.test(version):
             return JSON.parse(await fetch(manifest))[version];
         default:
             switch (true) {

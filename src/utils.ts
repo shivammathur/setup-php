@@ -69,7 +69,7 @@ export async function fetch(url: string): Promise<string> {
 export async function parseVersion(version: string): Promise<string> {
   const manifest = 'https://dl.bintray.com/shivammathur/php/php-versions.json';
   switch (true) {
-    case /latest|\d.x/.test(version):
+    case /^(latest|\d+\.x)$/.test(version):
       return JSON.parse(await fetch(manifest))[version];
     default:
       switch (true) {

@@ -136,6 +136,9 @@ describe('Utils tests', () => {
       'b=3, 4',
       'c=5'
     ]);
+    expect(
+      await utils.CSVArray('a=E_ALL, b=E_ALL & ~ E_ALL, c="E_ALL", d=\'E_ALL\'')
+    ).toEqual(['a=E_ALL', 'b=E_ALL & ~ E_ALL', 'c=E_ALL', 'd=E_ALL']);
     expect(await utils.CSVArray('')).toEqual([]);
     expect(await utils.CSVArray(' ')).toEqual([]);
   });

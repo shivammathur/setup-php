@@ -2901,6 +2901,7 @@ async function addExtensionDarwin(extension_csv, version) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
+        let matches;
         switch (true) {
             // match :extension
             case /^:/.test(ext_name):
@@ -2922,6 +2923,17 @@ async function addExtensionDarwin(extension_csv, version) {
             // match pre-release versions. For example - xdebug-beta
             case /.*-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(version_extension):
                 add_script += await utils.joins('\nadd_unstable_extension', ext_name, ext_version, ext_prefix);
+                return;
+            // match extensions from GitHub. Do this before checking for semver as
+            // the version may match that as well
+            case /.*-(.*)\/(.*)@(.*)/.test(extension):
+                matches = /.*-(.*)\/(.*)@(.*)/.exec(extension);
+                if (matches == null) {
+                    // Shouldn't happen
+                    add_script += await utils.getUnsupportedLog(extension, version, 'darwin');
+                    return;
+                }
+                add_script += await utils.joins('\nadd_extension_from_github', ext_name, matches[1], matches[2], matches[3], ext_prefix);
                 return;
             // match semver
             case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
@@ -2987,6 +2999,11 @@ async function addExtensionWindows(extension_csv, version) {
             case /.*-(stable|beta|alpha|devel|snapshot)/.test(version_extension):
                 add_script += await utils.joins('\nAdd-Extension', ext_name, ext_version.replace('stable', ''));
                 break;
+            // match extensions from GitHub. Do this before checking for semver as
+            // the version may match that as well
+            case /.*-(.*)\/(.*)@(.*)/.test(extension):
+                add_script += await utils.getUnsupportedLog(extension, version, 'win32');
+                break;
             // match semver without state
             case /.*-\d+\.\d+\.\d+$/.test(version_extension):
                 add_script += await utils.joins('\nAdd-Extension', ext_name, 'stable', ext_version);
@@ -3044,6 +3061,7 @@ async function addExtensionLinux(extension_csv, version) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
+        let matches;
         switch (true) {
             // Match :extension
             case /^:/.test(ext_name):
@@ -3068,6 +3086,17 @@ async function addExtensionLinux(extension_csv, version) {
             // match pre-release versions. For example - xdebug-beta
             case /.*-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(version_extension):
                 add_script += await utils.joins('\nadd_unstable_extension', ext_name, ext_version, ext_prefix);
+                return;
+            // match extensions from GitHub. Do this before checking for semver as
+            // the version may match that as well
+            case /.*-(.*)\/(.*)@(.*)/.test(extension):
+                matches = /.*-(.*)\/(.*)@(.*)/.exec(extension);
+                if (matches == null) {
+                    // Shouldn't happen
+                    add_script += await utils.getUnsupportedLog(extension, version, 'linux');
+                    return;
+                }
+                add_script += await utils.joins('\nadd_extension_from_github', ext_name, matches[1], matches[2], matches[3], ext_prefix);
                 return;
             // match semver versions
             case /.*-\d+\.\d+\.\d+.*/.test(version_extension):

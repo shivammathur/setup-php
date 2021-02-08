@@ -17,6 +17,8 @@ export async function addExtensionDarwin(
     const version_extension: string = version + extension;
     const [ext_name, ext_version]: string[] = extension.split('-');
     const ext_prefix = await utils.getExtensionPrefix(ext_name);
+    let matches: RegExpExecArray;
+
     switch (true) {
       // match :extension
       case /^:/.test(ext_name):
@@ -50,6 +52,19 @@ export async function addExtensionDarwin(
           '\nadd_unstable_extension',
           ext_name,
           ext_version,
+          ext_prefix
+        );
+        return;
+      // match extensions from GitHub. Do this before checking for semver as
+      // the version may match that as well
+      case /.*-(.*)\/(.*)@(.*)/.test(extension):
+        matches = /.*-(.*)\/(.*)@(.*)/.exec(extension) as RegExpExecArray;
+        add_script += await utils.joins(
+          '\nadd_extension_from_github',
+          ext_name,
+          matches[1],
+          matches[2],
+          matches[3],
           ext_prefix
         );
         return;
@@ -142,6 +157,15 @@ export async function addExtensionWindows(
           ext_version.replace('stable', '')
         );
         break;
+      // match extensions from GitHub. Do this before checking for semver as
+      // the version may match that as well
+      case /.*-(.*)\/(.*)@(.*)/.test(extension):
+        add_script += await utils.getUnsupportedLog(
+          extension,
+          version,
+          'win32'
+        );
+        break;
       // match semver without state
       case /.*-\d+\.\d+\.\d+$/.test(version_extension):
         add_script += await utils.joins(
@@ -214,6 +238,8 @@ export async function addExtensionLinux(
     const version_extension: string = version + extension;
     const [ext_name, ext_version]: string[] = extension.split('-');
     const ext_prefix = await utils.getExtensionPrefix(ext_name);
+    let matches: RegExpExecArray;
+
     switch (true) {
       // Match :extension
       case /^:/.test(ext_name):
@@ -252,6 +278,19 @@ export async function addExtensionLinux(
           '\nadd_unstable_extension',
           ext_name,
           ext_version,
+          ext_prefix
+        );
+        return;
+      // match extensions from GitHub. Do this before checking for semver as
+      // the version may match that as well
+      case /.*-(.*)\/(.*)@(.*)/.test(extension):
+        matches = /.*-(.*)\/(.*)@(.*)/.exec(extension) as RegExpExecArray;
+        add_script += await utils.joins(
+          '\nadd_extension_from_github',
+          ext_name,
+          matches[1],
+          matches[2],
+          matches[3],
           ext_prefix
         );
         return;

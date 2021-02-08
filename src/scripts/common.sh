@@ -268,3 +268,23 @@ add_composertool() {
 php_semver() {
   php"$version" -v | grep -Eo -m 1 "[0-9]+\.[0-9]+\.[0-9]+" | head -n 1
 }
+
+# Function to install extension from a GitHub repository
+add_extension_from_github() {
+  extension=$1
+  org=$2
+  repo=$3
+  release=$4
+  prefix=$5
+  (
+    add_devtools phpize
+    delete_extension "$extension"
+    git clone -n https://github.com/"$org"/"$repo" /tmp/"$repo-$release" || exit 1
+    cd /tmp/"$repo-$release" || exit 1
+    git checkout "$release" || exit 1
+    git submodule update --init --recursive || exit 1
+    phpize && ./configure && make -j"$(nproc)" && sudo make install
+    enable_extension "$extension" "$prefix"
+  ) >/dev/null 2>&1
+  add_extension_log "$extension-$org/$repo@$release" "Installed and enabled"
+}

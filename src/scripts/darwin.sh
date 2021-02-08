@@ -120,8 +120,6 @@ update_dependencies() {
     done <"$tap_dir/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
     wait "${to_wait[@]}"
   fi
-  # Remove once commit with bottle syntax breaking change is in images
-  git -C "$brew_repo" pull origin master
 }
 
 # Function to setup PHP 5.6 and newer using Homebrew.

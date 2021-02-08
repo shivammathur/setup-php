@@ -59,15 +59,6 @@ export async function addExtensionDarwin(
       // the version may match that as well
       case /.*-(.*)\/(.*)@(.*)/.test(extension):
         matches = /.*-(.*)\/(.*)@(.*)/.exec(extension) as RegExpExecArray;
-        if (matches == null) {
-          // Shouldn't happen
-          add_script += await utils.getUnsupportedLog(
-            extension,
-            version,
-            'darwin'
-          );
-          return;
-        }
         add_script += await utils.joins(
           '\nadd_extension_from_github',
           ext_name,
@@ -294,15 +285,6 @@ export async function addExtensionLinux(
       // the version may match that as well
       case /.*-(.*)\/(.*)@(.*)/.test(extension):
         matches = /.*-(.*)\/(.*)@(.*)/.exec(extension) as RegExpExecArray;
-        if (matches == null) {
-          // Shouldn't happen
-          add_script += await utils.getUnsupportedLog(
-            extension,
-            version,
-            'linux'
-          );
-          return;
-        }
         add_script += await utils.joins(
           '\nadd_extension_from_github',
           ext_name,

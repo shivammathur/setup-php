@@ -45,9 +45,7 @@ export async function addExtensionDarwin(
         );
         return;
       // match pre-release versions. For example - xdebug-beta
-      case /.*-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(
-        version_extension
-      ):
+      case /.+-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(extension):
         add_script += await utils.joins(
           '\nadd_unstable_extension',
           ext_name,
@@ -57,8 +55,8 @@ export async function addExtensionDarwin(
         return;
       // match extensions from GitHub. Do this before checking for semver as
       // the version may match that as well
-      case /.*-(.*)\/(.*)@(.*)/.test(extension):
-        matches = /.*-(.*)\/(.*)@(.*)/.exec(extension) as RegExpExecArray;
+      case /.+-.+\/.+@.+/.test(extension):
+        matches = /.+-(.+)\/(.+)@(.+)/.exec(extension) as RegExpExecArray;
         add_script += await utils.joins(
           '\nadd_extension_from_github',
           ext_name,
@@ -69,7 +67,7 @@ export async function addExtensionDarwin(
         );
         return;
       // match semver
-      case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
+      case /.+-\d+\.\d+\.\d+.*/.test(extension):
         add_script += await utils.joins(
           '\nadd_pecl_extension',
           ext_name,
@@ -94,7 +92,7 @@ export async function addExtensionDarwin(
         );
         return;
       // match 5.6redis
-      case /5\.6redis/.test(version_extension):
+      case /^5\.6redis$/.test(version_extension):
         extension = 'redis-2.2.8';
         break;
       // match sqlite
@@ -150,7 +148,7 @@ export async function addExtensionWindows(
         );
         return;
       // match pre-release versions. For example - xdebug-beta
-      case /.*-(stable|beta|alpha|devel|snapshot)/.test(version_extension):
+      case /.+-(stable|beta|alpha|devel|snapshot)/.test(extension):
         add_script += await utils.joins(
           '\nAdd-Extension',
           ext_name,
@@ -159,7 +157,7 @@ export async function addExtensionWindows(
         break;
       // match extensions from GitHub. Do this before checking for semver as
       // the version may match that as well
-      case /.*-(.*)\/(.*)@(.*)/.test(extension):
+      case /.+-.+\/.+@.+/.test(extension):
         add_script += await utils.getUnsupportedLog(
           extension,
           version,
@@ -167,7 +165,7 @@ export async function addExtensionWindows(
         );
         break;
       // match semver without state
-      case /.*-\d+\.\d+\.\d+$/.test(version_extension):
+      case /.+-\d+\.\d+\.\d+$/.test(extension):
         add_script += await utils.joins(
           '\nAdd-Extension',
           ext_name,
@@ -176,8 +174,8 @@ export async function addExtensionWindows(
         );
         break;
       // match semver with state
-      case /.*-(\d+\.\d+\.\d)([a-zA-Z+]+)\d*/.test(version_extension):
-        matches = /.*-(\d+\.\d+\.\d)([a-zA-Z+]+)\d*/.exec(
+      case /.+-\d+\.\d+\.\d+[a-zA-Z]+\d*/.test(extension):
+        matches = /.+-(\d+\.\d+\.\d+)([a-zA-Z]+)\d*/.exec(
           version_extension
         ) as RegExpExecArray;
         add_script += await utils.joins(
@@ -205,7 +203,7 @@ export async function addExtensionWindows(
       // match 7.0mysql..8.9mysql
       // match 7.0mysqli..8.9mysqli
       // match 7.0mysqlnd..8.9mysqlnd
-      case /[7-8]\.\d(mysql|mysqli|mysqlnd)$/.test(version_extension):
+      case /[7-8]\.\d+(mysql|mysqli|mysqlnd)$/.test(version_extension):
         add_script += '\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
         break;
       // match sqlite
@@ -271,9 +269,7 @@ export async function addExtensionLinux(
         );
         return;
       // match pre-release versions. For example - xdebug-beta
-      case /.*-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(
-        version_extension
-      ):
+      case /.+-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(extension):
         add_script += await utils.joins(
           '\nadd_unstable_extension',
           ext_name,
@@ -283,8 +279,8 @@ export async function addExtensionLinux(
         return;
       // match extensions from GitHub. Do this before checking for semver as
       // the version may match that as well
-      case /.*-(.*)\/(.*)@(.*)/.test(extension):
-        matches = /.*-(.*)\/(.*)@(.*)/.exec(extension) as RegExpExecArray;
+      case /.+-.+\/.+@.+/.test(extension):
+        matches = /.+-(.+)\/(.+)@(.+)/.exec(extension) as RegExpExecArray;
         add_script += await utils.joins(
           '\nadd_extension_from_github',
           ext_name,
@@ -295,7 +291,7 @@ export async function addExtensionLinux(
         );
         return;
       // match semver versions
-      case /.*-\d+\.\d+\.\d+.*/.test(version_extension):
+      case /.+-\d+\.\d+\.\d+.*/.test(extension):
         add_script += await utils.joins(
           '\nadd_pecl_extension',
           ext_name,
@@ -317,7 +313,7 @@ export async function addExtensionLinux(
         );
         return;
       // match pdo extensions
-      case /.*pdo[_-].*/.test(version_extension):
+      case /^pdo[_-].+/.test(extension):
         extension = extension.replace(/pdo[_-]|3/, '');
         add_script += '\nadd_pdo_extension ' + extension;
         return;

@@ -2938,9 +2938,11 @@ async function addExtensionDarwin(extension_csv, version) {
             case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
                 add_script += await utils.getUnsupportedLog('pcov', version, 'darwin');
                 return;
-            // match 5.6 to 8.9 for amqp, grpc, igbinary, imagick, imap, protobuf, swoole and xdebug
+            // match 5.6 to 8.9 for amqp, grpc, igbinary, imagick, imap, pecl_http, protobuf, raphf, swoole, xdebug, xdebug2, zmq
             // match 7.1 to 8.9 for pcov
-            case /(5\.6|7\.[0-4]|8\.[0-9])(amqp|grpc|igbinary|imagick|imap|protobuf|swoole|xdebug)/.test(version_extension):
+            // match 5.6 to 7.4 for propro
+            case /(5\.6|7\.[0-4]|8\.[0-9])(amqp|grpc|http|igbinary|imagick|imap|pecl_http|protobuf|raphf|swoole|xdebug|xdebug2|zmq)/.test(version_extension):
+            case /(5\.6|7\.[0-4])propro/.test(version_extension):
             case /(7\.[1-4]|8\.[0-9])pcov/.test(version_extension):
                 add_script += await utils.joins('\nadd_brew_extension', ext_name, ext_prefix);
                 return;

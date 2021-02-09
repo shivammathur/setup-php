@@ -70,14 +70,14 @@ add_brew_tap() {
 add_brew_extension() {
   formula=$1
   prefix=$2
-  extension=${formula//[0-9]/}
+  extension="$(echo "$formula" | sed -E "s/pecl_|[0-9]//g")"
   enable_extension "$extension" "$prefix"
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
     add_brew_tap shivammathur/homebrew-php
     add_brew_tap shivammathur/homebrew-extensions
-    sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$extension"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
+    sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$formula"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
     brew install "$formula@$version" >/dev/null 2>&1
     sudo cp "$brew_prefix/opt/$formula@$version/$extension.so" "$ext_dir"
     add_extension_log "$extension" "Installed and enabled"

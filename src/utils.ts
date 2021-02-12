@@ -428,7 +428,7 @@ export async function customPackage(
   version: string,
   os_version: string
 ): Promise<string> {
-  const pkg_name: string = pkg.replace(/\d+|pdo[_-]/, '');
+  const pkg_name: string = pkg.replace(/\d+|(pdo|pecl)[_-]/, '');
   const script_extension: string = await scriptExtension(os_version);
   const script: string = path.join(
     __dirname,

@@ -1405,7 +1405,7 @@ exports.scriptTool = scriptTool;
  * @param os_version
  */
 async function customPackage(pkg, type, version, os_version) {
-    const pkg_name = pkg.replace(/\d+|pdo[_-]/, '');
+    const pkg_name = pkg.replace(/\d+|(pdo|pecl)[_-]/, '');
     const script_extension = await scriptExtension(os_version);
     const script = path.join(__dirname, '../src/scripts/' + type + '/' + pkg_name + script_extension);
     const command = await getCommand(os_version, pkg_name);
@@ -2986,10 +2986,12 @@ async function addExtensionWindows(extension_csv, version) {
             // match pdo_oci and oci8
             // match 5.3ioncube...7.4ioncube
             // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+            // match 7.1pecl_http...8.0pecl_http and 7.1http...8.0http
             case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^pdo_oci$|^oci8$/.test(extension):
             case /^5\.[3-6]ioncube$|^7\.[0-4]ioncube$/.test(version_extension):
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+            case /^(7\.[1-4]|8\.0)(http|pecl_http)$/.test(version_extension):
                 add_script += await utils.customPackage(ext_name, 'ext', extension, 'win32');
                 return;
             // match pre-release versions. For example - xdebug-beta

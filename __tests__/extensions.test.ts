@@ -3,7 +3,7 @@ import * as extensions from '../src/extensions';
 describe('Extension tests', () => {
   it('checking addExtensionOnWindows', async () => {
     let win32: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, :intl, phalcon4, ioncube, oci8, pdo_oci, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2, sqlsrv-1.2.3preview1',
+      'Xdebug, pcov, sqlite, :intl, phalcon4, pecl_http, ioncube, oci8, pdo_oci, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2, sqlsrv-1.2.3preview1',
       '7.4',
       'win32'
     );
@@ -12,6 +12,7 @@ describe('Extension tests', () => {
     expect(win32).toContain('Add-Extension sqlite3');
     expect(win32).toContain('Remove-Extension intl');
     expect(win32).toContain('Add-Phalcon phalcon4');
+    expect(win32).toContain('Add-Http');
     expect(win32).toContain('Add-Ioncube');
     expect(win32).toContain('Add-Oci oci8');
     expect(win32).toContain('Add-Oci pdo_oci');

@@ -208,7 +208,7 @@ The version can be a branch name or tag as supported by `git clone -b <name>`. T
 
 These tools can be setup globally using the `tools` input. It accepts a string in csv-format.
 
-`behat`, `blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `composer-require-checker`, `composer-unused`, `cs2pr`, `deployer`, `flex`, `grpc_php_plugin`, `infection`, `pecl`, `phan`, `phing`, `phinx`, `phive`, `phpcbf`, `phpcpd`, `php-config`, `php-cs-fixer`, `phpcs`, `phpize`, `phpmd`, `phpspec`, `phpstan`, `phpunit`, `prestissimo`, `protoc`, `psalm`, `symfony`, `vapor-cli`
+`behat`, `blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `composer-require-checker`, `composer-unused`, `cs2pr`, `deployer`, `flex`, `grpc_php_plugin`, `infection`, `pecl`, `phan`, `phing`, `phinx`, `phive`, `php-config`, `php-cs-fixer`, `phpcbf`, `phpcpd`, `phpcs`, `phpize`, `phplint`, `phpmd`, `phpspec`, `phpstan`, `phpunit`, `prestissimo`, `protoc`, `psalm`, `symfony`, `symfony-cli`, `vapor-cli`, `wp-cli`
 
 ```yaml
 - name: Setup PHP with tools

@@ -26,14 +26,14 @@ export async function addExtensionDarwin(
         return;
       // match 5.3blackfire...8.0blackfire
       // match 5.3blackfire-(semver)...8.0blackfire-(semver)
-      // match pdo_oci and oci8
+      // match pdo_oci, oci8, http, pecl_http
       // match 5.3ioncube...7.4ioncube, 5.3geos...7.4geos
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
       // match 5.6couchbase...7.4couchbase
       case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
-      case /^pdo_oci$|^oci8$/.test(extension):
+      case /^pdo_oci$|^oci8$|^http|^pecl_http/.test(extension):
       case /^(5\.[3-6]|7\.[0-4])(ioncube|geos)$/.test(version_extension):
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
       case /^5\.6couchbase$|^7\.[0-4]couchbase$/.test(version_extension):
@@ -79,10 +79,10 @@ export async function addExtensionDarwin(
       case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
         add_script += await utils.getUnsupportedLog('pcov', version, 'darwin');
         return;
-      // match 5.6 to 8.9 for amqp, grpc, igbinary, imagick, imap, pecl_http, protobuf, raphf, swoole, xdebug, xdebug2, zmq
+      // match 5.6 to 8.9 for amqp, grpc, igbinary, imagick, imap, protobuf, raphf, swoole, xdebug, xdebug2, zmq
       // match 7.1 to 8.9 for pcov
       // match 5.6 to 7.4 for propro
-      case /(5\.6|7\.[0-4]|8\.[0-9])(amqp|grpc|http|igbinary|imagick|imap|pecl_http|protobuf|raphf|swoole|xdebug|xdebug2|zmq)/.test(
+      case /(5\.6|7\.[0-4]|8\.[0-9])(amqp|grpc|igbinary|imagick|imap|protobuf|raphf|swoole|xdebug|xdebug2|zmq)/.test(
         version_extension
       ):
       case /(5\.6|7\.[0-4])propro/.test(version_extension):
@@ -250,7 +250,7 @@ export async function addExtensionLinux(
       // match 5.3blackfire...8.0blackfire
       // match 5.3blackfire-(semver)...8.0blackfire-(semver)
       // match 5.3pdo_cubrid...7.2php_cubrid, 5.3cubrid...7.4cubrid
-      // match pdo_oci and oci8
+      // match pdo_oci, oci8, http, pecl_http
       // match 5.3ioncube...7.4ioncube, 5.3geos...7.4geos
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
       // match 5.6gearman...7.4gearman, 5.6couchbase...7.4couchbase
@@ -260,7 +260,7 @@ export async function addExtensionLinux(
       case /^((5\.[3-6])|(7\.[0-2]))pdo_cubrid$|^((5\.[3-6])|(7\.[0-4]))cubrid$/.test(
         version_extension
       ):
-      case /^pdo_oci$|^oci8$/.test(extension):
+      case /^pdo_oci$|^oci8$|^http|^pecl_http/.test(extension):
       case /^(5\.6|7\.[0-4]|8\.0)intl-[\d]+\.[\d]+$/.test(version_extension):
       case /^(5\.[3-6]|7\.[0-4])(ioncube|geos)$/.test(version_extension):
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):

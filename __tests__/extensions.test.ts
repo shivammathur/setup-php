@@ -123,6 +123,12 @@ describe('Extension tests', () => {
     linux = await extensions.addExtension('geos', '7.3', 'linux');
     expect(linux).toContain('add_geos');
 
+    linux = await extensions.addExtension('pecl_http', '7.3', 'linux');
+    expect(linux).toContain('add_http');
+
+    linux = await extensions.addExtension('http-1.2.3', '7.3', 'linux');
+    expect(linux).toContain('add_http http-1.2.3');
+
     linux = await extensions.addExtension('oci8, pdo_oci', '7.3', 'linux');
     expect(linux).toContain('add_oci oci8');
     expect(linux).toContain('add_oci pdo_oci');
@@ -189,6 +195,12 @@ describe('Extension tests', () => {
 
     darwin = await extensions.addExtension('geos', '7.3', 'darwin');
     expect(darwin).toContain('add_geos');
+
+    darwin = await extensions.addExtension('pecl_http', '7.3', 'darwin');
+    expect(darwin).toContain('add_http');
+
+    darwin = await extensions.addExtension('http-1.2.3', '7.3', 'darwin');
+    expect(darwin).toContain('add_http http-1.2.3');
 
     darwin = await extensions.addExtension('oci8, pdo_oci', '7.3', 'darwin');
     expect(darwin).toContain('add_oci oci8');

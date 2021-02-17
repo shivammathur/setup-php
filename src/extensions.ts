@@ -79,10 +79,10 @@ export async function addExtensionDarwin(
       case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
         add_script += await utils.getUnsupportedLog('pcov', version, 'darwin');
         return;
-      // match 5.6 to 8.9 for amqp, grpc, igbinary, imagick, imap, protobuf, raphf, swoole, xdebug, xdebug2, zmq
+      // match 5.6 to 8.9 for amqp, grpc, igbinary, imagick, imap, msgpack, protobuf, raphf, redis, swoole, xdebug, xdebug2, zmq
       // match 7.1 to 8.9 for pcov
       // match 5.6 to 7.4 for propro
-      case /(5\.6|7\.[0-4]|8\.[0-9])(amqp|grpc|igbinary|imagick|imap|protobuf|raphf|swoole|xdebug|xdebug2|zmq)/.test(
+      case /(5\.6|7\.[0-4]|8\.[0-9])(amqp|grpc|igbinary|imagick|imap|msgpack|protobuf|raphf|redis|swoole|xdebug|xdebug2|zmq)/.test(
         version_extension
       ):
       case /(5\.6|7\.[0-4])propro/.test(version_extension):
@@ -93,10 +93,6 @@ export async function addExtensionDarwin(
           ext_prefix
         );
         return;
-      // match 5.6redis
-      case /^5\.6redis$/.test(version_extension):
-        extension = 'redis-2.2.8';
-        break;
       // match sqlite
       case /^sqlite$/.test(extension):
         extension = 'sqlite3';

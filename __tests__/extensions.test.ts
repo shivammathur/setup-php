@@ -160,7 +160,7 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'amqp, Xdebug, pcov, grpc, igbinary, imagick, imap, protobuf, swoole, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
+      'amqp, Xdebug, pcov, grpc, igbinary, imagick, imap, msgpack, protobuf, redis, swoole, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
       '7.2',
       'darwin'
     );
@@ -171,7 +171,9 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension igbinary extension');
     expect(darwin).toContain('add_brew_extension imagick extension');
     expect(darwin).toContain('add_brew_extension imap extension');
+    expect(darwin).toContain('add_brew_extension msgpack extension');
     expect(darwin).toContain('add_brew_extension protobuf extension');
+    expect(darwin).toContain('add_brew_extension redis extension');
     expect(darwin).toContain('add_brew_extension swoole extension');
     expect(darwin).toContain('add_extension sqlite3');
     expect(darwin).toContain('remove_extension intl');
@@ -225,12 +227,6 @@ describe('Extension tests', () => {
 
     darwin = await extensions.addExtension('xdebug2', '7.2', 'darwin');
     expect(darwin).toContain('add_brew_extension xdebug2');
-
-    darwin = await extensions.addExtension('redis', '5.6', 'darwin');
-    expect(darwin).toContain('add_extension redis-2.2.8');
-
-    darwin = await extensions.addExtension('redis', '7.2', 'darwin');
-    expect(darwin).toContain('add_extension redis');
 
     darwin = await extensions.addExtension('imagick', '5.5', 'darwin');
     expect(darwin).toContain('add_extension imagick');

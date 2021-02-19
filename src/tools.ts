@@ -77,83 +77,6 @@ export async function getUri(
 }
 
 /**
- * Helper function to get the codeception url
- *
- * @param version
- * @param suffix
- */
-export async function getCodeceptionUriBuilder(
-  version: string,
-  suffix: string
-): Promise<string> {
-  return ['releases', version, suffix, 'codecept.phar']
-    .filter(Boolean)
-    .join('/');
-}
-
-/**
- * Function to get the codeception url
- *
- * @param version
- * @param php_version
- */
-export async function getCodeceptionUri(
-  version: string,
-  php_version: string
-): Promise<string> {
-  const codecept: string = await getCodeceptionUriBuilder(version, '');
-  const codecept54: string = await getCodeceptionUriBuilder(version, 'php54');
-  const codecept56: string = await getCodeceptionUriBuilder(version, 'php56');
-  // Refer to https://codeception.com/builds
-  switch (true) {
-    case /latest/.test(version):
-      switch (true) {
-        case /5\.6|7\.[0|1]/.test(php_version):
-          return 'php56/codecept.phar';
-        case /7\.[2-4]/.test(php_version):
-        default:
-          return 'codecept.phar';
-      }
-    case /(^[4-9]|\d{2,})\..*/.test(version):
-      switch (true) {
-        case /5\.6|7\.[0|1]/.test(php_version):
-          return codecept56;
-        case /7\.[2-4]/.test(php_version):
-        default:
-          return codecept;
-      }
-    case /(^2\.[4-5]\.\d+|^3\.[0-1]\.\d+).*/.test(version):
-      switch (true) {
-        case /5\.6/.test(php_version):
-          return codecept54;
-        case /7\.[0-4]/.test(php_version):
-        default:
-          return codecept;
-      }
-    case /^2\.3\.\d+.*/.test(version):
-      switch (true) {
-        case /5\.[4-6]/.test(php_version):
-          return codecept54;
-        case /^7\.[0-4]$/.test(php_version):
-        default:
-          return codecept;
-      }
-    case /(^2\.(1\.([6-9]|\d{2,}))|^2\.2\.\d+).*/.test(version):
-      switch (true) {
-        case /5\.[4-5]/.test(php_version):
-          return codecept54;
-        case /5.6|7\.[0-4]/.test(php_version):
-        default:
-          return codecept;
-      }
-    case /(^2\.(1\.[0-5]|0\.\d+)|^1\.[6-8]\.\d+).*/.test(version):
-      return codecept;
-    default:
-      return codecept;
-  }
-}
-
-/**
  * Helper function to get script to setup phive
  *
  * @param version
@@ -375,7 +298,7 @@ export async function getCleanedToolsList(
       return extension
         .trim()
         .replace(
-          /-agent|behat\/|hirak\/|icanhazstring\/|laravel\/|narrowspark\/automatic-|overtrue\/|phpspec\/|robmorgan\/|symfony\//,
+          /-agent|behat\/|codeception\/|hirak\/|icanhazstring\/|laravel\/|narrowspark\/automatic-|overtrue\/|phpspec\/|robmorgan\/|symfony\//,
           ''
         );
     })
@@ -495,10 +418,7 @@ export async function addTools(
         script += await addArchive(tool, url, os_version, '"-V"');
         break;
       case 'codeception':
-        url =
-          'https://codeception.com/' +
-          (await getCodeceptionUri(version, php_version));
-        script += await addArchive(tool, url, os_version, '"-V"');
+        script += await addPackage(tool, release, 'codeception/', os_version);
         break;
       case 'composer':
         url = await getComposerUrl(version);

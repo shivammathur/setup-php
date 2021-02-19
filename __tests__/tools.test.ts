@@ -79,93 +79,6 @@ describe('Tools tests', () => {
     ).toBe('releases/download/v1.2.3/tool.phar');
   });
 
-  it('checking getCodeceptionUriBuilder', async () => {
-    expect(await tools.getCodeceptionUriBuilder('3.2.1', 'php56')).toBe(
-      'releases/3.2.1/php56/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUriBuilder('3.2.1', 'php54')).toBe(
-      'releases/3.2.1/php54/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUriBuilder('3.2.1', '')).toBe(
-      'releases/3.2.1/codecept.phar'
-    );
-  });
-
-  it('checking getCodeceptionUri', async () => {
-    expect(await tools.getCodeceptionUri('latest', '5.6')).toBe(
-      'php56/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('latest', '7.0')).toBe(
-      'php56/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('latest', '7.1')).toBe(
-      'php56/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('latest', '7.2')).toBe(
-      'codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('latest', '7.3')).toBe(
-      'codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('latest', '7.4')).toBe(
-      'codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('4.0.0', '7.4')).toBe(
-      'releases/4.0.0/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('4.0.0', '5.6')).toBe(
-      'releases/4.0.0/php56/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('4.0.0', '7.1')).toBe(
-      'releases/4.0.0/php56/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('3.1.0', '7.4')).toBe(
-      'releases/3.1.0/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('3.1.0', '5.6')).toBe(
-      'releases/3.1.0/php54/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('2.5.4', '7.4')).toBe(
-      'releases/2.5.4/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('2.5.4', '5.6')).toBe(
-      'releases/2.5.4/php54/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('2.3.4', '7.4')).toBe(
-      'releases/2.3.4/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('2.3.4', '5.4')).toBe(
-      'releases/2.3.4/php54/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('2.2.4', '5.6')).toBe(
-      'releases/2.2.4/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('2.2.4', '7.4')).toBe(
-      'releases/2.2.4/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('2.2.4', '5.4')).toBe(
-      'releases/2.2.4/php54/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('2.1.7', '5.6')).toBe(
-      'releases/2.1.7/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('2.1.7', '5.4')).toBe(
-      'releases/2.1.7/php54/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('2.1.5', '5.4')).toBe(
-      'releases/2.1.5/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('2.1.5', '7.4')).toBe(
-      'releases/2.1.5/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('1.6.9', '7.4')).toBe(
-      'releases/1.6.9/codecept.phar'
-    );
-    expect(await tools.getCodeceptionUri('1.5.0', '7.4')).toBe(
-      'releases/1.5.0/codecept.phar'
-    );
-  });
-
   it('checking addPhive', async () => {
     let script: string = await tools.addPhive('1.2.3', '7.4', 'linux');
     expect(script).toContain(
@@ -581,7 +494,6 @@ describe('Tools tests', () => {
     const listOfTools = [
       'blackfire',
       'blackfire-player:1.8.1',
-      'codeception',
       'cs2pr',
       'deployer',
       'does_not_exist',
@@ -635,6 +547,7 @@ describe('Tools tests', () => {
   it('checking addTools with composer tool using user/tool as input', async () => {
     const listOfTools = [
       'composer:v1',
+      'codeception/codeception',
       'hirak/prestissimo',
       'narrowspark/automatic-composer-prefetcher',
       'robmorgan/phinx'

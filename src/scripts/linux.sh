@@ -48,8 +48,8 @@ install_packages() {
 # Function to disable an extension.
 disable_extension() {
   extension=$1
-  sudo sed -Ei "/=(.*\/)?\"?$extension/d" "${ini_file[@]}"
-  sudo sed -Ei "/=(.*\/)?\"?$extension/d" "$pecl_file"
+  sudo sed -Ei "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file[@]}"
+  sudo sed -Ei "/=(.*\/)?\"?$extension(.so)?$/d" "$pecl_file"
   sudo find "$ini_dir"/.. -name "*$extension.ini" -delete >/dev/null 2>&1 || true
 }
 
@@ -92,7 +92,13 @@ add_pdo_extension() {
     echo "extension=pdo.so" | sudo tee "${ini_file[@]/php.ini/conf.d/10-pdo.ini}" >/dev/null 2>&1
     if [ "$ext" = "mysql" ]; then
       enable_extension "mysqlnd" "extension"
-      ext_name="mysqli"
+      ext_name='mysqli'
+    elif [ "$ext" = "dblib" ]; then
+      ext_name="sybase"
+    elif [ "$ext" = "firebird" ]; then
+      install_packages libfbclient2 >/dev/null 2>&1
+      enable_extension "pdo_firebird" "extension"
+      ext_name="interbase"
     elif [ "$ext" = "sqlite" ]; then
       ext="sqlite3"
       ext_name="sqlite3"

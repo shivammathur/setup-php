@@ -11,7 +11,7 @@ self_hosted_helper() {
 remove_extension() {
   extension=$1
   if check_extension "$extension"; then
-    sudo sed -Ei '' "/=(.*\/)?\"?$extension/d" "${ini_file:?}"
+    sudo sed -Ei '' "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file:?}"
     sudo rm -rf "${scan_dir:?}"/*"$extension"* "${ext_dir:?}"/"$extension".so >/dev/null 2>&1
     (! check_extension "$extension" && add_log "${tick:?}" ":$extension" "Removed") ||
       add_log "${cross:?}" ":$extension" "Could not remove $extension on PHP ${semver:?}"

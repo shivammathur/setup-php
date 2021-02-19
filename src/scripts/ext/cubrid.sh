@@ -24,7 +24,9 @@ set_cubrid_branch() {
 }
 
 add_cubrid_helper() {
-  if ! [ -e "${ext_dir:?}/$ext.so" ]; then
+  ext=$1
+  enable_extension "$ext" extension
+  if ! check_extension "$ext"; then
     status='Installed and enabled'
     set_cubrid_repo
     set_cubrid_branch
@@ -44,7 +46,7 @@ add_cubrid_helper() {
 add_cubrid() {
   ext=$1
   status='Enabled'
-  add_cubrid_helper >/dev/null 2>&1
+  add_cubrid_helper "$ext" >/dev/null 2>&1
   add_extension_log "$ext" "$status"
   check_extension "$ext" && add_license_log
 }

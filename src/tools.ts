@@ -410,15 +410,13 @@ export async function addTools(
         script += await utils.customPackage(tool, 'tools', version, os_version);
         break;
       case 'behat':
+      case 'codeception':
       case 'phpspec':
         script += await addPackage(tool, release, tool + '/', os_version);
         break;
       case 'blackfire-player':
         url = await getBlackfirePlayerUrl(version, php_version);
         script += await addArchive(tool, url, os_version, '"-V"');
-        break;
-      case 'codeception':
-        script += await addPackage(tool, release, 'codeception/', os_version);
         break;
       case 'composer':
         url = await getComposerUrl(version);
@@ -522,11 +520,18 @@ export async function addTools(
         script += await addArchive('symfony', url, os_version, 'version');
         break;
       case 'vapor-cli':
-        script += await addPackage(tool, release, 'laravel/', os_version);
+      case 'vapor':
+        script += await addPackage(
+          'vapor-cli',
+          release,
+          'laravel/',
+          os_version
+        );
         break;
+      case 'wp':
       case 'wp-cli':
         url = github + (await getWpCliUrl(version));
-        script += await addArchive(tool, url, os_version, '"--version"');
+        script += await addArchive('wp-cli', url, os_version, '"--version"');
         break;
       default:
         script += await utils.addLog(

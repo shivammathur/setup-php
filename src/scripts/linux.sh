@@ -285,9 +285,11 @@ dist=$2
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y"
 apt_remove="sudo $debconf_fix apt-fast remove -y"
+scripts="${dist}"/../src/scripts
 
 # shellcheck source=.
-. "${dist}"/../src/scripts/common.sh
+. "${scripts:?}"/tools/add_tools.sh
+. "${scripts:?}"/common.sh
 . /etc/lsb-release
 read_env
 self_hosted_setup

@@ -172,12 +172,14 @@ dist=$2
 brew_prefix="$(brew --prefix)"
 brew_repo="$(brew --repository)"
 tap_dir="$brew_repo"/Library/Taps
+scripts="${dist}"/../src/scripts
 export HOMEBREW_CHANGE_ARCH_TO_ARM=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_AUTO_UPDATE=1
 
 # shellcheck source=.
-. "${dist}"/../src/scripts/common.sh
+. "${scripts:?}"/tools/add_tools.sh
+. "${scripts:?}"/common.sh
 read_env
 self_hosted_setup
 setup_php

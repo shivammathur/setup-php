@@ -218,21 +218,7 @@ add_tool() {
     status_code=$(get -v -e "$tool_path" "${url[0]}")
   fi
   if [ "$status_code" = "200" ]; then
-    if [ "$tool" = "composer" ]; then
-      configure_composer "$tool_path"
-    elif [ "$tool" = "cs2pr" ]; then
-      sudo sed -i 's/\r$//; s/exit(9)/exit(0)/' "$tool_path" 2>/dev/null ||
-      sudo sed -i '' 's/\r$//; s/exit(9)/exit(0)/' "$tool_path"
-    elif [ "$tool" = "phan" ]; then
-      add_extension fileinfo extension >/dev/null 2>&1
-      add_extension ast extension >/dev/null 2>&1
-    elif [ "$tool" = "phive" ]; then
-      add_extension curl extension >/dev/null 2>&1
-      add_extension mbstring extension >/dev/null 2>&1
-      add_extension xml extension >/dev/null 2>&1
-    elif [ "$tool" = "wp-cli" ]; then
-      sudo cp -p "$tool_path" "$tool_path_dir"/wp
-    fi
+    add_tools_helper "$tool"
     tool_version=$(get_tool_version "$tool" "$ver_param")
     add_log "$tick" "$tool" "Added $tool $tool_version"
   else
@@ -259,6 +245,7 @@ add_composertool() {
     tool_version=$(get_tool_version 'echo' "$json") &&
     add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
+  add_tools_helper "$tool"
   if [ -e "$composer_bin/composer" ]; then
     sudo cp -p "$tool_path_dir/composer" "$composer_bin"
   fi

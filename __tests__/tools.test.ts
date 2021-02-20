@@ -410,7 +410,7 @@ describe('Tools tests', () => {
       'phpspec',
       'protoc:v1.2.3',
       'psalm',
-      'symfony',
+      'symfony-cli',
       'symfony:1.2.3',
       'vapor-cli',
       'wp-cli'
@@ -504,7 +504,7 @@ describe('Tools tests', () => {
       'phpize',
       'phpmd',
       'symfony',
-      'wp-cli'
+      'wp'
     ];
 
     const script: string = await tools.addTools(

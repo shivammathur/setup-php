@@ -245,20 +245,21 @@ Function Add-Tool() {
   if (Test-Path $bin_dir\$tool) {
     Remove-Item $bin_dir\$tool
   }
-  if($url.Count -gt 1) { $url = $url[0] }
-  if ($tool -eq "symfony") {
-    Invoke-WebRequest -Uri $url -OutFile $bin_dir\$tool.exe
-    Add-ToProfile $current_profile $tool "New-Alias $tool $bin_dir\$tool.exe" >$null 2>&1
-  } else {
-    try {
-      Invoke-WebRequest -Uri $url -OutFile $bin_dir\$tool
-    } catch {
-      if($url -match '.*github.com.*releases.*latest.*') {
-        try {
-          $url = $url.replace("releases/latest/download", "releases/download/" + ([regex]::match((Invoke-WebRequest -Uri ($url.split('/release')[0] + "/releases")).Content, "([0-9]+\.[0-9]+\.[0-9]+)/" + ($url.Substring($url.LastIndexOf("/") + 1))).Groups[0].Value).split('/')[0])
-          Invoke-WebRequest -Uri $url -OutFile $bin_dir\$tool
-        } catch { }
-      }
+  if($url.Count -gt 1) {
+    $url = $url[0]
+  }
+  $tool_path = "$bin_dir\$tool"
+  if (($url | Split-Path -Extension) -eq ".exe") {
+    $tool_path = "$tool_path.exe"
+  }
+  try {
+    Invoke-WebRequest -Uri $url -OutFile $tool_path
+  } catch {
+    if($url -match '.*github.com.*releases.*latest.*') {
+      try {
+        $url = $url.replace("releases/latest/download", "releases/download/" + ([regex]::match((Invoke-WebRequest -Uri ($url.split('/release')[0] + "/releases")).Content, "([0-9]+\.[0-9]+\.[0-9]+)/" + ($url.Substring($url.LastIndexOf("/") + 1))).Groups[0].Value).split('/')[0])
+        Invoke-WebRequest -Uri $url -OutFile $tool_path
+      } catch { }
     }
   }
   if (((Get-ChildItem -Path $bin_dir/* | Where-Object Name -Match "^$tool(.exe|.phar)*$").Count -gt 0)) {
@@ -269,18 +270,7 @@ Function Add-Tool() {
     $bat_content += "php %BIN_TARGET% %*"
     Set-Content -Path $bin_dir\$tool.bat -Value $bat_content
     Add-ToProfile $current_profile $tool "New-Alias $tool $bin_dir\$tool.bat" >$null 2>&1
-    if($tool -eq "phan") {
-      Add-Extension fileinfo >$null 2>&1
-      Add-Extension ast >$null 2>&1
-    } elseif($tool -eq "phive") {
-      Add-Extension xml >$null 2>&1
-    } elseif($tool -eq "cs2pr") {
-      (Get-Content $bin_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $bin_dir/cs2pr
-    } elseif($tool -eq "composer") {
-      Edit-ComposerConfig $bin_dir\$tool
-    } elseif($tool -eq "wp-cli") {
-      Copy-Item $bin_dir\wp-cli.bat -Destination $bin_dir\wp.bat
-    }
+    Add-ToolsHelper $tool
     $tool_version = Get-ToolVersion $tool $ver_param
     Add-Log $tick $tool "Added $tool $tool_version"
   } else {
@@ -317,6 +307,7 @@ Function Add-Composertool() {
   if(Test-Path $composer_bin\composer) {
     Copy-Item -Path "$bin_dir\composer" -Destination "$composer_bin\composer" -Force
   }
+  Add-ToolsHelper $tool
   if($json) {
     $tool_version = Get-ToolVersion "Write-Output" "$json"
     Add-Log $tick $tool "Added $tool $tool_version"
@@ -379,6 +370,8 @@ if($env:RUNNER -eq 'self-hosted') {
     New-Item -Path $current_profile -ItemType "file" -Force >$null 2>&1
   }
 }
+
+. $dist\..\src\scripts\tools\add_tools.ps1
 
 Add-Printf >$null 2>&1
 Step-Log "Setup PhpManager"

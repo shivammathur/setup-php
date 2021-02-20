@@ -9,6 +9,7 @@ export xdebug3_versions="7.[2-4]|8.[0-9]"
 export tool_path_dir="/usr/local/bin"
 export composer_bin="$HOME/.composer/vendor/bin"
 export composer_json="$HOME/.composer/composer.json"
+export composer_lock="$HOME/.composer/composer.lock"
 export latest="releases/latest/download"
 export github="https://github.com/shivammathur"
 export bintray="https://dl.bintray/shivammathur"
@@ -191,6 +192,10 @@ configure_composer() {
     add_log "$cross" "composer" "Could not download composer"
     exit 1
   fi
+  if ! [ -e "$composer_json" ]; then
+    echo '{}' | tee "$composer_json" >/dev/null 2>&1
+    sudo chmod 644 "$composer_json"
+  fi
   composer -q config -g process-timeout 0
   echo "$composer_bin" >> "$GITHUB_PATH"
   if [ -n "$COMPOSER_TOKEN" ]; then
@@ -240,7 +245,8 @@ add_composertool() {
     fi
   fi
   (
-    composer global require "$prefix$release" >/dev/null 2>&1 &&
+    sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
+    composer global require "$prefix$release" >/dev/null 2>&1
     json=$(grep "$prefix$tool" "$composer_json") &&
     tool_version=$(get_tool_version 'echo' "$json") &&
     add_log "$tick" "$tool" "Added $tool $tool_version"

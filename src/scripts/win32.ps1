@@ -201,6 +201,9 @@ Function Edit-ComposerConfig() {
     Add-Log "$cross" "composer" "Could not download composer"
     exit 1;
   }
+  if (-not(Test-Path $composer_json)) {
+    Set-Content -Path $composer_json -Value "{}"
+  }
   composer -q config -g process-timeout 0
   Write-Output $composer_bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
   if (Test-Path env:COMPOSER_TOKEN) {
@@ -302,7 +305,10 @@ Function Add-Composertool() {
     Add-Log $cross $tool "Skipped"
     Return
   }
-  composer global require $prefix$release 2>&1 | out-null
+  if(Test-Path $composer_lock) {
+    Remove-Item -Path $composer_lock -Force
+  }
+  composer global require $prefix$release >$null 2>&1
   $json = findstr $prefix$tool $env:APPDATA\Composer\composer.json
   if(Test-Path $composer_bin\composer) {
     Copy-Item -Path "$bin_dir\composer" -Destination "$composer_bin\composer" -Force
@@ -330,6 +336,8 @@ $bin_dir = $php_dir
 $bintray = 'https://dl.bintray.com/shivammathur/php'
 $github = 'https://github.com'
 $composer_bin = "$env:APPDATA\Composer\vendor\bin"
+$composer_json = "$env:APPDATA\Composer\composer.json"
+$composer_lock = "$env:APPDATA\Composer\composer.lock"
 $current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $nightly_version = '8.[0-9]'

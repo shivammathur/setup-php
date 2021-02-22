@@ -224,7 +224,7 @@ add_pecl() {
 
 # Function to update dependencies
 update_dependencies() {
-  if [ "$version" = '8.0' ]; then
+  if [ "$version" = '8.0' ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
     while read -r formula; do
       curl -o "$brew_prefix/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/$formula.rb" "${curl_opts[@]}" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb" &
       to_wait+=( $! )
@@ -263,6 +263,9 @@ brew_prefix="$(brew --prefix)"
 brew_repo="$(brew --repository)"
 tap_dir="$brew_repo"/Library/Taps
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
+export HOMEBREW_CHANGE_ARCH_TO_ARM=1
+export HOMEBREW_NO_INSTALL_CLEANUP=1
+export HOMEBREW_NO_AUTO_UPDATE=1
 
 # Setup PHP
 step_log "Setup PHP"

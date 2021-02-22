@@ -274,7 +274,7 @@ export async function CSVArray(values_csv: string): Promise<Array<string>> {
           return value
             .trim()
             .replace(/^["']|["']$|(?<==)["']/g, '')
-            .replace(/=(.*[?{}|&~![()^]+.*)/, "='$1'");
+            .replace(/=(((?!E_).)*[?{}|&~![()^]+((?!E_).)+)/, "='$1'");
         })
         .filter(Boolean);
   }

@@ -1285,7 +1285,7 @@ async function CSVArray(values_csv) {
                 return value
                     .trim()
                     .replace(/^["']|["']$|(?<==)["']/g, '')
-                    .replace(/=(.*[?{}|&~![()^]+.*)/, "='$1'");
+                    .replace(/=(((?!E_).)*[?{}|&~![()^]+((?!E_).)+)/, "='$1'");
             })
                 .filter(Boolean);
     }

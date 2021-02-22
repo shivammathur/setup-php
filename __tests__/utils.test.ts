@@ -97,12 +97,9 @@ describe('Utils tests', () => {
     const runner_dir: string = process.env['RUNNER_TOOL_CACHE'] || '';
     const script_path: string = path.join(runner_dir, 'test.sh');
     await utils.writeScript('test.sh', testString);
-    await fs.readFile(
-      script_path,
-      function (error: Error | null, data: Buffer) {
-        expect(testString).toBe(data.toString());
-      }
-    );
+    fs.readFile(script_path, function (error: Error | null, data: Buffer) {
+      expect(testString).toBe(data.toString());
+    });
     await cleanup(script_path);
   });
 
@@ -123,6 +120,17 @@ describe('Utils tests', () => {
       'a=1',
       'b=2',
       'c=3'
+    ]);
+    expect(await utils.CSVArray('\'a=1,2\', "b=3, 4", c=5, d=~e~')).toEqual([
+      'a=1,2',
+      'b=3, 4',
+      'c=5',
+      "d='~e~'"
+    ]);
+    expect(await utils.CSVArray('a=\'1,2\', b="3, 4", c=5')).toEqual([
+      'a=1,2',
+      'b=3, 4',
+      'c=5'
     ]);
     expect(await utils.CSVArray('\'a=1,2\', "b=3, 4", c=5, d=~e~')).toEqual([
       'a=1,2',

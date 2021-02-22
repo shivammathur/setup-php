@@ -146,10 +146,10 @@ configure_composer() {
     add_log "$cross" "composer" "Could not download composer"
     exit 1;
   fi
-  composer -q global config process-timeout 0
+  composer -q config -g process-timeout 0
   echo "$composer_bin" >> "$GITHUB_PATH"
   if [ -n "$COMPOSER_TOKEN" ]; then
-    composer -q global config github-oauth.github.com "$COMPOSER_TOKEN"
+    composer -q config -g github-oauth.github.com "$COMPOSER_TOKEN"
   fi
 }
 

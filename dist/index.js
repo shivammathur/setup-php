@@ -1054,8 +1054,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.getInput = exports.readEnv = void 0;
+exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.fetch = exports.getInput = exports.readEnv = void 0;
 const fs = __importStar(__webpack_require__(747));
+const https = __importStar(__webpack_require__(211));
 const path = __importStar(__webpack_require__(622));
 const core = __importStar(__webpack_require__(470));
 /**
@@ -1094,6 +1095,44 @@ async function getInput(name, mandatory) {
     }
 }
 exports.getInput = getInput;
+/**
+ * Function to fetch an URL
+ *
+ * @param url
+ */
+async function fetch(url) {
+    const fetch_promise = new Promise(resolve => {
+        const req = https.get(url, (res) => {
+            res.setEncoding('utf8');
+            let body = '';
+            res.on('data', chunk => (body += chunk));
+            res.on('end', () => resolve(body));
+        });
+        req.end();
+    });
+    return await fetch_promise;
+}
+exports.fetch = fetch;
+/**
+ * Function to parse PHP version.
+ *
+ * @param version
+ */
+async function parseVersion(version) {
+    const manifest = 'https://raw.githubusercontent.com/shivammathur/setup-php/develop/src/configs/php-versions.json';
+    switch (true) {
+        case /^(latest|\d+\.x)$/.test(version):
+            return JSON.parse(await fetch(manifest))[version];
+        default:
+            switch (true) {
+                case version.length > 1:
+                    return version.slice(0, 3);
+                default:
+                    return version + '.0';
+            }
+    }
+}
+exports.parseVersion = parseVersion;
 /**
  * Async foreach loop
  *
@@ -1284,6 +1323,13 @@ async function suppressOutput(os_version) {
 }
 exports.suppressOutput = suppressOutput;
 
+
+/***/ }),
+
+/***/ 211:
+/***/ (function(module) {
+
+module.exports = require("https");
 
 /***/ }),
 
@@ -2418,25 +2464,29 @@ exports.build = build;
 async function run() {
     try {
         core.warning('setup-php v1 is deprecated.\nPlease upgrade to v2 - https://github.com/shivammathur/setup-php/wiki/Switch-to-v2');
-        const os_version = process.platform;
-        let version = await utils.getInput('php-version', true);
-        version = version.length > 1 ? version.slice(0, 3) : version + '.0';
+        const version = await utils.parseVersion(await utils.getInput('php-version', true));
         if (version == '8.1') {
             core.setFailed('PHP 8.1 is not supported on setup-php v1.\nPlease upgrade to v2 - https://github.com/shivammathur/setup-php/wiki/Switch-to-v2');
             return;
         }
-        // check the os version and run the respective script
-        let script_path = '';
-        switch (os_version) {
-            case 'darwin':
-            case 'linux':
-                script_path = await build(os_version + '.sh', version, os_version);
-                await exec_1.exec('bash ' + script_path + ' ' + version + ' ' + __dirname);
-                break;
-            case 'win32':
-                script_path = await build('win32.ps1', version, os_version);
-                await exec_1.exec('pwsh ' + script_path + ' ' + version + ' ' + __dirname);
-                break;
+        if (version) {
+            const os_version = process.platform;
+            // check the os version and run the respective script
+            let script_path = '';
+            switch (os_version) {
+                case 'darwin':
+                case 'linux':
+                    script_path = await build(os_version + '.sh', version, os_version);
+                    await exec_1.exec('bash ' + script_path + ' ' + version + ' ' + __dirname);
+                    break;
+                case 'win32':
+                    script_path = await build('win32.ps1', version, os_version);
+                    await exec_1.exec('pwsh ' + script_path + ' ' + version + ' ' + __dirname);
+                    break;
+            }
+        }
+        else {
+            core.setFailed('Unable to get the PHP version');
         }
     }
     catch (error) {

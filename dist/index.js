@@ -1808,9 +1808,18 @@ exports.getCodeceptionUri = getCodeceptionUri;
  * Helper function to get script to setup phive
  *
  * @param version
+ * @param php_version
  * @param os_version
  */
-async function addPhive(version, os_version) {
+async function addPhive(version, php_version, os_version) {
+    switch (true) {
+        case /5\.6|7\.0/.test(php_version):
+            version = version.replace('latest', '0.12.1');
+            break;
+        case /7\.1/.test(php_version):
+            version = version.replace('latest', '0.13.5');
+            break;
+    }
     switch (version) {
         case 'latest':
             return ((await getCommand(os_version, 'tool')) +
@@ -2028,7 +2037,7 @@ async function addTools(tools_csv, php_version, os_version) {
                 script += await addArchive(tool, url, os_version);
                 break;
             case 'phive':
-                script += await addPhive(version, os_version);
+                script += await addPhive(version, php_version, os_version);
                 break;
             case 'phpstan':
                 url = github + 'phpstan/phpstan/' + uri;

@@ -200,14 +200,19 @@ describe('Tools tests', () => {
   });
 
   it('checking addPhive', async () => {
-    let script: string = await tools.addPhive('1.2.3', 'linux');
+    let script: string = await tools.addPhive('1.2.3', '7.4', 'linux');
     expect(script).toContain(
       'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'
     );
 
-    script = await tools.addPhive('latest', 'win32');
+    script = await tools.addPhive('latest', '5.6', 'win32');
     expect(script).toContain(
-      'Add-Tool https://phar.io/releases/phive.phar phive'
+      'Add-Tool https://github.com/phar-io/phive/releases/download/0.12.1/phive-0.12.1.phar phive'
+    );
+
+    script = await tools.addPhive('latest', '7.1', 'win32');
+    expect(script).toContain(
+      'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.5/phive-0.13.5.phar phive'
     );
   });
 

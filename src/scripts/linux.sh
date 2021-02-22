@@ -155,6 +155,10 @@ configure_composer() {
     add_log "$cross" "composer" "Could not download composer"
     exit 1;
   fi
+  if ! [ -e "$composer_json" ]; then
+    echo '{}' | tee "$composer_json" >/dev/null 2>&1
+    sudo chmod 644 "$composer_json"
+  fi
   composer -q config -g process-timeout 0
   echo "$composer_bin" >> "$GITHUB_PATH"
   if [ -n "$COMPOSER_TOKEN" ]; then
@@ -205,6 +209,7 @@ add_composertool() {
   release=$2
   prefix=$3
   (
+    sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
     composer global require "$prefix$release" >/dev/null 2>&1 &&
     add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
@@ -276,6 +281,8 @@ apt_install="sudo $debconf_fix apt-fast install -y"
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)
 composer_bin="$HOME/.composer/vendor/bin"
+composer_json="$HOME/.composer/composer.json"
+composer_lock="$HOME/.composer/composer.lock"
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 # Setup PHP

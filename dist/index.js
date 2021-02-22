@@ -1696,7 +1696,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addTools = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.getComposerUrl = exports.addComposer = exports.getSymfonyUri = exports.getDeployerUrl = exports.getPharUrl = exports.addPhive = exports.getCodeceptionUri = exports.getCodeceptionUriBuilder = exports.getUri = exports.parseTool = exports.getToolVersion = exports.getCommand = void 0;
+exports.addTools = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getCleanedToolsList = exports.getComposerUrl = exports.addComposer = exports.getSymfonyUri = exports.getDeployerUrl = exports.getPharUrl = exports.addPhive = exports.getUri = exports.parseTool = exports.getToolVersion = exports.getCommand = void 0;
 const utils = __importStar(__webpack_require__(163));
 /**
  * Function to get command to setup tools
@@ -1781,77 +1781,6 @@ async function getUri(tool, extension, version, prefix, version_prefix, verb) {
     }
 }
 exports.getUri = getUri;
-/**
- * Helper function to get the codeception url
- *
- * @param version
- * @param suffix
- */
-async function getCodeceptionUriBuilder(version, suffix) {
-    return ['releases', version, suffix, 'codecept.phar']
-        .filter(Boolean)
-        .join('/');
-}
-exports.getCodeceptionUriBuilder = getCodeceptionUriBuilder;
-/**
- * Function to get the codeception url
- *
- * @param version
- * @param php_version
- */
-async function getCodeceptionUri(version, php_version) {
-    const codecept = await getCodeceptionUriBuilder(version, '');
-    const codecept54 = await getCodeceptionUriBuilder(version, 'php54');
-    const codecept56 = await getCodeceptionUriBuilder(version, 'php56');
-    // Refer to https://codeception.com/builds
-    switch (true) {
-        case /latest/.test(version):
-            switch (true) {
-                case /5\.6|7\.[0|1]/.test(php_version):
-                    return 'php56/codecept.phar';
-                case /7\.[2-4]/.test(php_version):
-                default:
-                    return 'codecept.phar';
-            }
-        case /(^[4-9]|\d{2,})\..*/.test(version):
-            switch (true) {
-                case /5\.6|7\.[0|1]/.test(php_version):
-                    return codecept56;
-                case /7\.[2-4]/.test(php_version):
-                default:
-                    return codecept;
-            }
-        case /(^2\.[4-5]\.\d+|^3\.[0-1]\.\d+).*/.test(version):
-            switch (true) {
-                case /5\.6/.test(php_version):
-                    return codecept54;
-                case /7\.[0-4]/.test(php_version):
-                default:
-                    return codecept;
-            }
-        case /^2\.3\.\d+.*/.test(version):
-            switch (true) {
-                case /5\.[4-6]/.test(php_version):
-                    return codecept54;
-                case /^7\.[0-4]$/.test(php_version):
-                default:
-                    return codecept;
-            }
-        case /(^2\.(1\.([6-9]|\d{2,}))|^2\.2\.\d+).*/.test(version):
-            switch (true) {
-                case /5\.[4-5]/.test(php_version):
-                    return codecept54;
-                case /5.6|7\.[0-4]/.test(php_version):
-                default:
-                    return codecept;
-            }
-        case /(^2\.(1\.[0-5]|0\.\d+)|^1\.[6-8]\.\d+).*/.test(version):
-            return codecept;
-        default:
-            return codecept;
-    }
-}
-exports.getCodeceptionUri = getCodeceptionUri;
 /**
  * Helper function to get script to setup phive
  *
@@ -1999,7 +1928,7 @@ async function getCleanedToolsList(tools_csv) {
         .map(function (extension) {
         return extension
             .trim()
-            .replace(/robmorgan\/|hirak\/|narrowspark\/automatic-/, '');
+            .replace(/codeception\/|hirak\/|robmorgan\/|narrowspark\/automatic-/, '');
     })
         .filter(Boolean);
     return [...new Set(tools_list)];
@@ -2104,10 +2033,7 @@ async function addTools(tools_csv, php_version, os_version) {
                 script += await addArchive('composer', url, os_version);
                 break;
             case 'codeception':
-                url =
-                    'https://codeception.com/' +
-                        (await getCodeceptionUri(version, php_version));
-                script += await addArchive(tool, url, os_version);
+                script += await addPackage(tool, release, 'codeception/', os_version);
                 break;
             case 'phpcpd':
             case 'phpunit':

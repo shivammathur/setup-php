@@ -155,6 +155,9 @@ Function Edit-ComposerConfig() {
     Add-Log "$cross" "composer" "Could not download composer"
     exit 1;
   }
+  if (-not(Test-Path $composer_json)) {
+    Set-Content -Path $composer_json -Value "{}"
+  }
   composer -q config -g process-timeout 0
   Write-Output $composer_bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
   if (Test-Path env:COMPOSER_TOKEN) {
@@ -236,6 +239,9 @@ Function Add-Composertool() {
     [string]
     $prefix
   )
+  if(Test-Path $composer_lock) {
+    Remove-Item -Path $composer_lock -Force
+  }
   composer -q global require $prefix$release 2>&1 | out-null
   if($?) {
     Add-Log $tick $tool "Added"
@@ -260,6 +266,8 @@ $current_profile = "$PSHOME\Profile.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $github = 'https://github.com'
 $composer_bin = "$env:APPDATA\Composer\vendor\bin"
+$composer_json = "$env:APPDATA\Composer\composer.json"
+$composer_lock = "$env:APPDATA\Composer\composer.lock"
 $master_version = '8.0'
 $arch = 'x64'
 $ts = $env:PHPTS -eq 'ts'

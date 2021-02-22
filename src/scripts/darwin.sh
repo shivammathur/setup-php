@@ -77,16 +77,37 @@ add_pecl_extension() {
   fi
 }
 
+# Function to fetch a brew tap
+fetch_brew_tap() {
+  tap=$1
+  tap_user=$(dirname "$tap")
+  tap_name=$(basename "$tap")
+  mkdir -p "$tap_dir/$tap_user"
+  sudo curl "${curl_opts[@]}" "https://github.com/$tap/archive/master.tar.gz" | sudo tar -xzf - -C "$tap_dir/$tap_user"
+  if [ -d "$tap_dir/$tap_user/$tap_name-master" ]; then
+    sudo mv "$tap_dir/$tap_user/$tap_name-master" "$tap_dir/$tap_user/$tap_name"
+  fi
+}
+
+# Function to add a brew tap.
+add_brew_tap() {
+  tap=$1
+  if ! [ -d "$tap_dir/$tap" ]; then
+    fetch_brew_tap "$tap" >/dev/null 2>&1
+    if ! [ -d "$tap_dir/$tap" ]; then
+      brew tap --shallow "$tap" >/dev/null 2>&1
+    fi
+  fi
+}
+
 # Function to install a php extension from shivammathur/extensions tap.
 add_brew_extension() {
   extension=$1
-  if ! brew tap | grep shivammathur/extensions; then
-    brew tap --shallow shivammathur/extensions
-  fi
-  tap_dir="$(brew --prefix)/Homebrew/Library/Taps"
+  add_brew_tap shivammathur/homebrew-php
+  add_brew_tap shivammathur/homebrew-extensions
   sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$extension"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
   brew install "$extension@$version"
-  sudo cp "$(brew --prefix)/opt/$extension@$version/$extension.so" "$ext_dir"
+  sudo cp "$brew_prefix/opt/$extension@$version/$extension.so" "$ext_dir"
 }
 
 # Function to setup extensions
@@ -205,9 +226,9 @@ add_pecl() {
 update_dependencies() {
   if [ "$version" = '8.0' ]; then
     while read -r formula; do
-      curl -o "$(brew --prefix)/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/$formula.rb" "${curl_opts[@]}" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb" &
+      curl -o "$brew_prefix/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/$formula.rb" "${curl_opts[@]}" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb" &
       to_wait+=( $! )
-    done < "$(brew --prefix)/Homebrew/Library/Taps/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
+    done < "$brew_prefix/Homebrew/Library/Taps/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
     wait "${to_wait[@]}"
   fi
 }
@@ -216,7 +237,7 @@ update_dependencies() {
 setup_php() {
   update_dependencies
   export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
-  brew tap --shallow shivammathur/homebrew-php
+  add_brew_tap shivammathur/homebrew-php
   brew upgrade shivammathur/php/php@"$version" 2>/dev/null || brew install shivammathur/php/php@"$version"
   brew link --force --overwrite php@"$version"
 }
@@ -238,6 +259,9 @@ dist=$2
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)
 composer_bin="$HOME/.composer/vendor/bin"
+brew_prefix="$(brew --prefix)"
+brew_repo="$(brew --repository)"
+tap_dir="$brew_repo"/Library/Taps
 existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 
 # Setup PHP

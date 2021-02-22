@@ -23,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup PHP, with composer and extensions
-        uses: shivammathur/setup-php@v1 #https://github.com/shivammathur/setup-php
+        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql
@@ -43,10 +43,11 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
       - name: Install Composer dependencies
         run: |
+          composer require --dev symfony/orm-pack symfony/phpunit-bridge
           composer install --no-progress --prefer-dist --optimize-autoloader
+          php bin/phpunit install
       - name: Run Migration
         run: |
-          composer require symfony/orm-pack
           php bin/console doctrine:schema:update --force || echo "No migrations found or schema update failed"
           php bin/console doctrine:migrations:migrate || echo "No migrations found or migration failed"
         env:

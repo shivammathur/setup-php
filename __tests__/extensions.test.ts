@@ -116,8 +116,8 @@ describe('Extension tests', () => {
     darwin = await extensions.addExtension('xdebug', '7.0', 'darwin');
     expect(darwin).toContain('add_brew_extension xdebug');
 
-    darwin = await extensions.addExtension('xdebug', '7.2', 'darwin');
-    expect(darwin).toContain('add_brew_extension xdebug');
+    darwin = await extensions.addExtension('xdebug2', '7.2', 'darwin');
+    expect(darwin).toContain('add_brew_extension xdebug2');
 
     darwin = await extensions.addExtension(
       'does_not_exist',

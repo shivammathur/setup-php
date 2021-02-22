@@ -41,8 +41,8 @@ configure_pecl() {
       add_pecl >/dev/null 2>&1
     fi
     for script in pear pecl; do
-      sudo "$script" config-set php_ini "${pecl_file:-${ini_file[@]}}"
-      sudo "$script" channel-update "$script".php.net
+      sudo "$script" config-set php_ini "${pecl_file:-$ini_file}" >/dev/null 2>&1
+      sudo "$script" channel-update "$script".php.net >/dev/null 2>&1
     done
     echo '' | sudo tee /tmp/pecl_config >/dev/null 2>&1
   fi
@@ -118,6 +118,7 @@ add_pecl_extension() {
   extension=$1
   pecl_version=$2
   prefix=$3
+  configure_pecl
   if [[ $pecl_version =~ .*(alpha|beta|rc|snapshot|preview).* ]]; then
     pecl_version=$(get_pecl_version "$extension" "$pecl_version")
   fi
@@ -215,6 +216,9 @@ add_composertool() {
   ) || add_log "$cross" "$tool" "Could not setup $tool"
   if [ -e "$composer_bin/composer" ]; then
     sudo cp -p "$tool_path_dir/composer" "$composer_bin"
+  fi
+  if [ "$tool" = "codeception" ]; then
+    sudo ln -s $composer_bin/codecept $composer_bin/codeception
   fi
 }
 

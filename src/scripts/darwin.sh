@@ -102,12 +102,13 @@ add_brew_tap() {
 
 # Function to install a php extension from shivammathur/extensions tap.
 add_brew_extension() {
-  extension=$1
+  formula=$1
+  extension=${formula//[0-9]/}
   add_brew_tap shivammathur/homebrew-php
   add_brew_tap shivammathur/homebrew-extensions
-  sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$extension"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
-  brew install "$extension@$version"
-  sudo cp "$brew_prefix/opt/$extension@$version/$extension.so" "$ext_dir"
+  sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$formula"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
+  brew install "$formula@$version"
+  sudo cp "$brew_prefix/opt/$formula@$version/$extension.so" "$ext_dir"
 }
 
 # Function to setup extensions
@@ -211,13 +212,15 @@ add_composertool() {
   if [ -e "$composer_bin/composer" ]; then
     sudo cp -p "$tool_path_dir/composer" "$composer_bin"
   fi
+  if [ "$tool" = "codeception" ]; then
+    sudo ln -s $composer_bin/codecept $composer_bin/codeception
+  fi
 }
 
 # Function to configure PECL
 configure_pecl() {
   for tool in pear pecl; do
     sudo "$tool" config-set php_ini "$ini_file" >/dev/null 2>&1
-    sudo "$tool" config-set auto_discover 1 >/dev/null 2>&1
     sudo "$tool" channel-update "$tool".php.net >/dev/null 2>&1
   done
 }

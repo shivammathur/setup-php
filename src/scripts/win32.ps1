@@ -203,15 +203,15 @@ Function Add-Tool() {
     $bat_content += "php %BIN_TARGET% %*"
     Set-Content -Path $php_dir\$tool.bat -Value $bat_content
     Add-ToProfile $current_profile $tool "New-Alias $tool $php_dir\$tool.bat" >$null 2>&1
-    if($tool -eq "phan") {
+    if($tool -eq "composer") {
+      Edit-ComposerConfig $php_dir\$tool
+    } elseif($tool -eq "cs2pr") {
+      (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr
+    } elseif($tool -eq "phan") {
       Add-Extension fileinfo >$null 2>&1
       Add-Extension ast >$null 2>&1
     } elseif($tool -eq "phive") {
       Add-Extension xml >$null 2>&1
-    } elseif($tool -eq "cs2pr") {
-      (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr
-    } elseif($tool -eq "composer") {
-      Edit-ComposerConfig $php_dir\$tool
     } elseif($tool -eq "wp-cli") {
       Copy-Item $php_dir\wp-cli.bat -Destination $php_dir\wp.bat
     }
@@ -243,6 +243,9 @@ Function Add-Composertool() {
     Remove-Item -Path $composer_lock -Force
   }
   composer -q global require $prefix$release 2>&1 | out-null
+  if($tool -eq "codeception") {
+    Copy-Item $composer_bin\codecept.bat -Destination $composer_bin\codeception.bat
+  }
   if($?) {
     Add-Log $tick $tool "Added"
   } else {

@@ -2393,12 +2393,7 @@ async function build(filename, version, os_version) {
     const ini_values_csv = (await utils.getInput('ini-values', false)) ||
         (await utils.getInput('ini-values-csv', false));
     const coverage_driver = await utils.getInput('coverage', false);
-    const pecl = await utils.getInput('pecl', false);
-    let tools_csv = await utils.getInput('tools', false);
-    if (pecl == 'true' ||
-        /.*-(beta|alpha|devel|snapshot).*/.test(extension_csv)) {
-        tools_csv = 'pecl, ' + tools_csv;
-    }
+    const tools_csv = await utils.getInput('tools', false);
     let script = await utils.readScript(filename);
     script += await tools.addTools(tools_csv, version, os_version);
     if (extension_csv) {

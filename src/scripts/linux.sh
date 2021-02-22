@@ -36,13 +36,15 @@ update_lists() {
 
 # Function to configure PECL
 configure_pecl() {
-  if [ "$pecl_config" = "false" ] && [ -e /usr/bin/pecl ]; then
-    for tool in pear pecl; do
-      sudo "$tool" config-set php_ini "$pecl_file" >/dev/null 2>&1
-      sudo "$tool" config-set auto_discover 1 >/dev/null 2>&1
-      sudo "$tool" channel-update "$tool".php.net >/dev/null 2>&1
+  if ! [ -e /tmp/pecl_config ]; then
+    if ! command -v pecl >/dev/null || ! command -v pear >/dev/null; then
+      add_pecl >/dev/null 2>&1
+    fi
+    for script in pear pecl; do
+      sudo "$script" config-set php_ini "${pecl_file:-${ini_file[@]}}"
+      sudo "$script" channel-update "$script".php.net
     done
-    pecl_config="true"
+    echo '' | sudo tee /tmp/pecl_config >/dev/null 2>&1
   fi
 }
 
@@ -267,7 +269,6 @@ configure_php() {
 tick="✓"
 cross="✗"
 lists_updated="false"
-pecl_config="false"
 version=$1
 dist=$2
 debconf_fix="DEBIAN_FRONTEND=noninteractive"

@@ -219,7 +219,6 @@ jobs:
 
 > Setup a nightly build of `PHP 8.0.0-dev` from the [master branch](https://github.com/php/php-src/tree/master "Master branch on PHP source repository") of PHP.
 
-- `PECL` is installed by default with this version on `Ubuntu` and `macOS`.
 - Some extensions might not support this version currently.
 - Refer to this [RFC](https://wiki.php.net/rfc/jit "PHP JIT RFC configuration") for configuring `PHP JIT` on this version.
 - Refer to this [list of RFCs](https://wiki.php.net/rfc#php_80 "List of RFCs implemented in PHP8") implemented in this version.

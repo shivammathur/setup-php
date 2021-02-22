@@ -290,8 +290,8 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   }
   if ($version -eq $master_version) {
     $version = 'master'
-    Invoke-WebRequest -UseBasicParsing -Uri https://dl.bintray.com/shivammathur/php/Install-PhpMaster.ps1 -OutFile $php_dir\Install-PhpMaster.ps1 > $null 2>&1
-    & $php_dir\Install-PhpMaster.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir
+    Invoke-WebRequest -UseBasicParsing -Uri https://github.com/shivammathur/php-builder-windows/releases/latest/download/Get-Php.ps1 -OutFile $php_dir\Get-Php.ps1 > $null 2>&1
+    & $php_dir\Get-Php.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir
   } else {
     Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
   }

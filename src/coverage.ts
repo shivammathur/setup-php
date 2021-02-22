@@ -2,32 +2,22 @@ import * as utils from './utils';
 import * as extensions from './extensions';
 import * as config from './config';
 
-/**
- * Function to setup Xdebug
- *
- * @param version
- * @param os_version
- * @param pipe
- */
 export async function addCoverageXdebug(
+  extension: string,
   version: string,
   os_version: string,
   pipe: string
 ): Promise<string> {
   const xdebug =
-    (await extensions.addExtension('xdebug', version, os_version, true)) + pipe;
-  const ini = await config.addINIValues(
-    'xdebug.mode=coverage',
-    os_version,
-    true
-  );
+    (await extensions.addExtension(extension, version, os_version, true)) +
+    pipe;
   const log = await utils.addLog(
     '$tick',
-    'xdebug',
+    extension,
     'Xdebug enabled as coverage driver',
     os_version
   );
-  return xdebug + '\n' + ini + '\n' + log;
+  return xdebug + '\n' + log;
 }
 
 /**
@@ -140,7 +130,14 @@ export async function addCoverage(
     case 'pcov':
       return script + (await addCoveragePCOV(version, os_version, pipe));
     case 'xdebug':
-      return script + (await addCoverageXdebug(version, os_version, pipe));
+    case 'xdebug3':
+      return (
+        script + (await addCoverageXdebug('xdebug', version, os_version, pipe))
+      );
+    case 'xdebug2':
+      return (
+        script + (await addCoverageXdebug('xdebug2', version, os_version, pipe))
+      );
     case 'none':
       return script + (await disableCoverage(version, os_version, pipe));
     default:

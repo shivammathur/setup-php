@@ -148,7 +148,7 @@ add_tool() {
     status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
   fi
   if [ "$status_code" != "200" ] && [[ "$url" =~ .*github.com.*releases.*latest.* ]]; then
-    url=$(echo $url | sed -e "s|releases/latest/download|releases/download/$(curl "${curl_opts[@]}" "$(echo "$url" | cut -d '/' -f '1-5')/releases" | grep -Eo -m 1 "([0-9]+\.[0-9]+\.[0-9]+)/$(echo "$url" | sed -e "s/.*\///")" | cut -d '/' -f 1)|")
+    url="${url//releases\/latest\/download/releases/download/$(curl "${curl_opts[@]}" "$(echo "$url" | cut -d '/' -f '1-5')/releases" | grep -Eo -m 1 "([0-9]+\.[0-9]+\.[0-9]+)/$(echo "$url" | sed -e "s/.*\///")" | cut -d '/' -f 1)}"
     status_code=$(sudo curl -w "%{http_code}" -o "$tool_path" "${curl_opts[@]}" "$url")
   fi
   if [ "$status_code" = "200" ]; then
@@ -221,6 +221,15 @@ setup_php() {
   brew link --force --overwrite php@"$version"
 }
 
+# Function to configure PHP
+configure_php() {
+  (
+    echo -e "date.timezone=UTC\nmemory_limit=-1"
+    [[ "$version" =~ 8.0 ]] && echo -e "opcache.enable=1\nopcache.jit_buffer_size=256M\nopcache.jit=1235"
+    [[ "$version" =~ 7.[2-4]|8.0 ]] && echo -e "xdebug.mode=coverage"
+  ) | sudo tee -a "$ini_file" >/dev/null
+}
+
 # Variables
 tick="✓"
 cross="✗"
@@ -241,7 +250,7 @@ else
 fi
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 sudo chmod 777 "$ini_file" "$tool_path_dir"
-echo -e "date.timezone=UTC\nmemory_limit=-1" >>"$ini_file"
+configure_php
 ext_dir=$(php -i | grep -Ei "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo mkdir -m 777 -p "$ext_dir" "$HOME/.composer"

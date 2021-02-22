@@ -243,14 +243,11 @@ export async function CSVArray(values_csv: string): Promise<Array<string>> {
  * @param extension
  */
 export async function getExtensionPrefix(extension: string): Promise<string> {
-  const zend: Array<string> = ['xdebug', 'opcache', 'ioncube', 'eaccelerator'];
-  switch (zend.indexOf(extension)) {
-    case 0:
-    case 1:
-      return 'zend_extension';
-    case -1:
+  switch (true) {
     default:
       return 'extension';
+    case /xdebug([2-3])?$|opcache|ioncube|eaccelerator/.test(extension):
+      return 'zend_extension';
   }
 }
 

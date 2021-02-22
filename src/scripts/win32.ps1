@@ -300,8 +300,11 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
 }
 
 $installed = Get-Php -Path $php_dir
-Set-PhpIniKey -Key 'date.timezone' -Value 'UTC' -Path $php_dir
-Set-PhpIniKey -Key 'memory_limit' -Value '-1' -Path $php_dir
+('date.timezone=UTC', 'memory_limit=-1', 'xdebug.mode=coverage') | ForEach-Object { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
+# Patch till there is a pcov DLL for PHP 8.0 on pecl
+if ($version -eq '8.0') {
+  Invoke-WebRequest -Uri "https://github.com/shivammathur/php-extensions-windows/releases/latest/download/php$version`_$env:PHPTS`_$arch`_pcov.dll" -OutFile $php_dir"\ext\php`_pcov.dll"
+}
 Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
 Copy-Item -Path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE

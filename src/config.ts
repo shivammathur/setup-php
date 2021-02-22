@@ -14,7 +14,9 @@ export async function addINIValuesUnix(
     script +=
       (await utils.addLog('$tick', line, 'Added to php.ini', 'linux')) + '\n';
   });
-  return 'echo "' + ini_values.join('\n') + '" >> $ini_file' + script;
+  return (
+    'echo "' + ini_values.join('\n') + '" >> ${pecl_file:-$ini_file}' + script
+  );
 }
 
 /**

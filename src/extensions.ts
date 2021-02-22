@@ -30,19 +30,13 @@ export async function addExtensionDarwin(
           ' ' +
           ext_prefix;
         return;
-      // match 5.6xdebug to 8.0xdebug, 5.6igbinary to 8.0igbinary
-      // match 5.6grpc to 7.4grpc, 5.6imagick to 7.4imagick, 5.6protobuf to 7.4protobuf, 5.6swoole to 7.4swoole
+      // match 5.6 to 8.0 amqp, grpc, igbinary, imagick, imap, msgpack, pecl_http, propro, protobuf, raphf, redis, swoole, xdebug, xdebug2, zmq
       // match 7.1pcov to 8.0pcov
-      case /(5\.6|7\.[0-4]|8\.0)(xdebug|igbinary)/.test(version_extension):
-      case /(5\.6|7\.[0-4])(grpc|imagick|protobuf|swoole)/.test(
+      case /(5\.6|7\.[0-4]|8.0)(amqp|grpc|igbinary|imagick|imap|msgpack|^(pecl_)?http$|propro|protobuf|raphf|redis|swoole|xdebug|xdebug2|zmq)/.test(
         version_extension
       ):
       case /(7\.[1-4]|8\.0])pcov/.test(version_extension):
         command = 'add_brew_extension ' + extension_name;
-        break;
-      // match 5.6redis
-      case /5\.6redis/.test(version_extension):
-        command = command_prefix + 'redis-2.2.8';
         break;
       // match sqlite
       case /^sqlite$/.test(extension):
@@ -100,7 +94,7 @@ export async function addExtensionWindows(
           '\nAdd-Extension mysql\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
         break;
       // match 7.2xdebug
-      case /7\.2xdebug/.test(version_extension):
+      case /7\.[2-4]xdebug2/.test(version_extension):
         script += '\nAdd-Extension xdebug stable 2.9.8';
         break;
       // match 7.0mysql..8.0mysql
@@ -184,7 +178,7 @@ export async function addExtensionLinux(
           version;
         return;
       // match 7.2xdebug
-      case /^7\.2xdebug$/.test(version_extension):
+      case /^7\.[2-4]xdebug2$/.test(version_extension):
         script += '\nadd_pecl_extension xdebug 2.9.8 ' + ext_prefix;
         return;
       // match sqlite

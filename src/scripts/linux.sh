@@ -103,12 +103,8 @@ add_extension() {
   elif check_extension "$extension"; then
     add_log "$tick" "$extension" "Enabled"
   elif ! check_extension "$extension"; then
-    if [ "$version" = "8.0" ]; then
-      pecl_install "$extension"
-    else
-      eval "$install_command" >/dev/null 2>&1 ||
-      (update_lists && eval "$install_command" >/dev/null 2>&1) || pecl_install "$extension"
-    fi
+    eval "$install_command" >/dev/null 2>&1 ||
+    (update_lists && eval "$install_command" >/dev/null 2>&1) || pecl_install "$extension"
     (check_extension "$extension" && add_log "$tick" "$extension" "Installed and enabled") ||
     add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
   fi
@@ -258,6 +254,15 @@ php_semver() {
   fi
 }
 
+# Function to configure PHP
+configure_php() {
+  (
+    echo -e "date.timezone=UTC\nmemory_limit=-1"
+    [[ "$version" =~ 8.0 ]] && echo -e "opcache.enable=1\nopcache.jit_buffer_size=256M\nopcache.jit=1235"
+    [[ "$version" =~ 7.[2-4]|8.0 ]] && echo -e "xdebug.mode=coverage"
+  ) | sudo tee -a "$pecl_file" >/dev/null
+}
+
 # Variables
 tick="✓"
 cross="✗"
@@ -308,6 +313,7 @@ ini_file=$(php --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s
 ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
 pecl_file="$scan_dir"/99-pecl.ini
 echo '' | sudo tee "$pecl_file" >/dev/null 2>&1
+configure_php
 sudo rm -rf /usr/local/bin/phpunit >/dev/null 2>&1
 sudo chmod 777 "$ini_file" "$pecl_file" "$tool_path_dir"
 sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"

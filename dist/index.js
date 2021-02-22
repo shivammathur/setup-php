@@ -2761,7 +2761,7 @@ async function addExtensionDarwin(extension_csv, version) {
         let command = '';
         switch (true) {
             // match pre-release versions
-            case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+            case /.+-(beta|alpha|devel|snapshot)/.test(extension):
                 script +=
                     '\nadd_unstable_extension ' +
                         extension_name +
@@ -2820,7 +2820,7 @@ async function addExtensionWindows(extension_csv, version) {
         const version_extension = version + extension;
         switch (true) {
             // match pre-release versions
-            case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+            case /.+-(beta|alpha|devel|snapshot)/.test(extension):
                 script += '\nAdd-Extension ' + extension_name + ' ' + stability;
                 break;
             // match 5.6mysql, 5.6mysqli, 5.6mysqlnd
@@ -2880,7 +2880,7 @@ async function addExtensionLinux(extension_csv, version, pipe) {
         let command = '';
         switch (true) {
             // match pre-release versions
-            case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+            case /.+-(beta|alpha|devel|snapshot)/.test(extension):
                 script +=
                     '\nadd_unstable_extension ' +
                         extension_name +

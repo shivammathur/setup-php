@@ -21,7 +21,7 @@ export async function addExtensionDarwin(
     let command = '';
     switch (true) {
       // match pre-release versions
-      case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+      case /.+-(beta|alpha|devel|snapshot)/.test(extension):
         script +=
           '\nadd_unstable_extension ' +
           extension_name +
@@ -85,7 +85,7 @@ export async function addExtensionWindows(
     const version_extension: string = version + extension;
     switch (true) {
       // match pre-release versions
-      case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+      case /.+-(beta|alpha|devel|snapshot)/.test(extension):
         script += '\nAdd-Extension ' + extension_name + ' ' + stability;
         break;
       // match 5.6mysql, 5.6mysqli, 5.6mysqlnd
@@ -149,7 +149,7 @@ export async function addExtensionLinux(
     let command = '';
     switch (true) {
       // match pre-release versions
-      case /.*-(beta|alpha|devel|snapshot)/.test(version_extension):
+      case /.+-(beta|alpha|devel|snapshot)/.test(extension):
         script +=
           '\nadd_unstable_extension ' +
           extension_name +

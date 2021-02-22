@@ -178,7 +178,7 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
 - These extensions have custom support:
   - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`.
   - `geos` on `Ubuntu` and `macOS`.
-  - `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_oci`, `phalcon3` and `phalcon4` on all supported OS.
+  - `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_oci`, `pecl_http`, `phalcon3` and `phalcon4` on all supported OS.
 
 - By default, extensions which cannot be added or removed gracefully leave an error message in the logs, the action is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`. 
 
@@ -218,7 +218,7 @@ These tools can be setup globally using the `tools` input. It accepts a string i
     tools: php-cs-fixer, phpunit
 ```
 
-- To set up a particular version of a tool, specify it in the form `tool:version`. The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying `v1`, `v2`, `snapshot` or `preview` as versions or the exact version in semver format.
+- To set up a particular version of a tool, specify it in the form `tool:version`. The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying `v1`, `v2`, `snapshot` or `preview` as versions, or the exact version in semver format.
 
 ```yaml
 - name: Setup PHP with composer v2
@@ -314,8 +314,9 @@ Runs on PHP 7.1 and newer PHP versions.
 
 ### Disable Coverage
 
-Specify `coverage: none` to remove both `Xdebug` and `PCOV`.  
-Consider disabling the coverage using this PHP action for these reasons.
+Specify `coverage: none` to remove both `Xdebug` and `PCOV`.
+
+Disable coverage for these reasons:
 
 - You are not generating coverage reports while testing.
 - It will remove `Xdebug`, which will have a positive impact on PHP performance.
@@ -382,7 +383,7 @@ Consider disabling the coverage using this PHP action for these reasons.
 
 #### `phpts` (optional)
 
-- Specify to set up thread-safe version of PHP on windows.
+- Specify to set up thread-safe version of PHP on Windows.
 - Accepts `ts` and `nts`.
 - By default, it is set to `nts`.
 - See [thread safe setup](#thread-safe-setup) for more info.
@@ -497,8 +498,8 @@ jobs:
 
 > Update to the latest patch of PHP versions.
 
-- Pre-installed PHP versions on the GitHub Actions runner are not updated to their latest patch release by default.
-- You can specify the `update` environment variable to `true` to force update to the latest release.
+- Pre-installed PHP versions on the GitHub Actions images are not updated to their latest patch release by default.
+- You can specify the `update` environment variable to `true` for updating to the latest release.
 
 ```yaml
 - name: Setup PHP with latest versions
@@ -559,7 +560,7 @@ jobs:
 
 - To set up a dockerized self-hosted runner, refer to this [guide](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Ubuntu) to set up in an `Ubuntu` container and refer to this [guide](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Windows) to set up in a `Windows` container.
 - To set up the runner directly on the host OS or in a virtual machine, follow this [requirements guide](https://github.com/shivammathur/setup-php/wiki/Requirements-for-self-hosted-runners "Requirements guide for self-hosted runner to run setup-php") before setting up the self-hosted runner.
-- If your workflow uses [services](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idservices "GitHub Actions Services"), then setup the runner on a Linux host or in a Linux virtual machine. GitHub Actions does not support nested virtualization on Linux, so services will not work in a dockerized container.
+- If your workflow uses [service containers](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idservices "GitHub Actions Services"), then setup the runner on a Linux host or in a Linux virtual machine. GitHub Actions does not support nested virtualization on Linux, so services will not work in a dockerized container.
 
 Specify the environment variable `runner` with the value `self-hosted`. Without this your workflow will fail.
 
@@ -584,8 +585,8 @@ jobs:
 ```
 
 **Notes**
-- Do not setup multiple self-hosted runners on a single server instance as parallel workflow will conflict with each other.
-- Do not setup self-hosted runners on the side on your development environment or your production server.
+- Do not set up multiple self-hosted runners on a single server instance as parallel workflow will conflict with each other.
+- Do not set up self-hosted runners on the side on your development environment or your production server.
 - Avoid using the same labels for your `self-hosted` runners which are used by `GitHub-hosted` runners.
 
 ### Local Testing Setup
@@ -608,6 +609,8 @@ jobs:
 ```
 
 Run the workflow locally with `act` using [`shivammathur/node`](https://github.com/shivammathur/node-docker "Docker image to run setup-php") docker images.
+
+Choose the image tag which matches the `runs-on` property in your workflow:
 
 ```bash
 # For runs-on: ubuntu-latest

@@ -279,6 +279,10 @@ ext_dir=$(php -i | grep -Ei "extension_dir => /" | sed -e "s|.*=> s*||")
 scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
 sudo mkdir -m 777 -p "$ext_dir" "$HOME/.composer"
 semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
+if [ "${semver%.*}" != "$version" ]; then
+  add_log "$cross" "PHP" "Could not setup PHP $version"
+  exit 1
+fi
 configure_pecl
 sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
 add_log "$tick" "PHP" "$status PHP $semver"

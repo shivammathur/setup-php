@@ -288,18 +288,24 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
     Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" >$null 2>&1
     $arch='x86'
   }
-  if ($version -eq $master_version) {
-    $version = 'master'
-    Invoke-WebRequest -UseBasicParsing -Uri https://github.com/shivammathur/php-builder-windows/releases/latest/download/Get-Php.ps1 -OutFile $php_dir\Get-Php.ps1 > $null 2>&1
-    & $php_dir\Get-Php.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir
-  } else {
-    Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
-  }
+  try {
+    if ($version -eq $master_version) {
+      $version = 'master'
+      Invoke-WebRequest -UseBasicParsing -Uri https://github.com/shivammathur/php-builder-windows/releases/latest/download/Get-Php.ps1 -OutFile $php_dir\Get-Php.ps1 > $null 2>&1
+      & $php_dir\Get-Php.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir
+    } else {
+      Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
+    }
+  } catch { }
 } else {
   $status = "Found"
 }
 
 $installed = Get-Php -Path $php_dir
+if($installed.MajorMinorVersion -ne $version) {
+  Add-Log $cross "PHP" "Could not setup PHP $version"
+  exit 1
+}
 ('date.timezone=UTC', 'memory_limit=-1', 'xdebug.mode=coverage') | ForEach-Object { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
 # Patch till there is a pcov DLL for PHP 8.0 on pecl
 if ($version -eq '8.0') {

@@ -1,7 +1,7 @@
 # Function to install libraries required by couchbase
 add_couchbase_libs() {
   if [ "$(uname -s)" = "Linux" ]; then
-    if [[ ${version:?} =~ 5.6|7.[0-1] ]]; then
+    if [[ ${version:?} =~ 5.[3-6]|7.[0-1] ]]; then
       trunk="http://packages.couchbase.com/ubuntu"
       list="deb $trunk ${DISTRIB_CODENAME:?} ${DISTRIB_CODENAME:?}/main"
     else
@@ -14,7 +14,7 @@ add_couchbase_libs() {
     sudo apt-get update
     ${apt_install:?} libcouchbase-dev
   else
-    if [[ ${version:?} =~ 5.6|7.[0-1] ]]; then
+    if [[ ${version:?} =~ 5.[3-6]|7.[0-1] ]]; then
       brew install libcouchbase@2
       brew link --overwrite --force libcouchbase@2
     else
@@ -30,9 +30,11 @@ add_couchbase() {
   if check_extension "couchbase"; then
     add_log "${tick:?}" "couchbase" "Enabled"
   else
-    if [[ ${version:?} =~ 5.6|7.[0-1] ]]; then
+    if [[ "${version:?}" =~ ${old_versions:?} ]]; then
+      pecl_install couchbase-2.2.3 >/dev/null 2>&1
+    elif [[ "${version:?}" =~ 5.6|7.[0-1] ]]; then
       pecl_install couchbase-2.6.2 >/dev/null 2>&1
-    elif [[ ${version:?} =~ 7.2 ]]; then
+    elif [[ "${version:?}" =~ 7.2 ]]; then
       pecl_install couchbase-3.0.4 >/dev/null 2>&1
     else
       pecl_install couchbase >/dev/null 2>&1

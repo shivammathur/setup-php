@@ -262,6 +262,15 @@ php_semver() {
   php"$version" -v | grep -Eo -m 1 "[0-9]+\.[0-9]+\.[0-9]+" | head -n 1
 }
 
+# Function to get the tag for a php version.
+php_src_tag() {
+  php_src_tag='master'
+  if ! [[ ${version:?} =~ $nightly_versions ]]; then
+    php_src_tag="php-$semver"
+  fi
+  echo "$php_src_tag"
+}
+
 # Function to install extension from a GitHub repository
 add_extension_from_github() {
   extension=$1

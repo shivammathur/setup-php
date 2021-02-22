@@ -7,17 +7,6 @@ add_license_log() {
   echo "::endgroup::"
 }
 
-# Function to get the tag for a php version.
-get_tag() {
-  tag='master'
-  if ! [[ ${version:?} =~ $nightly_versions ]]; then
-    tag="php-$(php -v | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '-')"
-  elif [ "${version:?}" = '8.0' ]; then
-    tag="PHP-8.0"
-  fi
-  echo "$tag"
-}
-
 # Function to install instantclient and SDK.
 add_client() {
   sudo mkdir -p -m 777 "$oracle_home"
@@ -49,7 +38,7 @@ get_php() {
 
 # Function to get phpize location on darwin.
 get_phpize() {
-  if [[ "$version" =~ 5.[3-5] ]]; then
+  if [[ "${version:?}" =~ 5.[3-5] ]]; then
     echo '/opt/local/bin/phpize'
   else
     echo "/usr/local/bin/$(readlink /usr/local/bin/phpize)"
@@ -94,14 +83,14 @@ add_oci_helper() {
   if ! [ -e "${ext_dir:?}/$ext.so" ]; then
     status='Installed and enabled'
     phpize_orig=$(get_phpize)
-    tag=$(get_tag)
+    tag=$(php_src_tag)
     get_php
     patch_phpize
     (
       cd "/opt/oracle/php-src-$tag/ext/$ext" || exit 1
       [ "$ext" = "pdo_oci" ] && patch_pdo_oci_config
       sudo phpize && ./configure --with-php-config="$(command -v php-config)" --with-"${ext/_/-}"=instantclient,"$oracle_client"
-      sudo make -j"$(nproc)"
+      sudo make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)"
       sudo cp ./modules/* "$ext_dir/"
     )
     restore_phpize
@@ -116,7 +105,6 @@ add_oci() {
   oracle_home='/opt/oracle'
   oracle_client=$oracle_home/instantclient
   os=$(uname -s)
-  nightly_versions='8.[0-1]'
   add_client >/dev/null 2>&1
   add_dependencies >/dev/null 2>&1
   add_oci_helper >/dev/null 2>&1

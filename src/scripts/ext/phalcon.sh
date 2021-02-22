@@ -6,14 +6,15 @@ add_phalcon_helper() {
     if [ "$extension" = "phalcon4" ]; then
       ${apt_install:?} "php${version:?}-psr" "php${version:?}-$extension"
     else
-      ${apt_install:?} "php${version:?}-$extension"
+      get -q -e /tmp/phalcon.deb "https://packagecloud.io/phalcon/stable/packages/ubuntu/bionic/php${version:?}-phalcon_3.4.5-1+php${version:?}_amd64.deb/download.deb"
+      sudo dpkg -i /tmp/phalcon.deb
     fi
   else
     sed -i '' '/extension.*psr/d' "${ini_file:?}"
-    brew tap shivammathur/homebrew-phalcon
+    add_brew_tap shivammathur/homebrew-phalcon
     brew install phalcon@"${version:?}"_"$extension_major_version"
-    sudo cp /usr/local/opt/psr@"${version:?}"/psr.so "${ext_dir:?}"
-    sudo cp /usr/local/opt/phalcon@"${version:?}"_"$extension_major_version"/phalcon.so "${ext_dir:?}"
+    sudo cp "${brew_prefix:?}"/opt/psr@"${version:?}"/psr.so "${ext_dir:?}"
+    sudo cp "${brew_prefix:?}"/opt/phalcon@"${version:?}"_"$extension_major_version"/phalcon.so "${ext_dir:?}"
   fi
 }
 

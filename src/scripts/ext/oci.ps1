@@ -37,11 +37,13 @@ Function Add-Oci() {
     } else {
       if(-not(Test-Path $ext_dir\php_oci8.dll)) {
         $status = 'Installed and enabled'
-        $ociVersion = '2.2.0'
+        $ociVersion = Get-PeclPackageVersion oci8 -MinimumStability stable -MaximumStability stable | Select-Object -First 1
         if ($version -eq '7.0') {
           $ociVersion = '2.1.8'
         } elseif ($version -lt '7.0') {
           $ociVersion = '2.0.12'
+        } elseif ($version -lt '8.0') {
+          $ociVersion = '2.2.0'
         }
         $ociUrl = Get-PeclArchiveUrl oci8 $ociVersion $installed
         Invoke-WebRequest -Uri $ociUrl -OutFile $php_dir\oci8.zip

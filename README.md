@@ -418,10 +418,32 @@ Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "sh
 
 ## :sparkling_heart: Support This Project
 
-If this action helped you.
+- If setup-php saved your developer time, please consider sponsoring setup-php:
+  - [Open Collective](https://opencollective.com/setup-php "setup-php Open Collective")
+  - [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal")
+  - [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon")
+- Please [reach out](mailto:contact@setup-php.com) if you have any questions regarding sponsoring setup-php.
+- Please star the project and share it. If you blog, please share your experience of using this action.
 
-- Sponsor the project by subscribing on [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon") or by contributing using [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal"). This project is also available as part of the [Tidelift Subscription](https://tidelift.com/subscription/pkg/npm-setup-php?utm_source=npm-setup-php&utm_medium=referral&utm_campaign=enterprise&utm_term=repo "Tidelift Subscription for setup-php") to support delivering enterprise-level maintenance.
-- Please star the project and dependencies. If you blog, please share your experience of using this action with the community.
+*Huge thanks to the following companies for supporting `setup-php`*
+
+<p>
+  <a href="https://www.jetbrains.com/?from=setup-php">
+    <img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="106" height="60">
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://blackfire.io/?utm_source=setup-php">
+    <img src="https://setup-php.com/sponsors//blackfire.svg" alt="Blackfire" width="212" height="60">
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://www.macstadium.com/?source=setup-php">
+    <img src="https://setup-php.com/sponsors//macstadium.png" alt="Mac Stadium" width="148" height="60">
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://tidelift.com/subscription/pkg/npm-setup-php">
+    <img src="https://setup-php.com/sponsors//tidelift.png" alt="Tidelift" width="70" height="60">
+  </a>  
+</p>
 
 ## :bookmark: Dependencies
 

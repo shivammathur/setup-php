@@ -213,7 +213,7 @@ add_composertool() {
     sudo cp -p "$tool_path_dir/composer" "$composer_bin"
   fi
   if [ "$tool" = "codeception" ]; then
-    sudo ln -s $composer_bin/codecept $composer_bin/codeception
+    sudo ln -s "$composer_bin"/codecept "$composer_bin"/codeception
   fi
 }
 
@@ -230,22 +230,32 @@ add_pecl() {
   add_log "$tick" "PECL" "Added"
 }
 
+# Function to backup all libraries of a formula
+link_libraries() {
+  formula=$1
+  formula_prefix="$(brew --prefix "$formula")"
+  sudo mkdir -p "$formula_prefix"/lib
+  sudo cp -a "$formula_prefix"/lib/*.dylib "$brew_prefix/lib" 2>/dev/null || true
+}
+
 # Function to update dependencies
 update_dependencies() {
-  if [ "$version" = '8.0' ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
+  if [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
     while read -r formula; do
-      curl -o "$brew_prefix/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/$formula.rb" "${curl_opts[@]}" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb" &
+      (
+        curl -o "$tap_dir/homebrew/homebrew-core/Formula/$formula.rb" "${curl_opts[@]}" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb"
+        link_libraries $formula
+      ) &
       to_wait+=( $! )
-    done < "$brew_prefix/Homebrew/Library/Taps/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
+    done < "$tap_dir/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
     wait "${to_wait[@]}"
   fi
 }
 
 # Function to setup PHP and composer
 setup_php() {
-  update_dependencies
-  export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
   add_brew_tap shivammathur/homebrew-php
+  update_dependencies
   brew upgrade shivammathur/php/php@"$version" 2>/dev/null || brew install shivammathur/php/php@"$version"
   brew link --force --overwrite php@"$version"
 }
@@ -276,6 +286,7 @@ existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 export HOMEBREW_CHANGE_ARCH_TO_ARM=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
 
 # Setup PHP
 step_log "Setup PHP"

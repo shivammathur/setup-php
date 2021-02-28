@@ -218,7 +218,7 @@ add_composertool() {
     sudo cp -p "$tool_path_dir/composer" "$composer_bin"
   fi
   if [ "$tool" = "codeception" ]; then
-    sudo ln -s $composer_bin/codecept $composer_bin/codeception
+    sudo ln -s "$composer_bin"/codecept "$composer_bin"/codeception
   fi
 }
 

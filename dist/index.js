@@ -1825,7 +1825,7 @@ async function addExtensionDarwin(extension_csv, version) {
             // match 7.1pcov to 8.0pcov
             case /(5\.6|7\.[0-4]|8.0)(amqp|grpc|igbinary|imagick|imap|msgpack|^(pecl_)?http$|propro|protobuf|raphf|redis|swoole|xdebug|xdebug2|zmq)/.test(version_extension):
             case /(7\.[1-4]|8\.0])pcov/.test(version_extension):
-                command = 'add_brew_extension ' + extension_name;
+                command = 'add_brew_extension ' + extension_name.replace('pecl_', '');
                 break;
             // match sqlite
             case /^sqlite$/.test(extension):
@@ -1879,7 +1879,7 @@ async function addExtensionWindows(extension_csv, version) {
                 script +=
                     '\nAdd-Extension mysql\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
                 break;
-            // match 7.2xdebug
+            // match 7.2xdebug2 to 7.4xdebug2
             case /7\.[2-4]xdebug2/.test(version_extension):
                 script += '\nAdd-Extension xdebug stable 2.9.8';
                 break;
@@ -1959,7 +1959,7 @@ async function addExtensionLinux(extension_csv, version, pipe) {
                         ' ' +
                         version;
                 return;
-            // match 7.2xdebug
+            // match 7.2xdebug2 to 7.4xdebug2
             case /^7\.[2-4]xdebug2$/.test(version_extension):
                 script += '\nadd_pecl_extension xdebug 2.9.8 ' + ext_prefix;
                 return;

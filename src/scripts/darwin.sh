@@ -111,11 +111,25 @@ add_pecl() {
   add_log "${tick:?}" "PECL" "Found PECL $pecl_version"
 }
 
+# Function to link all libraries of a formula
+link_libraries() {
+  formula=$1
+  formula_prefix="$(brew --prefix "$formula")"
+  sudo mkdir -p "$formula_prefix"/lib
+  sudo cp -a "$formula_prefix"/lib/*.dylib "$brew_prefix/lib" 2>/dev/null || true
+}
+
+update_dependencies_helper() {
+  formula=$1
+  get -q -n "$tap_dir/homebrew/homebrew-core/Formula/$formula.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb"
+  link_libraries "$formula"
+}
+
 # Function to update dependencies.
 update_dependencies() {
-  if [[ "$version" =~ ${nightly_versions:?} ]] && [ "${runner:?}" != "self-hosted" ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
+  if [ "${runner:?}" != "self-hosted" ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
     while read -r formula; do
-      get -q -n "$tap_dir/homebrew/homebrew-core/Formula/$formula.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb" &
+      update_dependencies_helper "$formula" &
       to_wait+=($!)
     done <"$tap_dir/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
     wait "${to_wait[@]}"
@@ -176,6 +190,7 @@ scripts="${dist}"/../src/scripts
 export HOMEBREW_CHANGE_ARCH_TO_ARM=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
 
 # shellcheck source=.
 . "${scripts:?}"/tools/add_tools.sh

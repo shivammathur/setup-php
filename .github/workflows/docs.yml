@@ -2,7 +2,7 @@ name: Docs workflow
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 15 * * 2'
+    - cron: '0 15 * * 6'
 jobs:
   create:
     name: Create
@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ubuntu-20.04, ubuntu-18.04, ubuntu-16.04, windows-2019, macos-10.15, macos-11.0]
+        operating-system: [ubuntu-20.04, ubuntu-18.04, ubuntu-16.04, windows-2019, macos-10.15]
         php-versions: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
     steps:
       - name: Setup PHP
@@ -62,7 +62,11 @@ jobs:
           for os in ubuntu-20.04 ubuntu-18.04 ubuntu-16.04 windows-2019 macos-10.15 macos-11.0; do
             echo "These are extensions which are loaded by default on the following PHP versions. More extensions which are available as packages and available on pecl are supported by setup-php. Refer to [php extension support](https://github.com/shivammathur/setup-php#heavy_plus_sign-php-extension-support) for more details." > Php-extensions-loaded-on-"$os".md
             for version in 5.3 5.4 5.5 5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1; do
-              cat lists/php"$version"-"$os".md >> Php-extensions-loaded-on-"$os".md
+              if [ "$os" = "macos-11.0" ]; then
+                cat lists/php"$version"-macos-10.15.md >> Php-extensions-loaded-on-"$os".md
+              else
+                cat lists/php"$version"-"$os".md >> Php-extensions-loaded-on-"$os".md
+              fi
             done
           done
           rm -rf ./lists

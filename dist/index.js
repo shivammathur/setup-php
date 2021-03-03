@@ -2152,7 +2152,11 @@ async function run() {
 }
 exports.run = run;
 // call the run function
-run();
+(async () => {
+    await run();
+})().catch(error => {
+    core.setFailed(error.message);
+});
 
 
 /***/ }),

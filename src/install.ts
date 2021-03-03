@@ -1,4 +1,4 @@
-import {exec} from '@actions/exec/lib/exec';
+import {exec} from '@actions/exec';
 import * as core from '@actions/core';
 import * as config from './config';
 import * as coverage from './coverage';
@@ -69,4 +69,8 @@ export async function run(): Promise<void> {
 }
 
 // call the run function
-run();
+(async () => {
+  await run();
+})().catch(error => {
+  core.setFailed(error.message);
+});

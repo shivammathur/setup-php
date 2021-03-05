@@ -6,8 +6,7 @@ add_phalcon_helper() {
     if [ "$extension" = "phalcon4" ]; then
       ${apt_install:?} "php${version:?}-psr" "php${version:?}-$extension"
     else
-      get -q -e /tmp/phalcon.deb "https://packagecloud.io/phalcon/stable/packages/ubuntu/bionic/php${version:?}-phalcon_3.4.5-1+php${version:?}_amd64.deb/download.deb"
-      sudo dpkg -i /tmp/phalcon.deb
+      ${apt_install:?} "php${version:?}-$extension"
     fi
   else
     sed -i '' '/extension.*psr/d' "${ini_file:?}"

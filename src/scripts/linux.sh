@@ -4,15 +4,16 @@ self_hosted_helper() {
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
   fi
   install_packages curl make software-properties-common unzip autoconf automake gcc g++
-  add_ppa
+  add_ppa ondrej/ppa
 }
 
 # Function to backup and cleanup package lists.
 cleanup_lists() {
+  ppa_prefix=${1-ondrej}
   if [ ! -e /etc/apt/sources.list.d.save ]; then
     sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save
     sudo mkdir /etc/apt/sources.list.d
-    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
+    sudo mv /etc/apt/sources.list.d.save/*"${ppa_prefix}"*.list /etc/apt/sources.list.d/
     sudo mv /etc/apt/sources.list.d.save/*dotdeb*.list /etc/apt/sources.list.d/ 2>/dev/null || true
     trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/ 2>/dev/null" exit
   fi
@@ -20,9 +21,10 @@ cleanup_lists() {
 
 # Function to add ppa:ondrej/php.
 add_ppa() {
-  if ! apt-cache policy | grep -q ondrej/php; then
-    cleanup_lists
-    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
+  ppa=${1:-ondrej/php}
+  if ! apt-cache policy | grep -q "$ppa"; then
+    cleanup_lists "$(dirname "$ppa")"
+    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:"$ppa" -y
     if [ "$DISTRIB_RELEASE" = "16.04" ]; then
       sudo "$debconf_fix" apt-get update
     fi

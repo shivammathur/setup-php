@@ -207,7 +207,7 @@ add_packaged_php() {
 # Function to update PHP.
 update_php() {
   initial_version=$(php_semver)
-  use_package_cache="false" add_packaged_php
+  add_packaged_php
   updated_version=$(php_semver)
   if [ "$updated_version" != "$initial_version" ]; then
     status="Updated to"

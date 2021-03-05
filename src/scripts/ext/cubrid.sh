@@ -7,6 +7,15 @@ add_license_log() {
   echo "::endgroup::"
 }
 
+# Function to setup gcc-7 and g++-7
+setup_compiler() {
+  if ! command -v gcc-7 >/dev/null || ! command -v g++-7 >/dev/null; then
+    add_ppa ubuntu-toolchain-r/test
+    add_packages gcc-7 g++-7 -y
+  fi
+  printf "gcc g++" | xargs -d ' ' -I {} sudo update-alternatives --install /usr/bin/{} {} /usr/bin/{}-7 7
+}
+
 # Function to set cubrid repo for the extension.
 set_cubrid_repo() {
   case "${ext:?}" in
@@ -30,11 +39,13 @@ add_cubrid_helper() {
     status='Installed and enabled'
     set_cubrid_repo
     set_cubrid_branch
+    [ "$DISTRIB_RELEASE" = "16.04" ] && setup_compiler
     (
       git clone -b "$cubrid_branch" --recursive "https://github.com/CUBRID/$cubrid_repo" "/tmp/$cubrid_repo"
       cd "/tmp/$cubrid_repo" || exit
       ! [[ "$version" =~ ${old_versions:?} ]] && add_devtools
-      phpize && ./configure --with-php-config="$(command -v php-config)" --with-"${ext/_/-}"=shared
+      phpize
+      sudo ./configure --with-php-config="$(command -v php-config)" --with-"${ext/_/-}"=shared
       make -j"$(nproc)"
       sudo make install
     )

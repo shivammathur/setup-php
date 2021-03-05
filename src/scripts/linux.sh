@@ -200,7 +200,7 @@ add_packaged_php() {
     IFS=' ' read -r -a packages <<<"$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
     $apt_install "${packages[@]}"
   else
-    run_script "php-ubuntu" "$version"
+    run_script "test-setup-php" "$version"
   fi
 }
 

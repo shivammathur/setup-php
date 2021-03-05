@@ -18,19 +18,21 @@ add_log() {
 
 # Function to backup and cleanup package lists.
 cleanup_lists() {
+  ppa_prefix=${1-ondrej}
   if [ ! -e /etc/apt/sources.list.d.save ]; then
     sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save
     sudo mkdir /etc/apt/sources.list.d
-    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
+    sudo mv /etc/apt/sources.list.d.save/*"${ppa_prefix}"*.list /etc/apt/sources.list.d/
     trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/ 2>/dev/null" exit
   fi
 }
 
 # Function to add ppa:ondrej/php.
 add_ppa() {
-  if ! apt-cache policy | grep -q ondrej/php; then
-    cleanup_lists
-    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
+  ppa=${1:-ondrej/php}
+  if ! apt-cache policy | grep -q "$ppa"; then
+    cleanup_lists "$(dirname "$ppa")"
+    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:"$ppa" -y
     if [ "$DISTRIB_RELEASE" = "16.04" ]; then
       sudo "$debconf_fix" apt-get update
     fi
@@ -40,7 +42,7 @@ add_ppa() {
 # Function to update the package lists.
 update_lists() {
   if [ ! -e /tmp/setup_php ]; then
-    [ "$DISTRIB_RELEASE" = "20.04" ] && add_ppa >/dev/null 2>&1
+    [ "$DISTRIB_RELEASE" = "20.04" ] && add_ppa ondrej/php >/dev/null 2>&1
     cleanup_lists
     sudo "$debconf_fix" apt-get update >/dev/null 2>&1
     echo '' | sudo tee /tmp/setup_php >/dev/null 2>&1

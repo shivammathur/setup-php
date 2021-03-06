@@ -104,12 +104,34 @@ check_extension() {
   fi
 }
 
+# Function to enable cached extensions.
+enable_cache_extension() {
+  deps=()
+  for ext in /tmp/extcache/"$1"/*; do
+     deps+=("$(basename "$ext")")
+  done
+  if [ "x${deps[*]}" = "x" ]; then
+    sudo rm -rf /tmp/extcache/"$1"
+    enable_extension "$1" "$2"
+  else
+    deps+=("$1")
+    if php "${deps[@]/#/-d ${2}=}" -m 2>/dev/null | grep -i -q "$1"; then
+      for ext in "${deps[@]}"; do
+        sudo rm -rf /tmp/extcache/"$ext"
+        enable_extension "$ext" "$2"
+      done
+    fi
+  fi
+}
+
 # Function to enable existing extensions.
 enable_extension() {
   if [ -e /tmp/setup_php_dismod ] && grep -q "$1" /tmp/setup_php_dismod; then
     sudo phpenmod -v "$version" "$1" >/dev/null 2>&1
   fi
-  if ! check_extension "$1" && [ -e "${ext_dir:?}/$1.so" ]; then
+  if [ -d /tmp/extcache/"$1" ]; then
+    enable_cache_extension "$1" "$2"
+  elif ! check_extension "$1" && [ -e "${ext_dir:?}/$1.so" ]; then
     echo "$2=${ext_dir:?}/$1.so" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null
   fi
 }

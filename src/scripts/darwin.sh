@@ -116,7 +116,11 @@ link_libraries() {
   formula=$1
   formula_prefix="$(brew --prefix "$formula")"
   sudo mkdir -p "$formula_prefix"/lib
-  sudo cp -a "$formula_prefix"/lib/*.dylib "$brew_prefix/lib" 2>/dev/null || true
+  for lib in "$formula_prefix"/lib/*.dylib; do
+    lib_name=$(basename "$lib")
+    sudo cp -a "$lib" "$brew_prefix/lib/old_$lib_name" 2>/dev/null || true
+    sudo ln -sf "$brew_prefix"/lib/old_$lib_name "$brew_prefix/lib/$lib_name"
+  done
 }
 
 update_dependencies_helper() {

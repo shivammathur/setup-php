@@ -78,7 +78,7 @@ add_brew_extension() {
     add_brew_tap shivammathur/homebrew-php
     add_brew_tap shivammathur/homebrew-extensions
     sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$formula"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
-    brew install "$formula@$version" >/dev/null 2>&1
+    brew install -f "$formula@$version" >/dev/null 2>&1
     sudo cp "$brew_prefix/opt/$formula@$version/$extension.so" "$ext_dir"
     add_extension_log "$extension" "Installed and enabled"
   fi
@@ -92,7 +92,7 @@ add_extension() {
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
-    [[ "$version" =~ 5.[4-5] ]] && [ "$extension" = "imagick" ] && brew install pkg-config imagemagick >/dev/null 2>&1
+    [[ "$version" =~ 5.[4-5] ]] && [ "$extension" = "imagick" ] && brew install -f pkg-config imagemagick >/dev/null 2>&1
     pecl_install "$extension" >/dev/null 2>&1 &&
       if [[ "$version" =~ ${old_versions:?} ]]; then echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"; fi
     add_extension_log "$extension" "Installed and enabled"
@@ -144,7 +144,7 @@ add_php() {
   if ! [[ "$(find "$(brew --cellar)"/php/ -maxdepth 1 -name "$version*" | wc -l 2>/dev/null)" -eq 0 ]] && [ "$action" != "upgrade" ]; then
     brew unlink shivammathur/php/php@"$version"
   else
-    brew upgrade "shivammathur/php/php@$version" 2>/dev/null || brew install "shivammathur/php/php@$version"
+    brew upgrade -f "shivammathur/php/php@$version" 2>/dev/null || brew install -f "shivammathur/php/php@$version"
   fi
   brew link --force --overwrite shivammathur/php/php@"$version"
 }

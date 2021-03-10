@@ -16,21 +16,35 @@ add_log() {
   fi
 }
 
-# Function to backup and cleanup package lists
+# Function to backup and cleanup package lists.
 cleanup_lists() {
   if [ ! -e /etc/apt/sources.list.d.save ]; then
-    sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save || true
+    sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save
     sudo mkdir /etc/apt/sources.list.d
-    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/ || true
+    sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
+    sudo mv /etc/apt/sources.list.d.save/*dotdeb*.list /etc/apt/sources.list.d/ 2>/dev/null || true
     trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/ 2>/dev/null" exit
   fi
 }
 
-# Function to update php ppa
+# Function to add ppa:ondrej/php.
+add_ppa() {
+  if ! apt-cache policy | grep -q ondrej/php; then
+    cleanup_lists
+    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y
+    if [ "$DISTRIB_RELEASE" = "16.04" ]; then
+      sudo "$debconf_fix" apt-get update
+    fi
+  fi
+}
+
+# Function to update the package lists.
 update_lists() {
-  if [ "$lists_updated" = "false" ]; then
-    cleanup_lists >/dev/null 2>&1
+  if [ ! -e /tmp/setup_php ]; then
+    [ "$DISTRIB_RELEASE" = "20.04" ] && add_ppa >/dev/null 2>&1
+    cleanup_lists
     sudo "$debconf_fix" apt-get update >/dev/null 2>&1
+    echo '' | sudo tee /tmp/setup_php >/dev/null 2>&1
   fi
 }
 
@@ -237,6 +251,16 @@ setup_master() {
   curl "${curl_opts[@]}" https://github.com/shivammathur/php-builder/releases/latest/download/install.sh | bash -s "github"
 }
 
+add_packaged_php() {
+  if [ "${use_package_cache:-true}" = "false" ]; then
+    update_lists
+    IFS=' ' read -r -a packages <<<"$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
+    $apt_install "${packages[@]}"
+  else
+    curl "${curl_opts[@]}" https://github.com/shivammathur/php-ubuntu/releases/latest/download/install.sh | bash -s "$version"
+  fi
+}
+
 # Function to setup PECL
 add_pecl() {
   add_devtools
@@ -277,7 +301,6 @@ configure_php() {
 # Variables
 tick="✓"
 cross="✗"
-lists_updated="false"
 version=$1
 dist=$2
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
@@ -293,21 +316,13 @@ existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
 step_log "Setup PHP"
 sudo mkdir -m 777 -p "$HOME/.composer" /var/run /run/php
 . /etc/lsb-release
-if [ "$DISTRIB_RELEASE" = "20.04" ]; then
-  if ! apt-cache policy | grep -q ondrej/php; then
-    cleanup_lists >/dev/null 2>&1
-    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:ondrej/php -y >/dev/null 2>&1
-  fi
-fi
 
 if [ "$existing_version" != "$version" ]; then
   if [ ! -e "/usr/bin/php$version" ]; then
     if [ "$version" = "8.0" ]; then
       setup_master >/dev/null 2>&1
     else
-      update_lists
-      IFS=' ' read -r -a packages <<< "$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
-      $apt_install "${packages[@]}" >/dev/null 2>&1
+      add_packaged_php >/dev/null 2>&1
     fi
     status="Installed"
   else

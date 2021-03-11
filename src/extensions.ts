@@ -24,6 +24,19 @@ export async function addExtensionDarwin(
       case /^:/.test(ext_name):
         remove_script += '\nremove_extension ' + ext_name.slice(1);
         return;
+      // match extensions from GitHub. Do this before checking for semver as
+      // the version may match that as well
+      case /.+-.+\/.+@.+/.test(extension):
+        matches = /.+-(.+)\/(.+)@(.+)/.exec(extension) as RegExpExecArray;
+        add_script += await utils.joins(
+          '\nadd_extension_from_github',
+          ext_name,
+          matches[1],
+          matches[2],
+          matches[3],
+          ext_prefix
+        );
+        return;
       // match 5.3blackfire...8.0blackfire
       // match 5.3blackfire-(semver)...8.0blackfire-(semver)
       // match couchbase, pdo_oci, oci8, http, pecl_http
@@ -50,19 +63,6 @@ export async function addExtensionDarwin(
           '\nadd_unstable_extension',
           ext_name,
           ext_version,
-          ext_prefix
-        );
-        return;
-      // match extensions from GitHub. Do this before checking for semver as
-      // the version may match that as well
-      case /.+-.+\/.+@.+/.test(extension):
-        matches = /.+-(.+)\/(.+)@(.+)/.exec(extension) as RegExpExecArray;
-        add_script += await utils.joins(
-          '\nadd_extension_from_github',
-          ext_name,
-          matches[1],
-          matches[2],
-          matches[3],
           ext_prefix
         );
         return;
@@ -243,6 +243,19 @@ export async function addExtensionLinux(
       case /^:/.test(ext_name):
         remove_script += '\nremove_extension ' + ext_name.slice(1);
         return;
+      // match extensions from GitHub. Do this before checking for semver as
+      // the version may match that as well
+      case /.+-.+\/.+@.+/.test(extension):
+        matches = /.+-(.+)\/(.+)@(.+)/.exec(extension) as RegExpExecArray;
+        add_script += await utils.joins(
+          '\nadd_extension_from_github',
+          ext_name,
+          matches[1],
+          matches[2],
+          matches[3],
+          ext_prefix
+        );
+        return;
       // match 5.3blackfire...8.0blackfire
       // match 5.3blackfire-(semver)...8.0blackfire-(semver)
       // match 5.3pdo_cubrid...7.2php_cubrid, 5.3cubrid...7.4cubrid
@@ -276,19 +289,6 @@ export async function addExtensionLinux(
           '\nadd_unstable_extension',
           ext_name,
           ext_version,
-          ext_prefix
-        );
-        return;
-      // match extensions from GitHub. Do this before checking for semver as
-      // the version may match that as well
-      case /.+-.+\/.+@.+/.test(extension):
-        matches = /.+-(.+)\/(.+)@(.+)/.exec(extension) as RegExpExecArray;
-        add_script += await utils.joins(
-          '\nadd_extension_from_github',
-          ext_name,
-          matches[1],
-          matches[2],
-          matches[3],
           ext_prefix
         );
         return;

@@ -319,23 +319,24 @@ add_extension_from_github() {
   repo=$3
   release=$4
   prefix=$5
+  slug="$extension-$org/$repo@$release"
   IFS=' ' read -r -a libs <<< "$(parse_args "$extension" LIBS)"
   IFS=' ' read -r -a opts <<< "$(parse_args "$extension" CONFIGURE_OPTS)"
   IFS=' ' read -r -a prefix_opts <<< "$(parse_args "$extension" CONFIGURE_PREFIX_OPTS)"
   IFS=' ' read -r -a suffix_opts <<< "$(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"
   (
-    add_devtools phpize
+    add_devtools phpize >/dev/null
     delete_extension "$extension"
-    git clone -n https://github.com/"$org"/"$repo" /tmp/"$repo-$release" || exit 1
+    git clone -q -n https://github.com/"$org"/"$repo" /tmp/"$repo-$release"
     cd /tmp/"$repo-$release" || exit 1
-    git checkout "$release" || exit 1
-    git submodule update --init --recursive || exit 1
+    git checkout -q "$release" && git submodule -q update --init --recursive
     add_libs "${libs[@]}"
-    phpize
-    sudo "${prefix_opts[@]}" ./configure "${suffix_opts[@]}" "${opts[@]}"
-    sudo make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)"
-    sudo make install
+    phpize && sudo "${prefix_opts[@]}" ./configure "${suffix_opts[@]}" "${opts[@]}"
+    sudo make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)" && sudo make install
     enable_extension "$extension" "$prefix"
-  ) >/dev/null 2>&1
-  add_extension_log "$extension-$org/$repo@$release" "Installed and enabled"
+  ) | sudo tee "/tmp/$extension@$release.log" >/dev/null
+  add_extension_log "$slug" "Installed and enabled"
+  printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "$slug" "Click to get the logs of compiling $extension"
+  cat "/tmp/$extension@$release.log"
+  echo "::endgroup::"
 }

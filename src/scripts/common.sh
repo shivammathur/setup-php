@@ -291,6 +291,16 @@ php_src_tag() {
   echo "$php_src_tag"
 }
 
+# Function to add required libraries
+add_libs() {
+  libs=("$@")
+  if [ "$(uname -s)" = "Linux" ]; then
+    install_packages "${libs[@]}"
+  else
+    brew install "${libs[@]}"
+  fi
+}
+
 # Function to install extension from a GitHub repository
 add_extension_from_github() {
   extension=$1
@@ -298,6 +308,8 @@ add_extension_from_github() {
   repo=$3
   release=$4
   prefix=$5
+  libs_var="${extension}_LIBS"
+  IFS=' ' read -r -a libs <<< "${!libs_var}"
   (
     add_devtools phpize
     delete_extension "$extension"
@@ -305,6 +317,7 @@ add_extension_from_github() {
     cd /tmp/"$repo-$release" || exit 1
     git checkout "$release" || exit 1
     git submodule update --init --recursive || exit 1
+    add_libs "${libs[@]}"
     phpize && ./configure && make -j"$(nproc)" && sudo make install
     enable_extension "$extension" "$prefix"
   ) >/dev/null 2>&1

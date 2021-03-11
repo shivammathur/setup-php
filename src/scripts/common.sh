@@ -35,12 +35,9 @@ add_log() {
 
 # Function to log result of installing extension.
 add_extension_log() {
-  extension=$1
-  status=$2
-  extension_name=$(echo "$extension" | cut -d '-' -f 1)
   (
-    check_extension "$extension_name" && add_log "$tick" "$extension_name" "$status"
-  ) || add_log "$cross" "$extension_name" "Could not install $extension on PHP ${semver:?}"
+    check_extension "$(echo "$1" | cut -d '-' -f 1)" && add_log "$tick" "$1" "$2"
+  ) || add_log "$cross" "$1" "Could not install $1 on PHP ${semver:?}"
 }
 
 # Function to read env inputs.

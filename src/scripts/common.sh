@@ -329,11 +329,16 @@ add_extension_from_github() {
     delete_extension "$extension"
     git clone -q -n https://github.com/"$org"/"$repo" /tmp/"$repo-$release"
     cd /tmp/"$repo-$release" || exit 1
-    git checkout -q "$release" && git submodule -q update --init --recursive
-    add_libs "${libs[@]}"
-    phpize && sudo "${prefix_opts[@]}" ./configure "${suffix_opts[@]}" "${opts[@]}"
-    sudo make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)" && sudo make install
-    enable_extension "$extension" "$prefix"
+    git checkout -q "$release"
+    if [ "$(find . -maxdepth 1 -name '*.m4' -exec grep -H 'PHP_NEW_EXTENSION' {} \;| wc -l)" != "0" ]; then
+      git submodule -q update --init --recursive
+      add_libs "${libs[@]}"
+      phpize && sudo "${prefix_opts[@]}" ./configure "${suffix_opts[@]}" "${opts[@]}"
+      sudo make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)" && sudo make install
+      enable_extension "$extension" "$prefix"
+    else
+      add_log "$cross" "$slug" "Provided repository does not contain a PHP extension"
+    fi
   ) | sudo tee "/tmp/$extension@$release.log" >/dev/null
   add_extension_log "$slug" "Installed and enabled"
   printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "$slug" "Click to get the logs of compiling $extension"

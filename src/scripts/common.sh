@@ -291,6 +291,17 @@ php_src_tag() {
   echo "$php_src_tag"
 }
 
+# Function to parse extension environment variables
+parse_args() {
+  extension=$1
+  suffix=$2
+  up_extension=$(echo "$extension" | tr '[:lower:]' '[:upper:]')
+  var="${extension}_${suffix}"
+  up_var="${up_extension}_${suffix}"
+  output=$(echo "${!var} ${!up_var}" | sed "s/, */ /g")
+  echo "$output" | xargs -n 1 | sort | uniq | xargs
+}
+
 # Function to add required libraries
 add_libs() {
   libs=("$@")
@@ -308,8 +319,10 @@ add_extension_from_github() {
   repo=$3
   release=$4
   prefix=$5
-  libs_var="${extension}_LIBS"
-  IFS=' ' read -r -a libs <<< "${!libs_var}"
+  IFS=' ' read -r -a libs <<< "$(parse_args "$extension" LIBS)"
+  IFS=' ' read -r -a opts <<< "$(parse_args "$extension" CONFIGURE_OPTS)"
+  IFS=' ' read -r -a prefix_opts <<< "$(parse_args "$extension" CONFIGURE_PREFIX_OPTS)"
+  IFS=' ' read -r -a suffix_opts <<< "$(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"
   (
     add_devtools phpize
     delete_extension "$extension"
@@ -318,7 +331,10 @@ add_extension_from_github() {
     git checkout "$release" || exit 1
     git submodule update --init --recursive || exit 1
     add_libs "${libs[@]}"
-    phpize && ./configure && make -j"$(nproc)" && sudo make install
+    phpize
+    sudo "${prefix_opts[@]}" ./configure "${suffix_opts[@]}" "${opts[@]}"
+    sudo make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)"
+    sudo make install
     enable_extension "$extension" "$prefix"
   ) >/dev/null 2>&1
   add_extension_log "$extension-$org/$repo@$release" "Installed and enabled"

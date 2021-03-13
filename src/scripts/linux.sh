@@ -162,7 +162,7 @@ add_devtools() {
 # Function to setup the nightly build from shivammathur/php-builder
 setup_nightly() {
   run_script "php-builder" "$runner" "$version"
-  extra_version="($(cat "/etc/php/$version/COMMIT"))"
+  extra_version="-dev ($(cat "/etc/php/$version/COMMIT"))"
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
@@ -275,7 +275,7 @@ setup_php() {
   sudo rm -rf /usr/local/bin/phpunit >/dev/null 2>&1
   sudo chmod 777 "${ini_file[@]}" "$pecl_file" "${tool_path_dir:?}"
   sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
-  add_log "${tick:?}" "PHP" "$status PHP $semver $extra_version"
+  add_log "${tick:?}" "PHP" "$status PHP $semver$extra_version"
 }
 
 # Variables

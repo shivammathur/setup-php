@@ -259,4 +259,31 @@ describe('Utils tests', () => {
       await utils.customPackage('pkg8', 'ext', '1.2.3', 'linux')
     ).toContain(script_path + '\nadd_pkg 1.2.3');
   });
+
+  it('checking parseExtensionSource', async () => {
+    expect(
+      await utils.parseExtensionSource(
+        'ext-org-name/repo-name@release',
+        'extension'
+      )
+    ).toContain(
+      '\nadd_extension_from_source ext https://github.com org-name repo-name . release extension'
+    );
+    expect(
+      await utils.parseExtensionSource(
+        'ext-https://sub.domain.tld/org/repo@release',
+        'extension'
+      )
+    ).toContain(
+      '\nadd_extension_from_source ext https://sub.domain.tld org repo . release extension'
+    );
+    expect(
+      await utils.parseExtensionSource(
+        'ext-https://sub.domain.XN--tld/org/repo/sub/dir@release',
+        'extension'
+      )
+    ).toContain(
+      '\nadd_extension_from_source ext https://sub.domain.XN--tld org repo sub/dir release extension'
+    );
+  });
 });

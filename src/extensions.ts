@@ -17,25 +17,15 @@ export async function addExtensionDarwin(
     const version_extension: string = version + extension;
     const [ext_name, ext_version]: string[] = extension.split('-');
     const ext_prefix = await utils.getExtensionPrefix(ext_name);
-    let matches: RegExpExecArray;
 
     switch (true) {
       // match :extension
       case /^:/.test(ext_name):
         remove_script += '\nremove_extension ' + ext_name.slice(1);
         return;
-      // match extensions from GitHub. Do this before checking for semver as
-      // the version may match that as well
+      // match extensions for compiling from source.
       case /.+-.+\/.+@.+/.test(extension):
-        matches = /.+-(.+)\/(.+)@(.+)/.exec(extension) as RegExpExecArray;
-        add_script += await utils.joins(
-          '\nadd_extension_from_github',
-          ext_name,
-          matches[1],
-          matches[2],
-          matches[3],
-          ext_prefix
-        );
+        add_script += await utils.parseExtensionSource(extension, ext_prefix);
         return;
       // match 5.3blackfire...8.0blackfire
       // match 5.3blackfire-(semver)...8.0blackfire-(semver)
@@ -236,25 +226,15 @@ export async function addExtensionLinux(
     const version_extension: string = version + extension;
     const [ext_name, ext_version]: string[] = extension.split('-');
     const ext_prefix = await utils.getExtensionPrefix(ext_name);
-    let matches: RegExpExecArray;
 
     switch (true) {
       // Match :extension
       case /^:/.test(ext_name):
         remove_script += '\nremove_extension ' + ext_name.slice(1);
         return;
-      // match extensions from GitHub. Do this before checking for semver as
-      // the version may match that as well
+      // match extensions for compiling from source.
       case /.+-.+\/.+@.+/.test(extension):
-        matches = /.+-(.+)\/(.+)@(.+)/.exec(extension) as RegExpExecArray;
-        add_script += await utils.joins(
-          '\nadd_extension_from_github',
-          ext_name,
-          matches[1],
-          matches[2],
-          matches[3],
-          ext_prefix
-        );
+        add_script += await utils.parseExtensionSource(extension, ext_prefix);
         return;
       // match 5.3blackfire...8.0blackfire
       // match 5.3blackfire-(semver)...8.0blackfire-(semver)

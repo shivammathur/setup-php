@@ -438,3 +438,25 @@ export async function customPackage(
   const command: string = await getCommand(os_version, pkg_name);
   return '\n. ' + script + '\n' + command + version;
 }
+
+/**
+ * Function to extension input for installation from source.
+ *
+ * @param extension
+ */
+export async function parseExtensionSource(
+  extension: string,
+  prefix: string
+): Promise<string> {
+  // Groups: extension, domain url, org, repo, subdirectory, release
+  // https://regex101.com/r/P3rJiy/1
+  const regex = /(\w+)-(.+:\/\/.+(?:[.:][^/]+)+)?(?:\/)?([^/]+)\/([^/]+)(?:\/)?(.+)*@(.+)/;
+  const matches = regex.exec(extension) as RegExpExecArray;
+  matches[2] = matches[2] ?? 'https://github.com';
+  matches[5] = matches[5] ?? '.';
+  return await joins(
+    '\nadd_extension_from_source',
+    ...matches.splice(1, matches.length),
+    prefix
+  );
+}

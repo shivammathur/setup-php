@@ -312,23 +312,26 @@ add_libs() {
   fi
 }
 
-# Function to install extension from a GitHub repository
-add_extension_from_github() {
+# Function to install extension from a git repository
+add_extension_from_source() {
   extension=$1
-  org=$2
-  repo=$3
-  release=$4
-  prefix=$5
-  slug="$extension-$org/$repo@$release"
+  domain=$2
+  org=$3
+  repo=$4
+  sub_dir=$5
+  release=$6
+  prefix=$7
+  slug="$extension-$release"
   IFS=' ' read -r -a libs <<< "$(parse_args "$extension" LIBS)"
   IFS=' ' read -r -a opts <<< "$(parse_args "$extension" CONFIGURE_OPTS)"
   IFS=' ' read -r -a prefix_opts <<< "$(parse_args "$extension" CONFIGURE_PREFIX_OPTS)"
   IFS=' ' read -r -a suffix_opts <<< "$(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"
+  printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "$slug" "Click for $extension installation logs"
   (
     add_devtools phpize >/dev/null
     delete_extension "$extension"
-    git clone -q -n https://github.com/"$org"/"$repo" /tmp/"$repo-$release"
-    cd /tmp/"$repo-$release" || exit 1
+    git clone -q -n "$domain/$org/$repo" /tmp/"$repo-$release"
+    cd /tmp/"$repo-$release/$sub_dir" || exit 1
     git checkout -q "$release"
     if [ "$(find . -maxdepth 1 -name '*.m4' -exec grep -H 'PHP_NEW_EXTENSION' {} \;| wc -l)" != "0" ]; then
       git submodule -q update --init --recursive
@@ -337,11 +340,9 @@ add_extension_from_github() {
       sudo make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)" && sudo make install
       enable_extension "$extension" "$prefix"
     else
-      add_log "$cross" "$slug" "Provided repository does not contain a PHP extension"
+      add_log "$cross" "$domain/$org/$repo" "Provided repository does not contain a PHP extension"
     fi
-  ) | sudo tee "/tmp/$extension@$release.log" >/dev/null
-  add_extension_log "$slug" "Installed and enabled"
-  printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "$slug" "Click to get the logs of compiling $extension"
-  cat "/tmp/$extension@$release.log"
+  )
   echo "::endgroup::"
+  add_extension_log "$slug" "Installed and enabled from $domain/$org/$repo"
 }

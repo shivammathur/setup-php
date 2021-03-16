@@ -1805,17 +1805,14 @@ async function addExtensionDarwin(extension_csv, version) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
-        let matches;
         switch (true) {
             // match :extension
             case /^:/.test(ext_name):
                 remove_script += '\nremove_extension ' + ext_name.slice(1);
                 return;
-            // match extensions from GitHub. Do this before checking for semver as
-            // the version may match that as well
+            // match extensions for compiling from source.
             case /.+-.+\/.+@.+/.test(extension):
-                matches = /.+-(.+)\/(.+)@(.+)/.exec(extension);
-                add_script += await utils.joins('\nadd_extension_from_github', ext_name, matches[1], matches[2], matches[3], ext_prefix);
+                add_script += await utils.parseExtensionSource(extension, ext_prefix);
                 return;
             // match 5.3blackfire...8.0blackfire
             // match 5.3blackfire-(semver)...8.0blackfire-(semver)
@@ -1958,17 +1955,14 @@ async function addExtensionLinux(extension_csv, version) {
         const version_extension = version + extension;
         const [ext_name, ext_version] = extension.split('-');
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
-        let matches;
         switch (true) {
             // Match :extension
             case /^:/.test(ext_name):
                 remove_script += '\nremove_extension ' + ext_name.slice(1);
                 return;
-            // match extensions from GitHub. Do this before checking for semver as
-            // the version may match that as well
+            // match extensions for compiling from source.
             case /.+-.+\/.+@.+/.test(extension):
-                matches = /.+-(.+)\/(.+)@(.+)/.exec(extension);
-                add_script += await utils.joins('\nadd_extension_from_github', ext_name, matches[1], matches[2], matches[3], ext_prefix);
+                add_script += await utils.parseExtensionSource(extension, ext_prefix);
                 return;
             // match 5.3blackfire...8.0blackfire
             // match 5.3blackfire-(semver)...8.0blackfire-(semver)
@@ -2644,7 +2638,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.fetch = exports.getInput = exports.readEnv = void 0;
+exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.fetch = exports.getInput = exports.readEnv = void 0;
 const fs = __importStar(__nccwpck_require__(747));
 const https = __importStar(__nccwpck_require__(211));
 const path = __importStar(__nccwpck_require__(622));
@@ -3002,6 +2996,22 @@ async function customPackage(pkg, type, version, os_version) {
     return '\n. ' + script + '\n' + command + version;
 }
 exports.customPackage = customPackage;
+/**
+ * Function to extension input for installation from source.
+ *
+ * @param extension
+ */
+async function parseExtensionSource(extension, prefix) {
+    var _a, _b;
+    // Groups: extension, domain url, org, repo, subdirectory, release
+    // https://regex101.com/r/P3rJiy/1
+    const regex = /(\w+)-(.+:\/\/.+(?:[.:][^/]+)+)?(?:\/)?([^/]+)\/([^/]+)(?:\/)?(.+)*@(.+)/;
+    const matches = regex.exec(extension);
+    matches[2] = (_a = matches[2]) !== null && _a !== void 0 ? _a : 'https://github.com';
+    matches[5] = (_b = matches[5]) !== null && _b !== void 0 ? _b : '.';
+    return await joins('\nadd_extension_from_source', ...matches.splice(1, matches.length), prefix);
+}
+exports.parseExtensionSource = parseExtensionSource;
 
 
 /***/ }),

@@ -215,7 +215,8 @@ configure_composer() {
     exit 1
   fi
   if ! [ -e "$composer_json" ]; then
-    echo '{}' | tee "$composer_json" >/dev/null 2>&1
+    sudo mkdir -p "$(dirname "$composer_json")"
+    echo '{}' | tee "$composer_json" >/dev/null
     sudo chmod 644 "$composer_json"
   fi
   composer -q config -g process-timeout 0

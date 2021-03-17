@@ -287,6 +287,7 @@ apt_remove="sudo $debconf_fix apt-fast remove -y"
 scripts="${dist}"/../src/scripts
 
 # shellcheck source=.
+. "${scripts:?}"/ext/source.sh
 . "${scripts:?}"/tools/add_tools.sh
 . "${scripts:?}"/common.sh
 . /etc/lsb-release

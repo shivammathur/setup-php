@@ -29,7 +29,7 @@ add_log() {
     printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
   else
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
-    [ "$fail_fast" = "true" ] && exit 1;
+    [ "$fail_fast" = "true" ] && exit 1
   fi
 }
 
@@ -105,7 +105,7 @@ check_extension() {
 enable_cache_extension() {
   deps=()
   for ext in /tmp/extcache/"$1"/*; do
-     deps+=("$(basename "$ext")")
+    deps+=("$(basename "$ext")")
   done
   if [ "x${deps[*]}" = "x" ]; then
     sudo rm -rf /tmp/extcache/"$1"
@@ -217,7 +217,7 @@ configure_composer() {
     sudo chmod 644 "$composer_json"
   fi
   composer -q config -g process-timeout 0
-  echo "$composer_bin" >> "$GITHUB_PATH"
+  echo "$composer_bin" >>"$GITHUB_PATH"
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q config -g github-oauth.github.com "$COMPOSER_TOKEN"
   fi
@@ -229,14 +229,14 @@ add_tool() {
   tool=$2
   ver_param=$3
   tool_path="$tool_path_dir/$tool"
-  if ! [[ "$PATH" =~ $tool_path_dir ]] ; then
+  if ! [[ "$PATH" =~ $tool_path_dir ]]; then
     export PATH=$PATH:"$tool_path_dir"
     echo "export PATH=\$PATH:$tool_path_dir" | sudo tee -a "$GITHUB_ENV" >/dev/null
   fi
   if [ ! -e "$tool_path" ]; then
     rm -rf "$tool_path"
   fi
-  IFS="," read -r -a url <<< "$url"
+  IFS="," read -r -a url <<<"$url"
   status_code=$(get -v -e "$tool_path" "${url[@]}")
   if [ "$status_code" != "200" ] && [[ "${url[0]}" =~ .*github.com.*releases.*latest.* ]]; then
     url[0]="${url[0]//releases\/latest\/download/releases/download/$(get -s -n "" "$(echo "${url[0]}" | cut -d '/' -f '1-5')/releases" | grep -Eo -m 1 "([0-9]+\.[0-9]+\.[0-9]+)/$(echo "${url[0]}" | sed -e "s/.*\///")" | cut -d '/' -f 1)}"
@@ -268,8 +268,8 @@ add_composertool() {
     sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
     composer global require "$prefix$release" >/dev/null 2>&1
     json=$(grep "$prefix$tool" "$composer_json") &&
-    tool_version=$(get_tool_version 'echo' "$json") &&
-    add_log "$tick" "$tool" "Added $tool $tool_version"
+      tool_version=$(get_tool_version 'echo' "$json") &&
+      add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
   add_tools_helper "$tool"
   if [ -e "$composer_bin/composer" ]; then
@@ -289,60 +289,4 @@ php_src_tag() {
     php_src_tag="php-$semver"
   fi
   echo "$php_src_tag"
-}
-
-# Function to parse extension environment variables
-parse_args() {
-  extension=$1
-  suffix=$2
-  up_extension=$(echo "$extension" | tr '[:lower:]' '[:upper:]')
-  var="${extension}_${suffix}"
-  up_var="${up_extension}_${suffix}"
-  output=$(echo "${!var} ${!up_var}" | sed "s/, */ /g")
-  echo "$output" | xargs -n 1 | sort | uniq | xargs
-}
-
-# Function to add required libraries
-add_libs() {
-  libs=("$@")
-  if [ "$(uname -s)" = "Linux" ]; then
-    install_packages "${libs[@]}"
-  else
-    brew install "${libs[@]}"
-  fi
-}
-
-# Function to install extension from a git repository
-add_extension_from_source() {
-  extension=$1
-  domain=$2
-  org=$3
-  repo=$4
-  sub_dir=$5
-  release=$6
-  prefix=$7
-  slug="$extension-$release"
-  IFS=' ' read -r -a libs <<< "$(parse_args "$extension" LIBS)"
-  IFS=' ' read -r -a opts <<< "$(parse_args "$extension" CONFIGURE_OPTS)"
-  IFS=' ' read -r -a prefix_opts <<< "$(parse_args "$extension" CONFIGURE_PREFIX_OPTS)"
-  IFS=' ' read -r -a suffix_opts <<< "$(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"
-  printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "$slug" "Click for $extension installation logs"
-  (
-    add_devtools phpize >/dev/null
-    delete_extension "$extension"
-    git clone -q -n "$domain/$org/$repo" /tmp/"$repo-$release"
-    cd /tmp/"$repo-$release/$sub_dir" || exit 1
-    git checkout -q "$release"
-    if [ "$(find . -maxdepth 1 -name '*.m4' -exec grep -H 'PHP_NEW_EXTENSION' {} \;| wc -l)" != "0" ]; then
-      git submodule -q update --init --recursive
-      add_libs "${libs[@]}"
-      phpize && sudo "${prefix_opts[@]}" ./configure "${suffix_opts[@]}" "${opts[@]}"
-      sudo make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)" && sudo make install
-      enable_extension "$extension" "$prefix"
-    else
-      add_log "$cross" "$domain/$org/$repo" "Provided repository does not contain a PHP extension"
-    fi
-  )
-  echo "::endgroup::"
-  add_extension_log "$slug" "Installed and enabled from $domain/$org/$repo"
 }

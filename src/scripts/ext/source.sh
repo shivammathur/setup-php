@@ -64,8 +64,9 @@ add_extension_from_source() {
     add_devtools phpize >/dev/null
     delete_extension "$extension"
     run_group "git clone -nv $domain/$org/$repo /tmp/$repo-$release" "git clone"
-    cd /tmp/"$repo-$release/$sub_dir" || exit 1
+    cd /tmp/"$repo-$release" || exit 1
     git checkout -q "$release"
+    cd $sub_dir || exit 1
     if ! [ "$(find . -maxdepth 1 -name '*.m4' -exec grep -H 'PHP_NEW_EXTENSION' {} \; | wc -l)" != "0" ]; then
       add_log "${cross:?}" "$domain/$org/$repo" "$domain/$org/$repo does not have a PHP extension"
     else

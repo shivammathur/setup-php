@@ -1677,10 +1677,14 @@ const config = __importStar(__nccwpck_require__(373));
  * @param pipe
  */
 async function addCoverageXdebug(extension, version, os_version, pipe) {
-    const xdebug = (await extensions.addExtension(extension, version, os_version, true)) +
-        pipe;
-    const log = await utils.addLog('$tick', extension, 'Xdebug enabled as coverage driver', os_version);
-    return xdebug + '\n' + log;
+    let script = '\n';
+    script +=
+        (await extensions.addExtension(':pcov', version, os_version, true)) + pipe;
+    script +=
+        (await extensions.addExtension(extension, version, os_version, true)) +
+            pipe;
+    script += await utils.addLog('$tick', extension, 'Xdebug enabled as coverage driver', os_version);
+    return script;
 }
 exports.addCoverageXdebug = addCoverageXdebug;
 /**
@@ -1695,21 +1699,13 @@ async function addCoveragePCOV(version, os_version, pipe) {
     switch (true) {
         default:
             script +=
+                (await extensions.addExtension(':xdebug', version, os_version, true)) +
+                    pipe;
+            script +=
                 (await extensions.addExtension('pcov', version, os_version, true)) +
-                    pipe +
-                    '\n';
+                    pipe;
             script +=
                 (await config.addINIValues('pcov.enabled=1', os_version, true)) + '\n';
-            // add command to disable xdebug and enable pcov
-            switch (os_version) {
-                case 'linux':
-                case 'darwin':
-                    script += 'remove_extension xdebug' + pipe + '\n';
-                    break;
-                case 'win32':
-                    script += 'Remove-Extension xdebug' + pipe + '\n';
-                    break;
-            }
             // success
             script += await utils.addLog('$tick', 'coverage: pcov', 'PCOV enabled as coverage driver', os_version);
             // version is not supported
@@ -1730,17 +1726,11 @@ exports.addCoveragePCOV = addCoveragePCOV;
  */
 async function disableCoverage(version, os_version, pipe) {
     let script = '\n';
-    switch (os_version) {
-        case 'linux':
-        case 'darwin':
-            script += 'remove_extension xdebug' + pipe + '\n';
-            script += 'remove_extension pcov' + pipe + '\n';
-            break;
-        case 'win32':
-            script += 'Remove-Extension xdebug' + pipe + '\n';
-            script += 'Remove-Extension pcov' + pipe + '\n';
-            break;
-    }
+    script +=
+        (await extensions.addExtension(':pcov', version, os_version, true)) + pipe;
+    script +=
+        (await extensions.addExtension(':xdebug', version, os_version, true)) +
+            pipe;
     script += await utils.addLog('$tick', 'none', 'Disabled Xdebug and PCOV', os_version);
     return script;
 }
@@ -1755,7 +1745,7 @@ exports.disableCoverage = disableCoverage;
 async function addCoverage(coverage_driver, version, os_version) {
     coverage_driver = coverage_driver.toLowerCase();
     const script = '\n' + (await utils.stepLog('Setup Coverage', os_version));
-    const pipe = await utils.suppressOutput(os_version);
+    const pipe = (await utils.suppressOutput(os_version)) + '\n';
     switch (coverage_driver) {
         case 'pcov':
             return script + (await addCoveragePCOV(version, os_version, pipe));

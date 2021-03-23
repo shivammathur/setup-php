@@ -16,16 +16,19 @@ export async function addCoverageXdebug(
   os_version: string,
   pipe: string
 ): Promise<string> {
-  const xdebug =
+  let script = '\n';
+  script +=
+    (await extensions.addExtension(':pcov', version, os_version, true)) + pipe;
+  script +=
     (await extensions.addExtension(extension, version, os_version, true)) +
     pipe;
-  const log = await utils.addLog(
+  script += await utils.addLog(
     '$tick',
     extension,
     'Xdebug enabled as coverage driver',
     os_version
   );
-  return xdebug + '\n' + log;
+  return script;
 }
 
 /**
@@ -44,22 +47,13 @@ export async function addCoveragePCOV(
   switch (true) {
     default:
       script +=
+        (await extensions.addExtension(':xdebug', version, os_version, true)) +
+        pipe;
+      script +=
         (await extensions.addExtension('pcov', version, os_version, true)) +
-        pipe +
-        '\n';
+        pipe;
       script +=
         (await config.addINIValues('pcov.enabled=1', os_version, true)) + '\n';
-
-      // add command to disable xdebug and enable pcov
-      switch (os_version) {
-        case 'linux':
-        case 'darwin':
-          script += 'remove_extension xdebug' + pipe + '\n';
-          break;
-        case 'win32':
-          script += 'Remove-Extension xdebug' + pipe + '\n';
-          break;
-      }
 
       // success
       script += await utils.addLog(
@@ -97,17 +91,11 @@ export async function disableCoverage(
   pipe: string
 ): Promise<string> {
   let script = '\n';
-  switch (os_version) {
-    case 'linux':
-    case 'darwin':
-      script += 'remove_extension xdebug' + pipe + '\n';
-      script += 'remove_extension pcov' + pipe + '\n';
-      break;
-    case 'win32':
-      script += 'Remove-Extension xdebug' + pipe + '\n';
-      script += 'Remove-Extension pcov' + pipe + '\n';
-      break;
-  }
+  script +=
+    (await extensions.addExtension(':pcov', version, os_version, true)) + pipe;
+  script +=
+    (await extensions.addExtension(':xdebug', version, os_version, true)) +
+    pipe;
   script += await utils.addLog(
     '$tick',
     'none',
@@ -133,7 +121,7 @@ export async function addCoverage(
   coverage_driver = coverage_driver.toLowerCase();
   const script: string =
     '\n' + (await utils.stepLog('Setup Coverage', os_version));
-  const pipe: string = await utils.suppressOutput(os_version);
+  const pipe: string = (await utils.suppressOutput(os_version)) + '\n';
   switch (coverage_driver) {
     case 'pcov':
       return script + (await addCoveragePCOV(version, os_version, pipe));

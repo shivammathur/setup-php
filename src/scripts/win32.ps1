@@ -430,10 +430,6 @@ if($version -lt "5.5") {
 } else {
   $enable_extensions += ('opcache')
 }
-# Patch till there is a pcov DLL for PHP 8.0 on pecl
-if ($version -eq '8.0') {
-  Invoke-WebRequest -Uri "https://github.com/shivammathur/php-extensions-windows/releases/latest/download/php$version`_$env:PHPTS`_$arch`_pcov.dll" -OutFile $php_dir"\ext\php`_pcov.dll"
-}
 Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source $cert_source
 Copy-Item -Path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE

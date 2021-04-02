@@ -7,35 +7,28 @@ self_hosted_helper() {
   fi
 }
 
+# Function to delete extension
+delete_extension() {
+  extension=$1
+  sudo rm -rf "${scan_dir:?}"/*"$extension"* "${ext_dir:?}"/"$extension".so >/dev/null 2>&1
+}
+
+# Function to disable extension
+disable_extension() {
+  extension=$1
+  sudo sed -Ei '' "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file:?}"
+}
+
 # Function to remove extensions.
 remove_extension() {
   extension=$1
   if check_extension "$extension"; then
-    sudo sed -Ei '' "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file:?}"
-    sudo rm -rf "${scan_dir:?}"/*"$extension"* "${ext_dir:?}"/"$extension".so >/dev/null 2>&1
+    disable_extension "$extension"
+    delete_extension "$extension"
     (! check_extension "$extension" && add_log "${tick:?}" ":$extension" "Removed") ||
       add_log "${cross:?}" ":$extension" "Could not remove $extension on PHP ${semver:?}"
   else
     add_log "${tick:?}" ":$extension" "Could not find $extension on PHP $semver"
-  fi
-}
-
-# Function to install a specific version of PECL extension.
-add_pecl_extension() {
-  extension=$1
-  pecl_version=$2
-  prefix=$3
-  enable_extension "$extension" "$prefix"
-  if [[ $pecl_version =~ .*(alpha|beta|rc|snapshot|preview).* ]]; then
-    pecl_version=$(get_pecl_version "$extension" "$pecl_version")
-  fi
-  ext_version=$(php -r "echo phpversion('$extension');")
-  if [ "$ext_version" = "$pecl_version" ]; then
-    add_log "${tick:?}" "$extension" "Enabled"
-  else
-    remove_extension "$extension" >/dev/null 2>&1
-    pecl_install "$extension-$pecl_version"
-    add_extension_log "$extension-$pecl_version" "Installed and enabled"
   fi
 }
 
@@ -107,6 +100,7 @@ add_devtools() {
 
 # Function to handle request to add PECL.
 add_pecl() {
+  configure_pecl >/dev/null 2>&1
   pecl_version=$(get_tool_version "pecl" "version")
   add_log "${tick:?}" "PECL" "Found PECL $pecl_version"
 }
@@ -119,7 +113,7 @@ link_libraries() {
   for lib in "$formula_prefix"/lib/*.dylib; do
     lib_name=$(basename "$lib")
     sudo cp -a "$lib" "$brew_prefix/lib/old_$lib_name" 2>/dev/null || true
-    sudo ln -sf "$brew_prefix"/lib/old_$lib_name "$brew_prefix/lib/$lib_name"
+    sudo ln -sf "$brew_prefix"/lib/old_"$lib_name" "$brew_prefix/lib/$lib_name"
   done
 }
 

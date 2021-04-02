@@ -40,16 +40,11 @@ add_cubrid_helper() {
     set_cubrid_repo
     set_cubrid_branch
     [ "$DISTRIB_RELEASE" = "16.04" ] && setup_compiler
-    (
-      git clone -b "$cubrid_branch" --recursive "https://github.com/CUBRID/$cubrid_repo" "/tmp/$cubrid_repo"
-      cd "/tmp/$cubrid_repo" || exit
-      ! [[ "$version" =~ ${old_versions:?} ]] && add_devtools
-      phpize
-      sudo ./configure --with-php-config="$(command -v php-config)" --with-"${ext/_/-}"=shared
-      make -j"$(nproc)"
-      sudo make install
-    )
-    echo "extension=$ext.so" | sudo tee "${scan_dir:?}/$ext.ini"
+    patch_phpize
+    read -r "${ext}_PREFIX_CONFIGURE_OPTS" <<< "CFLAGS=-Wno-implicit-function-declaration"
+    read -r "${ext}_CONFIGURE_OPTS" <<< "--with-php-config=$(command -v php-config)"
+    add_extension_from_source "$ext" https://github.com CUBRID "$cubrid_repo" . "$cubrid_branch" extension
+    restore_phpize
   fi
 }
 
@@ -61,3 +56,6 @@ add_cubrid() {
   add_extension_log "$ext" "$status"
   check_extension "$ext" && add_license_log
 }
+
+# shellcheck source=.
+. "${scripts:?}"/ext/patches/phpize.sh

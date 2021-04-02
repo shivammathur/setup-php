@@ -1,22 +1,17 @@
 # Function to install libraries required by couchbase
 add_couchbase_libs() {
   if [ "$(uname -s)" = "Linux" ]; then
+    trunk="https://github.com/couchbase/libcouchbase/releases"
     if [[ ${version:?} =~ 5.[3-6]|7.[0-1] ]]; then
       release="2.10.9"
-      trunk="https://github.com/couchbase/libcouchbase/releases/download"
-      package="libcouchbase-${release}_ubuntu${DISTRIB_RELEASE/./}_${DISTRIB_CODENAME}_amd64.tar"
-      get -q -n /tmp/libcouchbase.tar "$trunk/$release/$package"
-      sudo tar -xf /tmp/libcouchbase.tar -C /tmp
-      install_packages libev4
-      sudo dpkg -i /tmp/libcouchbase-*/*.deb
     else
-      trunk="http://packages.couchbase.com/clients/c/repos/deb"
-      list="deb $trunk/ubuntu${DISTRIB_RELEASE/./} ${DISTRIB_CODENAME:?} ${DISTRIB_CODENAME:?}/main"
-      get -s -n "" "$trunk/couchbase.key" | sudo apt-key add
-      echo "$list" | sudo tee /etc/apt/sources.list.d/couchbase.list
-      sudo apt-get update
+      release="$(curl -sL $trunk/latest | grep -Eo "libcouchbase-[0-9]+\.[0-9]+\.[0-9]+" | head -n 1 | cut -d'-' -f 2)"
     fi
-    ${apt_install:?} libcouchbase-dev
+    deb_url="$trunk/download/$release/libcouchbase-${release}_ubuntu${DISTRIB_RELEASE/./}_${DISTRIB_CODENAME}_amd64.tar"
+    get -q -n /tmp/libcouchbase.tar "$deb_url"
+    sudo tar -xf /tmp/libcouchbase.tar -C /tmp
+    install_packages libev4 libevent-dev
+    sudo dpkg -i /tmp/libcouchbase-*/*.deb
   else
     if [[ ${version:?} =~ 5.[3-6]|7.[0-1] ]]; then
       brew install libcouchbase@2

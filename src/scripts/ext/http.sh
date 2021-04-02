@@ -19,48 +19,30 @@ enable_http() {
   fi
 }
 
-# Function to install linux dependencies.
-add_http_dependencies_linux() {
-  ! [[ ${version:?} =~ ${nightly_versions:?} ]] && add_devtools phpize
-  install_packages zlib1g libbrotli-dev libcurl4-openssl-dev libevent-dev libicu-dev libidn2-dev
+# Function to install extensions.
+add_extension_helper() {
+  if [ "$os" = "Linux" ]; then
+    add_extension "$1" extension
+  else
+    add_brew_extension "$1" extension
+  fi
+}
+
+# Function to install http dependencies.
+add_http_dependencies() {
   if [[ ${version:?} =~ ${old_versions:?} ]]; then
     add_pecl_extension raphf 1.1.2 extension
     add_pecl_extension propro 1.0.2 extension
-  elif [[ ${version:?} =~ 5.6|7.[0-4] ]]; then  
-    add_extension propro extension
-    add_extension raphf extension
+  elif [[ ${version:?} =~ 5.6|7.[0-4] ]]; then
+    add_extension_helper propro
+    add_extension_helper raphf
   else
-    add_extension raphf extension
-  fi
-}
-
-# Function to install darwin dependencies.
-add_http_dependencies_darwin() {
-  brew install brotli curl icu4c libevent libidn2
-  if ! [[ ${version:?} =~ ${old_versions:?} ]]; then
-    if [[ ${version:?} =~ 5.6|7.[0-4] ]]; then
-      add_brew_extension propro extension
-    fi
-    add_brew_extension raphf extension
-  else
-    add_pecl_extension raphf 1.1.2 extension
-    add_pecl_extension propro 1.0.2 extension
-  fi
-}
-
-# Function to install the dependencies.
-add_http_dependencies() {
-  os=$1
-  if [ "$os" = 'Linux' ]; then
-    add_http_dependencies_linux
-  else
-    add_http_dependencies_darwin
+    add_extension_helper raphf
   fi
 }
 
 # Function to get configure options for http.
 get_http_configure_opts() {
-  os=$1
   if [ "$os" = 'Linux' ]; then
     for lib in zlib libbrotli libcurl libevent libicu libidn2 libidn libidnkit2 libidnkit; do
       http_opts+=( "--with-http-$lib-dir=/usr" )
@@ -75,59 +57,31 @@ get_http_configure_opts() {
   fi
 }
 
-patch_http_source() {
-  ext=$1
-  os=$2
-  if [ "$os" = 'Darwin' ] && ! [[ ${version:?} =~ ${old_versions:?} ]]; then
-    if [[ ${version:?} =~ 5.6|7.[0-4] ]]; then
-      sed -i '' -e "s|ext/propro|$(brew --prefix propro@"${version:?}")/include/php/ext/propro@${version:?}|" "/tmp/pecl_http-${ext##*-}/src/php_http_api.h"
-    fi
-    sed -i '' -e "s|ext/raphf|$(brew --prefix raphf@"${version:?}")/include/php/ext/raphf@${version:?}|" "/tmp/pecl_http-${ext##*-}/src/php_http_api.h"
-    if [ "${version:?}" = "5.6" ]; then
-      sed -i '' -e "s|\$abs_srcdir|\$abs_srcdir ${brew_prefix:?}/include|" -e "s|/ext/propro|/php/ext/propro@5.6|" -e "s|/ext/raphf|/php/ext/raphf@5.6|" "/tmp/pecl_http-${ext##*-}/config9.m4"
-    fi
-  fi
-}
-
-# Helper function to compile and install http.
-build_http() {
-  ext=$1
-  os=$2
-  (
-    http_opts=() && get_http_configure_opts "$os"
-    c_opts="CFLAGS=-Wno-implicit-function-declaration"
-    cd /tmp/pecl_http-"${ext##*-}" || exit
-    sudo phpize
-    sudo "$c_opts" ./configure --with-http --with-php-config="$(command -v php-config)" "${http_opts[@]}"
-    sudo make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)"
-    sudo make install
-  )
-}
-
 # Compile and install http explicitly.
 # This is done as pecl compiles raphf and propro as well.
 add_http_helper() {
   ext=$1
-  os=$2
-  add_http_dependencies "$os"
-  get -q -n /tmp/http.tgz https://pecl.php.net/get/pecl_http-"${ext##*-}".tgz
-  tar -xzf /tmp/http.tgz -C /tmp
-  patch_http_source "$ext" "$os"
-  build_http "$ext" "$os"
-  enable_extension http extension
+  http_opts=() && get_http_configure_opts
+  export HTTP_PREFIX_CONFIGURE_OPTS="CFLAGS=-Wno-implicit-function-declaration"
+  http_configure_opts="--with-http --with-php-config=$(command -v php-config) ${http_opts[*]}"
+  export HTTP_CONFIGURE_OPTS="$http_configure_opts"
+  export HTTP_LINUX_LIBS="zlib1g libbrotli-dev libcurl4-openssl-dev libevent-dev libicu-dev libidn2-dev"
+  export HTTP_DARWIN_LIBS="brotli curl icu4c libevent libidn2"
+  if [[ "${version:?}" =~ ${nightly_versions:?} ]]; then
+    add_extension_from_source http https://github.com m6w6 ext-http . master extension
+  else
+    add_extension_from_source pecl_http https://pecl.php.net http http . "${ext##*-}" extension pecl
+  fi
 }
 
 # Function to setup latest http extension.
 add_http_latest() {
-  os=$1
   enable_http
   if ! check_extension http; then
+    add_http_dependencies
     if [ "$os" = "Linux" ]; then
       if ! [[ "${version:?}" =~ ${old_versions:?}|${nightly_versions:?} ]]; then
-        if [[ ${version:?} =~ 5.6|7.[0-4] ]]; then
-          install_packages "php$version-propro"
-        fi
-        install_packages "php$version-raphf" "php$version-http"
+        install_packages "php$version-http"
       else
         add_http_helper "$(get_http_version)" "$os"
       fi
@@ -143,7 +97,6 @@ add_http_latest() {
 # Function to setup http extension given a version.
 add_http_version() {
   ext=$1
-  os=$2
   enable_http
   if [ "x$(php -r "echo phpversion('http');")" != "x${ext##*-}" ]; then
     remove_extension http >/dev/null
@@ -155,12 +108,13 @@ add_http_version() {
 # Function to setup http extension
 add_http() {
   ext=$1
-  os="$(uname -s)"
   status="Enabled"
   if [[ "$ext" =~ ^(pecl_http|http)$ ]]; then
-    add_http_latest "$os" >/dev/null 2>&1
+    add_http_latest >/dev/null 2>&1
   else
-    add_http_version "$ext" "$os" >/dev/null 2>&1
+    add_http_version "$ext" >/dev/null 2>&1
   fi
   add_extension_log "http" "$status"
 }
+
+os="$(uname -s)"

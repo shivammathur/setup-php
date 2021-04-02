@@ -31,71 +31,16 @@ add_client() {
   fi
 }
 
-# Function to get PHP source.
-get_php() {
-  [ ! -d "/opt/oracle/php-src-$tag" ] && get -s -n "" "https://github.com/php/php-src/archive/$tag.tar.gz" | tar xzf - -C "$oracle_home/"
-}
-
-# Function to get phpize location on darwin.
-get_phpize() {
-  if [[ "${version:?}" =~ 5.[3-5] ]]; then
-    echo '/opt/local/bin/phpize'
-  else
-    echo "/usr/local/bin/$(readlink /usr/local/bin/phpize)"
-  fi
-}
-
-# Function to patch phpize to link to php headers on darwin.
-patch_phpize() {
-  if [ "$os" = "Darwin" ]; then
-    sudo cp "$phpize_orig" "$phpize_orig.bck"
-    sudo sed -i '' 's~includedir=.*~includedir="$(xcrun --show-sdk-path)/usr/include/php"~g' "$phpize_orig"
-  fi
-}
-
-# Function to restore phpize.
-restore_phpize() {
-  if [ "$os" = "Darwin" ]; then
-    sudo mv "$phpize_orig.bck" "$phpize_orig" || true
-  fi
-}
-
-# Function to patch pdo_oci.
-patch_pdo_oci_config() {
-  get -q -n config.m4 https://raw.githubusercontent.com/php/php-src/PHP-8.0/ext/pdo_oci/config.m4
-  if [[ ${version:?} =~ 5.[3-6] ]]; then
-    sudo sed -i '' "/PHP_CHECK_PDO_INCLUDES/d" config.m4 2>/dev/null || sudo sed -i "/PHP_CHECK_PDO_INCLUDES/d" config.m4
-  fi
-}
-
-# Function to install the dependencies.
-add_dependencies() {
-  if [ "$os" = 'Linux' ]; then
-    if [ "${runner:?}" = "self-hosted" ]; then
-      ${apt_install:?} --no-upgrade --no-install-recommends libaio-dev
-    fi
-    ! [[ ${version:?} =~ $nightly_versions ]] && add_devtools phpize
-  fi
-}
-
 # Function to install oci8 and pdo_oci.
 add_oci_helper() {
   if ! [ -e "${ext_dir:?}/$ext.so" ]; then
     status='Installed and enabled'
-    phpize_orig=$(get_phpize)
-    tag=$(php_src_tag)
-    get_php
+    read -r "${ext}_LINUX_LIBS" <<< "libaio-dev"
+    read -r "${ext}_CONFIGURE_OPTS" <<< "--with-php-config=$(command -v php-config) --with-${ext/_/-}=instantclient,$oracle_client"
     patch_phpize
-    (
-      cd "/opt/oracle/php-src-$tag/ext/$ext" || exit 1
-      [ "$ext" = "pdo_oci" ] && patch_pdo_oci_config
-      sudo phpize && ./configure --with-php-config="$(command -v php-config)" --with-"${ext/_/-}"=instantclient,"$oracle_client"
-      sudo make -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)"
-      sudo cp ./modules/* "$ext_dir/"
-    )
+    add_extension_from_source "$ext" https://github.com php php-src ext/"$ext" "$(php_src_tag)" extension get
     restore_phpize
   fi
-  echo "extension=$ext.so" | sudo tee "${scan_dir:?}/99-$ext.ini"
 }
 
 # Function to add oci extension oci8 and pdo_oci.
@@ -106,8 +51,10 @@ add_oci() {
   oracle_client=$oracle_home/instantclient
   os=$(uname -s)
   add_client >/dev/null 2>&1
-  add_dependencies >/dev/null 2>&1
   add_oci_helper >/dev/null 2>&1
   add_extension_log "$ext" "$status"
   check_extension "$ext" && add_license_log
 }
+
+# shellcheck source=.
+. "${scripts:?}"/ext/patches/phpize.sh

@@ -145,9 +145,6 @@ configure_php() {
 # Function to configure PECL.
 configure_pecl() {
   if ! [ -e /tmp/pecl_config ]; then
-    if ! command -v pecl >/dev/null || ! command -v pear >/dev/null; then
-      add_pecl >/dev/null 2>&1
-    fi
     for script in pear pecl; do
       sudo "$script" config-set php_ini "${pecl_file:-${ini_file[@]}}"
       sudo "$script" channel-update "$script".php.net
@@ -172,8 +169,28 @@ get_pecl_version() {
 # Function to install PECL extensions and accept default options
 pecl_install() {
   local extension=$1
-  configure_pecl >/dev/null 2>&1
+  add_pecl >/dev/null 2>&1
   yes '' 2>/dev/null | sudo pecl install -f "$extension" >/dev/null 2>&1
+}
+
+# Function to install a specific version of PECL extension.
+add_pecl_extension() {
+  extension=$1
+  pecl_version=$2
+  prefix=$3
+  enable_extension "$extension" "$prefix"
+  if [[ $pecl_version =~ .*(alpha|beta|rc|snapshot|preview).* ]]; then
+    pecl_version=$(get_pecl_version "$extension" "$pecl_version")
+  fi
+  ext_version=$(php -r "echo phpversion('$extension');")
+  if [ "$ext_version" = "$pecl_version" ]; then
+    add_log "${tick:?}" "$extension" "Enabled"
+  else
+    disable_extension "$extension" >/dev/null 2>&1
+    delete_extension "$extension" >/dev/null 2>&1
+    pecl_install "$extension-$pecl_version"
+    add_extension_log "$extension-$pecl_version" "Installed and enabled"
+  fi
 }
 
 # Function to setup pre-release extensions using PECL.

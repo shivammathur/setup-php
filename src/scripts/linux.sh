@@ -89,8 +89,10 @@ add_pdo_extension() {
   else
     ext=$1
     ext_name=$1
-    disable_extension pdo
-    echo "extension=pdo.so" | sudo tee "${ini_file[@]/php.ini/conf.d/10-pdo.ini}" >/dev/null 2>&1
+    if [ -e "$ext_dir"/pdo.so ]; then
+      disable_extension pdo
+      echo "extension=pdo.so" | sudo tee "${ini_file[@]/php.ini/conf.d/10-pdo.ini}" >/dev/null 2>&1
+    fi
     if [ "$ext" = "mysql" ]; then
       enable_extension "mysqlnd" "extension"
       ext_name='mysqli'
@@ -128,34 +130,13 @@ add_extension() {
   sudo chmod 777 "${ini_file[@]}"
 }
 
-# Function to install a PECL version.
-add_pecl_extension() {
-  extension=$1
-  pecl_version=$2
-  prefix=$3
-  if [[ $pecl_version =~ .*(alpha|beta|rc|snapshot|preview).* ]]; then
-    pecl_version=$(get_pecl_version "$extension" "$pecl_version")
-  fi
-  enable_extension "$extension" "$prefix"
-  ext_version=$(php -r "echo phpversion('$extension');")
-  if [ "$ext_version" = "$pecl_version" ]; then
-    add_log "${tick:?}" "$extension" "Enabled"
-  else
-    delete_extension "$extension"
-    pecl_install "$extension-$pecl_version"
-    add_extension_log "$extension-$pecl_version" "Installed and enabled"
-  fi
-}
-
 # Function to setup phpize and php-config.
 add_devtools() {
   tool=$1
   if ! command -v "$tool$version" >/dev/null; then
     install_packages "php$version-dev" "php$version-xml"
   fi
-  sudo update-alternatives --set php-config /usr/bin/php-config"$version" >/dev/null 2>&1
-  sudo update-alternatives --set phpize /usr/bin/phpize"$version" >/dev/null 2>&1
-  configure_pecl >/dev/null 2>&1
+  switch_version "phpize" "php-config"
   add_log "${tick:?}" "$tool" "Added $tool $semver"
 }
 
@@ -183,9 +164,11 @@ add_pecl() {
 
 # Function to switch versions of PHP binaries.
 switch_version() {
-  for tool in pear pecl php phar phar.phar php-cgi php-config phpize phpdbg; do
+  tools=("$@") && ! (( ${#tools[@]} )) && tools+=(pear pecl php phar phar.phar php-cgi php-config phpize phpdbg)
+  to_wait=()
+  for tool in "${tools[@]}"; do
     if [ -e "/usr/bin/$tool$version" ]; then
-      sudo update-alternatives --set $tool /usr/bin/"$tool$version" &
+      sudo update-alternatives --set "$tool" /usr/bin/"$tool$version" &
       to_wait+=($!)
     fi
   done

@@ -13,7 +13,6 @@ cleanup_lists() {
     sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save
     sudo mkdir /etc/apt/sources.list.d
     sudo mv /etc/apt/sources.list.d.save/*ondrej*.list /etc/apt/sources.list.d/
-    sudo mv /etc/apt/sources.list.d.save/*dotdeb*.list /etc/apt/sources.list.d/ 2>/dev/null || true
     trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/ 2>/dev/null" exit
   fi
 }
@@ -117,9 +116,7 @@ add_extension() {
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
-    if [[ "$version" =~ 5.[4-5] ]]; then
-      install_packages "php5-$extension=$release_version"
-    elif [[ "$version" =~ ${nightly_versions:?} ]]; then
+    if [[ "$version" =~ ${nightly_versions:?} ]]; then
       pecl_install "$extension"
     else
       install_packages "php$version-$extension" || pecl_install "$extension"
@@ -169,7 +166,6 @@ setup_nightly() {
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
 setup_old_versions() {
   run_script "php5-ubuntu" "$version"
-  release_version=$(php -v | head -n 1 | cut -d' ' -f 2)
 }
 
 # Function to add PECL.

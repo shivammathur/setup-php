@@ -75,6 +75,9 @@ add_brew_extension() {
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
+    # Remove once homebrew is updated
+    update_brew
+
     add_brew_tap shivammathur/homebrew-php
     add_brew_tap shivammathur/homebrew-extensions
     sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$formula"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
@@ -129,8 +132,20 @@ update_dependencies_helper() {
   link_libraries "$formula"
 }
 
+# Function to update brew
+update_brew() {
+  if ! [ -e /tmp/brew_updated ]; then
+    git -C "$brew_repo" pull origin master >/dev/null 2>&1
+    git -C "$tap_dir/homebrew/homebrew-core" pull origin master >/dev/null 2>&1
+    echo '' | sudo tee /tmp/brew_updated >/dev/null 2>&1
+  fi
+}
+
 # Function to update dependencies.
 update_dependencies() {
+  # Remove once homebrew is updated
+  update_brew
+
   if [ "${runner:?}" != "self-hosted" ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
     while read -r formula; do
       update_dependencies_helper "$formula" &

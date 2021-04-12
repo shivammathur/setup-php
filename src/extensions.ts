@@ -259,7 +259,7 @@ export async function addExtensionLinux(
       case /^couchbase$|^pdo_oci$|^oci8$|^http|^pecl_http|^pdo_firebird$/.test(
         extension
       ):
-      case /^(5\.6|7\.[0-4]|8\.0)intl-[\d]+\.[\d]+$/.test(version_extension):
+      case /(?<!5\.[3-5])intl-[\d]+\.[\d]+$/.test(version_extension):
       case /^(5\.[3-6]|7\.[0-4])(ioncube|geos)$/.test(version_extension):
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
       case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):

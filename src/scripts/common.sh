@@ -12,7 +12,7 @@ export composer_json="$HOME/.composer/composer.json"
 export composer_lock="$HOME/.composer/composer.lock"
 export latest="releases/latest/download"
 export github="https://github.com/shivammathur"
-export bintray="https://dl.bintray/shivammathur"
+export jsdeliver="https://cdn.jsdelivr.net/gh/shivammathur"
 
 # Function to log start of a operation.
 step_log() {
@@ -73,12 +73,12 @@ get() {
   fi
 }
 
-# Function to download and run scripts from GitHub releases with bintray fallback.
+# Function to download and run scripts from GitHub releases with jsdeliver fallback.
 run_script() {
   repo=$1
   shift
   args=("$@")
-  get -q -e /tmp/install.sh "$github/$repo/$latest/install.sh" "$bintray/php/$repo.sh"
+  get -q -e /tmp/install.sh "$github/$repo/$latest/install.sh" "$jsdeliver/$1@main/scripts/install.sh"
   bash /tmp/install.sh "${args[@]}"
 }
 

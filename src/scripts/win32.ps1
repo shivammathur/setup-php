@@ -333,8 +333,8 @@ $cross = ([char]10007)
 $php_dir = 'C:\tools\php'
 $ext_dir = "$php_dir\ext"
 $bin_dir = $php_dir
-$bintray = 'https://dl.bintray.com/shivammathur/php'
 $github = 'https://github.com'
+$php_builder = "$github/shivammathur/php-builder-windows"
 $composer_bin = "$env:APPDATA\Composer\vendor\bin"
 $composer_json = "$env:APPDATA\Composer\composer.json"
 $composer_lock = "$env:APPDATA\Composer\composer.lock"
@@ -401,7 +401,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   }
   try {
     if ($version -match $nightly_versions) {
-      Invoke-WebRequest -UseBasicParsing -Uri https://github.com/shivammathur/php-builder-windows/releases/latest/download/Get-PhpNightly.ps1 -OutFile $php_dir\Get-PhpNightly.ps1 > $null 2>&1
+      Invoke-WebRequest -UseBasicParsing -Uri $php_builder/releases/latest/download/Get-PhpNightly.ps1 -OutFile $php_dir\Get-PhpNightly.ps1 > $null 2>&1
       & $php_dir\Get-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir > $null 2>&1
     } else {
       Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
@@ -426,7 +426,7 @@ if($installed.MajorMinorVersion -ne $version) {
 }
 ('date.timezone=UTC', 'memory_limit=-1', 'xdebug.mode=coverage') | ForEach-Object { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
 if($version -lt "5.5") {
-  ('libeay32.dll', 'ssleay32.dll') | ForEach-Object { Invoke-WebRequest -Uri $bintray/$_ -OutFile $php_dir\$_ >$null 2>&1 }
+  ('libeay32.dll', 'ssleay32.dll') | ForEach-Object { Invoke-WebRequest -Uri "$php_builder/releases/download/openssl-1.0.2u/$_" -OutFile $php_dir\$_ >$null 2>&1 }
 } else {
   $enable_extensions += ('opcache')
 }

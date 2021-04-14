@@ -160,7 +160,7 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'amqp, apcu, Xdebug, pcov, grpc, igbinary, imagick, imap, msgpack, protobuf, redis, swoole, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
+      'amqp, apcu, Xdebug, pcov, grpc, igbinary, imagick, imap, msgpack, phalcon3, phalcon4, protobuf, psr, redis, swoole, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
       '7.2',
       'darwin'
     );
@@ -173,19 +173,16 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension imagick extension');
     expect(darwin).toContain('add_brew_extension imap extension');
     expect(darwin).toContain('add_brew_extension msgpack extension');
+    expect(darwin).toContain('add_brew_extension phalcon3 extension');
+    expect(darwin).toContain('add_brew_extension phalcon4 extension');
     expect(darwin).toContain('add_brew_extension protobuf extension');
+    expect(darwin).toContain('add_brew_extension psr extension');
     expect(darwin).toContain('add_brew_extension redis extension');
     expect(darwin).toContain('add_brew_extension swoole extension');
     expect(darwin).toContain('add_extension sqlite3');
     expect(darwin).toContain('remove_extension intl');
     expect(darwin).toContain('add_unstable_extension ast beta extension');
     expect(darwin).toContain('add_pecl_extension grpc 1.2.3 extension');
-
-    darwin = await extensions.addExtension('phalcon3', '7.0', 'darwin');
-    expect(darwin).toContain('add_phalcon phalcon3');
-
-    darwin = await extensions.addExtension('phalcon4', '7.3', 'darwin');
-    expect(darwin).toContain('add_phalcon phalcon4');
 
     darwin = await extensions.addExtension('couchbase', '5.6', 'darwin');
     expect(darwin).toContain('add_couchbase');

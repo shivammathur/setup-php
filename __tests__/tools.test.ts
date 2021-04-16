@@ -16,7 +16,7 @@ describe('Tools tests', () => {
     expect(await tools.getToolVersion('1.2.3-alpha.1')).toBe('1.2.3-alpha.1');
   });
 
-  it('checking parseToolVersion', async () => {
+  it('checking parseTool', async () => {
     expect(await tools.parseTool('phpunit')).toStrictEqual({
       name: 'phpunit',
       version: 'latest'
@@ -64,6 +64,10 @@ describe('Tools tests', () => {
     expect(await tools.parseTool('phpunit:1.2.3-alpha.1')).toStrictEqual({
       name: 'phpunit',
       version: '1.2.3-alpha.1'
+    });
+    expect(await tools.parseTool('phpunit/phpunit:^1.2.3')).toStrictEqual({
+      name: 'phpunit/phpunit',
+      version: '^1.2.3'
     });
   });
 
@@ -232,22 +236,6 @@ describe('Tools tests', () => {
     expect(await tools.getSymfonyUri('1.2.3', 'openbsd')).toContain(
       'Platform openbsd is not supported'
     );
-  });
-
-  it('checking getCleanedToolsList', async () => {
-    const tools_list: string[] = await tools.getCleanedToolsList(
-      'tool, composer:1.2, behat/behat, icanhazstring/composer-unused, laravel/vapor-cli, robmorgan/phinx, phpspec/phpspec, symfony/flex'
-    );
-    expect(tools_list).toStrictEqual([
-      'composer',
-      'tool',
-      'behat',
-      'composer-unused',
-      'vapor-cli',
-      'phinx',
-      'phpspec',
-      'flex'
-    ]);
   });
 
   it('checking getWpCliUri', async () => {
@@ -548,9 +536,11 @@ describe('Tools tests', () => {
     const listOfTools = [
       'composer:v1',
       'codeception/codeception',
+      'prestissimo',
       'hirak/prestissimo',
+      'composer-prefetcher',
       'narrowspark/automatic-composer-prefetcher',
-      'robmorgan/phinx'
+      'robmorgan/phinx: ^1.2'
     ];
 
     const script: string = await tools.addTools(
@@ -563,9 +553,9 @@ describe('Tools tests', () => {
       'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-1.phar,https://getcomposer.org/composer-1.phar composer'
     );
     expect(script).toContain('Add-Composertool prestissimo prestissimo hirak/');
-    expect(script).toContain('Add-Composertool phinx phinx robmorgan/');
+    expect(script).toContain('Add-Composertool phinx phinx:^1.2 robmorgan/');
     expect(script).toContain(
-      'Add-Composertool composer-prefetcher composer-prefetcher narrowspark/automatic-'
+      'Add-Composertool automatic-composer-prefetcher automatic-composer-prefetcher narrowspark/'
     );
   });
   it('checking composer setup', async () => {

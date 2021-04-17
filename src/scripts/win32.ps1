@@ -101,7 +101,9 @@ Function Install-PSPackage() {
     [Parameter(Position = 1, Mandatory = $true)]
     $psm1_path,
     [Parameter(Position = 2, Mandatory = $true)]
-    $url
+    $url,
+    [Parameter(Position = 3, Mandatory = $true)]
+    $cmdlet
   )
   $module_path = "$bin_dir\$psm1_path.psm1"
   if(-not (Test-Path $module_path -PathType Leaf)) {
@@ -111,6 +113,10 @@ Function Install-PSPackage() {
   }
   Import-Module $module_path
   Add-ToProfile $current_profile "$package-search" "Import-Module $module_path"
+
+  if($null -eq (Get-Command $cmdlet -ErrorAction SilentlyContinue)) {
+    Install-Module -Name $cmdlet -Force
+  }
 }
 
 # Function to add PHP extensions.
@@ -384,7 +390,7 @@ if($env:RUNNER -eq 'self-hosted') {
 
 Add-Printf >$null 2>&1
 Step-Log "Setup PhpManager"
-Install-PSPackage PhpManager PhpManager\PhpManager "$github/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip" >$null 2>&1
+Install-PSPackage PhpManager PhpManager\PhpManager "$github/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip" Get-Php >$null 2>&1
 Add-Log $tick "PhpManager" "Installed"
 
 Step-Log "Setup PHP"
@@ -397,7 +403,7 @@ if (Test-Path -LiteralPath $php_dir -PathType Container) {
 $status = "Installed"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
   if ($version -lt '7.0' -and (Get-InstalledModule).Name -notcontains 'VcRedist') {
-    Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" >$null 2>&1
+    Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" Get-VcList >$null 2>&1
   }
   try {
     if ($version -match $nightly_versions) {

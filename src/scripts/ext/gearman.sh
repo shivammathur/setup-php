@@ -1,9 +1,22 @@
-release_version=$(lsb_release -s -r)
-sudo DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/pkg-gearman -y
-sudo DEBIAN_FRONTEND=noninteractive apt-get update -y
+# Helper function to add gearman extension.
+add_gearman_helper() {
+  add_ppa ondrej/pkg-gearman
+  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y libgearman-dev
+  enable_extension gearman extension
+  if ! check_extension gearman; then
+    status="Installed and enabled"
+    sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"${version:?}"-gearman || pecl_install gearman
+    enable_extension gearman extension
+  fi
+}
 
-if [ "$release_version" = "18.04" ]; then
-  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y libgearman-dev php"$1"-gearman
-elif [ "$release_version" = "16.04" ]; then
-  sudo DEBIAN_FRONTEND=noninteractive apt-fast install -y php"$1"-gearman
-fi
+# Function to add gearman extension.
+add_gearman() {
+  status="Enabled"
+  add_gearman_helper >/dev/null 2>&1
+  if check_extension gearman; then
+    add_log "${tick:?}" "gearman" "$status"
+  fi
+}
+
+add_gearman

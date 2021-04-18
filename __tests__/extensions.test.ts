@@ -58,18 +58,7 @@ describe('Extension tests', () => {
     );
 
     linux = await extensions.addExtension('gearman', '7.0', 'linux');
-    expect(linux).toContain('gearman.sh 7.0');
-    linux = await extensions.addExtension('gearman', '7.1', 'linux');
-    expect(linux).toContain('gearman.sh 7.1');
-
-    linux = await extensions.addExtension('gearman', '7.2', 'linux');
-    expect(linux).toContain('gearman.sh 7.2');
-
-    linux = await extensions.addExtension('gearman', '7.3', 'linux');
-    expect(linux).toContain('gearman.sh 7.3');
-
-    linux = await extensions.addExtension('gearman', '7.4', 'linux');
-    expect(linux).toContain('gearman.sh 7.4');
+    expect(linux).toContain('gearman.sh');
 
     linux = await extensions.addExtension('xdebug2', '7.2', 'linux');
     expect(linux).toContain('add_pecl_extension xdebug 2.9.8 zend_extension');

@@ -153,13 +153,9 @@ export async function addExtensionLinux(
         return;
       // match 5.6gearman..7.4gearman
       case /^((5\.6)|(7\.[0-4]))gearman$/.test(version_extension):
-        command =
-          '\nbash ' +
-          path.join(__dirname, '../src/scripts/ext/gearman.sh') +
-          ' ' +
-          version +
-          pipe;
-        break;
+        script +=
+          '\n. ' + path.join(__dirname, '../src/scripts/ext/gearman.sh');
+        return;
       // match 7.0phalcon3...7.3phalcon3 or 7.2phalcon4...7.4phalcon4
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
         script +=

@@ -82,6 +82,16 @@ pecl_install() {
   yes '' | sudo pecl install -f "$extension" >/dev/null 2>&1
 }
 
+# Function to enable existing extensions.
+enable_extension() {
+  if [ -e /tmp/setup_php_dismod ] && grep -q "$1" /tmp/setup_php_dismod; then
+    sudo phpenmod -v "$version" "$1" >/dev/null 2>&1
+  fi
+  if ! check_extension "$1" && [ -e "$ext_dir/$1.so" ]; then
+    echo "$2=$ext_dir/$1.so" | sudo tee -a "$pecl_file" >/dev/null
+  fi
+}
+
 # Function to test if extension is loaded
 check_extension() {
   extension=$1
@@ -106,6 +116,7 @@ remove_extension() {
   extension=$1
   if [ -e /etc/php/"$version"/mods-available/"$extension".ini ]; then
     sudo phpdismod -v "$version" "$extension"
+    echo "$extension" | sudo tee -a /tmp/setup_php_dismod >/dev/null 2>&1
   fi
   delete_extension "$extension"
 }

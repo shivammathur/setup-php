@@ -32,10 +32,13 @@ export async function addExtensionDarwin(
         return;
       // match 5.6 to 8.0 amqp, grpc, igbinary, imagick, imap, msgpack, pecl_http, propro, protobuf, raphf, redis, swoole, xdebug, xdebug2, zmq
       // match 7.1pcov to 8.0pcov
-      case /(5\.6|7\.[0-4]|8.0)(amqp|grpc|igbinary|imagick|imap|msgpack|^(pecl_)?http$|propro|protobuf|raphf|redis|swoole|xdebug|xdebug2|zmq)/.test(
+      case /(5\.6|7\.[0-4]|8.0)(amqp|grpc|igbinary|imagick|imap|msgpack|^(pecl_)?http$|propro|protobuf|psr|raphf|redis|swoole|xdebug|xdebug2|zmq)/.test(
         version_extension
       ):
       case /(7\.[1-4]|8\.0])pcov/.test(version_extension):
+      case /^(5\.6|7\.[0-3])phalcon3$|^7\.[2-4]phalcon4$/.test(
+        version_extension
+      ):
         command = 'add_brew_extension ' + extension_name.replace('pecl_', '');
         break;
       // match sqlite
@@ -43,16 +46,6 @@ export async function addExtensionDarwin(
         extension = 'sqlite3';
         command = command_prefix + extension;
         break;
-      // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
-        script +=
-          '\nbash ' +
-          path.join(__dirname, '../src/scripts/ext/phalcon_darwin.sh') +
-          ' ' +
-          extension +
-          ' ' +
-          version;
-        return;
       default:
         command = command_prefix + extension;
         break;

@@ -84,7 +84,7 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'Xdebug, pcov, grpc, igbinary, imagick, protobuf, swoole, sqlite, ast-beta',
+      'Xdebug, pcov, grpc, igbinary, imagick, phalcon3, phalcon4, protobuf, psr, swoole, sqlite, ast-beta',
       '7.2',
       'darwin'
     );
@@ -93,16 +93,13 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension grpc');
     expect(darwin).toContain('add_brew_extension igbinary');
     expect(darwin).toContain('add_brew_extension imagick');
+    expect(darwin).toContain('add_brew_extension phalcon3');
+    expect(darwin).toContain('add_brew_extension phalcon4');
     expect(darwin).toContain('add_brew_extension protobuf');
+    expect(darwin).toContain('add_brew_extension psr');
     expect(darwin).toContain('add_brew_extension swoole');
     expect(darwin).toContain('pecl_install sqlite3');
     expect(darwin).toContain('add_unstable_extension ast beta extension');
-
-    darwin = await extensions.addExtension('phalcon3', '7.0', 'darwin');
-    expect(darwin).toContain('phalcon_darwin.sh phalcon3 7.0');
-
-    darwin = await extensions.addExtension('phalcon4', '7.3', 'darwin');
-    expect(darwin).toContain('phalcon_darwin.sh phalcon4 7.3');
 
     darwin = await extensions.addExtension('pcov', '5.6', 'darwin');
     expect(darwin).toContain('pecl_install pcov');

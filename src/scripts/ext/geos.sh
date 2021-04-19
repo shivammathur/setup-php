@@ -2,7 +2,7 @@
 add_geos_helper() {
   export GEOS_LINUX_LIBS='libgeos-dev'
   export GEOS_DARWIN_LIBS='geos'
-  add_extension_from_source geos https://github.com libgeos php-geos . 1.0.0 extension get
+  add_extension_from_source geos https://github.com libgeos php-geos 1.0.0 extension get
 }
 
 # Function to add geos

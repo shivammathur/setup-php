@@ -5,7 +5,7 @@ parse_args() {
   up_ext_name=$(echo "$extension" | tr '[:lower:]' '[:upper:]')
   var="${extension}_${suffix}"
   up_var="${up_ext_name}_${suffix}"
-  ! [[ "$suffix" =~ .*PREFIX|LIBS.* ]] && hyp='-'
+  ! [[ "$suffix" =~ .*PREFIX|LIBS|PATH.* ]] && hyp='-'
   output=$(echo "${!var} ${!up_var}" | sed "s/, *$hyp/ $hyp/g" | sed -E "s/^,|,$//g")
   echo "$output" | xargs -n 1 | sort | uniq | xargs
 }
@@ -114,16 +114,16 @@ add_extension_from_source() {
   url=$2
   org=$3
   repo=$4
-  sub_dir=$5
-  release=$6
-  prefix=$7
-  fetch=${8:-clone}
+  release=$5
+  prefix=$6
+  fetch=${7:-clone}
   slug="$extension-$release"
   source="$url/$org/$repo"
   libraries="$(parse_args "$extension" LIBS) $(parse_args "$extension" "$(uname -s)"_LIBS)"
   opts="$(parse_args "$extension" CONFIGURE_OPTS)"
   prefix_opts="$(parse_args "$extension" CONFIGURE_PREFIX_OPTS)"
   suffix_opts="$(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"
+  sub_dir="$(parse_args "$extension" PATH)"
   step_log "Setup $slug"
   (
     add_devtools phpize >/dev/null 2>&1

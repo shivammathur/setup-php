@@ -154,7 +154,7 @@ describe('Extension tests', () => {
       'linux'
     );
     expect(linux).toContain(
-      'add_extension_from_source mongodb https://github.com mongodb mongo-php-driver . master extension'
+      'add_extension_from_source mongodb https://github.com mongodb mongo-php-driver master extension'
     );
   });
 
@@ -252,7 +252,7 @@ describe('Extension tests', () => {
       'darwin'
     );
     expect(darwin).toContain(
-      'add_extension_from_source mongodb https://github.com mongodb mongo-php-driver . master extension'
+      'add_extension_from_source mongodb https://github.com mongodb mongo-php-driver master extension'
     );
   });
 });

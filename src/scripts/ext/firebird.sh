@@ -12,7 +12,8 @@ add_firebird_helper() {
   tag="$(php_src_tag)"
   export PDO_FIREBIRD_CONFIGURE_OPTS="--with-pdo-firebird=$firebird_dir"
   export PDO_FIREBIRD_LINUX_LIBS="firebird-dev"
-  add_extension_from_source pdo_firebird https://github.com php php-src ext/pdo_firebird "$tag" extension get
+  export PDO_FIREBIRD_PATH="ext/pdo_firebird"
+  add_extension_from_source pdo_firebird https://github.com php php-src "$tag" extension get
 }
 
 add_firebird() {

@@ -2978,13 +2978,10 @@ exports.customPackage = customPackage;
  * @param extension
  */
 async function parseExtensionSource(extension, prefix) {
-    var _a, _b;
-    // Groups: extension, domain url, org, repo, subdirectory, release
-    // https://regex101.com/r/P3rJiy/1
-    const regex = /(\w+)-(.+:\/\/.+(?:[.:][^/]+)+)?(?:\/)?([^/]+)\/([^/]+)(?:\/)?(.+)*@(.+)/;
+    // Groups: extension, domain url, org, repo, release
+    const regex = /(\w+)-(.+:\/\/.+(?:[.:].+)+(?:\/))?([\w.-]+)\/([\w.-]+)@(.+)/;
     const matches = regex.exec(extension);
-    matches[2] = (_a = matches[2]) !== null && _a !== void 0 ? _a : 'https://github.com';
-    matches[5] = (_b = matches[5]) !== null && _b !== void 0 ? _b : '.';
+    matches[2] = matches[2] ? matches[2].slice(0, -1) : 'https://github.com';
     return await joins('\nadd_extension_from_source', ...matches.splice(1, matches.length), prefix);
 }
 exports.parseExtensionSource = parseExtensionSource;

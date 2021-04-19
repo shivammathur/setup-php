@@ -267,7 +267,7 @@ describe('Utils tests', () => {
         'extension'
       )
     ).toContain(
-      '\nadd_extension_from_source ext https://github.com org-name repo-name . release extension'
+      '\nadd_extension_from_source ext https://github.com org-name repo-name release extension'
     );
     expect(
       await utils.parseExtensionSource(
@@ -275,15 +275,15 @@ describe('Utils tests', () => {
         'extension'
       )
     ).toContain(
-      '\nadd_extension_from_source ext https://sub.domain.tld org repo . release extension'
+      '\nadd_extension_from_source ext https://sub.domain.tld org repo release extension'
     );
     expect(
       await utils.parseExtensionSource(
-        'ext-https://sub.domain.XN--tld/org/repo/sub/dir@release',
+        'ext-https://sub.domain.XN--tld/org/repo@release',
         'extension'
       )
     ).toContain(
-      '\nadd_extension_from_source ext https://sub.domain.XN--tld org repo sub/dir release extension'
+      '\nadd_extension_from_source ext https://sub.domain.XN--tld org repo release extension'
     );
   });
 });

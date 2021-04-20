@@ -260,7 +260,7 @@ These tools can be setup globally using the `tools` input. It accepts a string i
 
 - Scripts `phpize` and `php-config` are set up with the same version as of the input PHP version.
 
-- The latest versions of both agent `blackfire-agent` and client `blackfire` are set up when `blackfire` is specified in tools input. Please refer to the [official documentation](https://blackfire.io/docs/integrations/ci/github-actions "Blackfire.io documentation for GitHub Actions") for using `blackfire` with GitHub Actions.
+- The latest version of `blackfire` cli is setup when `blackfire` is specified in tools input. Please refer to the [official documentation](https://blackfire.io/docs/integrations/ci/github-actions "Blackfire.io documentation for GitHub Actions") for using `blackfire` with GitHub Actions.
 
 - Tools `prestissimo` and `composer-prefetcher` will be skipped unless `composer:v1` is also specified in tools input. It is recommended to drop `prestissimo` and use `composer v2`.
 

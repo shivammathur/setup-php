@@ -2818,6 +2818,9 @@ async function extensionArray(extension_csv) {
             return extension_csv
                 .split(',')
                 .map(function (extension) {
+                if (/.+-.+\/.+@.+/.test(extension)) {
+                    return extension;
+                }
                 return extension
                     .trim()
                     .toLowerCase()
@@ -2976,10 +2979,11 @@ exports.customPackage = customPackage;
  * Function to extension input for installation from source.
  *
  * @param extension
+ * @param prefix
  */
 async function parseExtensionSource(extension, prefix) {
     // Groups: extension, domain url, org, repo, release
-    const regex = /(\w+)-(.+:\/\/.+(?:[.:].+)+(?:\/))?([\w.-]+)\/([\w.-]+)@(.+)/;
+    const regex = /(\w+)-(.+:\/\/.+(?:[.:].+)+\/)?([\w.-]+)\/([\w.-]+)@(.+)/;
     const matches = regex.exec(extension);
     matches[2] = matches[2] ? matches[2].slice(0, -1) : 'https://github.com';
     return await joins('\nadd_extension_from_source', ...matches.splice(1, matches.length), prefix);

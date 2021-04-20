@@ -13,8 +13,7 @@ parse_args() {
 # Function to log if a library is installed
 add_lib_log() {
   lib=$1
-  output=$2
-  if [ "x$output" != "x" ]; then
+  if check_lib "$lib"; then
     add_log "${tick:?}" "$lib" "Installed"
   else
     add_log "${cross:?}" "$lib" "Could not install $lib"

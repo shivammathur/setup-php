@@ -247,6 +247,9 @@ export async function extensionArray(
       return extension_csv
         .split(',')
         .map(function (extension: string) {
+          if (/.+-.+\/.+@.+/.test(extension)) {
+            return extension;
+          }
           return extension
             .trim()
             .toLowerCase()
@@ -443,13 +446,14 @@ export async function customPackage(
  * Function to extension input for installation from source.
  *
  * @param extension
+ * @param prefix
  */
 export async function parseExtensionSource(
   extension: string,
   prefix: string
 ): Promise<string> {
   // Groups: extension, domain url, org, repo, release
-  const regex = /(\w+)-(.+:\/\/.+(?:[.:].+)+(?:\/))?([\w.-]+)\/([\w.-]+)@(.+)/;
+  const regex = /(\w+)-(.+:\/\/.+(?:[.:].+)+\/)?([\w.-]+)\/([\w.-]+)@(.+)/;
   const matches = regex.exec(extension) as RegExpExecArray;
   matches[2] = matches[2] ? matches[2].slice(0, -1) : 'https://github.com';
   return await joins(

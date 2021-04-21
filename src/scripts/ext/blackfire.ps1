@@ -10,7 +10,11 @@ Function Add-Blackfire() {
     $no_dot_version = $version.replace('.', '')
     $extension_version = $extension.split('-')[1]
     if ($extension_version -notmatch "\S") {
-        $extension_version = (Invoke-RestMethod https://blackfire.io/api/v1/releases).probe.php
+        if($version -lt '7.0') {
+            $extension_version = '1.50.0'
+        } else {
+            $extension_version = (Invoke-RestMethod https://blackfire.io/api/v1/releases).probe.php
+        }
     }
     if (Test-Path $ext_dir\blackfire.dll) {
         Enable-PhpExtension -Extension blackfire -Path $php_dir

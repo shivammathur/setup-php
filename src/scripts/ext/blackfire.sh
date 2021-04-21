@@ -8,7 +8,11 @@ add_blackfire() {
   blackfire_ini_file="${pecl_file:-${ini_file[@]}}"
   if [ ! -e "${ext_dir:?}/blackfire.so" ]; then
     if [ "$extension_version" = "blackfire" ]; then
-      extension_version=$(get -s -n "" https://blackfire.io/api/v1/releases | grep -Eo 'php":"([0-9]+.[0-9]+.[0-9]+)' | cut -d '"' -f 3)
+      if [[ ${version:?} =~ 5.[3-6] ]]; then
+        extension_version='1.50.0'
+      else
+        extension_version=$(get -s -n "" https://blackfire.io/api/v1/releases | grep -Eo 'php":"([0-9]+.[0-9]+.[0-9]+)' | cut -d '"' -f 3)
+      fi
     fi
     get -q -n "${ext_dir:?}/blackfire.so" https://packages.blackfire.io/binaries/blackfire-php/"$extension_version"/blackfire-php-"$platform"_amd64-php-"$no_dot_version".so >/dev/null 2>&1
   fi

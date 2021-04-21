@@ -5,7 +5,7 @@ Function Add-PhalconHelper() {
   } else {
     $domain = 'https://github.com'
     $nts = if (!$installed.ThreadSafe) { "_nts" } else { "" }
-    $match = Invoke-WebRequest -Uri $domain/phalcon/cphalcon/releases | Select-String -Pattern "href=`"(.*phalcon_x64_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)`""
+    $match = Invoke-WebRequest -Uri "$domain/phalcon/cphalcon/releases/v3.4.5" | Select-String -Pattern "href=`"(.*phalcon_x64_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)`""
     $zip_file = $match.Matches[0].Groups[1].Value
     Invoke-WebRequest -Uri $domain/$zip_file -OutFile $ENV:RUNNER_TOOL_CACHE\phalcon.zip > $null 2>&1
     Expand-Archive -Path $ENV:RUNNER_TOOL_CACHE\phalcon.zip -DestinationPath $ENV:RUNNER_TOOL_CACHE\phalcon -Force > $null 2>&1

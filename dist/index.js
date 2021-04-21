@@ -1839,7 +1839,7 @@ async function addExtensionDarwin(extension_csv, version) {
             // match 5.6 and newer - amqp, apcu, grpc, igbinary, imagick, imap, msgpack, protobuf, raphf, redis, swoole, xdebug, xdebug2, zmq
             // match 7.1 and newer - pcov
             // match 5.6 to 7.4 - propro
-            case /(?<!5\.[3-5])(amqp|apcu|grpc|igbinary|imagick|imap|msgpack|protobuf|psr|raphf|redis|swoole|xdebug|xdebug2|zmq)/.test(version_extension):
+            case /(?<!5\.[3-5])(amqp|apcu|grpc|igbinary|imagick|imap|memcache|memcached|msgpack|protobuf|psr|raphf|redis|swoole|xdebug|xdebug2|zmq)/.test(version_extension):
             case /(5\.6|7\.[0-4])propro/.test(version_extension):
             case /(?<!5\.[3-6]|7\.0)pcov/.test(version_extension):
             case /(5\.6|7\.[0-3])phalcon3|7\.[2-4]phalcon4/.test(version_extension):

@@ -160,7 +160,7 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'amqp, apcu, Xdebug, pcov, grpc, igbinary, imagick, imap, msgpack, phalcon3, phalcon4, protobuf, psr, redis, swoole, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
+      'amqp, apcu, Xdebug, pcov, grpc, igbinary, imagick, imap, memcache, memcached, msgpack, phalcon3, phalcon4, protobuf, psr, redis, swoole, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
       '7.2',
       'darwin'
     );
@@ -172,6 +172,8 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension igbinary extension');
     expect(darwin).toContain('add_brew_extension imagick extension');
     expect(darwin).toContain('add_brew_extension imap extension');
+    expect(darwin).toContain('add_brew_extension memcache extension');
+    expect(darwin).toContain('add_brew_extension memcached extension');
     expect(darwin).toContain('add_brew_extension msgpack extension');
     expect(darwin).toContain('add_brew_extension phalcon3 extension');
     expect(darwin).toContain('add_brew_extension phalcon4 extension');

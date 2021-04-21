@@ -368,7 +368,12 @@ export async function addTools(
   php_version: string,
   os_version: string
 ): Promise<string> {
-  let script = '\n' + (await utils.stepLog('Setup Tools', os_version));
+  let script = '\n';
+  if (tools_csv === 'none') {
+    return '';
+  } else {
+    script += await utils.stepLog('Setup Tools', os_version);
+  }
   const tools_list = await addComposer(await utils.CSVArray(tools_csv));
   await utils.asyncForEach(tools_list, async function (release: string) {
     const tool_data: {name: string; version: string} = await parseTool(release);
@@ -512,6 +517,8 @@ export async function addTools(
       case /^wp(-cli)?$/.test(tool):
         url = github + (await getWpCliUrl(version));
         script += await addArchive('wp-cli', url, os_version, '"--version"');
+        break;
+      case /^none$/.test(tool):
         break;
       case /^[\w.-]+\/[\w.-]+$/.test(tool):
         script += await addPackage(

@@ -583,5 +583,15 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-snapshot.phar,https://getcomposer.org/composer.phar composer snapshot'
     );
+
+    script = await tools.addTools('none', '7.4', 'linux');
+    expect(script).toStrictEqual('');
+
+    script = await tools.addTools('none, phpunit', '7.4', 'linux');
+    expect(script).toStrictEqual(
+      '\nstep_log "Setup Tools"' +
+        '\nadd_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer latest\n' +
+        '\nadd_tool https://phar.phpunit.de/phpunit.phar phpunit "--version"'
+    );
   });
 });

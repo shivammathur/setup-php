@@ -206,7 +206,8 @@ add_unstable_extension() {
 get_tool_version() {
   tool=$1
   param=$2
-  version_regex="[0-9]+((\.{1}[0-9]+)+)(\.{0})(-[a-zA-Z0-9]+){0,1}"
+  alp="[a-zA-Z0-9]"
+  version_regex="[0-9]+((\.{1}$alp+)+)(\.{0})(-$alp+){0,1}"
   if [ "$tool" = "composer" ]; then
     if [ "$param" != "snapshot" ]; then
       composer_version="$(grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")"
@@ -283,9 +284,9 @@ add_composertool() {
   fi
   (
     sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
-    composer global require "$prefix$release" >/dev/null 2>&1
-    json=$(grep "$prefix$tool" "$composer_json") &&
-      tool_version=$(get_tool_version 'echo' "$json") &&
+    composer global require "$prefix$release" 2>&1 | tee /tmp/composer.log >/dev/null 2>&1
+    log=$(grep "$prefix$tool" /tmp/composer.log) &&
+      tool_version=$(get_tool_version 'echo' "$log") &&
       add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
   add_tools_helper "$tool"

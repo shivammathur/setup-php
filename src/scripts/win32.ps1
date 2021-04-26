@@ -225,7 +225,8 @@ Function Get-ToolVersion() {
       [Parameter(Position = 1, Mandatory = $true)]
       $param
   )
-  $version_regex = "[0-9]+((\.{1}[0-9]+)+)(\.{0})(-[a-z0-9]+){0,1}"
+  $alp = "[a-zA-Z0-9]"
+  $version_regex = "[0-9]+((\.{1}$alp+)+)(\.{0})(-$alp+){0,1}"
   if($tool -eq 'composer') {
     if ($param -eq 'snapshot') {
       $composer_version = (Select-String -Pattern "const\sBRANCH_ALIAS_VERSION" -Path $bin_dir\composer -Raw | Select-String -Pattern $version_regex | ForEach-Object { $_.matches.Value }) + '+' + (Select-String -Pattern "const\sVERSION" -Path $bin_dir\composer -Raw | Select-String -Pattern "[a-zA-Z0-9]+" -AllMatches | ForEach-Object { $_.matches[2].Value })
@@ -314,14 +315,15 @@ Function Add-Composertool() {
   if(Test-Path $composer_lock) {
     Remove-Item -Path $composer_lock -Force
   }
-  composer global require $prefix$release >$null 2>&1
+  (composer global require $prefix$release 2>&1 | Tee-Object -FilePath $env:APPDATA\Composer\composer.log) >$null 2>&1
   $json = findstr $prefix$tool $env:APPDATA\Composer\composer.json
+  $log = findstr $prefix$tool $env:APPDATA\Composer\composer.log
   if(Test-Path $composer_bin\composer) {
     Copy-Item -Path "$bin_dir\composer" -Destination "$composer_bin\composer" -Force
   }
   Add-ToolsHelper $tool
   if($json) {
-    $tool_version = Get-ToolVersion "Write-Output" "$json"
+    $tool_version = Get-ToolVersion "Write-Output" "$log"
     Add-Log $tick $tool "Added $tool $tool_version"
   } else {
     Add-Log $cross $tool "Could not setup $tool"

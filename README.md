@@ -71,7 +71,7 @@ Both `GitHub-hosted` and `self-hosted` runners are suppported by `setup-php` on 
 |Ubuntu 20.04|`ubuntu-latest` or `ubuntu-20.04`|`PHP 7.4` to `PHP 8.0`|
 |Windows Server 2019|`windows-latest` or `windows-2019`|`PHP 8.0`|
 |macOS Catalina 10.15|`macos-latest` or `macos-10.15`|`PHP 8.0`|
-|macOS Big Sur 11.0|`macos-11.0`|`PHP 8.0`|
+|macOS Big Sur 11.x|`macos-11.0`|`PHP 8.0`|
 
 ### Self-Hosted Runners
 
@@ -163,14 +163,14 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
     extensions: :opcache
 ```
 
-- Extension `intl` can be setup with specific `ICU` version for `PHP 5.6` to `PHP 8.0` in `Ubuntu` workflows by suffixing `intl` with the `ICU` version. `ICU 50.2` and newer versions are supported. Refer to [`ICU builds`](https://github.com/shivammathur/icu-intl#icu4c-builds) for the specific versions supported.
+- Extension `intl` can be setup with specific `ICU` version for `PHP 5.6` and above in `Ubuntu` workflows by suffixing `intl` with the `ICU` version. `ICU 50.2` and newer versions are supported. Refer to [`ICU builds`](https://github.com/shivammathur/icu-intl#icu4c-builds) for the specific versions supported.
 
 ```yaml
 - name: Setup PHP with intl
   uses: shivammathur/setup-php@v2
   with:
     php-version: '7.4'
-    extensions: intl-68.2
+    extensions: intl-69.1
 ```
 
 - Extensions loaded by default after `setup-php` runs can be found on the [wiki](https://github.com/shivammathur/setup-php/wiki).
@@ -192,17 +192,7 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
     fail-fast: true
 ```
 
-- Extensions can be compiled from source if they are hosted on GitHub. In this case, the version specification contains the repository and branch/tag to clone: 
-
-```yaml
-- name: Setup PHP and remove shared extension
-  uses: shivammathur/setup-php@v2
-  with:
-    php-version: '7.4'  
-    extensions: mongodb-mongodb/mongo-php-driver@v1.9
-```
-
-The version can be a branch name or tag as supported by `git clone -b <name>`. The clone is performed recursively, i.e. submodules will be cloned as well.
+- On `Ubuntu` and `macOS` extensions can be compiled and installed from source by suffixing the extension's name with `repository@version`. Follow this [guide](https://github.com/shivammathur/setup-php/wiki/Add-extension-from-source "Guide to compile and install PHP extensions in setup-php") for more details and examples.
 
 ## :wrench: Tools Support
 
@@ -228,6 +218,16 @@ These tools can be setup globally using the `tools` input. It accepts a string i
     tools: composer:v2
 ```
 
+- If you do not use composer in your workflow, you can specify `tools: none` to skip it.
+
+```yaml
+- name: Setup PHP with composer v2
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+    tools: none
+```
+
 - Tools `prestissimo` and `composer-prefetcher` will be skipped unless `composer:v1` is also specified in tools input. It is recommended to drop `prestissimo` and use `composer v2`.
 
 - The latest versions of both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified in tools input. Please refer to the [official documentation](https://blackfire.io/docs/integrations/ci/github-actions "Blackfire.io documentation for GitHub Actions") for using `blackfire` with GitHub Actions.
@@ -240,6 +240,16 @@ These tools can be setup globally using the `tools` input. It accepts a string i
   with:
     php-version: '7.2'
     tools: phpunit:8.5.8
+```
+
+- Any composer tool or package can also be set up globally by specifying it as `vendor/package`. For example to set up `psalm`.
+
+```yaml
+- name: Setup PHP with tools
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+    tools: vimeo/psalm
 ```
 
 - By default, tools which cannot be set up gracefully leave an error message in the logs, the action is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.
@@ -257,13 +267,13 @@ These tools can be setup globally using the `tools` input. It accepts a string i
 **Notes**
 - Input `tools` is useful to set up tools which you only use in GitHub Actions, thus keeping your `composer.json` tidy.
 - If you do not want to use all your dev-dependencies in GitHub Actions workflow, you can run composer with `--no-dev` and install required tools using `tools` input to speed up your workflow.
-- If you have a tool in your `composer.json`, do not setup it with `tools` input as the two instances of the tool might conflict.
+- If you have a tool in your `composer.json`, do not set up it with `tools` input as the two instances of the tool might conflict.
 
 ## :signal_strength: Coverage Support
 
 ### Xdebug
 
-Specify `coverage: xdebug` to use `Xdebug`.  
+Specify `coverage: xdebug` to use `Xdebug` and disable `PCOV`.  
 Runs on all [PHP versions supported](#tada-php-support "List of PHP versions supported on this GitHub Action").
 
 ```yaml
@@ -287,10 +297,9 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
 
 ### PCOV
 
-Specify `coverage: pcov` to use PCOV and disable Xdebug.  
+Specify `coverage: pcov` to use `PCOV` and disable `Xdebug`.  
 Runs on PHP 7.1 and newer PHP versions.
-  
-- In most cases, tests with `PCOV` execute much faster than with `Xdebug`.  
+
 - If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.  
 
 ```yaml
@@ -322,6 +331,7 @@ Disable coverage for these reasons:
 - It will remove `Xdebug`, which will have a positive impact on PHP performance.
 - You are using `phpdbg` for running your tests.
 - You are profiling your code using `blackfire`.
+- You are using PHP in JIT mode. Please refer to [JIT configuration](#jit-configuration) section for more details.
 
 ```yaml
 - name: Setup PHP with no coverage driver
@@ -610,20 +620,20 @@ jobs:
 
 Run the workflow locally with `act` using [`shivammathur/node`](https://github.com/shivammathur/node-docker "Docker image to run setup-php") docker images.
 
-Choose the image tag which matches the `runs-on` property in your workflow:
+Choose the image tag which matches the `runs-on` property in your workflow. For example, if you are using `ubuntu-20.04` in your workflow, run `act -P ubuntu-20.04=shivammathur/node:20.04`.
 
 ```bash
 # For runs-on: ubuntu-latest
 act -P ubuntu-latest=shivammathur/node:latest
 
 # For runs-on: ubuntu-20.04
-act -P ubuntu-20.04=shivammathur/node:focal
+act -P ubuntu-20.04=shivammathur/node:20.04
 
 # For runs-on: ubuntu-18.04
-act -P ubuntu-18.04=shivammathur/node:bionic
+act -P ubuntu-18.04=shivammathur/node:18.04
 
 # For runs-on: ubuntu-16.04
-act -P ubuntu-16.04=shivammathur/node:xenial
+act -P ubuntu-16.04=shivammathur/node:16.04
 ```
 
 ### JIT Configuration
@@ -631,6 +641,7 @@ act -P ubuntu-16.04=shivammathur/node:xenial
 > Enable Just-in-time(JIT) on PHP 8.0 and PHP 8.1.
 
 - To enable JIT, enable `opcache` in cli mode by setting `opcache.enable_cli=1`.
+- JIT conflicts with `Xdebug`, `PCOV`, and any other extension which overrides `zend_execute_ex` function, so set `coverage: none` and remove those extensions if added.
 - By default, `opcache.jit=1235` and `opcache.jit_buffer_size=256M` are set which can be changed using `ini-values` input.
 - For detailed information about JIT related directives refer to the [`official PHP documentation`](https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.jit "opcache.jit documentation").
 
@@ -641,6 +652,7 @@ For example to enable JIT in `tracing` mode with buffer size of `64 MB`.
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.0'
+    coverage: none
     ini-values: opcache.enable_cli=1, opcache.jit=tracing, opcache.jit_buffer_size=64M
 ```
 
@@ -816,9 +828,9 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 ## :bookmark: Versioning
 
-- Use the `v2` tag as `setup-php` version. It is a rolling tag and is synced with the latest minor and patch releases. With `v2` you automatically get the bug fixes, new features and support for latest PHP releases. For debugging any issues `verbose` tag can be used temporarily. It outputs all the logs and is also synced with the latest releases.
+- Use the `v2` tag as `setup-php` version. It is a rolling tag and is synced with the latest minor and patch releases. With `v2` you automatically get the bug fixes, security patches, new features and support for latest PHP releases. For debugging any issues `verbose` tag can be used temporarily. It outputs all the logs and is also synced with the latest releases.
 - Semantic release versions can also be used. It is recommended to [use dependabot](https://docs.github.com/en/github/administering-a-repository/keeping-your-actions-up-to-date-with-github-dependabot "Setup Dependabot with GitHub Actions") with semantic versioning to keep the actions in your workflows up to date.
-- Commit SHA can also be used, but are not recommended. They have to be updated with every release manually, without which you will not get any bug fixes or new features. 
+- Commit SHA can also be used, but are not recommended. They have to be updated with every release manually, without which you will not get any bug fixes, security patches or new features. 
 - It is highly discouraged to use the `master` branch as version, it might break your workflow after major releases as they have breaking changes.
 - If you are using the `v1` tag or a `1.x.y` version, you should [switch to v2](https://github.com/shivammathur/setup-php/wiki/Switch-to-v2 "Guide for switching from setup-php v1 to v2") as `v1` only gets critical bug fixes. Maintenance support for `v1` will be dropped with the last `PHP 8.0` release.
 
@@ -845,14 +857,14 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 ## :sparkling_heart: Support This Project
 
-- If setup-php saved your developer time, please consider sponsoring setup-php:
+- This project is provided as Free and Open-Source software. We need funds to maintain and do future improvements. Please sponsor setup-php using the below options:
   - [Open Collective](https://opencollective.com/setup-php "setup-php Open Collective")
   - [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal")
   - [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon")
-- Please [reach out](mailto:contact@setup-php.com) if you have any questions regarding sponsoring setup-php.
+- Please [reach out](mailto:contact@setup-php.com) if you have any questions about sponsoring setup-php.
 - Please star the project and share it. If you blog, please share your experience of using this action.
 
-*Huge thanks to the following companies for supporting `setup-php`*
+*`setup-php` is generously supported by*
 
 <p>
   <a href="https://www.jetbrains.com/?from=setup-php">

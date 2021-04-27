@@ -284,11 +284,11 @@ async function addExtensionWindows(extension_csv, version) {
             case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
                 add_script += await utils.getUnsupportedLog('pcov', version, 'win32');
                 break;
-            case /^5\.[3-6](mysql|mysqli|mysqlnd)$/.test(version_extension):
+            case /^5\.[3-6](?<!pdo_)(mysql|mysqli|mysqlnd)$/.test(version_extension):
                 add_script +=
                     '\nAdd-Extension mysql\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
                 break;
-            case /(?<!5\.[3-6])(mysql|mysqli|mysqlnd)$/.test(version_extension):
+            case /(?<!5\.[3-6])(?<!pdo_)(mysql|mysqli|mysqlnd)$/.test(version_extension):
                 add_script += '\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
                 break;
             case /^sqlite$/.test(extension):

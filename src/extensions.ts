@@ -183,12 +183,14 @@ export async function addExtensionWindows(
         add_script += await utils.getUnsupportedLog('pcov', version, 'win32');
         break;
       // match 5.3 to 5.6 - mysql, mysqli, mysqlnd
-      case /^5\.[3-6](mysql|mysqli|mysqlnd)$/.test(version_extension):
+      case /^5\.[3-6](?<!pdo_)(mysql|mysqli|mysqlnd)$/.test(version_extension):
         add_script +=
           '\nAdd-Extension mysql\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
         break;
       // match 7.0 and newer mysql, mysqli and mysqlnd
-      case /(?<!5\.[3-6])(mysql|mysqli|mysqlnd)$/.test(version_extension):
+      case /(?<!5\.[3-6])(?<!pdo_)(mysql|mysqli|mysqlnd)$/.test(
+        version_extension
+      ):
         add_script += '\nAdd-Extension mysqli\nAdd-Extension mysqlnd';
         break;
       // match sqlite

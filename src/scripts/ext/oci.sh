@@ -9,8 +9,8 @@ add_license_log() {
 
 # Function to install instantclient and SDK.
 add_client() {
-  sudo mkdir -p -m 777 "$oracle_home"
   if [ ! -e "$oracle_client" ]; then
+    sudo mkdir -p -m 777 "$oracle_home" "$oracle_client"
     for package in basiclite sdk; do
       if [ "$os" = 'Linux' ]; then
         libs='/usr/lib/'
@@ -24,10 +24,12 @@ add_client() {
         lib_ext='dylib'
       fi
       get -q -n "/opt/oracle/$package.zip" "https://download.oracle.com/otn_software/$os_name/instantclient/instantclient-$package-$arch.zip"
-      unzip "/opt/oracle/$package.zip" -d "$oracle_home"
+      unzip -o "/opt/oracle/$package.zip" -d "$oracle_home"
     done
-    sudo ln -sf /opt/oracle/instantclient*/*.$lib_ext* $libs
-    sudo ln -sf /opt/oracle/instantclient* "$oracle_client"
+    for icdir in /opt/oracle/instantclient_*; do
+      sudo mv "$icdir"/* "$oracle_client"/
+    done
+    sudo ln -sf /opt/oracle/instantclient/*.$lib_ext* $libs
   fi
 }
 

@@ -117,7 +117,7 @@ On all supported OS/Platforms the following PHP versions are supported as per th
 
 PHP extensions can be setup using the `extensions` input. It accepts a `string` in csv-format.
 
-- On `Ubuntu`, extensions which are available as a package, available on `PECL`, or hosted on GitHub can be setup.
+- On `Ubuntu`, extensions which are available as a package, available on `PECL` or a git repository can be set up.
 
 ```yaml
 - name: Setup PHP with PECL extension
@@ -127,9 +127,11 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
     extensions: imagick, swoole
 ```
 
-- On `Windows`, extensions available on `PECL` which have the `DLL` binary can be setup.
+- On `Windows`, extensions available on `PECL` which have the `DLL` binary can be set up.
 
-- On `macOS`, extensions available on `PECL` or hosted on GitHub can be installed.
+- On `macOS`, extensions available on `PECL` or a git repository can be set up.
+
+- On `Ubuntu` and `macOS` to compile and install an extension from a git repository follow this [guide](https://github.com/shivammathur/setup-php/wiki/Add-extension-from-source "Guide to compile and install PHP extensions in setup-php").
 
 - Extensions installed along with PHP if specified are enabled.
 
@@ -178,7 +180,7 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
 - These extensions have custom support:
   - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`.
   - `geos` on `Ubuntu` and `macOS`.
-  - `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_oci`, `pecl_http`, `phalcon3` and `phalcon4` on all supported OS.
+  - `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_firebird`, `pdo_oci`, `pecl_http`, `phalcon3` and `phalcon4` on all supported OS.
 
 - By default, extensions which cannot be added or removed gracefully leave an error message in the logs, the action is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`. 
 
@@ -191,8 +193,6 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
   env:
     fail-fast: true
 ```
-
-- On `Ubuntu` and `macOS` extensions can be compiled and installed from source by suffixing the extension's name with `repository@version`. Follow this [guide](https://github.com/shivammathur/setup-php/wiki/Add-extension-from-source "Guide to compile and install PHP extensions in setup-php") for more details and examples.
 
 ## :wrench: Tools Support
 

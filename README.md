@@ -627,13 +627,13 @@ Choose the image tag which matches the `runs-on` property in your workflow. For 
 act -P ubuntu-latest=shivammathur/node:latest
 
 # For runs-on: ubuntu-20.04
-act -P ubuntu-20.04=shivammathur/node:20.04
+act -P ubuntu-20.04=shivammathur/node:2004
 
 # For runs-on: ubuntu-18.04
-act -P ubuntu-18.04=shivammathur/node:18.04
+act -P ubuntu-18.04=shivammathur/node:1804
 
 # For runs-on: ubuntu-16.04
-act -P ubuntu-16.04=shivammathur/node:16.04
+act -P ubuntu-16.04=shivammathur/node:1604
 ```
 
 ### JIT Configuration

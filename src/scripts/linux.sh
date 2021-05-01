@@ -42,7 +42,7 @@ add_ppa() {
 # Function to update the package lists.
 update_lists() {
   if [ ! -e /tmp/setup_php ]; then
-    [ "$DISTRIB_RELEASE" = "20.04" ] && add_ppa ondrej/php >/dev/null 2>&1
+    add_ppa ondrej/php >/dev/null 2>&1
     cleanup_lists
     sudo "$debconf_fix" apt-get update >/dev/null 2>&1
     echo '' | sudo tee /tmp/setup_php >/dev/null 2>&1

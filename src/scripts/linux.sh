@@ -3,7 +3,7 @@ self_hosted_helper() {
   if ! command -v apt-fast >/dev/null; then
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
   fi
-  install_packages curl make software-properties-common unzip autoconf automake gcc g++
+  install_packages apt-https-transport curl make software-properties-common unzip autoconf automake gcc g++
   add_ppa ondrej/php
 }
 
@@ -21,12 +21,16 @@ cleanup_lists() {
 # Function to add ppa:ondrej/php.
 add_ppa() {
   ppa=${1:-ondrej/php}
-  if ! apt-cache policy | grep -q "$ppa"; then
+  if [ "$DISTRIB_RELEASE" = "16.04" ] && [ "$ppa" = "ondrej/php" ]; then
+    LC_ALL=C.UTF-8 sudo apt-add-repository --remove ppa:"$ppa" -y || true
+    LC_ALL=C.UTF-8 sudo apt-add-repository http://setup-php.com/ondrej/php/ubuntu -y
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 4f4ea0aae5267a6c
+  elif ! apt-cache policy | grep -q "$ppa"; then
     cleanup_lists "$(dirname "$ppa")"
     LC_ALL=C.UTF-8 sudo apt-add-repository ppa:"$ppa" -y
-    if [ "$DISTRIB_RELEASE" = "16.04" ]; then
-      sudo "$debconf_fix" apt-get update
-    fi
+  fi
+  if [ "$DISTRIB_RELEASE" = "16.04" ]; then
+    sudo "$debconf_fix" apt-get update
   fi
 }
 

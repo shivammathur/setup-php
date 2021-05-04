@@ -439,6 +439,9 @@ async function getScript(filename, version, os_version) {
 exports.getScript = getScript;
 async function run() {
     try {
+        if ((await utils.readEnv('ImageOS')) == 'ubuntu16') {
+            core.warning('Ubuntu 16.04 is deprecated.\nPlease upgrade to Ubuntu 18.04 or Ubuntu 20.04 - https://setup-php.com/i/452');
+        }
         const version = await utils.parseVersion(await utils.getInput('php-version', true));
         if (version) {
             const os_version = process.platform;

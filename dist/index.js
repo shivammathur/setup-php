@@ -444,6 +444,9 @@ async function run() {
             core.setFailed('PHP 8.1 is not supported on setup-php v1.\nPlease upgrade to v2 - https://setup-php.com/w/Switch-to-v2');
             return;
         }
+        if ((await utils.readEnv('ImageOS')) == 'ubuntu16') {
+            core.warning('Ubuntu 16.04 is deprecated.\nPlease upgrade to Ubuntu 18.04 or Ubuntu 20.04 - https://setup-php.com/i/452');
+        }
         if (version) {
             const os_version = process.platform;
             let script_path = '';

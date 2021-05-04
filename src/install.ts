@@ -67,6 +67,11 @@ export async function run(): Promise<void> {
       );
       return;
     }
+    if ((await utils.readEnv('ImageOS')) == 'ubuntu16') {
+      core.warning(
+        'Ubuntu 16.04 is deprecated.\nPlease upgrade to Ubuntu 18.04 or Ubuntu 20.04 - https://setup-php.com/i/452'
+      );
+    }
     if (version) {
       const os_version: string = process.platform;
       // check the os version and run the respective script

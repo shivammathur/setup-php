@@ -134,31 +134,43 @@ update_dependencies() {
   fi
 }
 
+# Function to get PHP version if it is already installed using Homebrew.
+get_brewed_php() {
+  php_cellar="$brew_prefix"/Cellar/php
+  if [ -d "$php_cellar" ] && ! [[ "$(find "$php_cellar" -maxdepth 1 -name "$version*" | wc -l 2>/dev/null)" -eq 0 ]]; then
+    php-config --version 2>/dev/null | cut -c 1-3
+  else
+    echo 'false';
+  fi
+}
+
 # Function to setup PHP 5.6 and newer using Homebrew.
 add_php() {
   action=$1
+  existing_version=$2
+  php_formula=shivammathur/php/php@"$version"
   add_brew_tap shivammathur/homebrew-php
   update_dependencies
-  if ! [[ "$(find "$(brew --cellar)"/php/ -maxdepth 1 -name "$version*" | wc -l 2>/dev/null)" -eq 0 ]] && [ "$action" != "upgrade" ]; then
-    brew unlink shivammathur/php/php@"$version"
+  if [ "$existing_version" != "false" ]; then
+    ([ "$action" = "upgrade" ] && brew upgrade -f "$php_formula") || brew unlink "$php_formula"
   else
-    brew upgrade -f "shivammathur/php/php@$version" 2>/dev/null || brew install -f "shivammathur/php/php@$version"
+    brew install -f "$php_formula"
   fi
-  brew link --force --overwrite shivammathur/php/php@"$version"
+  brew link --force --overwrite "$php_formula"
 }
 
 # Function to Setup PHP
 setup_php() {
   step_log "Setup PHP"
-  existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
+  existing_version=$(get_brewed_php)
   if [[ "$version" =~ ${old_versions:?} ]]; then
     run_script "php5-darwin" "${version/./}" >/dev/null 2>&1
     status="Installed"
   elif [ "$existing_version" != "$version" ]; then
-    add_php "install" >/dev/null 2>&1
+    add_php "install" "$existing_version" >/dev/null 2>&1
     status="Installed"
   elif [ "$existing_version" = "$version" ] && [ "${update:?}" = "true" ]; then
-    add_php "upgrade" >/dev/null 2>&1
+    add_php "upgrade" "$existing_version" >/dev/null 2>&1
     status="Updated to"
   else
     status="Found"

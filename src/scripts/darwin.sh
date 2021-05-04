@@ -257,6 +257,16 @@ update_dependencies() {
   fi
 }
 
+# Function to get PHP version if it is already installed using Homebrew.
+get_brewed_php() {
+  php_cellar="$brew_prefix"/Cellar/php
+  if [ -d "$php_cellar" ] && ! [[ "$(find "$php_cellar" -maxdepth 1 -name "$version*" | wc -l 2>/dev/null)" -eq 0 ]]; then
+    php-config --version 2>/dev/null | cut -c 1-3
+  else
+    echo 'false';
+  fi
+}
+
 # Function to setup PHP and composer
 setup_php() {
   add_brew_tap shivammathur/homebrew-php
@@ -287,7 +297,7 @@ composer_lock="$HOME/.composer/composer.lock"
 brew_prefix="$(brew --prefix)"
 brew_repo="$(brew --repository)"
 tap_dir="$brew_repo"/Library/Taps
-existing_version=$(php-config --version 2>/dev/null | cut -c 1-3)
+existing_version=$(get_brewed_php)
 export HOMEBREW_CHANGE_ARCH_TO_ARM=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_AUTO_UPDATE=1

@@ -56,14 +56,14 @@ export async function build(
 export async function run(): Promise<void> {
   try {
     core.warning(
-      'setup-php v1 is deprecated.\nPlease upgrade to v2 - https://github.com/shivammathur/setup-php/wiki/Switch-to-v2'
+      'setup-php v1 is deprecated.\nPlease upgrade to v2 - https://setup-php.com/w/Switch-to-v2'
     );
     const version: string = await utils.parseVersion(
       await utils.getInput('php-version', true)
     );
     if (version == '8.1') {
       core.setFailed(
-        'PHP 8.1 is not supported on setup-php v1.\nPlease upgrade to v2 - https://github.com/shivammathur/setup-php/wiki/Switch-to-v2'
+        'PHP 8.1 is not supported on setup-php v1.\nPlease upgrade to v2 - https://setup-php.com/w/Switch-to-v2'
       );
       return;
     }

@@ -3,7 +3,7 @@ self_hosted_helper() {
   if ! command -v apt-fast >/dev/null; then
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
   fi
-  install_packages apt-https-transport curl make software-properties-common unzip autoconf automake gcc g++
+  install_packages apt-transport-https curl make software-properties-common unzip autoconf automake gcc g++
   add_ppa ondrej/php
 }
 
@@ -37,7 +37,7 @@ add_ppa() {
 # Function to update the package lists.
 update_lists() {
   if [ ! -e /tmp/setup_php ]; then
-    add_ppa >/dev/null 2>&1
+    [ "${runner:?}" != "self-hosted" ] && add_ppa >/dev/null 2>&1
     cleanup_lists
     sudo "$debconf_fix" apt-get update >/dev/null 2>&1
     echo '' | sudo tee /tmp/setup_php >/dev/null 2>&1

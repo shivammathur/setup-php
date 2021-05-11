@@ -119,6 +119,25 @@ Function Install-PSPackage() {
   }
 }
 
+Function Add-ExtensionPrerequisites{
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $extension
+  )
+  $deps_dir = "$ext_dir\php$version-$extension"
+  $extensions_with_dependencies = ('imagick')
+  if($extensions_with_dependencies.Contains($extension)) {
+    if(-not(Test-Path $deps_dir)) {
+      New-Item $deps_dir -Type Directory 2>&1 | Out-Null
+      Install-PhpExtensionPrerequisite -Extension $extension -InstallPath $deps_dir -PhpPath $php_dir
+    }
+    Add-Path -PathItem $deps_dir
+  }
+}
+
 # Function to add PHP extensions.
 Function Add-Extension {
   Param (
@@ -149,16 +168,18 @@ Function Add-Extension {
           Add-Log $tick $extension "Enabled"
         }
         default {
+          Add-ExtensionPrerequisites $extension
           Enable-PhpExtension -Extension $extension_info.Handle -Path $php_dir
           Add-Log $tick $extension "Enabled"
         }
       }
     }
     else {
+      Add-ExtensionPrerequisites $extension
       if($extension_version -ne '') {
-        Install-PhpExtension -Extension $extension -Version $extension_version -MinimumStability $stability -MaximumStability $stability -Path $php_dir
+        Install-PhpExtension -Extension $extension -Version $extension_version -MinimumStability $stability -MaximumStability $stability -Path $php_dir -NoDependencies
       } else {
-        Install-PhpExtension -Extension $extension -MinimumStability $stability -MaximumStability $stability -Path $php_dir
+        Install-PhpExtension -Extension $extension -MinimumStability $stability -MaximumStability $stability -Path $php_dir -NoDependencies
       }
 
       Add-Log $tick $extension "Installed and enabled"

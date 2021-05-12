@@ -134,7 +134,9 @@ Function Add-ExtensionPrerequisites{
       New-Item $deps_dir -Type Directory 2>&1 | Out-Null
       Install-PhpExtensionPrerequisite -Extension $extension -InstallPath $deps_dir -PhpPath $php_dir
     }
-    Add-Path -PathItem $deps_dir
+    Get-ChildItem -Recurse -Path $deps_dir | ForEach-Object {
+      New-Item -Itemtype SymbolicLink -Path $php_dir -Name $_.Name -Target $_.FullName -Force >$null 2>&1
+    }
   }
 }
 

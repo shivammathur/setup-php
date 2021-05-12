@@ -127,7 +127,7 @@ Function Add-ExtensionPrerequisites{
     [string]
     $extension
   )
-  $deps_dir = "$ext_dir\php$version-$extension"
+  $deps_dir = "$ext_dir\$extension-vc$installed.VCVersion-$arch"
   $extensions_with_dependencies = ('imagick')
   if($extensions_with_dependencies.Contains($extension)) {
     if(-not(Test-Path $deps_dir)) {

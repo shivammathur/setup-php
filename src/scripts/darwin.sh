@@ -71,6 +71,7 @@ add_brew_extension() {
     add_brew_tap shivammathur/homebrew-php
     add_brew_tap shivammathur/homebrew-extensions
     sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$formula"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
+    update_dependencies >/dev/null 2>&1
     brew install -f "$formula@$version" >/dev/null 2>&1
     sudo cp "$brew_prefix/opt/$formula@$version/$extension.so" "$ext_dir"
     add_extension_log "$extension" "Installed and enabled"
@@ -118,19 +119,31 @@ link_libraries() {
 }
 
 update_dependencies_helper() {
-  formula=$1
-  get -q -n "$tap_dir/homebrew/homebrew-core/Formula/$formula.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb"
-  link_libraries "$formula"
+  dependency=$1
+  get -q -n "$tap_dir/homebrew/homebrew-core/Formula/$dependency.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$dependency.rb"
+  link_libraries "$dependency"
 }
 
 # Function to update dependencies.
 update_dependencies() {
-  if [ "${runner:?}" != "self-hosted" ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
-    while read -r formula; do
-      update_dependencies_helper "$formula" &
+  if ! [ -e /tmp/update_dependencies ] && [ "${runner:?}" != "self-hosted" ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
+    while read -r dependency; do
+      update_dependencies_helper "$dependency" &
       to_wait+=($!)
     done <"$tap_dir/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
     wait "${to_wait[@]}"
+    echo '' | sudo tee /tmp/update_dependencies >/dev/null 2>&1
+  fi
+}
+
+# Function to fix dependencies on install php version
+fix_dependencies() {
+  broken_deps_paths=$(php -v 2>&1 | grep -Eo '/opt/[a-zA-Z0-9@\.]+')
+  if [ "x$broken_deps_paths" != "x" ]; then
+    update_dependencies
+    IFS=" " read -r -a formulae <<< "$(echo "$broken_deps_paths" | tr '\n' ' ' | sed 's|/opt/||g' 2>&1)$php_formula"
+    brew reinstall "${formulae[@]}"
+    brew link --force --overwrite "$php_formula" || true
   fi
 }
 
@@ -148,7 +161,6 @@ get_brewed_php() {
 add_php() {
   action=$1
   existing_version=$2
-  php_formula=shivammathur/php/php@"$version"
   add_brew_tap shivammathur/homebrew-php
   update_dependencies
   if [ "$existing_version" != "false" ]; then
@@ -174,6 +186,7 @@ setup_php() {
     status="Updated to"
   else
     status="Found"
+    fix_dependencies >/dev/null 2>&1
   fi
   ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
   sudo chmod 777 "$ini_file" "${tool_path_dir:?}"
@@ -193,6 +206,7 @@ setup_php() {
 # Variables
 version=$1
 dist=$2
+php_formula=shivammathur/php/php@"$version"
 brew_prefix="$(brew --prefix)"
 brew_repo="$(brew --repository)"
 tap_dir="$brew_repo"/Library/Taps

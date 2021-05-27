@@ -7,13 +7,13 @@ self_hosted_helper() {
   fi
 }
 
-# Function to delete extension
+# Function to delete extension.
 delete_extension() {
   extension=$1
   sudo rm -rf "${scan_dir:?}"/*"$extension"* "${ext_dir:?}"/"$extension".so >/dev/null 2>&1
 }
 
-# Function to disable extension
+# Function to disable extension.
 disable_extension() {
   extension=$1
   sudo sed -Ei '' "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file:?}"
@@ -32,7 +32,7 @@ remove_extension() {
   fi
 }
 
-# Function to fetch a brew tap
+# Function to fetch a brew tap.
 fetch_brew_tap() {
   tap=$1
   tap_user=$(dirname "$tap")
@@ -78,7 +78,7 @@ add_brew_extension() {
   fi
 }
 
-# Function to setup extensions
+# Function to setup extensions.
 add_extension() {
   extension=$1
   prefix=$2
@@ -106,7 +106,7 @@ add_pecl() {
   add_log "${tick:?}" "PECL" "Found PECL $pecl_version"
 }
 
-# Function to link all libraries of a formula
+# Function to link all libraries of a formula.
 link_libraries() {
   formula=$1
   formula_prefix="$(brew --prefix "$formula")"
@@ -117,13 +117,14 @@ link_libraries() {
   done
 }
 
-# Patch brew to overwrite packages
+# Patch brew to overwrite packages.
 patch_brew() {
   sudo sed -i '' "s/ keg.link(verbose: verbose?)/ keg.link(verbose: verbose?, overwrite: true)/" "$brew_repo"/Library/Homebrew/formula_installer.rb
   # shellcheck disable=SC2064
   trap "git -C $brew_repo stash >/dev/null 2>&1" exit
 }
 
+# Helper function to update the dependencies.
 update_dependencies_helper() {
   dependency=$1
   get -q -n "$tap_dir/homebrew/homebrew-core/Formula/$dependency.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$dependency.rb"
@@ -143,7 +144,7 @@ update_dependencies() {
   fi
 }
 
-# Function to fix dependencies on install php version
+# Function to fix dependencies on install PHP version.
 fix_dependencies() {
   broken_deps_paths=$(php -v 2>&1 | grep -Eo '/opt/[a-zA-Z0-9@\.]+')
   if [ "x$broken_deps_paths" != "x" ]; then
@@ -178,7 +179,7 @@ add_php() {
   brew link --force --overwrite "$php_formula"
 }
 
-# Function to Setup PHP
+# Function to Setup PHP.
 setup_php() {
   step_log "Setup PHP"
   existing_version=$(get_brewed_php)

@@ -238,14 +238,20 @@ link_libraries() {
   for lib in "$formula_prefix"/lib/*.dylib; do
     [ -f "$lib" ] || break
     lib_name=$(basename "$lib")
-    sudo cp -a "$lib" "$brew_prefix/lib/old_$lib_name" 2>/dev/null || true
-    sudo ln -sf "$brew_prefix/lib/old_$lib_name" "$brew_prefix/lib/$lib_name"
+    sudo cp -a "$lib" "$brew_prefix/lib/$lib_name" 2>/dev/null || true
   done
+}
+
+patch_brew() {
+  sudo sed -i '' "s/ keg.link(verbose: verbose?)/ keg.link(verbose: verbose?, overwrite: true)/" "$brew_repo"/Library/Homebrew/formula_installer.rb
+  # shellcheck disable=SC2064
+  trap "git -C $brew_repo stash >/dev/null 2>&1" exit
 }
 
 # Function to update dependencies
 update_dependencies() {
   if [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
+    patch_brew
     while read -r formula; do
       (
         curl -o "$tap_dir/homebrew/homebrew-core/Formula/$formula.rb" "${curl_opts[@]}" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb"

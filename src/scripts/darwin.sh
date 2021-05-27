@@ -113,9 +113,15 @@ link_libraries() {
   sudo mkdir -p "$formula_prefix"/lib
   for lib in "$formula_prefix"/lib/*.dylib; do
     lib_name=$(basename "$lib")
-    sudo cp -a "$lib" "$brew_prefix/lib/old_$lib_name" 2>/dev/null || true
-    sudo ln -sf "$brew_prefix"/lib/old_"$lib_name" "$brew_prefix/lib/$lib_name"
+    sudo cp -a "$lib" "$brew_prefix/lib/$lib_name" 2>/dev/null || true
   done
+}
+
+# Patch brew to overwrite packages
+patch_brew() {
+  sudo sed -i '' "s/ keg.link(verbose: verbose?)/ keg.link(verbose: verbose?, overwrite: true)/" "$brew_repo"/Library/Homebrew/formula_installer.rb
+  # shellcheck disable=SC2064
+  trap "git -C $brew_repo stash >/dev/null 2>&1" exit
 }
 
 update_dependencies_helper() {
@@ -127,6 +133,7 @@ update_dependencies_helper() {
 # Function to update dependencies.
 update_dependencies() {
   if ! [ -e /tmp/update_dependencies ] && [ "${runner:?}" != "self-hosted" ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
+    patch_brew
     while read -r dependency; do
       update_dependencies_helper "$dependency" &
       to_wait+=($!)

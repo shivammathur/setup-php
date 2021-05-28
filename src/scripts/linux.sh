@@ -63,9 +63,7 @@ delete_extension() {
   extension=$1
   disable_extension "$extension"
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
-  if [ "${runner:?}" = "self-hosted" ]; then
-    $apt_remove "php-$extension" "php$version-$extension" >/dev/null 2>&1 || true
-  fi
+  sudo sed -i "/Package: php$version-$extension/,/^$/d" /var/lib/dpkg/status
 }
 
 # Function to disable and delete extensions.
@@ -74,7 +72,6 @@ remove_extension() {
   if check_extension "$extension"; then
     if [[ ! "$version" =~ ${old_versions:?} ]] && [ -e /etc/php/"$version"/mods-available/"$extension".ini ]; then
       sudo phpdismod -v "$version" "$extension" >/dev/null 2>&1
-      echo "$extension" | sudo tee -a /tmp/setup_php_dismod >/dev/null 2>&1
     fi
     delete_extension "$extension"
     (! check_extension "$extension" && add_log "${tick:?}" ":$extension" "Removed") ||
@@ -270,7 +267,6 @@ version=$1
 dist=$2
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y"
-apt_remove="sudo $debconf_fix apt-fast remove -y"
 scripts="${dist}"/../src/scripts
 
 # shellcheck source=.

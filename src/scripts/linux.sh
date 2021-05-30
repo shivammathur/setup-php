@@ -89,9 +89,7 @@ pecl_install() {
 
 # Function to enable existing extensions.
 enable_extension() {
-  if [ -e /tmp/setup_php_dismod ] && grep -q "$1" /tmp/setup_php_dismod; then
-    sudo phpenmod -v "$version" "$1" >/dev/null 2>&1
-  fi
+  sudo find /var/lib/php/modules/"$version" -path "*disabled*$1" -delete
   if ! check_extension "$1" && [ -e "$ext_dir/$1.so" ]; then
     echo "$2=$ext_dir/$1.so" | sudo tee -a "$pecl_file" >/dev/null
   fi
@@ -114,6 +112,7 @@ delete_extension() {
   sudo sed -Ei "/=(.*\/)?\"?$extension/d" "$pecl_file"
   sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
+  sudo sed -i "/Package: php$version-$extension/,/^$/d" /var/lib/dpkg/status
 }
 
 # Function to disable and delete extensions
@@ -121,7 +120,6 @@ remove_extension() {
   extension=$1
   if [ -e /etc/php/"$version"/mods-available/"$extension".ini ]; then
     sudo phpdismod -v "$version" "$extension"
-    echo "$extension" | sudo tee -a /tmp/setup_php_dismod >/dev/null 2>&1
   fi
   delete_extension "$extension"
 }
@@ -131,9 +129,8 @@ add_extension() {
   extension=$1
   install_command=$2
   prefix=$3
-  if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    echo "$prefix=$extension.so" >>"$ini_file" && add_log "$tick" "$extension" "Enabled"
-  elif check_extension "$extension"; then
+  enable_extension "$extension" "$prefix"
+  if check_extension "$extension"; then
     add_log "$tick" "$extension" "Enabled"
   elif ! check_extension "$extension"; then
     eval "$install_command" >/dev/null 2>&1 ||
@@ -153,9 +150,7 @@ add_pecl_extension() {
   if [[ $pecl_version =~ .*(alpha|beta|rc|snapshot|preview).* ]]; then
     pecl_version=$(get_pecl_version "$extension" "$pecl_version")
   fi
-  if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
-    echo "$prefix=$ext_dir/$extension.so" >>"$pecl_file"
-  fi
+  enable_extension "$extension" "$prefix"
   ext_version=$(php -r "echo phpversion('$extension');")
   if [ "$ext_version" = "$pecl_version" ]; then
     add_log "$tick" "$extension" "Enabled"

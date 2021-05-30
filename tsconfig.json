@@ -10,7 +10,7 @@
     "outDir": "./lib",
     "removeComments": true,
     "rootDir": "./src",
-    "sourceMap": false,
+    "sourceMap": true,
     "strict": true,
     "target": "ESNext"
   },

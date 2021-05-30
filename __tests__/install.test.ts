@@ -4,61 +4,61 @@ import * as install from '../src/install';
  * Mock install.ts
  */
 jest.mock('../src/install', () => ({
-  build: jest.fn().mockImplementation(
-    async (
-      filename: string,
-      version: string,
-      os_version: string
-    ): Promise<string> => {
-      const extension_csv: string = process.env['extensions'] || '';
-      const ini_values_csv: string = process.env['ini-values'] || '';
-      const coverage_driver: string = process.env['coverage'] || '';
-      let tools_csv: string = process.env['tools'] || '';
-      const pecl: string = process.env['pecl'] || '';
-      if (pecl == 'true') {
-        tools_csv = 'pecl, ' + tools_csv;
-      }
+  build: jest
+    .fn()
+    .mockImplementation(
+      async (
+        filename: string,
+        version: string,
+        os_version: string
+      ): Promise<string> => {
+        const extension_csv: string = process.env['extensions'] || '';
+        const ini_values_csv: string = process.env['ini-values'] || '';
+        const coverage_driver: string = process.env['coverage'] || '';
+        let tools_csv: string = process.env['tools'] || '';
+        const pecl: string = process.env['pecl'] || '';
+        if (pecl == 'true') {
+          tools_csv = 'pecl, ' + tools_csv;
+        }
 
-      let script = 'initial script ' + filename + version + os_version;
-      if (tools_csv) {
-        script += 'add_tool';
-      }
-      if (extension_csv) {
-        script += 'install extensions';
-      }
-      if (coverage_driver) {
-        script += 'set coverage driver';
-      }
-      if (ini_values_csv) {
-        script += 'edit php.ini';
-      }
+        let script = 'initial script ' + filename + version + os_version;
+        if (tools_csv) {
+          script += 'add_tool';
+        }
+        if (extension_csv) {
+          script += 'install extensions';
+        }
+        if (coverage_driver) {
+          script += 'set coverage driver';
+        }
+        if (ini_values_csv) {
+          script += 'edit php.ini';
+        }
 
-      return script;
+        return script;
+      }
+    ),
+  run: jest.fn().mockImplementation(async (): Promise<string> => {
+    const os_version: string = process.env['RUNNER_OS'] || '';
+    let version: string = process.env['php-version'] || '';
+    version = version.length > 1 ? version.slice(0, 3) : version + '.0';
+    let script = '';
+    switch (os_version) {
+      case 'darwin':
+      case 'linux':
+        script = await install.build(os_version + '.sh', version, os_version);
+        script += 'bash script.sh ' + version + ' ' + __dirname;
+        break;
+      case 'win32':
+        script = await install.build(os_version + '.sh', version, os_version);
+        script += 'pwsh script.ps1 ' + version + ' ' + __dirname;
+        break;
+      default:
+        script += os_version + ' is not supported';
     }
-  ),
-  run: jest.fn().mockImplementation(
-    async (): Promise<string> => {
-      const os_version: string = process.env['RUNNER_OS'] || '';
-      let version: string = process.env['php-version'] || '';
-      version = version.length > 1 ? version.slice(0, 3) : version + '.0';
-      let script = '';
-      switch (os_version) {
-        case 'darwin':
-        case 'linux':
-          script = await install.build(os_version + '.sh', version, os_version);
-          script += 'bash script.sh ' + version + ' ' + __dirname;
-          break;
-        case 'win32':
-          script = await install.build(os_version + '.sh', version, os_version);
-          script += 'pwsh script.ps1 ' + version + ' ' + __dirname;
-          break;
-        default:
-          script += os_version + ' is not supported';
-      }
 
-      return script;
-    }
-  )
+    return script;
+  })
 }));
 
 /**

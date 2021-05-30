@@ -8,11 +8,9 @@ jest.mock('@actions/core', () => ({
   })
 }));
 
-jest.spyOn(utils, 'fetch').mockImplementation(
-  async (url): Promise<string> => {
-    return `{ "latest": "8.0", "5.x": "5.6", "url": "${url}" }`;
-  }
-);
+jest.spyOn(utils, 'fetch').mockImplementation(async (url): Promise<string> => {
+  return `{ "latest": "8.0", "5.x": "5.6", "url": "${url}" }`;
+});
 
 async function cleanup(path: string): Promise<void> {
   fs.unlink(path, error => {

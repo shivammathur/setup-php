@@ -5,55 +5,55 @@ import * as utils from '../src/utils';
  * Mock install.ts
  */
 jest.mock('../src/install', () => ({
-  getScript: jest.fn().mockImplementation(
-    async (
-      filename: string,
-      version: string,
-      os_version: string
-    ): Promise<string> => {
-      const extension_csv: string = process.env['extensions'] || '';
-      const ini_values_csv: string = process.env['ini-values'] || '';
-      const coverage_driver: string = process.env['coverage'] || '';
-      let tools_csv: string = process.env['tools'] || '';
-      const pecl: string = process.env['pecl'] || '';
-      if (pecl == 'true') {
-        tools_csv = 'pecl, ' + tools_csv;
-      }
+  getScript: jest
+    .fn()
+    .mockImplementation(
+      async (
+        filename: string,
+        version: string,
+        os_version: string
+      ): Promise<string> => {
+        const extension_csv: string = process.env['extensions'] || '';
+        const ini_values_csv: string = process.env['ini-values'] || '';
+        const coverage_driver: string = process.env['coverage'] || '';
+        let tools_csv: string = process.env['tools'] || '';
+        const pecl: string = process.env['pecl'] || '';
+        if (pecl == 'true') {
+          tools_csv = 'pecl, ' + tools_csv;
+        }
 
-      let script = 'initial script ' + filename + version + os_version;
-      if (tools_csv) {
-        script += 'add_tool';
-      }
-      if (extension_csv) {
-        script += 'install extensions';
-      }
-      if (coverage_driver) {
-        script += 'set coverage driver';
-      }
-      if (ini_values_csv) {
-        script += 'edit php.ini';
-      }
+        let script = 'initial script ' + filename + version + os_version;
+        if (tools_csv) {
+          script += 'add_tool';
+        }
+        if (extension_csv) {
+          script += 'install extensions';
+        }
+        if (coverage_driver) {
+          script += 'set coverage driver';
+        }
+        if (ini_values_csv) {
+          script += 'edit php.ini';
+        }
 
-      return script;
-    }
-  ),
-  run: jest.fn().mockImplementation(
-    async (): Promise<string> => {
-      const os_version: string = process.env['RUNNER_OS'] || '';
-      const version: string = await utils.parseVersion(
-        await utils.getInput('php-version', true)
-      );
-      const tool = await utils.scriptTool(os_version);
-      const filename = os_version + (await utils.scriptExtension(os_version));
-      return [
-        await install.getScript(filename, version, os_version),
-        tool,
-        filename,
-        version,
-        __dirname
-      ].join(' ');
-    }
-  )
+        return script;
+      }
+    ),
+  run: jest.fn().mockImplementation(async (): Promise<string> => {
+    const os_version: string = process.env['RUNNER_OS'] || '';
+    const version: string = await utils.parseVersion(
+      await utils.getInput('php-version', true)
+    );
+    const tool = await utils.scriptTool(os_version);
+    const filename = os_version + (await utils.scriptExtension(os_version));
+    return [
+      await install.getScript(filename, version, os_version),
+      tool,
+      filename,
+      version,
+      __dirname
+    ].join(' ');
+  })
 }));
 
 /**

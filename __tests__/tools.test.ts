@@ -152,9 +152,9 @@ describe('Tools tests', () => {
       'a',
       'b'
     ]);
-    expect(
-      await tools.addComposer(['a', 'b', 'composer:1.2.3'])
-    ).toStrictEqual(['composer:1.2.3', 'a', 'b']);
+    expect(await tools.addComposer(['a', 'b', 'composer:1.2.3'])).toStrictEqual(
+      ['composer:1.2.3', 'a', 'b']
+    );
     expect(
       await tools.addComposer(['a', 'b', 'composer:v1.2.3'])
     ).toStrictEqual(['composer:1.2.3', 'a', 'b']);

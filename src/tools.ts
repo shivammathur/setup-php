@@ -7,7 +7,8 @@ import * as utils from './utils';
  */
 export async function getToolVersion(version: string): Promise<string> {
   // semver_regex - https://semver.org/
-  const semver_regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+  const semver_regex =
+    /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
   const composer_regex = /^stable$|^preview$|^snapshot$|^v?[1|2]$/;
   version = version.replace(/[><=^]*/, '');
   switch (true) {
@@ -250,7 +251,8 @@ export async function getWpCliUrl(version: string): Promise<string> {
  */
 export async function addComposer(tools_list: string[]): Promise<string[]> {
   const regex_any = /^composer($|:.*)/;
-  const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$|v?\d+\.\d+\.\d+[\w-]*$)/;
+  const regex_valid =
+    /^composer:?($|preview$|snapshot$|v?[1-2]$|v?\d+\.\d+\.\d+[\w-]*$)/;
   const matches: string[] = tools_list.filter(tool => regex_valid.test(tool));
   let composer = 'composer';
   tools_list = tools_list.filter(tool => !regex_any.test(tool));

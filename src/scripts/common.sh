@@ -126,9 +126,8 @@ enable_cache_extension() {
 
 # Function to enable existing extensions.
 enable_extension() {
-  if [ -e /tmp/setup_php_dismod ] && grep -q "$1" /tmp/setup_php_dismod; then
-    sudo phpenmod -v "$version" "$1" >/dev/null 2>&1
-  fi
+  modules_dir="/var/lib/php/modules/$version"
+  [ -d "$modules_dir" ] && sudo find "$modules_dir" -path "*disabled*$1" -delete
   if [ -d /tmp/extcache/"$1" ]; then
     enable_cache_extension "$1" "$2"
   elif ! check_extension "$1" && [ -e "${ext_dir:?}/$1.so" ]; then

@@ -105,9 +105,8 @@ check_extension() {
 
 # Function to enable existing extensions.
 enable_extension() {
-  if [ -e /tmp/setup_php_dismod ] && grep -q "$1" /tmp/setup_php_dismod; then
-    sudo phpenmod -v "$version" "$1" >/dev/null 2>&1
-  fi
+  modules_dir="/var/lib/php/modules/$version"
+  [ -d "$modules_dir" ] && sudo find "$modules_dir" -path "*disabled*$1" -delete
   if ! check_extension "$1" && [ -e "${ext_dir:?}/$1.so" ]; then
     echo "$2=${ext_dir:?}/$1.so" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null
   fi

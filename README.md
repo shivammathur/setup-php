@@ -846,11 +846,11 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 - See [Contributor's Guide](.github/CONTRIBUTING.md "shivammathur/setup-php contribution guide") before you start.
 - If you face any issues or want to suggest a feature/improvement, start a discussion [here](https://github.com/shivammathur/setup-php/discussions "Setup PHP discussions").
 
-*Join the list of setup-php contributors*
+*Contributors of `setup-php` and other related projects*
 
 <p align="center">
   <a href="https://github.com/shivammathur/setup-php/graphs/contributors">
-    <img src="https://opencollective.com/setup-php/contributors.svg?width=1024&button=false" alt="setup-php contributors" width="100%">
+    <img src="https://setup-php.com/contributors/?" alt="Contributors of setup-php and related projects" width="100%">
   </a>
 </p>
 

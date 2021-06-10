@@ -220,7 +220,7 @@ These tools can be setup globally using the `tools` input. It accepts a string i
 - If you do not use composer in your workflow, you can specify `tools: none` to skip it.
 
 ```yaml
-- name: Setup PHP with composer v2
+- name: Setup PHP without composer
   uses: shivammathur/setup-php@v2
   with:
     php-version: '7.4'

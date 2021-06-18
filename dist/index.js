@@ -497,10 +497,8 @@ const utils = __importStar(__nccwpck_require__(918));
 async function getToolVersion(version) {
     const semver_regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
     const composer_regex = /^stable$|^preview$|^snapshot$|^v?[1|2]$/;
-    version = version.replace(/[><=^]*/, '');
+    version = version.replace(/[><=^]*/, '').replace(/^v(\d)/, '$1');
     switch (true) {
-        case version.charAt(0) == 'v':
-            return version.replace('v', '');
         case composer_regex.test(version):
         case semver_regex.test(version):
             return version;

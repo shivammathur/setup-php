@@ -302,8 +302,8 @@ Function Add-Tool() {
     $bat_content += "SET BIN_TARGET=%~dp0/" + $tool
     $bat_content += "php %BIN_TARGET% %*"
     Set-Content -Path $bin_dir\$tool.bat -Value $bat_content
-    Add-ToProfile $current_profile $tool "New-Alias $tool $bin_dir\$tool.bat" >$null 2>&1
     Add-ToolsHelper $tool
+    Add-ToProfile $current_profile $tool "New-Alias $tool $bin_dir\$tool.bat" >$null 2>&1
     $tool_version = Get-ToolVersion $tool $ver_param
     Add-Log $tick $tool "Added $tool $tool_version"
   } else {

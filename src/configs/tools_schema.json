@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/shivammathur/setup-php/develop/src/configs/tools_schema.json",
+  "type": "object",
+  "title": "Tools",
+  "default": {},
+  "examples": [
+    {
+      "tool": {
+        "alias": "tool_alias",
+        "domain": "https://example.com",
+        "extension": ".ext",
+        "function": "function_name",
+        "repository": "user/tool",
+        "type": "phar, composer, custom-package or custom-function",
+        "version_parameter": "--version",
+        "version_prefix": "v"
+      }
+    }
+  ],
+  "items": {
+    "properties": {
+      "alias": {
+        "$id": "#/items/properties/alias",
+        "type": "string",
+        "title": "The alias schema",
+        "description": "Alias for a tool.",
+        "examples": [
+          "tool_alias"
+        ]
+      },
+      "domain": {
+        "$id": "#/items/properties/domain",
+        "type": "string",
+        "title": "The domain schema",
+        "description": "Domain URL of the tool.",
+        "examples": [
+          "https://example.com"
+        ]
+      },
+      "extension": {
+        "$id": "#/items/properties/extension",
+        "type": "string",
+        "title": "The extension schema",
+        "description": "File extension of the tool.",
+        "examples": [
+          ".ext"
+        ]
+      },
+      "function": {
+        "$id": "#/items/properties/function",
+        "type": "string",
+        "title": "The function schema",
+        "description": "Function name in tools.ts which returns the script to setup the tool.",
+        "examples": [
+          "function_name"
+        ]
+      },
+      "repository": {
+        "$id": "#/items/properties/repository",
+        "type": "string",
+        "title": "The repository schema",
+        "description": "GitHub repository of the tool.",
+        "examples": [
+          "user/tool"
+        ]
+      },
+      "type": {
+        "$id": "#/items/properties/type",
+        "type": "string",
+        "title": "The type schema",
+        "description": "Type of tool: phar, composer, custom-package or custom-function.",
+        "enum": [
+          "phar",
+          "composer",
+          "custom-package",
+          "custom-function"
+        ]
+      },
+      "version_parameter": {
+        "$id": "#/items/properties/version_parameter",
+        "type": "string",
+        "title": "The version_parameter schema",
+        "description": "Parameter to get the tool version.",
+        "examples": [
+          "--version"
+        ]
+      },
+      "version_prefix": {
+        "$id": "#/items/properties/version_prefix",
+        "type": "string",
+        "title": "The version_prefix schema",
+        "description": "Prefix of the version in the download URL.",
+        "examples": [
+          "v"
+        ]
+      }
+    },
+    "required": [
+      "type"
+    ],
+    "additionalProperties": true
+  }
+}

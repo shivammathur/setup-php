@@ -32,7 +32,7 @@ describe('Utils tests', () => {
     expect(await utils.getInput('test', false)).toBe('setup-php');
     expect(await utils.getInput('setup-php', false)).toBe('setup-php');
     expect(await utils.getInput('DoesNotExist', false)).toBe('');
-    expect(async () => {
+    await expect(async () => {
       await utils.getInput('DoesNotExist', true);
     }).rejects.toThrow('Input required and not supplied: DoesNotExist');
   });
@@ -70,7 +70,7 @@ describe('Utils tests', () => {
     expect(await utils.color('warning')).toBe('33');
   });
 
-  it('checking readScripts', async () => {
+  it('checking readFile', async () => {
     const darwin: string = fs.readFileSync(
       path.join(__dirname, '../src/scripts/darwin.sh'),
       'utf8'
@@ -83,12 +83,12 @@ describe('Utils tests', () => {
       path.join(__dirname, '../src/scripts/win32.ps1'),
       'utf8'
     );
-    expect(await utils.readScript('darwin.sh')).toBe(darwin);
-    expect(await utils.readScript('darwin.sh')).toBe(darwin);
-    expect(await utils.readScript('linux.sh')).toBe(linux);
-    expect(await utils.readScript('linux.sh')).toBe(linux);
-    expect(await utils.readScript('win32.ps1')).toBe(win32);
-    expect(await utils.readScript('win32.ps1')).toBe(win32);
+    expect(await utils.readFile('darwin.sh', 'src/scripts')).toBe(darwin);
+    expect(await utils.readFile('darwin.sh', 'src/scripts')).toBe(darwin);
+    expect(await utils.readFile('linux.sh', 'src/scripts')).toBe(linux);
+    expect(await utils.readFile('linux.sh', 'src/scripts')).toBe(linux);
+    expect(await utils.readFile('win32.ps1', 'src/scripts')).toBe(win32);
+    expect(await utils.readFile('win32.ps1', 'src/scripts')).toBe(win32);
   });
 
   it('checking writeScripts', async () => {

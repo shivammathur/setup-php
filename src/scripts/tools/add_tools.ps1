@@ -15,10 +15,10 @@ Function Add-ToolsHelper() {
     Add-Extension ast >$null 2>&1
   } elseif($tool -eq "phive") {
     Add-Extension xml >$null 2>&1
-  } elseif($tool -eq "symfony") {
-    Add-ToProfile $current_profile "symfony" "New-Alias symfony $bin_dir\$tool.exe"
-    Add-ToProfile $current_profile "symfony-cli" "New-Alias symfony-cli $bin_dir\$tool.exe"
-  } elseif($tool -eq "vapor-cli") {
+  } elseif($tool -eq "symfony-cli") {
+    Add-ToProfile $current_profile "symfony" "New-Alias symfony $bin_dir\symfony-cli.exe"
+    Add-ToProfile $current_profile "symfony_cli" "New-Alias symfony-cli $bin_dir\symfony-cli.exe"
+  } elseif($tool -match "vapor-cli") {
     Copy-Item $composer_bin\vapor.bat -Destination $composer_bin\vapor-cli.bat
   } elseif($tool -eq "wp-cli") {
     Copy-Item $bin_dir\wp-cli.bat -Destination $bin_dir\wp.bat

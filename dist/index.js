@@ -421,7 +421,7 @@ async function getScript(filename, version, os_version) {
     const ini_values_csv = await utils.getInput('ini-values', false);
     const coverage_driver = await utils.getInput('coverage', false);
     const tools_csv = await utils.getInput('tools', false);
-    let script = await utils.readScript(filename);
+    let script = await utils.readFile(filename, 'src/scripts');
     script += await tools.addTools(tools_csv, version, os_version);
     if (extension_csv) {
         script += await extensions.addExtension(extension_csv, version, os_version);
@@ -492,9 +492,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.addTools = exports.addPackage = exports.addDevTools = exports.addArchive = exports.getComposerUrl = exports.addComposer = exports.getWpCliUrl = exports.getSymfonyUri = exports.getDeployerUrl = exports.getBlackfirePlayerUrl = exports.getPharUrl = exports.addPhive = exports.getUri = exports.parseTool = exports.getToolVersion = void 0;
+exports.addTools = exports.initToolData = exports.functionRecord = exports.addWPCLI = exports.addSymfony = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.parseRelease = exports.getToolVersion = void 0;
 const utils = __importStar(__nccwpck_require__(918));
-async function getToolVersion(version) {
+async function getToolVersion(tool, version) {
     const semver_regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
     const composer_regex = /^stable$|^preview$|^snapshot$|^v?[1|2]$/;
     version = version.replace(/[><=^]*/, '').replace(/^v(\d)/, '$1');
@@ -507,128 +507,36 @@ async function getToolVersion(version) {
     }
 }
 exports.getToolVersion = getToolVersion;
-async function parseTool(release) {
+async function parseRelease(release, data) {
     const parts = release.split(':');
     const tool = parts[0];
     const version = parts[1];
+    release = release.includes('/')
+        ? release.split('/')[1].replace(/\s+/, '')
+        : release;
+    release = release.includes(':')
+        ? [data['tool'], release.split(':')[1]].join(':')
+        : data['tool'];
     switch (true) {
         case version === undefined:
             return {
-                name: tool,
+                release: release,
                 version: 'latest'
             };
         case /^[\w.-]+\/[\w.-]+$/.test(tool):
             return {
-                name: tool,
+                release: release,
                 version: version
             };
         default:
             return {
-                name: tool,
-                version: await getToolVersion(parts[1])
+                release: release,
+                version: await getToolVersion(parts[0], parts[1])
             };
     }
 }
-exports.parseTool = parseTool;
-async function getUri(tool, extension, version, prefix, version_prefix, verb) {
-    switch (version) {
-        case 'latest':
-            return [prefix, version, verb, tool + extension]
-                .filter(Boolean)
-                .join('/');
-        default:
-            return [prefix, verb, version_prefix + version, tool + extension]
-                .filter(Boolean)
-                .join('/');
-    }
-}
-exports.getUri = getUri;
-async function addPhive(version, php_version, os_version) {
-    switch (true) {
-        case /5\.[3-5]/.test(php_version):
-            return await utils.addLog('$cross', 'phive', 'Phive is not supported on PHP ' + php_version, os_version);
-        case /5\.6|7\.0/.test(php_version):
-            version = version.replace('latest', '0.12.1');
-            break;
-        case /7\.1/.test(php_version):
-            version = version.replace('latest', '0.13.5');
-            break;
-    }
-    switch (version) {
-        case 'latest':
-            return ((await utils.getCommand(os_version, 'tool')) +
-                'https://phar.io/releases/phive.phar phive status');
-        default:
-            return ((await utils.getCommand(os_version, 'tool')) +
-                'https://github.com/phar-io/phive/releases/download/' +
-                version +
-                '/phive-' +
-                version +
-                '.phar phive status');
-    }
-}
-exports.addPhive = addPhive;
-async function getPharUrl(domain, tool, prefix, version) {
-    switch (version) {
-        case 'latest':
-            return domain + '/' + tool + '.phar';
-        default:
-            return domain + '/' + tool + '-' + prefix + version + '.phar';
-    }
-}
-exports.getPharUrl = getPharUrl;
-async function getBlackfirePlayerUrl(version, php_version) {
-    switch (true) {
-        case /5\.[5-6]|7\.0/.test(php_version) && version == 'latest':
-            version = '1.9.3';
-            break;
-        default:
-            break;
-    }
-    return await getPharUrl('https://get.blackfire.io', 'blackfire-player', 'v', version);
-}
-exports.getBlackfirePlayerUrl = getBlackfirePlayerUrl;
-async function getDeployerUrl(version) {
-    const deployer = 'https://deployer.org';
-    switch (version) {
-        case 'latest':
-            return deployer + '/deployer.phar';
-        default:
-            return deployer + '/releases/v' + version + '/deployer.phar';
-    }
-}
-exports.getDeployerUrl = getDeployerUrl;
-async function getSymfonyUri(version, os_version) {
-    let filename = '';
-    switch (os_version) {
-        case 'linux':
-        case 'darwin':
-            filename = 'symfony_' + os_version + '_amd64';
-            break;
-        case 'win32':
-            filename = 'symfony_windows_amd64.exe';
-            break;
-        default:
-            return await utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
-    }
-    switch (version) {
-        case 'latest':
-            return 'releases/latest/download/' + filename;
-        default:
-            return 'releases/download/v' + version + '/' + filename;
-    }
-}
-exports.getSymfonyUri = getSymfonyUri;
-async function getWpCliUrl(version) {
-    switch (version) {
-        case 'latest':
-            return 'wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true';
-        default:
-            return await getUri('wp-cli', '-' + version + '.phar', version, 'wp-cli/wp-cli/releases', 'v', 'download');
-    }
-}
-exports.getWpCliUrl = getWpCliUrl;
-async function addComposer(tools_list) {
+exports.parseRelease = parseRelease;
+async function filterList(tools_list) {
     const regex_any = /^composer($|:.*)/;
     const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$|v?\d+\.\d+\.\d+[\w-]*$)/;
     const matches = tools_list.filter(tool => regex_valid.test(tool));
@@ -644,44 +552,219 @@ async function addComposer(tools_list) {
     tools_list.unshift(composer);
     return tools_list;
 }
-exports.addComposer = addComposer;
-async function getComposerUrl(version) {
-    let cache_url = `https://github.com/shivammathur/composer-cache/releases/latest/download/composer-${version.replace('latest', 'stable')}.phar`;
-    switch (true) {
-        case /^snapshot$/.test(version):
-            return `${cache_url},https://getcomposer.org/composer.phar`;
-        case /^preview$|^[1-2]$/.test(version):
-            return `${cache_url},https://getcomposer.org/composer-${version}.phar`;
-        case /^\d+\.\d+\.\d+[\w-]*$/.test(version):
-            cache_url = `https://github.com/composer/composer/releases/download/${version}/composer.phar`;
-            return `${cache_url},https://getcomposer.org/composer-${version}.phar`;
-        default:
-            return `${cache_url},https://getcomposer.org/composer-stable.phar`;
+exports.filterList = filterList;
+async function getUrl(data) {
+    if (data['version'] === 'latest') {
+        return [
+            data['domain'],
+            data['repository'],
+            data['prefix'],
+            data['version'],
+            data['verb'],
+            data['tool'] + data['extension']
+        ]
+            .filter(Boolean)
+            .join('/');
+    }
+    else {
+        return [
+            data['domain'],
+            data['repository'],
+            data['prefix'],
+            data['verb'],
+            data['version_prefix'] + data['version'],
+            data['tool'] + data['extension']
+        ]
+            .filter(Boolean)
+            .join('/');
     }
 }
-exports.getComposerUrl = getComposerUrl;
-async function addArchive(tool, url, os_version, ver_param) {
-    return ((await utils.getCommand(os_version, 'tool')) +
-        (await utils.joins(url, tool, ver_param)));
+exports.getUrl = getUrl;
+async function getPharUrl(data) {
+    if (data['version'] === 'latest') {
+        return data['domain'] + '/' + data['tool'] + '.phar';
+    }
+    else {
+        return (data['domain'] +
+            '/' +
+            data['tool'] +
+            '-' +
+            data['version_prefix'] +
+            data['version'] +
+            '.phar');
+    }
+}
+exports.getPharUrl = getPharUrl;
+async function addArchive(data) {
+    return ((await utils.getCommand(data['os_version'], 'tool')) +
+        (await utils.joins(data['url'], data['tool'], data['version_parameter'])));
 }
 exports.addArchive = addArchive;
-async function addDevTools(tool, os_version) {
-    switch (os_version) {
+async function addPackage(data) {
+    const command = await utils.getCommand(data['os_version'], 'composertool');
+    const parts = data['repository'].split('/');
+    return command + parts[1] + ' ' + data['release'] + ' ' + parts[0] + '/';
+}
+exports.addPackage = addPackage;
+async function addBlackfirePlayer(data) {
+    if (/5\.[5-6]|7\.0/.test(data['php_version']) &&
+        data['version'] == 'latest') {
+        data['version'] = '1.9.3';
+    }
+    data['url'] = await getPharUrl(data);
+    return addArchive(data);
+}
+exports.addBlackfirePlayer = addBlackfirePlayer;
+async function addComposer(data) {
+    const github = data['github'];
+    const getcomposer = data['domain'];
+    let cache_url = `${github}/shivammathur/composer-cache/releases/latest/download/composer-${data['version'].replace('latest', 'stable')}.phar`;
+    let source_url = `${getcomposer}/composer.phar`;
+    switch (true) {
+        case /^snapshot$/.test(data['version']):
+            break;
+        case /^preview$|^[1-2]$/.test(data['version']):
+            source_url = `${getcomposer}/composer-${data['version']}.phar`;
+            break;
+        case /^\d+\.\d+\.\d+[\w-]*$/.test(data['version']):
+            cache_url = `${github}/${data['repository']}/releases/download/${data['version']}/composer.phar`;
+            source_url = `${getcomposer}/composer-${data['version']}.phar`;
+            break;
+        default:
+            source_url = `${getcomposer}/composer-stable.phar`;
+    }
+    data['url'] = `${cache_url},${source_url}`;
+    data['version_parameter'] = data['version'];
+    return await addArchive(data);
+}
+exports.addComposer = addComposer;
+async function addDeployer(data) {
+    if (data['version'] === 'latest') {
+        data['url'] = data['domain'] + '/deployer.phar';
+    }
+    else {
+        data['url'] =
+            data['domain'] + '/releases/v' + data['version'] + '/deployer.phar';
+    }
+    return await addArchive(data);
+}
+exports.addDeployer = addDeployer;
+async function addDevTools(data) {
+    switch (data['os_version']) {
         case 'linux':
         case 'darwin':
-            return 'add_devtools ' + tool;
+            return 'add_devtools ' + data['tool'];
         case 'win32':
-            return await utils.addLog('$tick', tool, tool + ' is not a windows tool', 'win32');
+            return await utils.addLog('$tick', data['tool'], data['tool'] + ' is not a windows tool', 'win32');
         default:
-            return await utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+            return await utils.log('Platform ' + data['os_version'] + ' is not supported', data['os_version'], 'error');
     }
 }
 exports.addDevTools = addDevTools;
-async function addPackage(tool, release, prefix, os_version) {
-    const tool_command = await utils.getCommand(os_version, 'composertool');
-    return tool_command + tool + ' ' + release + ' ' + prefix;
+async function addPECL(data) {
+    return await utils.getCommand(data['os_version'], 'pecl');
 }
-exports.addPackage = addPackage;
+exports.addPECL = addPECL;
+async function addPhing(data) {
+    data['url'] =
+        data['domain'] + '/get/phing-' + data['version'] + data['extension'];
+    return await addArchive(data);
+}
+exports.addPhing = addPhing;
+async function addPhive(data) {
+    switch (true) {
+        case /5\.[3-5]/.test(data['php_version']):
+            return await utils.addLog('$cross', 'phive', 'Phive is not supported on PHP ' + data['php_version'], data['os_version']);
+        case /5\.6|7\.0/.test(data['php_version']):
+            data['version'] = data['version'].replace('latest', '0.12.1');
+            break;
+        case /7\.1/.test(data['php_version']):
+            data['version'] = data['version'].replace('latest', '0.13.5');
+            break;
+    }
+    if (data['version'] === 'latest') {
+        data['domain'] = data['domain'] + '/releases';
+    }
+    else {
+        data['domain'] = [
+            data['github'],
+            data['repository'],
+            'releases/download',
+            data['version']
+        ].join('/');
+    }
+    data['url'] = await getPharUrl(data);
+    return await addArchive(data);
+}
+exports.addPhive = addPhive;
+async function addPHPUnitTools(data) {
+    data['url'] = await getPharUrl(data);
+    return await addArchive(data);
+}
+exports.addPHPUnitTools = addPHPUnitTools;
+async function addSymfony(data) {
+    let filename;
+    switch (data['os_version']) {
+        case 'linux':
+        case 'darwin':
+            filename = 'symfony_' + data['os_version'] + '_amd64';
+            break;
+        case 'win32':
+            filename = 'symfony_windows_amd64.exe';
+            break;
+        default:
+            return await utils.log('Platform ' + data['os_version'] + ' is not supported', data['os_version'], 'error');
+    }
+    if (data['version'] === 'latest') {
+        data['uri'] = ['releases/latest/download', filename].join('/');
+    }
+    else {
+        data['uri'] = ['releases/download', 'v' + data['version'], filename].join('/');
+    }
+    data['url'] = [data['domain'], data['repository'], data['uri']].join('/');
+    return await addArchive(data);
+}
+exports.addSymfony = addSymfony;
+async function addWPCLI(data) {
+    if (data['version'] === 'latest') {
+        data['uri'] = 'wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true';
+        data['url'] = [data['domain'], data['uri']].join('/');
+    }
+    else {
+        data['extension'] = '-' + data['version'] + data['extension'];
+        data['url'] = await getUrl(data);
+    }
+    return await addArchive(data);
+}
+exports.addWPCLI = addWPCLI;
+exports.functionRecord = {
+    composer: addComposer,
+    deployer: addDeployer,
+    dev_tools: addDevTools,
+    phive: addPhive,
+    blackfire_player: addBlackfirePlayer,
+    pecl: addPECL,
+    phing: addPhing,
+    phpunit: addPHPUnitTools,
+    phpcpd: addPHPUnitTools,
+    symfony: addSymfony,
+    wp_cli: addWPCLI
+};
+async function initToolData(data, release, php_version, os_version) {
+    const release_data = await parseRelease(release, data);
+    data['version'] = release_data.version;
+    data['release'] = release_data.release;
+    data['version_parameter'] = JSON.stringify(data['version_parameter']);
+    data['os_version'] = os_version;
+    data['php_version'] = php_version;
+    data['github'] = 'https://github.com';
+    if (data['github'] === data['domain']) {
+        data['prefix'] = 'releases';
+        data['verb'] = 'download';
+    }
+    return data;
+}
+exports.initToolData = initToolData;
 async function addTools(tools_csv, php_version, os_version) {
     let script = '\n';
     if (tools_csv === 'none') {
@@ -690,135 +773,29 @@ async function addTools(tools_csv, php_version, os_version) {
     else {
         script += await utils.stepLog('Setup Tools', os_version);
     }
-    const tools_list = await addComposer(await utils.CSVArray(tools_csv));
+    const tools_list = await filterList(await utils.CSVArray(tools_csv));
     await utils.asyncForEach(tools_list, async function (release) {
-        const tool_data = await parseTool(release);
-        const tool = tool_data.name;
-        const version = tool_data.version;
-        const github = 'https://github.com/';
-        let uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
+        const data = await initToolData(await utils.getToolData(release.split(':')[0]), release, php_version, os_version);
         script += '\n';
-        let url = '';
         switch (true) {
-            case /^blackfire(-agent)?$/.test(tool):
-                script += await utils.customPackage('blackfire', 'tools', version, os_version);
+            case 'phar' === data['type']:
+                data['url'] = await getUrl(data);
+                script += await addArchive(data);
                 break;
-            case /^grpc_php_plugin$|^protoc$/.test(tool):
-                script += await utils.customPackage(tool, 'tools', version, os_version);
+            case 'composer' === data['type']:
+            case /^[\w.-]+\/[\w.-]+$/.test(data['tool']):
+                script += await addPackage(data);
                 break;
-            case /^behat$|^codeception$|^phpspec$/.test(tool):
-                script += await addPackage(tool, release, tool + '/', os_version);
+            case 'custom-package' === data['type']:
+                script += await utils.customPackage(data['tool'].split('-')[0], 'tools', data['version'], data['os_version']);
                 break;
-            case /^blackfire-player$/.test(tool):
-                url = await getBlackfirePlayerUrl(version, php_version);
-                script += await addArchive(tool, url, os_version, '"-V"');
+            case 'custom-function' === data['type']:
+                script += await exports.functionRecord[data['function']](data);
                 break;
-            case /^composer$/.test(tool):
-                url = await getComposerUrl(version);
-                script += await addArchive('composer', url, os_version, version);
-                break;
-            case /^composer-normalize$/.test(tool):
-                uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
-                url = github + 'ergebnis/composer-normalize/' + uri;
-                script += await addArchive(tool, url, os_version, '"-V"');
-                break;
-            case /^composer-prefetcher$/.test(tool):
-                script += await addPackage('automatic-' + tool, release, 'narrowspark/', os_version);
-                break;
-            case /^composer-require-checker$/.test(tool):
-                uri = await getUri(tool, '.phar', version, 'releases', '', 'download');
-                url = github + 'maglnet/ComposerRequireChecker/' + uri;
-                script += await addArchive(tool, url, os_version, '"-V"');
-                break;
-            case /^composer-unused$/.test(tool):
-                script += await addPackage(tool, release, 'icanhazstring/', os_version);
-                break;
-            case /^cs2pr$/.test(tool):
-                uri = await getUri(tool, '', version, 'releases', '', 'download');
-                url = github + 'staabm/annotate-pull-request-from-checkstyle/' + uri;
-                script += await addArchive(tool, url, os_version, '"-V"');
-                break;
-            case /^deployer$/.test(tool):
-                url = await getDeployerUrl(version);
-                script += await addArchive(tool, url, os_version, '"-V"');
-                break;
-            case /^flex$/.test(tool):
-                script += await addPackage(tool, release, 'symfony/', os_version);
-                break;
-            case /^infection$/.test(tool):
-                url = github + 'infection/infection/' + uri;
-                script += await addArchive(tool, url, os_version, '"-V"');
-                break;
-            case /^pecl/.test(tool):
-                script += await utils.getCommand(os_version, 'pecl');
-                break;
-            case /^phan$/.test(tool):
-                url = github + 'phan/phan/' + uri;
-                script += await addArchive(tool, url, os_version, '"-v"');
-                break;
-            case /^phing$/.test(tool):
-                url = 'https://www.phing.info/get/phing-' + version + '.phar';
-                script += await addArchive(tool, url, os_version, '"-v"');
-                break;
-            case /^phinx$/.test(tool):
-                script += await addPackage(tool, release, 'robmorgan/', os_version);
-                break;
-            case /^phive$/.test(tool):
-                script += await addPhive(version, php_version, os_version);
-                break;
-            case /^php(-config|ize)$/.test(tool):
-                script += await addDevTools(tool, os_version);
-                break;
-            case /^php-cs-fixer$/.test(tool):
-                uri = await getUri(tool, '.phar', version, 'releases', 'v', 'download');
-                url = github + 'FriendsOfPHP/PHP-CS-Fixer/' + uri;
-                script += await addArchive(tool, url, os_version, '"-V"');
-                break;
-            case /^php(cbf|cs)$/.test(tool):
-                url = github + 'squizlabs/PHP_CodeSniffer/' + uri;
-                script += await addArchive(tool, url, os_version, '"--version"');
-                break;
-            case /^php(cpd|unit)$/.test(tool):
-                url = await getPharUrl('https://phar.phpunit.de', tool, '', version);
-                script += await addArchive(tool, url, os_version, '"--version"');
-                break;
-            case /^phplint$/.test(tool):
-                script += await addPackage(tool, release, 'overtrue/', os_version);
-                break;
-            case /^phpmd$/.test(tool):
-                url = github + 'phpmd/phpmd/' + uri;
-                script += await addArchive(tool, url, os_version, '"--version"');
-                break;
-            case /^phpstan$/.test(tool):
-                url = github + 'phpstan/phpstan/' + uri;
-                script += await addArchive(tool, url, os_version, '"-V"');
-                break;
-            case /^prestissimo$/.test(tool):
-                script += await addPackage(tool, release, 'hirak/', os_version);
-                break;
-            case /^psalm$/.test(tool):
-                url = github + 'vimeo/psalm/' + uri;
-                script += await addArchive(tool, url, os_version, '"-v"');
-                break;
-            case /^symfony(-cli)?$/.test(tool):
-                uri = await getSymfonyUri(version, os_version);
-                url = github + 'symfony/cli/' + uri;
-                script += await addArchive('symfony', url, os_version, 'version');
-                break;
-            case /^vapor(-cli)?$/.test(tool):
-                script += await addPackage('vapor-cli', release, 'laravel/', os_version);
-                break;
-            case /^wp(-cli)?$/.test(tool):
-                url = github + (await getWpCliUrl(version));
-                script += await addArchive('wp-cli', url, os_version, '"--version"');
-                break;
-            case /^none$/.test(tool):
-                break;
-            case /^[\w.-]+\/[\w.-]+$/.test(tool):
-                script += await addPackage(tool.split('/')[1], release.split('/')[1].replace(/\s+/, ''), tool.split('/')[0] + '/', os_version);
+            case /^none$/.test(data['tool']):
                 break;
             default:
-                script += await utils.addLog('$cross', tool, 'Tool ' + tool + ' is not supported', os_version);
+                script += await utils.addLog('$cross', data['tool'], 'Tool ' + data['tool'] + ' is not supported', os_version);
                 break;
         }
     });
@@ -853,7 +830,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readScript = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.fetch = exports.getInput = exports.readEnv = void 0;
+exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.getToolData = exports.writeScript = exports.readFile = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.fetch = exports.getInput = exports.readEnv = void 0;
 const fs = __importStar(__nccwpck_require__(747));
 const https = __importStar(__nccwpck_require__(211));
 const path = __importStar(__nccwpck_require__(622));
@@ -968,10 +945,10 @@ async function addLog(mark, subject, message, os_version) {
     }
 }
 exports.addLog = addLog;
-async function readScript(filename) {
-    return fs.readFileSync(path.join(__dirname, '../src/scripts/' + filename), 'utf8');
+async function readFile(filename, directory) {
+    return fs.readFileSync(path.join(__dirname, '../' + directory, filename), 'utf8');
 }
-exports.readScript = readScript;
+exports.readFile = readFile;
 async function writeScript(filename, script) {
     const runner_dir = await getInput('RUNNER_TOOL_CACHE', false);
     const script_path = path.join(runner_dir, filename);
@@ -979,6 +956,31 @@ async function writeScript(filename, script) {
     return script_path;
 }
 exports.writeScript = writeScript;
+async function getToolData(tool) {
+    const tools_json = await readFile('tools.json', 'src/configs');
+    const json_data = JSON.parse(tools_json);
+    let tool_data;
+    const tools = Object.keys(json_data);
+    if (tools.includes(tool)) {
+        tool_data = json_data[tool];
+        tool_data['tool'] = tool;
+    }
+    else {
+        const tool_key = Object.keys(json_data).find((key) => {
+            return (json_data[key]['alias'] == tool ||
+                json_data[key]['repository'] == tool);
+        });
+        if (tool_key) {
+            tool_data = json_data[tool_key];
+            tool_data['tool'] = tool_key;
+        }
+        else {
+            tool_data = { tool: tool };
+        }
+    }
+    return tool_data;
+}
+exports.getToolData = getToolData;
 async function extensionArray(extension_csv) {
     switch (extension_csv) {
         case '':

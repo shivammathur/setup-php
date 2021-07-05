@@ -14,11 +14,7 @@ add_tools_helper() {
     add_extension curl extension >/dev/null 2>&1
     add_extension mbstring extension >/dev/null 2>&1
     add_extension xml extension >/dev/null 2>&1
-  elif [ "$tool" = "symfony" ]; then
-    sudo ln -s "${tool_path:?}" "${tool_path_dir:?}"/symfony-cli
-  elif [ "$tool" = "vapor-cli" ]; then
-    sudo ln -s "${tool_path:?}" "${tool_path_dir:?}"/vapor-cli
-  elif [ "$tool" = "wp-cli" ]; then
-    sudo ln -s "${tool_path:?}" "${tool_path_dir:?}"/wp
+  elif [[ "$tool" =~ (symfony|vapor|wp)-cli ]]; then
+    sudo ln -s "${tool_path:?}" "${tool_path_dir:?}"/${tool%-*}
   fi
 }

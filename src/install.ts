@@ -27,7 +27,7 @@ export async function getScript(
   const coverage_driver: string = await utils.getInput('coverage', false);
   const tools_csv: string = await utils.getInput('tools', false);
 
-  let script: string = await utils.readScript(filename);
+  let script: string = await utils.readFile(filename, 'src/scripts');
   script += await tools.addTools(tools_csv, version, os_version);
 
   if (extension_csv) {

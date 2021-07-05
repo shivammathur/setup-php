@@ -207,10 +207,14 @@ export async function addLog(
  * Read the scripts
  *
  * @param filename
+ * @param directory
  */
-export async function readScript(filename: string): Promise<string> {
+export async function readFile(
+  filename: string,
+  directory: string
+): Promise<string> {
   return fs.readFileSync(
-    path.join(__dirname, '../src/scripts/' + filename),
+    path.join(__dirname, '../' + directory, filename),
     'utf8'
   );
 }
@@ -229,6 +233,41 @@ export async function writeScript(
   const script_path: string = path.join(runner_dir, filename);
   fs.writeFileSync(script_path, script, {mode: 0o755});
   return script_path;
+}
+
+/**
+ * Function to get information about a tool
+ *
+ * @param tool
+ */
+export async function getToolData(
+  tool: string
+): Promise<Record<string, string>> {
+  const tools_json: string = await readFile('tools.json', 'src/configs');
+  const json_data: Record<string, Record<string, string>> =
+    JSON.parse(tools_json);
+  let tool_data: Record<string, string>;
+  const tools: string[] = Object.keys(json_data);
+  if (tools.includes(tool)) {
+    tool_data = json_data[tool];
+    tool_data['tool'] = tool;
+  } else {
+    const tool_key: string | undefined = Object.keys(json_data).find(
+      (key: string) => {
+        return (
+          json_data[key]['alias'] == tool ||
+          json_data[key]['repository'] == tool
+        );
+      }
+    );
+    if (tool_key) {
+      tool_data = json_data[tool_key];
+      tool_data['tool'] = tool_key;
+    } else {
+      tool_data = {tool: tool};
+    }
+  }
+  return tool_data;
 }
 
 /**

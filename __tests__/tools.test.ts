@@ -1,101 +1,135 @@
 import * as tools from '../src/tools';
+import * as utils from '../src/utils';
 
 function getData(
   tool: string,
   version: string,
-  php_version: string,
-  os_version: string
+  php_version?: string,
+  os_version?: string
 ): Record<string, string> {
   return {
     tool: tool,
     version: version,
+    php_version: php_version || '7.4',
+    os_version: os_version || 'linux',
     extension: '.phar',
     prefix: 'releases',
     repository: 'user/tool',
     version_prefix: '',
     verb: 'download',
-    php_version: php_version,
-    os_version: os_version,
     domain: 'https://example.com',
     github: 'https://github.com'
   };
 }
 
+jest
+  .spyOn(utils, 'fetch')
+  .mockImplementation(async (url: string): Promise<string> => {
+    return `[{"ref": "refs/tags/1.2.3", "url": "${url}"}]`;
+  });
+
 describe('Tools tests', () => {
-  it('checking getToolVersion', async () => {
-    expect(await tools.getToolVersion('tool', 'latest')).toBe('latest');
-    expect(await tools.getToolVersion('tool', '1.2.3')).toBe('1.2.3');
-    expect(await tools.getToolVersion('tool', '^1.2.3')).toBe('1.2.3');
-    expect(await tools.getToolVersion('tool', '>=1.2.3')).toBe('1.2.3');
-    expect(await tools.getToolVersion('tool', '>1.2.3')).toBe('1.2.3');
-    expect(await tools.getToolVersion('tool', '1.2.3-ALPHA')).toBe(
+  it('checking getToolSemver', async () => {
+    expect(await tools.getToolSemver(getData('tool', 'latest'))).toBe('1.2.3');
+  });
+  it('checking parseReleaseVersion', async () => {
+    expect(await tools.getToolVersion(getData('tool', 'latest'))).toBe(
+      'latest'
+    );
+    expect(await tools.getToolVersion(getData('tool', '1.2.3'))).toBe('1.2.3');
+    expect(await tools.getToolVersion(getData('tool', '1.2'))).toBe('1.2.3');
+    expect(await tools.getToolVersion(getData('tool', '^1.2.3'))).toBe('1.2.3');
+    expect(await tools.getToolVersion(getData('tool', '>=1.2.3'))).toBe(
+      '1.2.3'
+    );
+    expect(await tools.getToolVersion(getData('tool', '>1.2.3'))).toBe('1.2.3');
+    expect(await tools.getToolVersion(getData('tool', '1.2.3-ALPHA'))).toBe(
       '1.2.3-ALPHA'
     );
-    expect(await tools.getToolVersion('tool', '1.2.3-alpha')).toBe(
+    expect(await tools.getToolVersion(getData('tool', '1.2.3-alpha'))).toBe(
       '1.2.3-alpha'
     );
-    expect(await tools.getToolVersion('tool', '1.2.3-beta')).toBe('1.2.3-beta');
-    expect(await tools.getToolVersion('tool', '1.2.3-rc')).toBe('1.2.3-rc');
-    expect(await tools.getToolVersion('tool', '1.2.3-dev')).toBe('1.2.3-dev');
-    expect(await tools.getToolVersion('tool', '1.2.3-alpha1')).toBe(
+    expect(await tools.getToolVersion(getData('tool', '1.2.3-beta'))).toBe(
+      '1.2.3-beta'
+    );
+    expect(await tools.getToolVersion(getData('tool', '1.2.3-rc'))).toBe(
+      '1.2.3-rc'
+    );
+    expect(await tools.getToolVersion(getData('tool', '1.2.3-dev'))).toBe(
+      '1.2.3-dev'
+    );
+    expect(await tools.getToolVersion(getData('tool', '1.2.3-alpha1'))).toBe(
       '1.2.3-alpha1'
     );
-    expect(await tools.getToolVersion('tool', '1.2.3-alpha.1')).toBe(
+    expect(await tools.getToolVersion(getData('tool', '1.2.3-alpha.1'))).toBe(
       '1.2.3-alpha.1'
     );
   });
 
   it('checking parseRelease', async () => {
-    const data = getData('tool', 'latest', '7.4', 'linux');
-    expect(await tools.parseRelease('tool', data)).toStrictEqual({
+    let data = getData('tool', 'latest', '7.4', 'linux');
+    data = await tools.parseRelease('tool', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool',
       version: 'latest'
     });
-    expect(await tools.parseRelease('alias:1.2.3', data)).toStrictEqual({
+    data = await tools.parseRelease('alias:1.2.3', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool:1.2.3',
       version: '1.2.3'
     });
-    expect(await tools.parseRelease('tool:1.2.3', data)).toStrictEqual({
+    data = await tools.parseRelease('tool:1.2.3', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool:1.2.3',
       version: '1.2.3'
     });
-    expect(await tools.parseRelease('tool:^1.2.3', data)).toStrictEqual({
+    data = await tools.parseRelease('tool:^1.2.3', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool:^1.2.3',
       version: '1.2.3'
     });
-    expect(await tools.parseRelease('tool:>=1.2.3', data)).toStrictEqual({
+    data = await tools.parseRelease('tool:>=1.2.3', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool:>=1.2.3',
       version: '1.2.3'
     });
-    expect(await tools.parseRelease('tool:>1.2.3', data)).toStrictEqual({
+    data = await tools.parseRelease('tool:>1.2.3', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool:>1.2.3',
       version: '1.2.3'
     });
-    expect(await tools.parseRelease('tool:1.2.3-ALPHA', data)).toStrictEqual({
+    data = await tools.parseRelease('tool:1.2.3-ALPHA', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool:1.2.3-ALPHA',
       version: '1.2.3-ALPHA'
     });
-    expect(await tools.parseRelease('tool:1.2.3-beta', data)).toStrictEqual({
+    data = await tools.parseRelease('tool:1.2.3-beta', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool:1.2.3-beta',
       version: '1.2.3-beta'
     });
-    expect(await tools.parseRelease('tool:1.2.3-rc', data)).toStrictEqual({
+    data = await tools.parseRelease('tool:1.2.3-rc', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool:1.2.3-rc',
       version: '1.2.3-rc'
     });
-    expect(await tools.parseRelease('tool:1.2.3-dev', data)).toStrictEqual({
+    data = await tools.parseRelease('tool:1.2.3-dev', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool:1.2.3-dev',
       version: '1.2.3-dev'
     });
-    expect(await tools.parseRelease('tool:1.2.3-alpha1', data)).toStrictEqual({
+    data = await tools.parseRelease('tool:1.2.3-alpha1', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool:1.2.3-alpha1',
       version: '1.2.3-alpha1'
     });
-    expect(await tools.parseRelease('tool:1.2.3-alpha.1', data)).toStrictEqual({
+    data = await tools.parseRelease('tool:1.2.3-alpha.1', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool:1.2.3-alpha.1',
       version: '1.2.3-alpha.1'
     });
-    expect(await tools.parseRelease('user/tool:^1.2.3', data)).toStrictEqual({
+    data = await tools.parseRelease('user/tool:^1.2.3', data);
+    expect({release: data.release, version: data.version}).toStrictEqual({
       release: 'tool:^1.2.3',
       version: '^1.2.3'
     });

@@ -492,14 +492,27 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.addTools = exports.initToolData = exports.functionRecord = exports.addWPCLI = exports.addSymfony = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.parseRelease = exports.getToolVersion = void 0;
+exports.addTools = exports.initToolData = exports.functionRecord = exports.addWPCLI = exports.addSymfony = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.parseRelease = exports.getToolVersion = exports.getToolSemver = void 0;
 const utils = __importStar(__nccwpck_require__(918));
-async function getToolVersion(tool, version) {
+async function getToolSemver(data) {
+    const api_url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${data['version_prefix']}${data['version']}`;
+    return JSON.parse(await utils.fetch(api_url))
+        .pop()['ref'].split('/')
+        .pop();
+}
+exports.getToolSemver = getToolSemver;
+async function getToolVersion(data) {
     const semver_regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
     const composer_regex = /^stable$|^preview$|^snapshot$|^v?[1|2]$/;
-    version = version.replace(/[><=^]*/, '').replace(/^v(\d)/, '$1');
+    const major_minor_regex = /^v?\d+(\.\d+)?$/;
+    const version = data['version']
+        .replace(/[><=^]*/, '')
+        .replace(/^v(\d)/, '$1');
     switch (true) {
-        case composer_regex.test(version):
+        case data['tool'] === 'composer' && composer_regex.test(version):
+            return version;
+        case data['repository'] && major_minor_regex.test(version):
+            return await getToolSemver(data);
         case semver_regex.test(version):
             return version;
         default:
@@ -519,21 +532,20 @@ async function parseRelease(release, data) {
         : data['tool'];
     switch (true) {
         case version === undefined:
-            return {
-                release: release,
-                version: 'latest'
-            };
+            data['release'] = release;
+            data['version'] = 'latest';
+            break;
         case /^[\w.-]+\/[\w.-]+$/.test(tool):
-            return {
-                release: release,
-                version: version
-            };
+            data['release'] = release;
+            data['version'] = version;
+            break;
         default:
-            return {
-                release: release,
-                version: await getToolVersion(parts[0], parts[1])
-            };
+            data['release'] = release;
+            data['version'] = version;
+            data['version'] = await getToolVersion(data);
+            break;
     }
+    return data;
 }
 exports.parseRelease = parseRelease;
 async function filterList(tools_list) {
@@ -751,9 +763,7 @@ exports.functionRecord = {
     wp_cli: addWPCLI
 };
 async function initToolData(data, release, php_version, os_version) {
-    const release_data = await parseRelease(release, data);
-    data['version'] = release_data.version;
-    data['release'] = release_data.release;
+    data = await parseRelease(release, data);
     data['version_parameter'] = JSON.stringify(data['version_parameter']);
     data['os_version'] = os_version;
     data['php_version'] = php_version;
@@ -834,6 +844,7 @@ exports.parseExtensionSource = exports.customPackage = exports.scriptTool = expo
 const fs = __importStar(__nccwpck_require__(747));
 const https = __importStar(__nccwpck_require__(211));
 const path = __importStar(__nccwpck_require__(622));
+const url = __importStar(__nccwpck_require__(835));
 const core = __importStar(__nccwpck_require__(186));
 async function readEnv(property) {
     const value = process.env[property];
@@ -860,9 +871,15 @@ async function getInput(name, mandatory) {
     }
 }
 exports.getInput = getInput;
-async function fetch(url) {
+async function fetch(input_url) {
     const fetch_promise = new Promise(resolve => {
-        const req = https.get(url, (res) => {
+        const url_object = new url.URL(input_url);
+        const options = {
+            hostname: url_object.hostname,
+            path: url_object.pathname,
+            headers: { 'User-Agent': 'setup-php' }
+        };
+        const req = https.get(options, (res) => {
             res.setEncoding('utf8');
             let body = '';
             res.on('data', chunk => (body += chunk));
@@ -2791,6 +2808,13 @@ module.exports = require("os");;
 /***/ ((module) => {
 
 module.exports = require("path");;
+
+/***/ }),
+
+/***/ 835:
+/***/ ((module) => {
+
+module.exports = require("url");;
 
 /***/ }),
 

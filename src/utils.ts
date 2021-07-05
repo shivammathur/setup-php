@@ -2,6 +2,7 @@ import {IncomingMessage} from 'http';
 import * as fs from 'fs';
 import * as https from 'https';
 import * as path from 'path';
+import * as url from 'url';
 import * as core from '@actions/core';
 
 /**
@@ -46,11 +47,17 @@ export async function getInput(
 /**
  * Function to fetch an URL
  *
- * @param url
+ * @param input_url
  */
-export async function fetch(url: string): Promise<string> {
+export async function fetch(input_url: string): Promise<string> {
   const fetch_promise: Promise<string> = new Promise(resolve => {
-    const req = https.get(url, (res: IncomingMessage) => {
+    const url_object: url.UrlObject = new url.URL(input_url);
+    const options: https.RequestOptions = {
+      hostname: url_object.hostname,
+      path: url_object.pathname,
+      headers: {'User-Agent': 'setup-php'}
+    };
+    const req = https.get(options, (res: IncomingMessage) => {
       res.setEncoding('utf8');
       let body = '';
       res.on('data', chunk => (body += chunk));

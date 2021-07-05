@@ -1,22 +1,36 @@
 import * as utils from './utils';
 
+export async function getToolSemver(
+  data: Record<string, string>
+): Promise<string> {
+  const api_url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${data['version_prefix']}${data['version']}`;
+  return JSON.parse(await utils.fetch(api_url))
+    .pop()
+    ['ref'].split('/')
+    .pop();
+}
+
 /**
  * Function to get tool version
  *
- * @param tool
- * @param version
+ * @param data
  */
 export async function getToolVersion(
-  tool: string,
-  version: string
+  data: Record<string, string>
 ): Promise<string> {
   // semver_regex - https://semver.org/
   const semver_regex =
     /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
   const composer_regex = /^stable$|^preview$|^snapshot$|^v?[1|2]$/;
-  version = version.replace(/[><=^]*/, '').replace(/^v(\d)/, '$1');
+  const major_minor_regex = /^v?\d+(\.\d+)?$/;
+  const version = data['version']
+    .replace(/[><=^]*/, '')
+    .replace(/^v(\d)/, '$1');
   switch (true) {
-    case composer_regex.test(version):
+    case data['tool'] === 'composer' && composer_regex.test(version):
+      return version;
+    case data['repository'] && major_minor_regex.test(version):
+      return await getToolSemver(data);
     case semver_regex.test(version):
       return version;
     default:
@@ -33,7 +47,7 @@ export async function getToolVersion(
 export async function parseRelease(
   release: string,
   data: Record<string, string>
-): Promise<{version: string; release: string}> {
+): Promise<Record<string, string>> {
   const parts: string[] = release.split(':');
   const tool: string = parts[0];
   const version: string | undefined = parts[1];
@@ -45,21 +59,20 @@ export async function parseRelease(
     : data['tool'];
   switch (true) {
     case version === undefined:
-      return {
-        release: release,
-        version: 'latest'
-      };
+      data['release'] = release;
+      data['version'] = 'latest';
+      break;
     case /^[\w.-]+\/[\w.-]+$/.test(tool):
-      return {
-        release: release,
-        version: version
-      };
+      data['release'] = release;
+      data['version'] = version;
+      break;
     default:
-      return {
-        release: release,
-        version: await getToolVersion(parts[0], parts[1])
-      };
+      data['release'] = release;
+      data['version'] = version;
+      data['version'] = await getToolVersion(data);
+      break;
   }
+  return data;
 }
 
 /**
@@ -410,12 +423,7 @@ export async function initToolData(
   php_version: string,
   os_version: string
 ): Promise<Record<string, string>> {
-  const release_data: {release: string; version: string} = await parseRelease(
-    release,
-    data
-  );
-  data['version'] = release_data.version;
-  data['release'] = release_data.release;
+  data = await parseRelease(release, data);
   data['version_parameter'] = JSON.stringify(data['version_parameter']);
   data['os_version'] = os_version;
   data['php_version'] = php_version;

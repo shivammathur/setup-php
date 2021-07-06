@@ -52,10 +52,15 @@ export async function getInput(
 export async function fetch(input_url: string): Promise<string> {
   const fetch_promise: Promise<string> = new Promise(resolve => {
     const url_object: url.UrlObject = new url.URL(input_url);
+    const auth_token: string = process.env['COMPOSER_TOKEN'] || '';
+    const auth_header: string = auth_token ? 'Bearer' + auth_token : '';
     const options: https.RequestOptions = {
       hostname: url_object.hostname,
       path: url_object.pathname,
-      headers: {'User-Agent': 'setup-php'}
+      headers: {
+        authorization: auth_header,
+        'User-Agent': 'setup-php'
+      }
     };
     const req = https.get(options, (res: IncomingMessage) => {
       res.setEncoding('utf8');

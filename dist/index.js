@@ -874,10 +874,15 @@ exports.getInput = getInput;
 async function fetch(input_url) {
     const fetch_promise = new Promise(resolve => {
         const url_object = new url.URL(input_url);
+        const auth_token = process.env['COMPOSER_TOKEN'] || '';
+        const auth_header = auth_token ? 'Bearer' + auth_token : '';
         const options = {
             hostname: url_object.hostname,
             path: url_object.pathname,
-            headers: { 'User-Agent': 'setup-php' }
+            headers: {
+                authorization: auth_header,
+                'User-Agent': 'setup-php'
+            }
         };
         const req = https.get(options, (res) => {
             res.setEncoding('utf8');

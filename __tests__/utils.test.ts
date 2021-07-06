@@ -41,6 +41,10 @@ describe('Utils tests', () => {
     expect(await utils.fetch('test_url')).toBe(
       '{ "latest": "8.0", "5.x": "5.6", "url": "test_url" }'
     );
+    process.env['COMPOSER_TOKEN'] = 'GITHUB_TOKEN';
+    expect(await utils.fetch('test_url')).toBe(
+      '{ "latest": "8.0", "5.x": "5.6", "url": "test_url" }'
+    );
   });
 
   it('checking parseVersion', async () => {

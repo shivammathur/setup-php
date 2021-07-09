@@ -11,7 +11,8 @@ export async function getToolSemver(
     data['error'] = response.error ?? `No version found with prefix ${ref}.`;
     return data['version'];
   } else {
-    return JSON.parse(response['data']).pop()['ref'].split('/').pop();
+    const tag = JSON.parse(response['data']).pop()['ref'].split('/').pop();
+    return tag.replace(/^v(\d)/, '$1');
   }
 }
 

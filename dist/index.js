@@ -505,7 +505,8 @@ async function getToolSemver(data) {
         return data['version'];
     }
     else {
-        return JSON.parse(response['data']).pop()['ref'].split('/').pop();
+        const tag = JSON.parse(response['data']).pop()['ref'].split('/').pop();
+        return tag.replace(/^v(\d)/, '$1');
     }
 }
 exports.getToolSemver = getToolSemver;

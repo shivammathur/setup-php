@@ -86,9 +86,12 @@ add_extension() {
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
-    [[ "$version" =~ 5.[4-5] ]] && [ "$extension" = "imagick" ] && brew install -f pkg-config imagemagick >/dev/null 2>&1
-    pecl_install "$extension" >/dev/null 2>&1 &&
+    if [[ "$version" =~ ${old_versions:?} ]] && [ "$extension" = "imagick" ]; then
+      run_script "php5-darwin" "${version/./}" "$extension" >/dev/null 2>&1
+    else
+      pecl_install "$extension" >/dev/null 2>&1 &&
       if [[ "$version" =~ ${old_versions:?} ]]; then echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"; fi
+    fi
     add_extension_log "$extension" "Installed and enabled"
   fi
 }

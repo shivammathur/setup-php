@@ -8,10 +8,6 @@ jest.mock('@actions/core', () => ({
   })
 }));
 
-jest.spyOn(utils, 'fetch').mockImplementation(async (url): Promise<string> => {
-  return `{ "latest": "8.0", "5.x": "5.6", "url": "${url}" }`;
-});
-
 async function cleanup(path: string): Promise<void> {
   fs.unlink(path, error => {
     if (error) {
@@ -38,16 +34,29 @@ describe('Utils tests', () => {
   });
 
   it('checking fetch', async () => {
-    expect(await utils.fetch('test_url')).toBe(
-      '{ "latest": "8.0", "5.x": "5.6", "url": "test_url" }'
-    );
-    process.env['COMPOSER_TOKEN'] = 'GITHUB_TOKEN';
-    expect(await utils.fetch('test_url')).toBe(
-      '{ "latest": "8.0", "5.x": "5.6", "url": "test_url" }'
-    );
+    const manifest = await utils.getManifestURL();
+    let response: Record<string, string> = await utils.fetch(manifest);
+    expect(response.error).toBe(undefined);
+    expect(response.data).toContain('latest');
+
+    response = await utils.fetch(manifest, 'invalid_token');
+    expect(response.error).toBe('404: Not Found');
+  });
+
+  it('checking getManifestURL', async () => {
+    expect(await utils.getManifestURL()).toContain('php-versions.json');
   });
 
   it('checking parseVersion', async () => {
+    jest.spyOn(utils, 'fetch').mockImplementation(async (url, token?): Promise<
+      Record<string, string>
+    > => {
+      if (!token || token === 'valid_token') {
+        return {data: `{ "latest": "8.0", "5.x": "5.6", "url": "${url}" }`};
+      } else {
+        return {error: 'Invalid token'};
+      }
+    });
     expect(await utils.parseVersion('latest')).toBe('8.0');
     expect(await utils.parseVersion('7')).toBe('7.0');
     expect(await utils.parseVersion('7.4')).toBe('7.4');

@@ -32,15 +32,29 @@ function getData(data: IData): Record<string, string> {
 
 jest
   .spyOn(utils, 'fetch')
-  .mockImplementation(async (url: string): Promise<string> => {
-    return `[{"ref": "refs/tags/1.2.3", "url": "${url}"}]`;
+  .mockImplementation(async (url: string, token?: string): Promise<
+    Record<string, string>
+  > => {
+    if (!token || token === 'valid_token') {
+      return {data: `[{"ref": "refs/tags/1.2.3", "url": "${url}"}]`};
+    } else if (token === 'no_data') {
+      return {data: '[]'};
+    } else {
+      return {error: 'Invalid token'};
+    }
   });
 
 describe('Tools tests', () => {
-  it('checking getToolSemver', async () => {
+  it.each`
+    token              | version
+    ${'invalid_token'} | ${'1.2'}
+    ${'valid_token'}   | ${'1.2.3'}
+    ${''}              | ${'1.2.3'}
+  `('checking getToolSemver: $token', async ({token, version}) => {
+    process.env['COMPOSER_TOKEN'] = token;
     expect(
-      await tools.getToolSemver(getData({tool: 'tool', version: 'latest'}))
-    ).toBe('1.2.3');
+      await tools.getToolSemver(getData({tool: 'tool', version: '1.2'}))
+    ).toBe(version);
   });
 
   it.each`
@@ -90,49 +104,22 @@ describe('Tools tests', () => {
     });
   });
 
-  it.each([
-    [
-      ['a', 'b'],
-      ['composer', 'a', 'b']
-    ],
-    [
-      ['a', 'b', 'composer'],
-      ['composer', 'a', 'b']
-    ],
-    [
-      ['a', 'b', 'composer:1.2.3'],
-      ['composer:1.2.3', 'a', 'b']
-    ],
-    [
-      ['a', 'b', 'composer:v1.2.3'],
-      ['composer:1.2.3', 'a', 'b']
-    ],
-    [
-      ['a', 'b', 'composer:snapshot'],
-      ['composer:snapshot', 'a', 'b']
-    ],
-    [
-      ['a', 'b', 'composer:preview'],
-      ['composer:preview', 'a', 'b']
-    ],
-    [
-      ['a', 'b', 'composer:1'],
-      ['composer:1', 'a', 'b']
-    ],
-    [
-      ['a', 'b', 'composer:2'],
-      ['composer:2', 'a', 'b']
-    ],
-    [
-      ['a', 'b', 'composer:v1'],
-      ['composer:1', 'a', 'b']
-    ],
-    [
-      ['a', 'b', 'composer:v2'],
-      ['composer:2', 'a', 'b']
-    ]
-  ])('checking filterList', async (input_list, filtered_list) => {
-    expect(await tools.filterList(input_list)).toStrictEqual(filtered_list);
+  it.each`
+    input_list                   | filtered_list
+    ${'a, b'}                    | ${'composer, a, b'}
+    ${'a, b, composer'}          | ${'composer, a, b'}
+    ${'a, b, composer:1.2.3'}    | ${'composer:1.2.3, a, b'}
+    ${'a, b, composer:v1.2.3'}   | ${'composer:1.2.3, a, b'}
+    ${'a, b, composer:snapshot'} | ${'composer:snapshot, a, b'}
+    ${'a, b, composer:preview'}  | ${'composer:preview, a, b'}
+    ${'a, b, composer:1'}        | ${'composer:1, a, b'}
+    ${'a, b, composer:2'}        | ${'composer:2, a, b'}
+    ${'a, b, composer:v1'}       | ${'composer:1, a, b'}
+    ${'a, b, composer:v2'}       | ${'composer:2, a, b'}
+  `('checking filterList $input_list', async ({input_list, filtered_list}) => {
+    expect(await tools.filterList(input_list.split(', '))).toStrictEqual(
+      filtered_list.split(', ')
+    );
   });
 
   it.each`
@@ -174,7 +161,7 @@ describe('Tools tests', () => {
     ${'darwin'}  | ${'add_tool https://example.com/tool.phar tool "-v"'}
     ${'win32'}   | ${'Add-Tool https://example.com/tool.phar tool "-v"'}
     ${'openbsd'} | ${'Platform openbsd is not supported'}
-  `('checking addPackage: $tool, $os_version', async ({os_version, script}) => {
+  `('checking addPackage: $os_version', async ({os_version, script}) => {
     const data = getData({
       tool: 'tool',
       version: 'latest',
@@ -472,6 +459,16 @@ describe('Tools tests', () => {
     ${'composer, composer:v1'}                            | ${'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-1.phar,https://getcomposer.org/composer-1.phar composer'}
     ${'composer:v1, composer:preview, composer:snapshot'} | ${'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-snapshot.phar,https://getcomposer.org/composer.phar composer snapshot'}
   `('checking composer setup: $tools_csv', async ({tools_csv, script}) => {
+    expect(await tools.addTools(tools_csv, '7.4', 'linux')).toContain(script);
+  });
+
+  it.each`
+    tools_csv        | token              | script
+    ${'cs2pr:1.2'}   | ${'invalid_token'} | ${'add_log "$cross" "cs2pr" "Invalid token"'}
+    ${'phpunit:1.2'} | ${'invalid_token'} | ${'add_log "$cross" "phpunit" "Invalid token"'}
+    ${'phpunit:0.1'} | ${'no_data'}       | ${'add_log "$cross" "phpunit" "No version found with prefix 0.1."'}
+  `('checking error: $tools_csv', async ({tools_csv, token, script}) => {
+    process.env['COMPOSER_TOKEN'] = token;
     expect(await tools.addTools(tools_csv, '7.4', 'linux')).toContain(script);
   });
 });

@@ -495,10 +495,18 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addTools = exports.initToolData = exports.functionRecord = exports.addWPCLI = exports.addSymfony = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.parseRelease = exports.getToolVersion = exports.getToolSemver = void 0;
 const utils = __importStar(__nccwpck_require__(918));
 async function getToolSemver(data) {
-    const api_url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${data['version_prefix']}${data['version']}`;
-    return JSON.parse(await utils.fetch(api_url))
-        .pop()['ref'].split('/')
-        .pop();
+    var _a;
+    const ref = data['version_prefix'] + data['version'];
+    const url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${ref}.`;
+    const token = await utils.readEnv('COMPOSER_TOKEN');
+    const response = await utils.fetch(url, token);
+    if (response.error || response.data === '[]') {
+        data['error'] = (_a = response.error) !== null && _a !== void 0 ? _a : `No version found with prefix ${ref}.`;
+        return data['version'];
+    }
+    else {
+        return JSON.parse(response['data']).pop()['ref'].split('/').pop();
+    }
 }
 exports.getToolSemver = getToolSemver;
 async function getToolVersion(data) {
@@ -788,6 +796,9 @@ async function addTools(tools_csv, php_version, os_version) {
         const data = await initToolData(await utils.getToolData(release.split(':')[0]), release, php_version, os_version);
         script += '\n';
         switch (true) {
+            case data['error'] !== undefined:
+                script += await utils.addLog('$cross', data['tool'], data['error'], data['os_version']);
+                break;
             case 'phar' === data['type']:
                 data['url'] = await getUrl(data);
                 script += await addArchive(data);
@@ -805,7 +816,7 @@ async function addTools(tools_csv, php_version, os_version) {
             case /^none$/.test(data['tool']):
                 break;
             default:
-                script += await utils.addLog('$cross', data['tool'], 'Tool ' + data['tool'] + ' is not supported', os_version);
+                script += await utils.addLog('$cross', data['tool'], 'Tool ' + data['tool'] + ' is not supported', data['os_version']);
                 break;
         }
     });
@@ -840,7 +851,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.getToolData = exports.writeScript = exports.readFile = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.fetch = exports.getInput = exports.readEnv = void 0;
+exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.getToolData = exports.writeScript = exports.readFile = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.getManifestURL = exports.fetch = exports.getInput = exports.readEnv = void 0;
 const fs = __importStar(__nccwpck_require__(747));
 const https = __importStar(__nccwpck_require__(211));
 const path = __importStar(__nccwpck_require__(622));
@@ -871,35 +882,45 @@ async function getInput(name, mandatory) {
     }
 }
 exports.getInput = getInput;
-async function fetch(input_url) {
+async function fetch(input_url, auth_token) {
     const fetch_promise = new Promise(resolve => {
         const url_object = new url.URL(input_url);
-        const auth_token = process.env['COMPOSER_TOKEN'] || '';
-        const auth_header = auth_token ? 'Bearer' + auth_token : '';
+        const headers = {
+            'User-Agent': `Mozilla/5.0 (${process.platform} ${process.arch}) setup-php`
+        };
+        if (auth_token) {
+            headers.authorization = 'Bearer ' + auth_token;
+        }
         const options = {
             hostname: url_object.hostname,
             path: url_object.pathname,
-            headers: {
-                authorization: auth_header,
-                'User-Agent': 'setup-php'
-            }
+            headers: headers
         };
         const req = https.get(options, (res) => {
-            res.setEncoding('utf8');
-            let body = '';
-            res.on('data', chunk => (body += chunk));
-            res.on('end', () => resolve(body));
+            if (res.statusCode != 200) {
+                resolve({ error: `${res.statusCode}: ${res.statusMessage}` });
+            }
+            else {
+                let body = '';
+                res.setEncoding('utf8');
+                res.on('data', chunk => (body += chunk));
+                res.on('end', () => resolve({ data: `${body}` }));
+            }
         });
         req.end();
     });
     return await fetch_promise;
 }
 exports.fetch = fetch;
+async function getManifestURL() {
+    return 'https://raw.githubusercontent.com/shivammathur/setup-php/develop/src/configs/php-versions.json';
+}
+exports.getManifestURL = getManifestURL;
 async function parseVersion(version) {
-    const manifest = 'https://raw.githubusercontent.com/shivammathur/setup-php/develop/src/configs/php-versions.json';
+    const manifest = await getManifestURL();
     switch (true) {
         case /^(latest|\d+\.x)$/.test(version):
-            return JSON.parse(await fetch(manifest))[version];
+            return JSON.parse((await fetch(manifest))['data'])[version];
         default:
             switch (true) {
                 case version.length > 1:

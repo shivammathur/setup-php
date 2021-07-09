@@ -1,4 +1,4 @@
-import {IncomingMessage} from 'http';
+import {IncomingMessage, OutgoingHttpHeaders} from 'http';
 import * as fs from 'fs';
 import * as https from 'https';
 import * as path from 'path';
@@ -48,29 +48,47 @@ export async function getInput(
  * Function to fetch an URL
  *
  * @param input_url
+ * @param auth_token
  */
-export async function fetch(input_url: string): Promise<string> {
-  const fetch_promise: Promise<string> = new Promise(resolve => {
-    const url_object: url.UrlObject = new url.URL(input_url);
-    const auth_token: string = process.env['COMPOSER_TOKEN'] || '';
-    const auth_header: string = auth_token ? 'Bearer' + auth_token : '';
-    const options: https.RequestOptions = {
-      hostname: url_object.hostname,
-      path: url_object.pathname,
-      headers: {
-        authorization: auth_header,
-        'User-Agent': 'setup-php'
+export async function fetch(
+  input_url: string,
+  auth_token?: string
+): Promise<Record<string, string>> {
+  const fetch_promise: Promise<Record<string, string>> = new Promise(
+    resolve => {
+      const url_object: url.UrlObject = new url.URL(input_url);
+      const headers: OutgoingHttpHeaders = {
+        'User-Agent': `Mozilla/5.0 (${process.platform} ${process.arch}) setup-php`
+      };
+      if (auth_token) {
+        headers.authorization = 'Bearer ' + auth_token;
       }
-    };
-    const req = https.get(options, (res: IncomingMessage) => {
-      res.setEncoding('utf8');
-      let body = '';
-      res.on('data', chunk => (body += chunk));
-      res.on('end', () => resolve(body));
-    });
-    req.end();
-  });
+      const options: https.RequestOptions = {
+        hostname: url_object.hostname,
+        path: url_object.pathname,
+        headers: headers
+      };
+      const req = https.get(options, (res: IncomingMessage) => {
+        if (res.statusCode != 200) {
+          resolve({error: `${res.statusCode}: ${res.statusMessage}`});
+        } else {
+          let body = '';
+          res.setEncoding('utf8');
+          res.on('data', chunk => (body += chunk));
+          res.on('end', () => resolve({data: `${body}`}));
+        }
+      });
+      req.end();
+    }
+  );
   return await fetch_promise;
+}
+
+/** Function to get manifest URL
+ *
+ */
+export async function getManifestURL(): Promise<string> {
+  return 'https://raw.githubusercontent.com/shivammathur/setup-php/develop/src/configs/php-versions.json';
 }
 
 /**
@@ -79,11 +97,10 @@ export async function fetch(input_url: string): Promise<string> {
  * @param version
  */
 export async function parseVersion(version: string): Promise<string> {
-  const manifest =
-    'https://raw.githubusercontent.com/shivammathur/setup-php/develop/src/configs/php-versions.json';
+  const manifest = await getManifestURL();
   switch (true) {
     case /^(latest|\d+\.x)$/.test(version):
-      return JSON.parse(await fetch(manifest))[version];
+      return JSON.parse((await fetch(manifest))['data'])[version];
     default:
       switch (true) {
         case version.length > 1:

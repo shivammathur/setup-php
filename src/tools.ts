@@ -3,11 +3,16 @@ import * as utils from './utils';
 export async function getToolSemver(
   data: Record<string, string>
 ): Promise<string> {
-  const api_url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${data['version_prefix']}${data['version']}`;
-  return JSON.parse(await utils.fetch(api_url))
-    .pop()
-    ['ref'].split('/')
-    .pop();
+  const ref: string = data['version_prefix'] + data['version'];
+  const url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${ref}.`;
+  const token: string = await utils.readEnv('COMPOSER_TOKEN');
+  const response: Record<string, string> = await utils.fetch(url, token);
+  if (response.error || response.data === '[]') {
+    data['error'] = response.error ?? `No version found with prefix ${ref}.`;
+    return data['version'];
+  } else {
+    return JSON.parse(response['data']).pop()['ref'].split('/').pop();
+  }
 }
 
 /**
@@ -463,6 +468,14 @@ export async function addTools(
     );
     script += '\n';
     switch (true) {
+      case data['error'] !== undefined:
+        script += await utils.addLog(
+          '$cross',
+          data['tool'],
+          data['error'],
+          data['os_version']
+        );
+        break;
       case 'phar' === data['type']:
         data['url'] = await getUrl(data);
         script += await addArchive(data);
@@ -489,7 +502,7 @@ export async function addTools(
           '$cross',
           data['tool'],
           'Tool ' + data['tool'] + ' is not supported',
-          os_version
+          data['os_version']
         );
         break;
     }

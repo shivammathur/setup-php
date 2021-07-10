@@ -7,14 +7,6 @@
     "version_prefix": "",
     "version_parameter": "-V"
   },
-  "composer-require-checker": {
-    "type": "phar",
-    "repository": "maglnet/ComposerRequireChecker",
-    "extension": ".phar",
-    "domain": "https://github.com",
-    "version_prefix": "",
-    "version_parameter": "-V"
-  },
   "cs2pr": {
     "type": "phar",
     "repository": "staabm/annotate-pull-request-from-checkstyle",
@@ -99,6 +91,10 @@
     "type": "composer",
     "alias": "composer-prefetcher",
     "repository": "narrowspark/automatic-composer-prefetcher"
+  },
+  "composer-require-checker": {
+    "type": "composer",
+    "repository": "maglnet/composer-require-checker"
   },
   "composer-unused": {
     "type": "composer",

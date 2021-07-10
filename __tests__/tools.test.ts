@@ -370,7 +370,7 @@ describe('Tools tests', () => {
         'add_blackfire',
         'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player "-V"',
         'add_tool https://github.com/ergebnis/composer-normalize/releases/latest/download/composer-normalize.phar composer-normalize "-V"',
-        'add_tool https://github.com/maglnet/ComposerRequireChecker/releases/latest/download/composer-require-checker.phar composer-require-checker "-V"',
+        'add_composertool composer-require-checker composer-require-checker maglnet/',
         'add_composertool composer-unused composer-unused icanhazstring/',
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr "-V"',
         'add_composertool flex flex symfony/',

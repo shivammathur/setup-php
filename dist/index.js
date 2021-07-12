@@ -492,74 +492,57 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.addTools = exports.initToolData = exports.functionRecord = exports.addWPCLI = exports.addSymfony = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.parseRelease = exports.getToolVersion = exports.getToolSemver = void 0;
+exports.addTools = exports.functionRecord = exports.getData = exports.addWPCLI = exports.addSymfony = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.getRelease = exports.getVersion = exports.getSemverVersion = void 0;
 const utils = __importStar(__nccwpck_require__(918));
-async function getToolSemver(data) {
+async function getSemverVersion(data) {
     var _a;
-    const ref = data['version_prefix'] + data['version'];
-    const url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${ref}.`;
+    const search = data['version_prefix'] + data['version'];
+    const url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${search}.`;
     const token = await utils.readEnv('COMPOSER_TOKEN');
     const response = await utils.fetch(url, token);
     if (response.error || response.data === '[]') {
-        data['error'] = (_a = response.error) !== null && _a !== void 0 ? _a : `No version found with prefix ${ref}.`;
+        data['error'] = (_a = response.error) !== null && _a !== void 0 ? _a : `No version found with prefix ${search}.`;
         return data['version'];
     }
     else {
-        const tag = JSON.parse(response['data']).pop()['ref'].split('/').pop();
+        const refs = JSON.parse(response['data']).reverse();
+        const ref = refs.find((i) => /.*\d+.\d+.\d+$/.test(i['ref']));
+        const tag = (ref || refs[0])['ref'].split('/').pop();
         return tag.replace(/^v(\d)/, '$1');
     }
 }
-exports.getToolSemver = getToolSemver;
-async function getToolVersion(data) {
+exports.getSemverVersion = getSemverVersion;
+async function getVersion(version, data) {
     const semver_regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
-    const composer_regex = /^stable$|^preview$|^snapshot$|^v?[1|2]$/;
-    const major_minor_regex = /^v?\d+(\.\d+)?$/;
-    const version = data['version']
-        .replace(/[><=^]*/, '')
-        .replace(/^v(\d)/, '$1');
+    const composer_regex = /^composer:(stable|preview|snapshot|[1|2])$/;
+    const constraint_regex = /[><=^~]+.*/;
+    const major_minor_regex = /^\d+(\.\d+)?$/;
+    data['version'] = version.replace(/v?(\d)/, '$1').replace(/\.x/, '');
     switch (true) {
-        case data['tool'] === 'composer' && composer_regex.test(version):
-            return version;
-        case data['repository'] && major_minor_regex.test(version):
-            return await getToolSemver(data);
-        case semver_regex.test(version):
-            return version;
+        case composer_regex.test(data['release']):
+        case semver_regex.test(data['version']):
+        case constraint_regex.test(data['version']) && data['type'] === 'composer':
+            return data['version'];
+        case major_minor_regex.test(data['version']) && data['type'] === 'composer':
+            data['release'] = `${data['tool']}:${data['version']}.*`;
+            return `${data['version']}.*`;
+        case data['repository'] && major_minor_regex.test(data['version']):
+            return await getSemverVersion(data);
         default:
-            return 'latest';
+            return data['version'].replace(/[><=^~]*/, '');
     }
 }
-exports.getToolVersion = getToolVersion;
-async function parseRelease(release, data) {
-    const parts = release.split(':');
-    const tool = parts[0];
-    const version = parts[1];
-    release = release.includes('/')
-        ? release.split('/')[1].replace(/\s+/, '')
-        : release;
-    release = release.includes(':')
+exports.getVersion = getVersion;
+async function getRelease(release, data) {
+    release = release.includes('/') ? release.split('/')[1] : release;
+    return release.includes(':')
         ? [data['tool'], release.split(':')[1]].join(':')
         : data['tool'];
-    switch (true) {
-        case version === undefined:
-            data['release'] = release;
-            data['version'] = 'latest';
-            break;
-        case /^[\w.-]+\/[\w.-]+$/.test(tool):
-            data['release'] = release;
-            data['version'] = version;
-            break;
-        default:
-            data['release'] = release;
-            data['version'] = version;
-            data['version'] = await getToolVersion(data);
-            break;
-    }
-    return data;
 }
-exports.parseRelease = parseRelease;
+exports.getRelease = getRelease;
 async function filterList(tools_list) {
     const regex_any = /^composer($|:.*)/;
-    const regex_valid = /^composer:?($|preview$|snapshot$|v?[1-2]$|v?\d+\.\d+\.\d+[\w-]*$)/;
+    const regex_valid = /^composer:?($|preview$|snapshot$|v?\d+(\.\d+)?$|v?\d+\.\d+\.\d+[\w-]*$)/;
     const matches = tools_list.filter(tool => regex_valid.test(tool));
     let composer = 'composer';
     tools_list = tools_list.filter(tool => !regex_any.test(tool));
@@ -758,6 +741,50 @@ async function addWPCLI(data) {
     return await addArchive(data);
 }
 exports.addWPCLI = addWPCLI;
+async function getData(release, php_version, os_version) {
+    var _a, _b, _c;
+    const json_file = await utils.readFile('tools.json', 'src/configs');
+    const json_objects = JSON.parse(json_file);
+    release = release.replace(/\s+/g, '');
+    const parts = release.split(':');
+    const tool = parts[0];
+    const version = parts[1];
+    let data;
+    if (Object.keys(json_objects).includes(tool)) {
+        data = json_objects[tool];
+        data['tool'] = tool;
+    }
+    else {
+        const key = Object.keys(json_objects).find((key) => {
+            return json_objects[key]['alias'] == tool;
+        });
+        if (key) {
+            data = json_objects[key];
+            data['tool'] = key;
+        }
+        else {
+            data = {
+                tool: tool.split('/')[1],
+                repository: tool,
+                type: 'composer'
+            };
+            data = !tool.includes('/') ? { tool: tool } : data;
+        }
+    }
+    data['github'] = 'https://github.com';
+    (_a = data['domain']) !== null && _a !== void 0 ? _a : (data['domain'] = data['github']);
+    (_b = data['extension']) !== null && _b !== void 0 ? _b : (data['extension'] = '.phar');
+    data['os_version'] = os_version;
+    data['php_version'] = php_version;
+    data['prefix'] = data['github'] === data['domain'] ? 'releases' : '';
+    data['verb'] = data['github'] === data['domain'] ? 'download' : '';
+    data['version_parameter'] = JSON.stringify(data['version_parameter']) || '';
+    (_c = data['version_prefix']) !== null && _c !== void 0 ? _c : (data['version_prefix'] = '');
+    data['release'] = await getRelease(release, data);
+    data['version'] = version ? await getVersion(version, data) : 'latest';
+    return data;
+}
+exports.getData = getData;
 exports.functionRecord = {
     composer: addComposer,
     deployer: addDeployer,
@@ -771,19 +798,6 @@ exports.functionRecord = {
     symfony: addSymfony,
     wp_cli: addWPCLI
 };
-async function initToolData(data, release, php_version, os_version) {
-    data = await parseRelease(release, data);
-    data['version_parameter'] = JSON.stringify(data['version_parameter']);
-    data['os_version'] = os_version;
-    data['php_version'] = php_version;
-    data['github'] = 'https://github.com';
-    if (data['github'] === data['domain']) {
-        data['prefix'] = 'releases';
-        data['verb'] = 'download';
-    }
-    return data;
-}
-exports.initToolData = initToolData;
 async function addTools(tools_csv, php_version, os_version) {
     let script = '\n';
     if (tools_csv === 'none') {
@@ -794,7 +808,7 @@ async function addTools(tools_csv, php_version, os_version) {
     }
     const tools_list = await filterList(await utils.CSVArray(tools_csv));
     await utils.asyncForEach(tools_list, async function (release) {
-        const data = await initToolData(await utils.getToolData(release.split(':')[0]), release, php_version, os_version);
+        const data = await getData(release, php_version, os_version);
         script += '\n';
         switch (true) {
             case data['error'] !== undefined:
@@ -805,7 +819,6 @@ async function addTools(tools_csv, php_version, os_version) {
                 script += await addArchive(data);
                 break;
             case 'composer' === data['type']:
-            case /^[\w.-]+\/[\w.-]+$/.test(data['tool']):
                 script += await addPackage(data);
                 break;
             case 'custom-package' === data['type']:
@@ -852,7 +865,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.getToolData = exports.writeScript = exports.readFile = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.getManifestURL = exports.fetch = exports.getInput = exports.readEnv = void 0;
+exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readFile = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.getManifestURL = exports.fetch = exports.getInput = exports.readEnv = void 0;
 const fs = __importStar(__nccwpck_require__(747));
 const https = __importStar(__nccwpck_require__(211));
 const path = __importStar(__nccwpck_require__(622));
@@ -1000,31 +1013,6 @@ async function writeScript(filename, script) {
     return script_path;
 }
 exports.writeScript = writeScript;
-async function getToolData(tool) {
-    const tools_json = await readFile('tools.json', 'src/configs');
-    const json_data = JSON.parse(tools_json);
-    let tool_data;
-    const tools = Object.keys(json_data);
-    if (tools.includes(tool)) {
-        tool_data = json_data[tool];
-        tool_data['tool'] = tool;
-    }
-    else {
-        const tool_key = Object.keys(json_data).find((key) => {
-            return (json_data[key]['alias'] == tool ||
-                json_data[key]['repository'] == tool);
-        });
-        if (tool_key) {
-            tool_data = json_data[tool_key];
-            tool_data['tool'] = tool_key;
-        }
-        else {
-            tool_data = { tool: tool };
-        }
-    }
-    return tool_data;
-}
-exports.getToolData = getToolData;
 async function extensionArray(extension_csv) {
     switch (extension_csv) {
         case '':

@@ -2,26 +2,30 @@ import * as tools from '../src/tools';
 import * as utils from '../src/utils';
 
 interface IData {
+  tool: string;
+  version: string;
   domain?: string;
   extension?: string;
   os_version?: string;
   php_version?: string;
+  release?: string;
   repository?: string;
-  tool: string;
-  version: string;
+  type?: string;
   version_parameter?: string;
   version_prefix?: string;
 }
 
 function getData(data: IData): Record<string, string> {
   return {
+    tool: data.tool,
+    version: data.version,
     domain: data.domain || 'https://example.com',
     extension: data.extension || '.phar',
     os_version: data.os_version || 'linux',
     php_version: data.php_version || '7.4',
-    repository: data.repository || 'user/tool',
-    tool: data.tool,
-    version: data.version,
+    release: data.release || [data.tool, data.version].join(':'),
+    repository: data.repository || '',
+    type: data.type || 'phar',
     version_parameter: data.version_parameter || '-V',
     version_prefix: data.version_prefix || '',
     github: 'https://github.com',
@@ -37,6 +41,8 @@ jest
   > => {
     if (!token || token === 'valid_token') {
       return {data: `[{"ref": "refs/tags/1.2.3", "url": "${url}"}]`};
+    } else if (token === 'beta_token') {
+      return {data: `[{"ref": "refs/tags/1.2.3-beta1", "url": "${url}"}]`};
     } else if (token === 'no_data') {
       return {data: '[]'};
     } else {
@@ -49,59 +55,61 @@ describe('Tools tests', () => {
     token              | version
     ${'invalid_token'} | ${'1.2'}
     ${'valid_token'}   | ${'1.2.3'}
+    ${'beta_token'}    | ${'1.2.3-beta1'}
     ${''}              | ${'1.2.3'}
-  `('checking getToolSemver: $token', async ({token, version}) => {
+  `('checking getSemverVersion: $token', async ({token, version}) => {
     process.env['COMPOSER_TOKEN'] = token;
     expect(
-      await tools.getToolSemver(getData({tool: 'tool', version: '1.2'}))
+      await tools.getSemverVersion(getData({tool: 'tool', version: '1.2'}))
     ).toBe(version);
   });
 
   it.each`
-    input              | expected
-    ${'latest'}        | ${'latest'}
-    ${'1.2.3'}         | ${'1.2.3'}
-    ${'1.2'}           | ${'1.2.3'}
-    ${'^1.2.3'}        | ${'1.2.3'}
-    ${'>=1.2.3'}       | ${'1.2.3'}
-    ${'>1.2.3'}        | ${'1.2.3'}
-    ${'1.2.3-ALPHA'}   | ${'1.2.3-ALPHA'}
-    ${'1.2.3-alpha'}   | ${'1.2.3-alpha'}
-    ${'1.2.3-beta'}    | ${'1.2.3-beta'}
-    ${'1.2.3-rc'}      | ${'1.2.3-rc'}
-    ${'1.2.3-dev'}     | ${'1.2.3-dev'}
-    ${'1.2.3-alpha1'}  | ${'1.2.3-alpha1'}
-    ${'1.2.3-alpha.1'} | ${'1.2.3-alpha.1'}
-  `('checking getToolVersion: $input', async ({input, expected}) => {
-    expect(
-      await tools.getToolVersion(getData({tool: 'tool', version: input}))
-    ).toBe(expected);
-  });
+    version            | tool          | type          | expected
+    ${'latest'}        | ${'tool'}     | ${'phar'}     | ${'latest'}
+    ${'1'}             | ${'composer'} | ${'phar'}     | ${'1'}
+    ${'1.2'}           | ${'tool'}     | ${'composer'} | ${'1.2.*'}
+    ${'^1.2.3'}        | ${'tool'}     | ${'phar'}     | ${'1.2.3'}
+    ${'>=1.2.3'}       | ${'tool'}     | ${'phar'}     | ${'1.2.3'}
+    ${'>1.2.3'}        | ${'tool'}     | ${'phar'}     | ${'1.2.3'}
+    ${'1.2.3-ALPHA'}   | ${'tool'}     | ${'phar'}     | ${'1.2.3-ALPHA'}
+    ${'1.2.3-alpha'}   | ${'tool'}     | ${'phar'}     | ${'1.2.3-alpha'}
+    ${'1.2.3-beta'}    | ${'tool'}     | ${'phar'}     | ${'1.2.3-beta'}
+    ${'1.2.3-rc'}      | ${'tool'}     | ${'phar'}     | ${'1.2.3-rc'}
+    ${'1.2.3-dev'}     | ${'tool'}     | ${'phar'}     | ${'1.2.3-dev'}
+    ${'1.2.3-alpha1'}  | ${'tool'}     | ${'phar'}     | ${'1.2.3-alpha1'}
+    ${'1.2.3-alpha.1'} | ${'tool'}     | ${'phar'}     | ${'1.2.3-alpha.1'}
+  `(
+    'checking getVersion: $version, $tool, $type',
+    async ({version, tool, type, expected}) => {
+      expect(
+        await tools.getVersion(
+          version,
+          getData({tool: tool, version: version, type: type})
+        )
+      ).toBe(expected);
+    }
+  );
 
   it.each`
-    input                   | release                 | version
-    ${'tool'}               | ${'tool'}               | ${'latest'}
-    ${'alias:1.2.3'}        | ${'tool:1.2.3'}         | ${'1.2.3'}
-    ${'tool:1.2.3'}         | ${'tool:1.2.3'}         | ${'1.2.3'}
-    ${'tool:^1.2.3'}        | ${'tool:^1.2.3'}        | ${'1.2.3'}
-    ${'tool:>=1.2.3'}       | ${'tool:>=1.2.3'}       | ${'1.2.3'}
-    ${'tool:>1.2.3'}        | ${'tool:>1.2.3'}        | ${'1.2.3'}
-    ${'tool:1.2.3-ALPHA'}   | ${'tool:1.2.3-ALPHA'}   | ${'1.2.3-ALPHA'}
-    ${'tool:1.2.3-beta'}    | ${'tool:1.2.3-beta'}    | ${'1.2.3-beta'}
-    ${'tool:1.2.3-rc'}      | ${'tool:1.2.3-rc'}      | ${'1.2.3-rc'}
-    ${'tool:1.2.3-dev'}     | ${'tool:1.2.3-dev'}     | ${'1.2.3-dev'}
-    ${'tool:1.2.3-alpha1'}  | ${'tool:1.2.3-alpha1'}  | ${'1.2.3-alpha1'}
-    ${'tool:1.2.3-alpha.1'} | ${'tool:1.2.3-alpha.1'} | ${'1.2.3-alpha.1'}
-    ${'user/tool:^1.2.3'}   | ${'tool:^1.2.3'}        | ${'^1.2.3'}
-  `('checking parseRelease: $input', async ({input, release, version}) => {
-    const data = await tools.parseRelease(
-      input,
-      getData({tool: 'tool', version: 'latest'})
-    );
-    expect({release: data.release, version: data.version}).toStrictEqual({
-      release: release,
-      version: version
-    });
+    input                   | expected
+    ${'tool'}               | ${'tool'}
+    ${'alias:1.2.3'}        | ${'tool:1.2.3'}
+    ${'tool:1.2.3'}         | ${'tool:1.2.3'}
+    ${'tool:^1.2.3'}        | ${'tool:^1.2.3'}
+    ${'tool:>=1.2.3'}       | ${'tool:>=1.2.3'}
+    ${'tool:>1.2.3'}        | ${'tool:>1.2.3'}
+    ${'tool:1.2.3-ALPHA'}   | ${'tool:1.2.3-ALPHA'}
+    ${'tool:1.2.3-beta'}    | ${'tool:1.2.3-beta'}
+    ${'tool:1.2.3-rc'}      | ${'tool:1.2.3-rc'}
+    ${'tool:1.2.3-dev'}     | ${'tool:1.2.3-dev'}
+    ${'tool:1.2.3-alpha1'}  | ${'tool:1.2.3-alpha1'}
+    ${'tool:1.2.3-alpha.1'} | ${'tool:1.2.3-alpha.1'}
+    ${'user/tool:^1.2.3'}   | ${'tool:^1.2.3'}
+  `('checking getRelease: $input', async ({input, expected}) => {
+    expect(
+      await tools.getRelease(input, getData({tool: 'tool', version: 'latest'}))
+    ).toBe(expected);
   });
 
   it.each`
@@ -161,7 +169,7 @@ describe('Tools tests', () => {
     ${'darwin'}  | ${'add_tool https://example.com/tool.phar tool "-v"'}
     ${'win32'}   | ${'Add-Tool https://example.com/tool.phar tool "-v"'}
     ${'openbsd'} | ${'Platform openbsd is not supported'}
-  `('checking addPackage: $os_version', async ({os_version, script}) => {
+  `('checking addArchive: $os_version', async ({os_version, script}) => {
     const data = getData({
       tool: 'tool',
       version: 'latest',
@@ -178,10 +186,11 @@ describe('Tools tests', () => {
     ${'darwin'}  | ${'add_composertool tool tool:1.2.3 user/'}
     ${'win32'}   | ${'Add-Composertool tool tool:1.2.3 user/'}
     ${'openbsd'} | ${'Platform openbsd is not supported'}
-  `('checking addPackage: $tool, $os_version', async ({os_version, script}) => {
+  `('checking addPackage: $os_version', async ({os_version, script}) => {
     const data = getData({
       tool: 'tool',
       version: '1.2.3',
+      repository: 'user/tool',
       os_version: os_version
     });
     data['release'] = [data['tool'], data['version']].join(':');
@@ -432,13 +441,16 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'composer:v1, codeception/codeception, prestissimo, hirak/prestissimo, composer-prefetcher, narrowspark/automatic-composer-prefetcher, robmorgan/phinx: ^1.2',
+      'composer:v1, codeception/codeception, prestissimo, hirak/prestissimo, composer-prefetcher, narrowspark/automatic-composer-prefetcher, phinx: 1.2, robmorgan/phinx: ^1.2, user/tool:1.2.3, user/tool:~1.2',
       [
         'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-1.phar,https://getcomposer.org/composer-1.phar composer',
         'Add-Composertool codeception codeception codeception/',
         'Add-Composertool prestissimo prestissimo hirak/',
         'Add-Composertool automatic-composer-prefetcher automatic-composer-prefetcher narrowspark/',
-        'Add-Composertool phinx phinx:^1.2 robmorgan/'
+        'Add-Composertool phinx phinx:1.2.* robmorgan/',
+        'Add-Composertool phinx phinx:^1.2 robmorgan/',
+        'Add-Composertool tool tool:1.2.3 user/',
+        'Add-Composertool tool tool:~1.2 user/'
       ]
     ]
   ])(

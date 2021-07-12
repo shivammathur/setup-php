@@ -1,17 +1,32 @@
 import * as utils from './utils';
 
-export async function getToolSemver(
-  data: Record<string, string>
-): Promise<string> {
-  const ref: string = data['version_prefix'] + data['version'];
-  const url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${ref}.`;
+type RS = Record<string, string>;
+type RSRS = Record<string, RS>;
+
+interface IRef {
+  ref: string;
+  node_id: string;
+  url: string;
+  object: RS;
+}
+
+/**
+ * Function to get version in semver format.
+ *
+ * @param data
+ */
+export async function getSemverVersion(data: RS): Promise<string> {
+  const search: string = data['version_prefix'] + data['version'];
+  const url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${search}.`;
   const token: string = await utils.readEnv('COMPOSER_TOKEN');
-  const response: Record<string, string> = await utils.fetch(url, token);
+  const response: RS = await utils.fetch(url, token);
   if (response.error || response.data === '[]') {
-    data['error'] = response.error ?? `No version found with prefix ${ref}.`;
+    data['error'] = response.error ?? `No version found with prefix ${search}.`;
     return data['version'];
   } else {
-    const tag = JSON.parse(response['data']).pop()['ref'].split('/').pop();
+    const refs = JSON.parse(response['data']).reverse();
+    const ref = refs.find((i: IRef) => /.*\d+.\d+.\d+$/.test(i['ref']));
+    const tag: string = (ref || refs[0])['ref'].split('/').pop();
     return tag.replace(/^v(\d)/, '$1');
   }
 }
@@ -19,28 +34,29 @@ export async function getToolSemver(
 /**
  * Function to get tool version
  *
+ * @param version
  * @param data
  */
-export async function getToolVersion(
-  data: Record<string, string>
-): Promise<string> {
+export async function getVersion(version: string, data: RS): Promise<string> {
   // semver_regex - https://semver.org/
   const semver_regex =
     /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
-  const composer_regex = /^stable$|^preview$|^snapshot$|^v?[1|2]$/;
-  const major_minor_regex = /^v?\d+(\.\d+)?$/;
-  const version = data['version']
-    .replace(/[><=^]*/, '')
-    .replace(/^v(\d)/, '$1');
+  const composer_regex = /^composer:(stable|preview|snapshot|[1|2])$/;
+  const constraint_regex = /[><=^~]+.*/;
+  const major_minor_regex = /^\d+(\.\d+)?$/;
+  data['version'] = version.replace(/v?(\d)/, '$1').replace(/\.x/, '');
   switch (true) {
-    case data['tool'] === 'composer' && composer_regex.test(version):
-      return version;
-    case data['repository'] && major_minor_regex.test(version):
-      return await getToolSemver(data);
-    case semver_regex.test(version):
-      return version;
+    case composer_regex.test(data['release']):
+    case semver_regex.test(data['version']):
+    case constraint_regex.test(data['version']) && data['type'] === 'composer':
+      return data['version'];
+    case major_minor_regex.test(data['version']) && data['type'] === 'composer':
+      data['release'] = `${data['tool']}:${data['version']}.*`;
+      return `${data['version']}.*`;
+    case data['repository'] && major_minor_regex.test(data['version']):
+      return await getSemverVersion(data);
     default:
-      return 'latest';
+      return data['version'].replace(/[><=^~]*/, '');
   }
 }
 
@@ -50,35 +66,11 @@ export async function getToolVersion(
  * @param release
  * @param data
  */
-export async function parseRelease(
-  release: string,
-  data: Record<string, string>
-): Promise<Record<string, string>> {
-  const parts: string[] = release.split(':');
-  const tool: string = parts[0];
-  const version: string | undefined = parts[1];
-  release = release.includes('/')
-    ? release.split('/')[1].replace(/\s+/, '')
-    : release;
-  release = release.includes(':')
+export async function getRelease(release: string, data: RS): Promise<string> {
+  release = release.includes('/') ? release.split('/')[1] : release;
+  return release.includes(':')
     ? [data['tool'], release.split(':')[1]].join(':')
     : data['tool'];
-  switch (true) {
-    case version === undefined:
-      data['release'] = release;
-      data['version'] = 'latest';
-      break;
-    case /^[\w.-]+\/[\w.-]+$/.test(tool):
-      data['release'] = release;
-      data['version'] = version;
-      break;
-    default:
-      data['release'] = release;
-      data['version'] = version;
-      data['version'] = await getToolVersion(data);
-      break;
-  }
-  return data;
 }
 
 /**
@@ -89,7 +81,7 @@ export async function parseRelease(
 export async function filterList(tools_list: string[]): Promise<string[]> {
   const regex_any = /^composer($|:.*)/;
   const regex_valid =
-    /^composer:?($|preview$|snapshot$|v?[1-2]$|v?\d+\.\d+\.\d+[\w-]*$)/;
+    /^composer:?($|preview$|snapshot$|v?\d+(\.\d+)?$|v?\d+\.\d+\.\d+[\w-]*$)/;
   const matches: string[] = tools_list.filter(tool => regex_valid.test(tool));
   let composer = 'composer';
   tools_list = tools_list.filter(tool => !regex_any.test(tool));
@@ -109,7 +101,7 @@ export async function filterList(tools_list: string[]): Promise<string[]> {
  *
  * @param data
  */
-export async function getUrl(data: Record<string, string>): Promise<string> {
+export async function getUrl(data: RS): Promise<string> {
   if (data['version'] === 'latest') {
     return [
       data['domain'],
@@ -140,9 +132,7 @@ export async function getUrl(data: Record<string, string>): Promise<string> {
  *
  * @param data
  */
-export async function getPharUrl(
-  data: Record<string, string>
-): Promise<string> {
+export async function getPharUrl(data: RS): Promise<string> {
   if (data['version'] === 'latest') {
     return data['domain'] + '/' + data['tool'] + '.phar';
   } else {
@@ -163,9 +153,7 @@ export async function getPharUrl(
  *
  * @param data
  */
-export async function addArchive(
-  data: Record<string, string>
-): Promise<string> {
+export async function addArchive(data: RS): Promise<string> {
   return (
     (await utils.getCommand(data['os_version'], 'tool')) +
     (await utils.joins(data['url'], data['tool'], data['version_parameter']))
@@ -177,9 +165,7 @@ export async function addArchive(
  *
  * @param data
  */
-export async function addPackage(
-  data: Record<string, string>
-): Promise<string> {
+export async function addPackage(data: RS): Promise<string> {
   const command = await utils.getCommand(data['os_version'], 'composertool');
   const parts: string[] = data['repository'].split('/');
   return command + parts[1] + ' ' + data['release'] + ' ' + parts[0] + '/';
@@ -190,9 +176,7 @@ export async function addPackage(
  *
  * @param data
  */
-export async function addBlackfirePlayer(
-  data: Record<string, string>
-): Promise<string> {
+export async function addBlackfirePlayer(data: RS): Promise<string> {
   if (
     /5\.[5-6]|7\.0/.test(data['php_version']) &&
     data['version'] == 'latest'
@@ -208,9 +192,7 @@ export async function addBlackfirePlayer(
  *
  * @param data
  */
-export async function addComposer(
-  data: Record<string, string>
-): Promise<string> {
+export async function addComposer(data: RS): Promise<string> {
   const github = data['github'];
   const getcomposer = data['domain'];
   let cache_url = `${github}/shivammathur/composer-cache/releases/latest/download/composer-${data[
@@ -240,9 +222,7 @@ export async function addComposer(
  *
  * @param data
  */
-export async function addDeployer(
-  data: Record<string, string>
-): Promise<string> {
+export async function addDeployer(data: RS): Promise<string> {
   if (data['version'] === 'latest') {
     data['url'] = data['domain'] + '/deployer.phar';
   } else {
@@ -257,9 +237,7 @@ export async function addDeployer(
  *
  * @param data
  */
-export async function addDevTools(
-  data: Record<string, string>
-): Promise<string> {
+export async function addDevTools(data: RS): Promise<string> {
   switch (data['os_version']) {
     case 'linux':
     case 'darwin':
@@ -285,7 +263,7 @@ export async function addDevTools(
  *
  * @param data
  */
-export async function addPECL(data: Record<string, string>): Promise<string> {
+export async function addPECL(data: RS): Promise<string> {
   return await utils.getCommand(data['os_version'], 'pecl');
 }
 
@@ -294,7 +272,7 @@ export async function addPECL(data: Record<string, string>): Promise<string> {
  *
  * @param data
  */
-export async function addPhing(data: Record<string, string>): Promise<string> {
+export async function addPhing(data: RS): Promise<string> {
   data['url'] =
     data['domain'] + '/get/phing-' + data['version'] + data['extension'];
   return await addArchive(data);
@@ -305,7 +283,7 @@ export async function addPhing(data: Record<string, string>): Promise<string> {
  *
  * @param data
  */
-export async function addPhive(data: Record<string, string>): Promise<string> {
+export async function addPhive(data: RS): Promise<string> {
   switch (true) {
     case /5\.[3-5]/.test(data['php_version']):
       return await utils.addLog(
@@ -340,9 +318,7 @@ export async function addPhive(data: Record<string, string>): Promise<string> {
  *
  * @param data
  */
-export async function addPHPUnitTools(
-  data: Record<string, string>
-): Promise<string> {
+export async function addPHPUnitTools(data: RS): Promise<string> {
   data['url'] = await getPharUrl(data);
   return await addArchive(data);
 }
@@ -352,9 +328,7 @@ export async function addPHPUnitTools(
  *
  * @param data
  */
-export async function addSymfony(
-  data: Record<string, string>
-): Promise<string> {
+export async function addSymfony(data: RS): Promise<string> {
   let filename: string;
   switch (data['os_version']) {
     case 'linux':
@@ -387,7 +361,7 @@ export async function addSymfony(
  *
  * @param data
  */
-export async function addWPCLI(data: Record<string, string>): Promise<string> {
+export async function addWPCLI(data: RS): Promise<string> {
   if (data['version'] === 'latest') {
     data['uri'] = 'wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true';
     data['url'] = [data['domain'], data['uri']].join('/');
@@ -398,10 +372,61 @@ export async function addWPCLI(data: Record<string, string>): Promise<string> {
   return await addArchive(data);
 }
 
-export const functionRecord: Record<
-  string,
-  (data: Record<string, string>) => Promise<string>
-> = {
+/**
+ * Function to get information about a tool
+ *
+ * @param release
+ * @param php_version
+ * @param os_version
+ */
+export async function getData(
+  release: string,
+  php_version: string,
+  os_version: string
+): Promise<RS> {
+  const json_file: string = await utils.readFile('tools.json', 'src/configs');
+  const json_objects: RSRS = JSON.parse(json_file);
+  release = release.replace(/\s+/g, '');
+  const parts: string[] = release.split(':');
+  const tool = parts[0];
+  const version = parts[1];
+  let data: RS;
+  if (Object.keys(json_objects).includes(tool)) {
+    data = json_objects[tool];
+    data['tool'] = tool;
+  } else {
+    const key: string | undefined = Object.keys(json_objects).find(
+      (key: string) => {
+        return json_objects[key]['alias'] == tool;
+      }
+    );
+    if (key) {
+      data = json_objects[key];
+      data['tool'] = key;
+    } else {
+      data = {
+        tool: tool.split('/')[1],
+        repository: tool,
+        type: 'composer'
+      };
+      data = !tool.includes('/') ? {tool: tool} : data;
+    }
+  }
+  data['github'] = 'https://github.com';
+  data['domain'] ??= data['github'];
+  data['extension'] ??= '.phar';
+  data['os_version'] = os_version;
+  data['php_version'] = php_version;
+  data['prefix'] = data['github'] === data['domain'] ? 'releases' : '';
+  data['verb'] = data['github'] === data['domain'] ? 'download' : '';
+  data['version_parameter'] = JSON.stringify(data['version_parameter']) || '';
+  data['version_prefix'] ??= '';
+  data['release'] = await getRelease(release, data);
+  data['version'] = version ? await getVersion(version, data) : 'latest';
+  return data;
+}
+
+export const functionRecord: Record<string, (data: RS) => Promise<string>> = {
   composer: addComposer,
   deployer: addDeployer,
   dev_tools: addDevTools,
@@ -414,32 +439,6 @@ export const functionRecord: Record<
   symfony: addSymfony,
   wp_cli: addWPCLI
 };
-
-/**
- * Function to initialize common data for the tool
- *
- * @param data
- * @param release
- * @param php_version
- * @param os_version
- */
-export async function initToolData(
-  data: Record<string, string>,
-  release: string,
-  php_version: string,
-  os_version: string
-): Promise<Record<string, string>> {
-  data = await parseRelease(release, data);
-  data['version_parameter'] = JSON.stringify(data['version_parameter']);
-  data['os_version'] = os_version;
-  data['php_version'] = php_version;
-  data['github'] = 'https://github.com';
-  if (data['github'] === data['domain']) {
-    data['prefix'] = 'releases';
-    data['verb'] = 'download';
-  }
-  return data;
-}
 
 /**
  * Setup tools
@@ -461,12 +460,7 @@ export async function addTools(
   }
   const tools_list = await filterList(await utils.CSVArray(tools_csv));
   await utils.asyncForEach(tools_list, async function (release: string) {
-    const data: Record<string, string> = await initToolData(
-      await utils.getToolData(release.split(':')[0]),
-      release,
-      php_version,
-      os_version
-    );
+    const data: RS = await getData(release, php_version, os_version);
     script += '\n';
     switch (true) {
       case data['error'] !== undefined:
@@ -482,7 +476,6 @@ export async function addTools(
         script += await addArchive(data);
         break;
       case 'composer' === data['type']:
-      case /^[\w.-]+\/[\w.-]+$/.test(data['tool']):
         script += await addPackage(data);
         break;
       case 'custom-package' === data['type']:

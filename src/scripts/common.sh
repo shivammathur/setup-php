@@ -300,7 +300,7 @@ add_composertool() {
 
 # Function to get PHP version in semver format.
 php_semver() {
-  php"$version" -v | grep -Eo -m 1 "[0-9]+\.[0-9]+\.[0-9]+" | head -n 1
+  php -v | grep -Eo -m 1 "[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z]+([0-9]+)?)?" | head -n 1
 }
 
 # Function to get the tag for a php version.

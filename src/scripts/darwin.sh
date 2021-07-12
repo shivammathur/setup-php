@@ -188,6 +188,13 @@ add_php() {
   brew link --force --overwrite "$php_formula"
 }
 
+# Function to get extra version.
+php_extra_version() {
+  if [[ ${version:?} =~ ${nightly_versions:?} ]]; then
+    echo " ($(brew cat "$php_formula" | grep -Eo "commit=[0-9a-zA-Z]+" | cut -d'=' -f 2))"
+  fi
+}
+
 # Function to Setup PHP.
 setup_php() {
   step_log "Setup PHP"
@@ -211,13 +218,16 @@ setup_php() {
   ext_dir=$(php -i | grep -Ei "extension_dir => /" | sed -e "s|.*=> s*||")
   scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
   sudo mkdir -m 777 -p "$ext_dir" "$HOME/.composer"
-  semver=$(php -v | head -n 1 | cut -f 2 -d ' ')
+  semver=$(php_semver)
+  extra_version=$(php_extra_version)
   if [ "${semver%.*}" != "$version" ]; then
     add_log "$cross" "PHP" "Could not setup PHP $version"
     exit 1
   fi
+
   sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
-  add_log "$tick" "PHP" "$status PHP $semver"
+  echo "::set-output name=php-version::$semver"
+  add_log "$tick" "PHP" "$status PHP $semver$extra_version"
 }
 
 # Variables

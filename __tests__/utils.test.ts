@@ -40,7 +40,8 @@ describe('Utils tests', () => {
     expect(response.data).toContain('latest');
 
     response = await utils.fetch(manifest, 'invalid_token');
-    expect(response.error).toBe('404: Not Found');
+    expect(response.error).not.toBe(undefined);
+    expect(response.data).toBe(undefined);
   });
 
   it('checking getManifestURL', async () => {

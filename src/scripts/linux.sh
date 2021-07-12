@@ -144,7 +144,6 @@ add_devtools() {
 # Function to setup the nightly build from shivammathur/php-builder
 setup_nightly() {
   run_script "php-builder" "$runner" "$version"
-  extra_version="-dev ($(cat "/etc/php/$version/COMMIT"))"
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
@@ -220,6 +219,13 @@ link_pecl_file() {
   done
 }
 
+# Function to get extra version.
+php_extra_version() {
+  if [[ ${version:?} =~ ${nightly_versions:?} ]]; then
+    echo " ($(cat "/etc/php/$version/COMMIT"))"
+  fi
+}
+
 # Function to Setup PHP
 setup_php() {
   step_log "Setup PHP"
@@ -249,6 +255,7 @@ setup_php() {
     exit 1
   fi
   semver=$(php_semver)
+  extra_version=$(php_extra_version)
   ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
   scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
   ini_dir=$(php --ini | grep "(php.ini)" | sed -e "s|.*: s*||")
@@ -259,6 +266,7 @@ setup_php() {
   sudo rm -rf /usr/local/bin/phpunit >/dev/null 2>&1
   sudo chmod 777 "${ini_file[@]}" "$pecl_file" "${tool_path_dir:?}"
   sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
+  echo "::set-output name=php-version::$semver"
   add_log "${tick:?}" "PHP" "$status PHP $semver$extra_version"
 }
 

@@ -21,6 +21,9 @@ inputs:
   tools:
     description: 'Setup popular tools globally.'
     required: false
+outputs:
+  php-version:
+    description: 'PHP version in semver format'
 runs:
   using: 'node12'
   main: 'dist/index.js'

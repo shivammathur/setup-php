@@ -316,6 +316,10 @@ if [ "$existing_version" != "$version" ]; then
   status="Installed"
 else
   status="Found"
+  # Remove when PCRE2 on macOS images is updated to the patched PCRE2 10.37
+  add_brew_tap shivammathur/homebrew-php
+  update_dependencies
+  brew reinstall pcre2 >/dev/null 2>&1
 fi
 ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
 sudo chmod 777 "$ini_file" "$tool_path_dir"

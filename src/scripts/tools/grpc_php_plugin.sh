@@ -24,35 +24,38 @@ get_grpc_tag() {
   fi
 }
 
-add_grpc_php_plugin_macos() {
+add_grpc_php_plugin_brew() {
   brew install grpc
   brew link --force --overwrite grpc >/dev/null 2>&1
   grpc_tag="v$(brew info grpc | grep "grpc:" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+")"
   license_path="$(brew --prefix grpc)/LICENSE"
 }
 
-add_grpc_php_plugin_linux() {
+add_grpc_php_plugin_compile() {
   get_grpc_tag
   get -s -n "" "https://github.com/grpc/grpc/archive/$grpc_tag.tar.gz" | tar -xz -C /tmp
-  cd "/tmp/grpc-${grpc_tag:1}" || exit
-  add_bazel
-  if [ "$DISTRIB_RELEASE" = "16.04" ]; then
-    CC="$(command -v gcc)" CXX="$(command -v g++)" ./tools/bazel build src/compiler:grpc_php_plugin
-  else
-    ./tools/bazel build src/compiler:grpc_php_plugin
-  fi
-  sudo mv ./bazel-bin/src/compiler/grpc_php_plugin /usr/local/bin/grpc_php_plugin
-  sudo chmod a+x /usr/local/bin/grpc_php_plugin
-  license_path="/tmp/grpc-${grpc_tag:1}/LICENSE"
+  export DISABLE_BAZEL_WRAPPER=1
+  (
+    cd "/tmp/grpc-${grpc_tag:1}" || exit
+    add_bazel
+    if [ "$DISTRIB_RELEASE" = "16.04" ]; then
+      CC="$(command -v gcc)" CXX="$(command -v g++)" ./tools/bazel build src/compiler:grpc_php_plugin
+    else
+      ./tools/bazel build src/compiler:grpc_php_plugin
+    fi
+    sudo mv ./bazel-bin/src/compiler/grpc_php_plugin /usr/local/bin/grpc_php_plugin
+    sudo chmod a+x /usr/local/bin/grpc_php_plugin
+    license_path="/tmp/grpc-${grpc_tag:1}/LICENSE"
+  )
 }
 
 add_grpc_php_plugin() {
   grpc_tag=$1
   license_path=""
-  if [ "$(uname -s)" = "Darwin" ]; then
-    add_grpc_php_plugin_macos >/dev/null 2>&1
+  if [ "$grpc_tag" = "latest" ]; then
+    add_grpc_php_plugin_brew >/dev/null 2>&1
   else
-    add_grpc_php_plugin_linux >/dev/null 2>&1
+    add_grpc_php_plugin_compile >/dev/null 2>&1
   fi
   echo "::set-output name=grpc_php_plugin_path::$(command -v grpc_php_plugin)"
   add_log "${tick:?}" "grpc_php_plugin" "Added grpc_php_plugin ${grpc_tag:1}"

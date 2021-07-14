@@ -34,6 +34,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Disable Coverage](#disable-coverage)
 - [Usage](#memo-usage)
   - [Inputs](#inputs)
+  - [Outputs](#outputs)
   - [Flags](#flags)
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)  
@@ -207,7 +208,38 @@ These tools can be setup globally using the `tools` input. It accepts a string i
     tools: php-cs-fixer, phpunit
 ```
 
-- To set up a particular version of a tool, specify it in the form `tool:version`. The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying `v1`, `v2`, `snapshot` or `preview` as versions, or the exact version in semver format.
+- In addition to above tools any composer tool or package can also be set up globally by specifying it as `vendor/package` matching the listing on Packagist. This format accepts the same [version constraints](https://getcomposer.org/doc/articles/versions.md#writing-version-constraints "Composer version constraints") as `composer`.
+
+```yaml
+- name: Setup PHP with tools
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+    tools: vimeo/psalm
+```
+
+- To set up a particular version of a tool, specify it in the form `tool:version`.
+  
+  Version can be in the following format:
+    - Semver. For example `tool:1.2.3` or `tool:1.2.3-beta1`.
+    - Major version. For example `tool:1` or `tool:1.x`.
+    - Major and minor version. For example `tool:1.2` or `tool:1.2.x`.
+  
+  When you specify just the major version or the version in `major.minor` format, the latest patch version matching the input will be setup. 
+
+  Except for major versions of `composer`, For other tools when you specify only the `major` version or the version in `major.minor` format for any tool you can get rate limited by GitHub's API. To avoid this, it is recommended to provide a [`GitHub` OAuth token](https://github.com/shivammathur/setup-php#composer-github-oauth "Composer GitHub OAuth"). You can do that by setting `COMPOSER_TOKEN` environment variable.
+
+```yaml
+- name: Setup PHP with tools
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+    tools: php-cs-fixer:3, phpunit:8.5
+  env:
+    COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+- The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying the major version `v1` or `v2`, or the version in `major.minor` or `semver` format, Additionally for composer `snapshot` and `preview` can also be specified to set up the respective releases.
 
 ```yaml
 - name: Setup PHP with composer v2
@@ -227,29 +259,11 @@ These tools can be setup globally using the `tools` input. It accepts a string i
     tools: none
 ```
 
+- Scripts `phpize` and `php-config` are set up with the same version as of the input PHP version.
+
+- The latest versions of both agent `blackfire-agent` and client `blackfire` are set up when `blackfire` is specified in tools input. Please refer to the [official documentation](https://blackfire.io/docs/integrations/ci/github-actions "Blackfire.io documentation for GitHub Actions") for using `blackfire` with GitHub Actions.
+
 - Tools `prestissimo` and `composer-prefetcher` will be skipped unless `composer:v1` is also specified in tools input. It is recommended to drop `prestissimo` and use `composer v2`.
-
-- The latest versions of both agent `blackfire-agent` and client `blackfire` are setup when `blackfire` is specified in tools input. Please refer to the [official documentation](https://blackfire.io/docs/integrations/ci/github-actions "Blackfire.io documentation for GitHub Actions") for using `blackfire` with GitHub Actions.
-
-- Version for other tools should be in `semver` format and a valid release of the tool. This is useful for installing tools for older versions of PHP. For example to set up `PHPUnit` on `PHP 7.2`.
-
-```yaml
-- name: Setup PHP with tools
-  uses: shivammathur/setup-php@v2
-  with:
-    php-version: '7.2'
-    tools: phpunit:8.5.8
-```
-
-- Any composer tool or package can also be set up globally by specifying it as `vendor/package`. For example to set up `psalm`.
-
-```yaml
-- name: Setup PHP with tools
-  uses: shivammathur/setup-php@v2
-  with:
-    php-version: '7.4'
-    tools: vimeo/psalm
-```
 
 - By default, tools which cannot be set up gracefully leave an error message in the logs, the action is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.
 
@@ -378,6 +392,25 @@ Disable coverage for these reasons:
 - Specify the tools you want to set up.
 - Accepts a `string` in csv-format. For example: `phpunit, phpcs`
 - See [tools Support](#wrench-tools-support) for tools supported.
+
+### Outputs
+
+#### `php-version`
+
+To use outputs, give the `setup-php` step an `id`, you can use the same to get the outputs in a later step.
+
+- Provides the PHP version in semver format.
+
+```yml
+- name: Setup PHP
+  id: setup-php
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '7.4'
+
+- name: Print PHP version
+  run: echo ${{ steps.setup-php.outputs.php-version }}
+```
 
 ### Flags
 
@@ -536,7 +569,7 @@ To debug any issues, you can use the `verbose` tag instead of `v2`.
 
 > Setup PHP on multiple architecture on Ubuntu GitHub Runners.
 
-- `PHP 5.6` to `PHP 7.4` are supported by `setup-php` on multiple architecture on `Ubuntu`.
+- `PHP 5.6` to `PHP 8.0` are supported by `setup-php` on multiple architecture on `Ubuntu`.
 - For this, you can use `shivammathur/node` images as containers. These have compatible `Nodejs` and `spc` utility.
 - Using `spc` you can run `setup-php` on both `i386` and `amd64` containers as opposed to [default syntax](#basic-setup), which only supports `amd64`.
 - Currently, for `Arm` based setup, you will need [self-hosted runners](#self-hosted-setup).
@@ -640,7 +673,7 @@ act -P ubuntu-16.04=shivammathur/node:1604
 > Enable Just-in-time(JIT) on PHP 8.0 and PHP 8.1.
 
 - To enable JIT, enable `opcache` in cli mode by setting `opcache.enable_cli=1`.
-- JIT conflicts with `Xdebug`, `PCOV`, and any other extension which overrides `zend_execute_ex` function, so set `coverage: none` and remove those extensions if added.
+- JIT conflicts with `Xdebug`, `PCOV`, and other extensions which override `zend_execute_ex` function, so set `coverage: none` and remove any such extension if added.
 - By default, `opcache.jit=1235` and `opcache.jit_buffer_size=256M` are set which can be changed using `ini-values` input.
 - For detailed information about JIT related directives refer to the [`official PHP documentation`](https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.jit "opcache.jit documentation").
 
@@ -714,7 +747,7 @@ If your project has node.js dependencies, you can persist NPM or yarn cache dire
 
 ### Composer GitHub OAuth
 
-If you have a number of workflows which setup multiple tools or have many composer dependencies, you might hit the GitHub's rate limit for composer. To avoid that you can add an `OAuth` token to the composer's config by setting `COMPOSER_TOKEN` environment variable. You can use [`GITHUB_TOKEN`](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token "GITHUB_TOKEN documentation") secret for this purpose.
+If you have a number of workflows which setup multiple tools or have many composer dependencies, you might hit the GitHub's rate limit for composer. Also, if you specify only the major version or the version in `major.minor` format, you can hit the rate limit. To avoid this you can specify an `OAuth` token by setting `COMPOSER_TOKEN` environment variable. You can use [`GITHUB_TOKEN`](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token "GITHUB_TOKEN documentation") secret for this purpose.
 
 ```yaml
 - name: Setup PHP

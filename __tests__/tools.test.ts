@@ -36,19 +36,19 @@ function getData(data: IData): Record<string, string> {
 
 jest
   .spyOn(utils, 'fetch')
-  .mockImplementation(async (url: string, token?: string): Promise<
-    Record<string, string>
-  > => {
-    if (!token || token === 'valid_token') {
-      return {data: `[{"ref": "refs/tags/1.2.3", "url": "${url}"}]`};
-    } else if (token === 'beta_token') {
-      return {data: `[{"ref": "refs/tags/1.2.3-beta1", "url": "${url}"}]`};
-    } else if (token === 'no_data') {
-      return {data: '[]'};
-    } else {
-      return {error: 'Invalid token'};
+  .mockImplementation(
+    async (url: string, token?: string): Promise<Record<string, string>> => {
+      if (!token || token === 'valid_token') {
+        return {data: `[{"ref": "refs/tags/1.2.3", "url": "${url}"}]`};
+      } else if (token === 'beta_token') {
+        return {data: `[{"ref": "refs/tags/1.2.3-beta1", "url": "${url}"}]`};
+      } else if (token === 'no_data') {
+        return {data: '[]'};
+      } else {
+        return {error: 'Invalid token'};
+      }
     }
-  });
+  );
 
 describe('Tools tests', () => {
   it.each`

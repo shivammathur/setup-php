@@ -49,15 +49,17 @@ describe('Utils tests', () => {
   });
 
   it('checking parseVersion', async () => {
-    jest.spyOn(utils, 'fetch').mockImplementation(async (url, token?): Promise<
-      Record<string, string>
-    > => {
-      if (!token || token === 'valid_token') {
-        return {data: `{ "latest": "8.0", "5.x": "5.6", "url": "${url}" }`};
-      } else {
-        return {error: 'Invalid token'};
-      }
-    });
+    jest
+      .spyOn(utils, 'fetch')
+      .mockImplementation(
+        async (url, token?): Promise<Record<string, string>> => {
+          if (!token || token === 'valid_token') {
+            return {data: `{ "latest": "8.0", "5.x": "5.6", "url": "${url}" }`};
+          } else {
+            return {error: 'Invalid token'};
+          }
+        }
+      );
     expect(await utils.parseVersion('latest')).toBe('8.0');
     expect(await utils.parseVersion('7')).toBe('7.0');
     expect(await utils.parseVersion('7.4')).toBe('7.4');

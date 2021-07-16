@@ -145,10 +145,6 @@ update_dependencies() {
       to_wait+=($!)
     done <"$tap_dir/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
     wait "${to_wait[@]}"
-
-    # Remove when PCRE2 on macOS images is updated to PCRE2 10.37
-    brew reinstall pcre2 >/dev/null 2>&1
-
     echo '' | sudo tee /tmp/update_dependencies >/dev/null 2>&1
   fi
 }

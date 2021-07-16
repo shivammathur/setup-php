@@ -17,7 +17,7 @@ export async function addINIValuesUnix(
   return (
     'echo "' +
     ini_values.join('\n') +
-    '" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null 2>&1' +
+    '" | sudo tee -a "${pecl_file:-${ini_file[@]}}" ' +
     script
   );
 }

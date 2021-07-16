@@ -40,11 +40,11 @@ Function Repair-ICU() {
 }
 
 Function Add-Http() {
-  Add-Extension raphf >$null 2>&1
+  Add-Extension raphf 
   if($version -lt '8.0') {
-    Add-Extension propro >$null 2>&1
+    Add-Extension propro 
   }
-  Add-Extension pecl_http >$null 2>&1
+  Add-Extension pecl_http 
   Repair-ICU
   try {
     php --ri "http" 2> $null | Out-Null

@@ -110,9 +110,9 @@ add_http() {
   ext=$1
   status="Enabled"
   if [[ "$ext" =~ ^(pecl_http|http)$ ]]; then
-    add_http_latest >/dev/null 2>&1
+    add_http_latest 
   else
-    add_http_version "$ext" >/dev/null 2>&1
+    add_http_version "$ext" 
   fi
   add_extension_log "http" "$status"
 }

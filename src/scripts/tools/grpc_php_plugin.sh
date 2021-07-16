@@ -26,7 +26,7 @@ get_grpc_tag() {
 
 add_grpc_php_plugin_brew() {
   brew install grpc
-  brew link --force --overwrite grpc >/dev/null 2>&1
+  brew link --force --overwrite grpc 
   grpc_tag="v$(brew info grpc | grep "grpc:" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+")"
   license_path="$(brew --prefix grpc)/LICENSE"
 }
@@ -53,9 +53,9 @@ add_grpc_php_plugin() {
   grpc_tag=$1
   license_path=""
   if [ "$grpc_tag" = "latest" ]; then
-    add_grpc_php_plugin_brew >/dev/null 2>&1
+    add_grpc_php_plugin_brew 
   else
-    add_grpc_php_plugin_compile >/dev/null 2>&1
+    add_grpc_php_plugin_compile 
   fi
   echo "::set-output name=grpc_php_plugin_path::$(command -v grpc_php_plugin)"
   add_log "${tick:?}" "grpc_php_plugin" "Added grpc_php_plugin ${grpc_tag:1}"

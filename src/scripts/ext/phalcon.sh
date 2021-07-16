@@ -51,9 +51,9 @@ add_phalcon() {
   phalcon_ini_file="${pecl_file:-${ini_file[@]}}"
   extension_major_version=${extension: -1}
   if [ "$extension_major_version" = "4" ]; then
-    add_phalcon4 >/dev/null 2>&1
+    add_phalcon4 
   elif [ "$extension_major_version" = "3" ]; then
-    add_phalcon3 >/dev/null 2>&1
+    add_phalcon3 
   fi
   add_extension_log "phalcon" "$status"
 }

@@ -13,7 +13,7 @@ add_ioncube() {
     get -s -n "" https://downloads.ioncube.com/loader_downloads/ioncube_loaders_"$os_name"_x86-64.tar.gz | tar -xzf - -C /tmp
     sudo mv /tmp/ioncube/ioncube_loader_"$os_name"_"${version:?}".so "$ext_dir/ioncube.so"
   fi
-  echo "zend_extension=$ext_dir/ioncube.so" | sudo tee "${scan_dir:?}/00-ioncube.ini" >/dev/null 2>&1
+  echo "zend_extension=$ext_dir/ioncube.so" | sudo tee "${scan_dir:?}/00-ioncube.ini" 
   add_extension_log "ioncube" "$status"
   check_extension "ioncube" && add_license_log
 }

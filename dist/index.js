@@ -988,10 +988,10 @@ exports.getExtensionPrefix = getExtensionPrefix;
 async function suppressOutput(os_version) {
     switch (os_version) {
         case 'win32':
-            return ' >$null 2>&1';
+            return ' ';
         case 'linux':
         case 'darwin':
-            return ' >/dev/null 2>&1';
+            return ' ';
         default:
             return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
     }

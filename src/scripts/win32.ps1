@@ -188,7 +188,7 @@ Function Add-Tool() {
   if($url.Count -gt 1) { $url = $url[0] }
   if ($tool -eq "symfony") {
     Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool.exe
-    Add-ToProfile $current_profile $tool "New-Alias $tool $php_dir\$tool.exe" >$null 2>&1
+    Add-ToProfile $current_profile $tool "New-Alias $tool $php_dir\$tool.exe" 
   } else {
     try {
       Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $php_dir\$tool
@@ -208,16 +208,16 @@ Function Add-Tool() {
     $bat_content += "SET BIN_TARGET=%~dp0/" + $tool
     $bat_content += "php %BIN_TARGET% %*"
     Set-Content -Path $php_dir\$tool.bat -Value $bat_content
-    Add-ToProfile $current_profile $tool "New-Alias $tool $php_dir\$tool.bat" >$null 2>&1
+    Add-ToProfile $current_profile $tool "New-Alias $tool $php_dir\$tool.bat" 
     if($tool -eq "composer") {
       Edit-ComposerConfig $php_dir\$tool
     } elseif($tool -eq "cs2pr") {
       (Get-Content $php_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $php_dir/cs2pr
     } elseif($tool -eq "phan") {
-      Add-Extension fileinfo >$null 2>&1
-      Add-Extension ast >$null 2>&1
+      Add-Extension fileinfo 
+      Add-Extension ast 
     } elseif($tool -eq "phive") {
-      Add-Extension xml >$null 2>&1
+      Add-Extension xml 
     } elseif($tool -eq "wp-cli") {
       Copy-Item $php_dir\wp-cli.bat -Destination $php_dir\wp.bat
     }
@@ -287,12 +287,12 @@ if($env:PHPTS -ne 'ts') {
   $env:PHPTS = 'nts'
 }
 if(-not(Test-Path -LiteralPath $current_profile)) {
-  New-Item -Path $current_profile -ItemType "file" -Force >$null 2>&1
+  New-Item -Path $current_profile -ItemType "file" -Force 
 }
 
-Add-Printf >$null 2>&1
+Add-Printf 
 Step-Log "Setup PhpManager"
-Install-PSPackage PhpManager PhpManager\PhpManager "$github/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip" Get-Php >$null 2>&1
+Install-PSPackage PhpManager PhpManager\PhpManager "$github/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip" Get-Php 
 Add-Log $tick "PhpManager" "Installed"
 
 Step-Log "Setup PHP"
@@ -305,7 +305,7 @@ if (Test-Path -LiteralPath $php_dir -PathType Container) {
 $status = "Installed"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
   if ($version -lt '7.0' -and (Get-InstalledModule).Name -notcontains 'VcRedist') {
-    Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" Get-VcList >$null 2>&1
+    Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" Get-VcList 
   }
   try {
     if ($version -eq $master_version) {

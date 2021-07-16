@@ -13,7 +13,7 @@ add_gearman_helper() {
 # Function to add gearman extension.
 add_gearman() {
   status="Enabled"
-  add_gearman_helper >/dev/null 2>&1
+  add_gearman_helper 
   if check_extension gearman; then
     add_log "${tick:?}" "gearman" "$status"
   fi

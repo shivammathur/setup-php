@@ -20,8 +20,8 @@ add_log() {
 remove_extension() {
   extension=$1
   sudo sed -Ei '' "/=(.*\/)?\"?$extension/d" "$ini_file"
-  sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
-  sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
+  sudo rm -rf "$scan_dir"/*"$extension"* 
+  sudo rm -rf "$ext_dir"/"$extension".so 
 }
 
 # Function to test if extension is loaded
@@ -37,7 +37,7 @@ check_extension() {
 # Function to install PECL extensions and accept default options
 pecl_install() {
   local extension=$1
-  yes '' | sudo pecl install -f "$extension" >/dev/null 2>&1
+  yes '' | sudo pecl install -f "$extension" 
 }
 
 # Function to get the PECL version
@@ -70,7 +70,7 @@ add_pecl_extension() {
   else
     remove_extension "$extension"
     (
-      pecl_install "$extension-$pecl_version" >/dev/null 2>&1 &&
+      pecl_install "$extension-$pecl_version"  &&
       check_extension "$extension" &&
       add_log "$tick" "$extension" "Installed and enabled"
     ) || add_log "$cross" "$extension" "Could not install $extension-$pecl_version on PHP $semver"
@@ -93,9 +93,9 @@ fetch_brew_tap() {
 add_brew_tap() {
   tap=$1
   if ! [ -d "$tap_dir/$tap" ]; then
-    fetch_brew_tap "$tap" >/dev/null 2>&1
+    fetch_brew_tap "$tap" 
     if ! [ -d "$tap_dir/$tap" ]; then
-      brew tap --shallow "$tap" >/dev/null 2>&1
+      brew tap --shallow "$tap" 
     fi
   fi
 }
@@ -122,7 +122,7 @@ add_extension() {
     add_log "$tick" "$extension" "Enabled"
   elif ! check_extension "$extension"; then
     (
-      eval "$install_command" >/dev/null 2>&1 &&
+      eval "$install_command"  &&
       check_extension "$extension" &&
       add_log "$tick" "$extension" "Installed and enabled"
     ) || add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
@@ -148,7 +148,7 @@ configure_composer() {
     exit 1;
   fi
   if ! [ -e "$composer_json" ]; then
-    echo '{}' | tee "$composer_json" >/dev/null 2>&1
+    echo '{}' | tee "$composer_json" 
     sudo chmod 644 "$composer_json"
   fi
   composer -q config -g process-timeout 0
@@ -182,15 +182,15 @@ add_tool() {
     if [ "$tool" = "composer" ]; then
       configure_composer "$tool_path"
     elif [ "$tool" = "phan" ]; then
-      add_extension fileinfo "pecl_install fileinfo" extension >/dev/null 2>&1
-      add_extension ast "pecl_install ast" extension >/dev/null 2>&1
+      add_extension fileinfo "pecl_install fileinfo" extension 
+      add_extension ast "pecl_install ast" extension 
     elif [ "$tool" = "phive" ]; then
-      add_extension curl "pecl_install curl" extension >/dev/null 2>&1
-      add_extension mbstring "pecl_install mbstring" extension >/dev/null 2>&1
-      add_extension xml "pecl_install xml" extension >/dev/null 2>&1
+      add_extension curl "pecl_install curl" extension 
+      add_extension mbstring "pecl_install mbstring" extension 
+      add_extension xml "pecl_install xml" extension 
     elif [ "$tool" = "cs2pr" ]; then
       sudo sed -i '' 's/exit(9)/exit(0)/' "$tool_path"
-      tr -d '\r' < "$tool_path" | sudo tee "$tool_path.tmp" >/dev/null 2>&1 && sudo mv "$tool_path.tmp" "$tool_path"
+      tr -d '\r' < "$tool_path" | sudo tee "$tool_path.tmp"  && sudo mv "$tool_path.tmp" "$tool_path"
       sudo chmod a+x "$tool_path"
     fi
     add_log "$tick" "$tool" "Added"
@@ -205,8 +205,8 @@ add_composertool() {
   release=$2
   prefix=$3
   (
-    sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
-    composer global require "$prefix$release" >/dev/null 2>&1 &&
+    sudo rm -f "$composer_lock"  || true
+    composer global require "$prefix$release"  &&
     add_log "$tick" "$tool" "Added"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
   if [ -e "$composer_bin/composer" ]; then
@@ -220,8 +220,8 @@ add_composertool() {
 # Function to configure PECL
 configure_pecl() {
   for tool in pear pecl; do
-    sudo "$tool" config-set php_ini "$ini_file" >/dev/null 2>&1
-    sudo "$tool" channel-update "$tool".php.net >/dev/null 2>&1
+    sudo "$tool" config-set php_ini "$ini_file" 
+    sudo "$tool" channel-update "$tool".php.net 
   done
 }
 
@@ -245,7 +245,7 @@ link_libraries() {
 patch_brew() {
   sudo sed -i '' "s/ keg.link(verbose: verbose?)/ keg.link(verbose: verbose?, overwrite: true)/" "$brew_repo"/Library/Homebrew/formula_installer.rb
   # shellcheck disable=SC2064
-  trap "git -C $brew_repo stash >/dev/null 2>&1" exit
+  trap "git -C $brew_repo stash " exit
 }
 
 # Function to update dependencies
@@ -312,7 +312,7 @@ export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
 # Setup PHP
 step_log "Setup PHP"
 if [ "$existing_version" != "$version" ]; then
-  setup_php >/dev/null 2>&1
+  setup_php 
   status="Installed"
 else
   status="Found"

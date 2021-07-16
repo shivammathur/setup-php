@@ -13,7 +13,7 @@ add_log() {
 # Function to update php ppa
 update_ppa() {
   if [ "$ppa_updated" = "false" ]; then
-    find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-get update -o Dir::Etc::sourcelist="{}" ';' >/dev/null 2>&1
+    find /etc/apt/sources.list.d -type f -name 'ondrej-ubuntu-php*.list' -exec sudo DEBIAN_FRONTEND=noninteractive apt-get update -o Dir::Etc::sourcelist="{}" ';' 
     ppa_updated="true"
   fi
 }
@@ -22,7 +22,7 @@ update_ppa() {
 install_phalcon() {
   extension=$1
   version=$2
-  (update_ppa && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "php$version-psr" "php$version-$extension" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
+  (update_ppa && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "php$version-psr" "php$version-$extension"  && add_log "$tick" "$extension" "Installed and enabled") ||
   add_log "$cross" "$extension" "Could not install $extension on PHP $semver"
 }
 
@@ -36,7 +36,7 @@ cross="✗"
 
 if [ "$extension_major_version" = "4" ]; then
   if [ -e "$ext_dir/psr.so" ] && ! php -m | grep -i -q -w psr; then
-    echo "extension=psr.so" | sudo tee -a "$ini_file" >/dev/null 2>&1
+    echo "extension=psr.so" | sudo tee -a "$ini_file" 
   fi
 
   if [ -e "$ext_dir/phalcon.so" ]; then
@@ -45,7 +45,7 @@ if [ "$extension_major_version" = "4" ]; then
       if [ "$phalcon_version" != "$extension_major_version" ]; then
         install_phalcon "$1" "$2"
       else
-        echo "extension=phalcon.so" | sudo tee -a "$ini_file" >/dev/null 2>&1
+        echo "extension=phalcon.so" | sudo tee -a "$ini_file" 
         add_log "$tick" "$1" "Enabled"
       fi
     else
@@ -62,7 +62,7 @@ if [ "$extension_major_version" = "3" ]; then
     if [ "$phalcon_version" != "$extension_major_version" ]; then
       install_phalcon "$1" "$2"
     else
-      echo "extension=phalcon.so" | sudo tee -a "$ini_file" >/dev/null 2>&1
+      echo "extension=phalcon.so" | sudo tee -a "$ini_file" 
       add_log "$tick" "$1" "Enabled"
     fi
   else

@@ -116,6 +116,11 @@
     "type": "composer",
     "repository": "phpspec/phpspec"
   },
+  "phpunit-bridge": {
+    "alias": "simple-phpunit",
+    "type": "composer",
+    "repository": "symfony/phpunit-bridge"
+  },
   "prestissimo": {
     "type": "composer",
     "repository": "hirak/prestissimo"

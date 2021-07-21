@@ -147,9 +147,14 @@ configure_composer() {
     add_log "$cross" "composer" "Could not download composer"
     exit 1;
   fi
+  if ! [ -d "$composer_home" ]; then
+    sudo -u "$(id -un)" -g "$(id -gn)" mkdir -p -m=00755 "$composer_home"
+  else
+    sudo chown -R "$(id -un)":"$(id -gn)" "$composer_home"
+  fi
   if ! [ -e "$composer_json" ]; then
-    echo '{}' | tee "$composer_json" >/dev/null 2>&1
-    sudo chmod 644 "$composer_json"
+    echo '{}' | tee "$composer_json" >/dev/null
+    chmod 644 "$composer_json"
   fi
   composer -q config -g process-timeout 0
   echo "$composer_bin" >> "$GITHUB_PATH"
@@ -297,9 +302,10 @@ version=$1
 dist=$2
 tool_path_dir="/usr/local/bin"
 curl_opts=(-sL)
-composer_bin="$HOME/.composer/vendor/bin"
-composer_json="$HOME/.composer/composer.json"
-composer_lock="$HOME/.composer/composer.lock"
+composer_home="$HOME/.composer"
+composer_bin="$composer_home/vendor/bin"
+composer_json="$composer_home/composer.json"
+composer_lock="$composer_home/composer.lock"
 brew_prefix="$(brew --prefix)"
 brew_repo="$(brew --repository)"
 tap_dir="$brew_repo"/Library/Taps

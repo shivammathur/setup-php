@@ -212,7 +212,8 @@ export async function addComposer(data: RS): Promise<string> {
     default:
       source_url = `${getcomposer}/composer-stable.phar`;
   }
-  data['url'] = `${cache_url},${source_url}`;
+  const use_cache: boolean = (await utils.readEnv('NO_TOOLS_CACHE')) !== 'true';
+  data['url'] = use_cache ? `${cache_url},${source_url}` : source_url;
   data['version_parameter'] = data['version'];
   return await addArchive(data);
 }

@@ -256,26 +256,32 @@ describe('Tools tests', () => {
   });
 
   it.each`
-    version        | cache_url                                                                                           | source_url
-    ${'latest'}    | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar'}   | ${'https://getcomposer.org/composer-stable.phar'}
-    ${'stable'}    | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar'}   | ${'https://getcomposer.org/composer-stable.phar'}
-    ${'snapshot'}  | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-snapshot.phar'} | ${'https://getcomposer.org/composer.phar'}
-    ${'preview'}   | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-preview.phar'}  | ${'https://getcomposer.org/composer-preview.phar'}
-    ${'1'}         | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-1.phar'}        | ${'https://getcomposer.org/composer-1.phar'}
-    ${'2'}         | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-2.phar'}        | ${'https://getcomposer.org/composer-2.phar'}
-    ${'1.2.3'}     | ${'https://github.com/composer/composer/releases/download/1.2.3/composer.phar'}                     | ${'https://getcomposer.org/composer-1.2.3.phar'}
-    ${'1.2.3-RC1'} | ${'https://github.com/composer/composer/releases/download/1.2.3-RC1/composer.phar'}                 | ${'https://getcomposer.org/composer-1.2.3-RC1.phar'}
+    version        | no_tool_cache | cache_url                                                                                           | source_url
+    ${'latest'}    | ${'true'}     | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar'}   | ${'https://getcomposer.org/composer-stable.phar'}
+    ${'stable'}    | ${'true'}     | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar'}   | ${'https://getcomposer.org/composer-stable.phar'}
+    ${'snapshot'}  | ${'true'}     | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-snapshot.phar'} | ${'https://getcomposer.org/composer.phar'}
+    ${'preview'}   | ${'true'}     | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-preview.phar'}  | ${'https://getcomposer.org/composer-preview.phar'}
+    ${'1'}         | ${'false'}    | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-1.phar'}        | ${'https://getcomposer.org/composer-1.phar'}
+    ${'2'}         | ${'false'}    | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-2.phar'}        | ${'https://getcomposer.org/composer-2.phar'}
+    ${'1.2.3'}     | ${'false'}    | ${'https://github.com/composer/composer/releases/download/1.2.3/composer.phar'}                     | ${'https://getcomposer.org/composer-1.2.3.phar'}
+    ${'1.2.3-RC1'} | ${'false'}    | ${'https://github.com/composer/composer/releases/download/1.2.3-RC1/composer.phar'}                 | ${'https://getcomposer.org/composer-1.2.3-RC1.phar'}
   `(
-    'checking addComposer: $version',
-    async ({version, cache_url, source_url}) => {
+    'checking addComposer: $version, $no_tool_cache',
+    async ({version, no_tool_cache, cache_url, source_url}) => {
       const data = getData({
         tool: 'composer',
         domain: 'https://getcomposer.org',
         repository: 'composer/composer',
         version: version
       });
-      expect(await tools.addComposer(data)).toContain(cache_url);
-      expect(await tools.addComposer(data)).toContain(source_url);
+      process.env['no_tools_cache'] = no_tool_cache;
+      if (no_tool_cache !== 'true') {
+        expect(await tools.addComposer(data)).toContain(
+          `${cache_url},${source_url}`
+        );
+      } else {
+        expect(await tools.addComposer(data)).toContain(source_url);
+      }
     }
   );
 

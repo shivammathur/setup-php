@@ -19,7 +19,11 @@ async function cleanup(path: string): Promise<void> {
 describe('Utils tests', () => {
   it('checking readEnv', async () => {
     process.env['test'] = 'setup-php';
+    process.env['test-hyphen'] = 'setup-php';
     expect(await utils.readEnv('test')).toBe('setup-php');
+    expect(await utils.readEnv('TEST')).toBe('setup-php');
+    expect(await utils.readEnv('test_hyphen')).toBe('setup-php');
+    expect(await utils.readEnv('TEST_HYPHEN')).toBe('setup-php');
     expect(await utils.readEnv('undefined')).toBe('');
   });
 

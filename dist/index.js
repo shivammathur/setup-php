@@ -824,13 +824,14 @@ const https = __importStar(__nccwpck_require__(211));
 const path = __importStar(__nccwpck_require__(622));
 const core = __importStar(__nccwpck_require__(186));
 async function readEnv(property) {
-    const value = process.env[property];
-    switch (value) {
-        case undefined:
-            return '';
-        default:
-            return value;
-    }
+    const property_lc = property.toLowerCase();
+    const property_uc = property.toUpperCase();
+    return (process.env[property] ||
+        process.env[property_lc] ||
+        process.env[property_uc] ||
+        process.env[property_lc.replace('_', '-')] ||
+        process.env[property_uc.replace('_', '-')] ||
+        '');
 }
 exports.readEnv = readEnv;
 async function getInput(name, mandatory) {

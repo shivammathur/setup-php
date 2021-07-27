@@ -1,7 +1,11 @@
 # Function to setup environment for self-hosted runners.
 self_hosted_helper() {
+  if ! command -v sudo >/dev/null; then
+    apt-get install -y sudo || add_log "${cross:?}" "sudo" "Could not install sudo"
+  fi
   if ! command -v apt-fast >/dev/null; then
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
+    trap "sudo rm -f /usr/bin/apt-fast 2>/dev/null" exit
   fi
   install_packages apt-transport-https curl make software-properties-common unzip autoconf automake gcc g++
   add_ppa ondrej/php
@@ -270,11 +274,11 @@ debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y"
 scripts="${dist}"/../src/scripts
 
+. /etc/os-release
 # shellcheck source=.
 . "${scripts:?}"/ext/source.sh
 . "${scripts:?}"/tools/add_tools.sh
 . "${scripts:?}"/common.sh
-. /etc/lsb-release
 read_env
 self_hosted_setup
 setup_php

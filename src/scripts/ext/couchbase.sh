@@ -7,7 +7,7 @@ add_couchbase_libs() {
     else
       release="$(curl -sL $trunk/latest | grep -Eo "libcouchbase-[0-9]+\.[0-9]+\.[0-9]+" | head -n 1 | cut -d'-' -f 2)"
     fi
-    deb_url="$trunk/download/$release/libcouchbase-${release}_ubuntu${DISTRIB_RELEASE/./}_${DISTRIB_CODENAME}_amd64.tar"
+    deb_url="$trunk/download/$release/libcouchbase-${release}_ubuntu${VERSION_ID/./}_${VERSION_CODENAME}_amd64.tar"
     get -q -n /tmp/libcouchbase.tar "$deb_url"
     sudo tar -xf /tmp/libcouchbase.tar -C /tmp
     install_packages libev4 libevent-dev

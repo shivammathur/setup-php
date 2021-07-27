@@ -7,7 +7,7 @@ self_hosted_helper() {
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
     trap "sudo rm -f /usr/bin/apt-fast 2>/dev/null" exit
   fi
-  install_packages apt-transport-https curl make software-properties-common unzip autoconf automake gcc g++
+  install_packages apt-transport-https ca-certificates curl make software-properties-common unzip autoconf automake gcc g++ gnupg
   add_ppa ondrej/php
 }
 
@@ -25,9 +25,15 @@ cleanup_lists() {
 # Function to add ppa:ondrej/php.
 add_ppa() {
   ppa=${1:-ondrej/php}
-  if ! apt-cache policy | grep -q "$ppa"; then
+  if [ "$ID" = "debian" ] && [ "$ppa" = "ondrej/php" ]; then
+    get -q -n /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+    echo "deb https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/ondrej.list
+  elif ! apt-cache policy | grep -q "$ppa"; then
     cleanup_lists "$(dirname "$ppa")"
     LC_ALL=C.UTF-8 sudo apt-add-repository ppa:"$ppa" -y
+  fi
+  if [ "$ID" = "debian" ]; then
+    sudo "$debconf_fix" apt-get update
   fi
 }
 

@@ -277,7 +277,7 @@ setup_php() {
 version=$1
 dist=$2
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
-apt_install="sudo $debconf_fix apt-fast install -y"
+apt_install="sudo $debconf_fix apt-fast install -y --no-install-recommends"
 scripts="${dist}"/../src/scripts
 
 . /etc/os-release

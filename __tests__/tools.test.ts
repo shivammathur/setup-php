@@ -201,6 +201,7 @@ describe('Tools tests', () => {
     version     | php_version | os_version  | script
     ${'latest'} | ${'7.4'}    | ${'linux'}  | ${'add_tool https://phar.io/releases/phive.phar phive'}
     ${'1.2.3'}  | ${'7.4'}    | ${'darwin'} | ${'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'}
+    ${'1.2.3'}  | ${'7.2'}    | ${'win32'}  | ${'Add-Tool https://github.com/phar-io/phive/releases/download/0.14.5/phive-0.14.5.phar phive'}
     ${'1.2.3'}  | ${'7.1'}    | ${'win32'}  | ${'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.5/phive-0.13.5.phar phive'}
     ${'latest'} | ${'5.6'}    | ${'win32'}  | ${'Add-Tool https://github.com/phar-io/phive/releases/download/0.12.1/phive-0.12.1.phar phive'}
     ${'latest'} | ${'5.5'}    | ${'win32'}  | ${'Phive is not supported on PHP 5.5'}

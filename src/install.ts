@@ -55,6 +55,12 @@ export async function build(
  */
 export async function run(): Promise<void> {
   try {
+    if ((await utils.readEnv('ImageOS')) == 'ubuntu16') {
+      core.setFailed(
+        'setup-php is not supported on Ubuntu 16.04. Please upgrade to Ubuntu 18.04 or Ubuntu 20.04 - https://setup-php.com/i/452'
+      );
+      return;
+    }
     core.warning(
       'setup-php v1 is deprecated.\nPlease upgrade to v2 - https://setup-php.com/w/Switch-to-v2'
     );
@@ -66,11 +72,6 @@ export async function run(): Promise<void> {
         'PHP 8.1 is not supported on setup-php v1.\nPlease upgrade to v2 - https://setup-php.com/w/Switch-to-v2'
       );
       return;
-    }
-    if ((await utils.readEnv('ImageOS')) == 'ubuntu16') {
-      core.warning(
-        'setup-php will stop working on Ubuntu 16.04 from August 1, 2021. Please upgrade to Ubuntu 18.04 or Ubuntu 20.04 - https://setup-php.com/i/452'
-      );
     }
     if (version) {
       const os_version: string = process.platform;

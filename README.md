@@ -58,7 +58,6 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 |Virtual environment|YAML workflow label|Pre-installed PHP|
 |--- |--- |--- |
-|Ubuntu 16.04 [(deprecated)](https://setup-php.com/i/452)|`ubuntu-16.04`|`PHP 5.6` to `PHP 8.0`|
 |Ubuntu 18.04|`ubuntu-18.04`|`PHP 7.1` to `PHP 8.0`|
 |Ubuntu 20.04|`ubuntu-latest` or `ubuntu-20.04`|`PHP 7.4` to `PHP 8.0`|
 |Windows Server 2019|`windows-latest` or `windows-2019`|`PHP 8.0`|

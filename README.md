@@ -67,7 +67,6 @@ Both `GitHub-hosted` and `self-hosted` runners are suppported by `setup-php` on 
 
 |Virtual environment|YAML workflow label|Pre-installed PHP|
 |--- |--- |--- |
-|Ubuntu 16.04 [(deprecated)](https://setup-php.com/i/452)|`ubuntu-16.04`|`PHP 5.6` to `PHP 8.0`|
 |Ubuntu 18.04|`ubuntu-18.04`|`PHP 7.1` to `PHP 8.0`|
 |Ubuntu 20.04|`ubuntu-latest` or `ubuntu-20.04`|`PHP 7.4` to `PHP 8.0`|
 |Windows Server 2019|`windows-latest` or `windows-2019`|`PHP 8.0`|
@@ -663,9 +662,6 @@ act -P ubuntu-20.04=shivammathur/node:2004
 
 # For runs-on: ubuntu-18.04
 act -P ubuntu-18.04=shivammathur/node:1804
-
-# For runs-on: ubuntu-16.04 (deprecated)
-act -P ubuntu-16.04=shivammathur/node:1604
 ```
 
 ### JIT Configuration

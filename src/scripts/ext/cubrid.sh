@@ -39,7 +39,6 @@ add_cubrid_helper() {
     status='Installed and enabled'
     set_cubrid_repo
     set_cubrid_branch
-    [ "$DISTRIB_RELEASE" = "16.04" ] && setup_compiler
     patch_phpize
     read -r "${ext}_PREFIX_CONFIGURE_OPTS" <<< "CFLAGS=-Wno-implicit-function-declaration"
     read -r "${ext}_CONFIGURE_OPTS" <<< "--with-php-config=$(command -v php-config)"

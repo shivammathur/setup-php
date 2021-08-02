@@ -52,9 +52,10 @@ export async function getScript(
 export async function run(): Promise<void> {
   try {
     if ((await utils.readEnv('ImageOS')) == 'ubuntu16') {
-      core.warning(
-        'setup-php will stop working on Ubuntu 16.04 from August 1, 2021. Please upgrade to Ubuntu 18.04 or Ubuntu 20.04 - https://setup-php.com/i/452'
+      core.setFailed(
+        'setup-php is not supported on Ubuntu 16.04. Please upgrade to Ubuntu 18.04 or Ubuntu 20.04 - https://setup-php.com/i/452'
       );
+      return;
     }
     const version: string = await utils.parseVersion(
       await utils.getInput('php-version', true)

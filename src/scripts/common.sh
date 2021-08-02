@@ -83,10 +83,6 @@ run_script() {
 # Function to install required packages on self-hosted runners.
 self_hosted_setup() {
   if [ "$runner" = "self-hosted" ]; then
-    if [ "$DISTRIB_RELEASE" = "16.04" ] && [ "$CONTAINER" != "shivammathur/node" ]; then
-      add_log "$cross" "Ubuntu" "Ubuntu 16.04 (Xenial Xerus) is no longer supported on self-hosted runner"
-      exit 1
-    fi
     if [[ "${version:?}" =~ $old_versions ]]; then
       add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
       exit 1

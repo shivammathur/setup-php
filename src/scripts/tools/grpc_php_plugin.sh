@@ -38,11 +38,7 @@ add_grpc_php_plugin_compile() {
   (
     cd "/tmp/grpc-${grpc_tag:1}" || exit
     add_bazel
-    if [ "$DISTRIB_RELEASE" = "16.04" ]; then
-      CC="$(command -v gcc)" CXX="$(command -v g++)" ./tools/bazel build src/compiler:grpc_php_plugin
-    else
-      ./tools/bazel build src/compiler:grpc_php_plugin
-    fi
+    ./tools/bazel build src/compiler:grpc_php_plugin
     sudo mv ./bazel-bin/src/compiler/grpc_php_plugin /usr/local/bin/grpc_php_plugin
     sudo chmod a+x /usr/local/bin/grpc_php_plugin
     license_path="/tmp/grpc-${grpc_tag:1}/LICENSE"

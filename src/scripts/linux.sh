@@ -1,56 +1,21 @@
 # Function to setup environment for self-hosted runners.
 self_hosted_helper() {
   if ! command -v sudo >/dev/null; then
+    apt-get update
     apt-get install -y sudo || add_log "${cross:?}" "sudo" "Could not install sudo"
   fi
   if ! command -v apt-fast >/dev/null; then
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
     trap "sudo rm -f /usr/bin/apt-fast 2>/dev/null" exit
   fi
-  install_packages apt-transport-https ca-certificates curl make software-properties-common unzip autoconf automake gcc g++ gnupg
-  add_ppa ondrej/php
-}
-
-# Function to backup and cleanup package lists.
-cleanup_lists() {
-  ppa_prefix=${1-ondrej}
-  if [ ! -e /etc/apt/sources.list.d.save ]; then
-    sudo mv /etc/apt/sources.list.d /etc/apt/sources.list.d.save
-    sudo mkdir /etc/apt/sources.list.d
-    sudo mv /etc/apt/sources.list.d.save/*"${ppa_prefix}"*.list /etc/apt/sources.list.d/
-    trap "sudo mv /etc/apt/sources.list.d.save/*.list /etc/apt/sources.list.d/ 2>/dev/null" exit
-  fi
-}
-
-# Function to add ppa:ondrej/php.
-add_ppa() {
-  ppa=${1:-ondrej/php}
-  if [ "$ID" = "debian" ] && [ "$ppa" = "ondrej/php" ]; then
-    get -q -n /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
-    echo "deb https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/ondrej.list
-  elif ! apt-cache policy | grep -q "$ppa"; then
-    cleanup_lists "$(dirname "$ppa")"
-    LC_ALL=C.UTF-8 sudo apt-add-repository ppa:"$ppa" -y
-  fi
-  if [ "$ID" = "debian" ]; then
-    sudo "$debconf_fix" apt-get update
-  fi
-}
-
-# Function to update the package lists.
-update_lists() {
-  if [ ! -e /tmp/setup_php ]; then
-    [ "${runner:?}" != "self-hosted" ] && add_ppa >/dev/null 2>&1
-    cleanup_lists
-    sudo "$debconf_fix" apt-get update >/dev/null 2>&1
-    echo '' | sudo tee /tmp/setup_php >/dev/null 2>&1
-  fi
+  install_packages apt-transport-https ca-certificates curl file make jq unzip autoconf automake gcc g++ gnupg
 }
 
 # Function to install a package
 install_packages() {
   packages=("$@")
-  $apt_install "${packages[@]}" >/dev/null 2>&1 || update_lists && $apt_install "${packages[@]}" >/dev/null 2>&1
+  [[ "${packages[*]}" =~ php ]] && add_ppa ondrej/php
+  $apt_install "${packages[@]}" >/dev/null 2>&1 || (update_lists && $apt_install "${packages[@]}" >/dev/null 2>&1)
 }
 
 # Function to disable an extension.
@@ -146,7 +111,7 @@ add_devtools() {
 
 # Function to setup the nightly build from shivammathur/php-builder
 setup_nightly() {
-  run_script "php-builder" "$runner" "$version"
+  run_script "php-builder" "${runner:?}" "$version"
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
@@ -183,7 +148,7 @@ add_packaged_php() {
   if [ "$runner" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
     update_lists
     IFS=' ' read -r -a packages <<<"$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
-    $apt_install "${packages[@]}"
+    install_packages "${packages[@]}"
   else
     run_script "php-ubuntu" "$version"
   fi
@@ -283,6 +248,7 @@ scripts="${dist}"/../src/scripts
 . /etc/os-release
 # shellcheck source=.
 . "${scripts:?}"/ext/source.sh
+. "${scripts:?}"/tools/ppa.sh
 . "${scripts:?}"/tools/add_tools.sh
 . "${scripts:?}"/common.sh
 read_env

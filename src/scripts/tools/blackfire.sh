@@ -1,10 +1,7 @@
 add_blackfire_linux() {
   sudo mkdir -p /var/run/blackfire
-  get -s -n "" https://packages.blackfire.io/gpg.key | sudo apt-key add -
-  echo "deb http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list
-  sudo "${debconf_fix:?}" apt-get update
-  ${apt_install:?} blackfire
-  sudo chmod -R 777 /var/run/blackfire /etc/blackfire/agent
+  add_list debian/blackfire http://packages.blackfire.io/debian https://packages.blackfire.io/gpg.key any main
+  install_packages blackfire
 }
 
 add_blackfire_darwin() {

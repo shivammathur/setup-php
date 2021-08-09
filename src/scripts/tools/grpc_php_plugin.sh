@@ -1,11 +1,8 @@
 add_bazel() {
   if ! command -v bazel; then
     if [ "$(uname -s)" = "Linux" ]; then
-      ${apt_install:?} curl gnupg
-      get -s -n "" https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
-      echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
-      sudo "${debconf_fix:?}" apt-get update -y
-      ${apt_install:?} bazel
+      add_list bazel/apt https://storage.googleapis.com/bazel-apt https://bazel.build/bazel-release.pub.gpg stable jdk1.8
+      install_packages bazel
     else
       brew install bazel
     fi

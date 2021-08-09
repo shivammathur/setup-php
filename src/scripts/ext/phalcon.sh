@@ -1,11 +1,10 @@
 # Helper function to add phalcon.
 add_phalcon_helper() {
   status='Installed and enabled'
-  update_lists
   if [ "$extension" = "phalcon4" ]; then
-    ${apt_install:?} "php${version:?}-psr" "php${version:?}-$extension"
+    install_packages "php${version:?}-psr" "php${version:?}-$extension"
   else
-    ${apt_install:?} "php${version:?}-$extension"
+    install_packages "php${version:?}-$extension"
   fi
 }
 

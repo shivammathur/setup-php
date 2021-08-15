@@ -235,6 +235,7 @@ brew_repo="$(brew --repository)"
 tap_dir="$brew_repo"/Library/Taps
 scripts="${dist}"/../src/scripts
 export HOMEBREW_CHANGE_ARCH_TO_ARM=1
+export HOMEBREW_DEVELOPER=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1

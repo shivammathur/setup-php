@@ -13,8 +13,15 @@ add_blackfire_darwin() {
 blackfire_config() {
   if [[ -n $BLACKFIRE_SERVER_ID ]] && [[ -n $BLACKFIRE_SERVER_TOKEN ]]; then
     blackfire agent:config --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN"
-    [ "$os" = "Linux" ] && sudo systemctl start blackfire-agent
-    [ "$os" = "Darwin" ] && brew services start blackfire
+    if [ "$os" = "Linux" ]; then
+      if [ -d /run/systemd/system ]; then
+        sudo systemctl start blackfire-agent
+      else
+        sudo service blackfire-agent start
+      fi
+    elif [ "$os" = "Darwin" ]; then
+      brew services start blackfire
+    fi
   fi
   if [[ -n $BLACKFIRE_CLIENT_ID ]] && [[ -n $BLACKFIRE_CLIENT_TOKEN ]]; then
     blackfire client:config --client-id="$BLACKFIRE_CLIENT_ID" --client-token="$BLACKFIRE_CLIENT_TOKEN"

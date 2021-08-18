@@ -49,11 +49,11 @@ add_brew_tap() {
   tap=$1
   if ! [ -d "$tap_dir/$tap" ]; then
     if [ "${runner:?}" = "self-hosted" ]; then
-      brew tap --shallow "$tap" >/dev/null 2>&1
+      brew tap "$tap" >/dev/null 2>&1
     else
       fetch_brew_tap "$tap" >/dev/null 2>&1
       if ! [ -d "$tap_dir/$tap" ]; then
-        brew tap --shallow "$tap" >/dev/null 2>&1
+        brew tap "$tap" >/dev/null 2>&1
       fi
     fi
   fi

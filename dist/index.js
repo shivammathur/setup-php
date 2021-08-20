@@ -493,7 +493,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.addTools = exports.functionRecord = exports.getData = exports.addWPCLI = exports.addSymfony = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.getRelease = exports.getVersion = exports.getSemverVersion = void 0;
+exports.addTools = exports.functionRecord = exports.getData = exports.addWPCLI = exports.addSymfony = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.getRelease = exports.getVersion = exports.getLatestVersion = exports.getSemverVersion = void 0;
 const utils = __importStar(__nccwpck_require__(918));
 async function getSemverVersion(data) {
     var _a;
@@ -513,6 +513,19 @@ async function getSemverVersion(data) {
     }
 }
 exports.getSemverVersion = getSemverVersion;
+async function getLatestVersion(data) {
+    if (!data['version'] && data['fetch_latest'] === 'false') {
+        return 'latest';
+    }
+    const resp = await utils.fetch(`${data['github']}/${data['repository']}/releases.atom`);
+    const releases = [
+        ...resp['data'].matchAll(/releases\/tag\/([a-zA-Z]*)?(\d+.\d+.\d+)"/g)
+    ].map(match => match[2]);
+    return (releases
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+        .pop() || 'latest');
+}
+exports.getLatestVersion = getLatestVersion;
 async function getVersion(version, data) {
     const semver_regex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
     const composer_regex = /^composer:(stable|preview|snapshot|[1|2])$/;
@@ -747,7 +760,7 @@ async function addWPCLI(data) {
 }
 exports.addWPCLI = addWPCLI;
 async function getData(release, php_version, os_version) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     const json_file = await utils.readFile('tools.json', 'src/configs');
     const json_objects = JSON.parse(json_file);
     release = release.replace(/\s+/g, '');
@@ -783,10 +796,13 @@ async function getData(release, php_version, os_version) {
     data['php_version'] = php_version;
     data['prefix'] = data['github'] === data['domain'] ? 'releases' : '';
     data['verb'] = data['github'] === data['domain'] ? 'download' : '';
+    (_c = data['fetch_latest']) !== null && _c !== void 0 ? _c : (data['fetch_latest'] = 'false');
     data['version_parameter'] = JSON.stringify(data['version_parameter']) || '';
-    (_c = data['version_prefix']) !== null && _c !== void 0 ? _c : (data['version_prefix'] = '');
+    (_d = data['version_prefix']) !== null && _d !== void 0 ? _d : (data['version_prefix'] = '');
     data['release'] = await getRelease(release, data);
-    data['version'] = version ? await getVersion(version, data) : 'latest';
+    data['version'] = version
+        ? await getVersion(version, data)
+        : await getLatestVersion(data);
     return data;
 }
 exports.getData = getData;

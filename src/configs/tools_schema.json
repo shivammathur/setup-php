@@ -10,6 +10,7 @@
         "alias": "tool_alias",
         "domain": "https://example.com",
         "extension": ".ext",
+        "fetch_latest": "true",
         "function": "function_name",
         "repository": "user/tool",
         "type": "phar, composer, custom-package or custom-function",
@@ -45,6 +46,16 @@
         "description": "File extension of the tool.",
         "examples": [
           ".ext"
+        ]
+      },
+      "fetch_latest": {
+        "$id": "#/items/properties/fetch_latest",
+        "type": "string",
+        "title": "The fetch_latest schema",
+        "description": "Fetch the latest version from GitHub releases.",
+        "enum": [
+          "true",
+          "false"
         ]
       },
       "function": {

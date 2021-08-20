@@ -36,6 +36,7 @@
     "repository": "FriendsOfPHP/PHP-CS-Fixer",
     "extension": ".phar",
     "domain": "https://github.com",
+    "fetch_latest": "true",
     "version_prefix": "v",
     "version_parameter": "-V"
   },

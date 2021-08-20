@@ -32,6 +32,31 @@ export async function getSemverVersion(data: RS): Promise<string> {
 }
 
 /**
+ * Function to get latest version from releases.atom
+ *
+ * @param data
+ */
+export async function getLatestVersion(data: RS): Promise<string> {
+  if (!data['version'] && data['fetch_latest'] === 'false') {
+    return 'latest';
+  }
+  const resp: Record<string, string> = await utils.fetch(
+    `${data['github']}/${data['repository']}/releases.atom`
+  );
+  const releases: string[] = [
+    ...resp['data'].matchAll(/releases\/tag\/([a-zA-Z]*)?(\d+.\d+.\d+)"/g)
+  ].map(match => match[2]);
+
+  return (
+    releases
+      .sort((a: string, b: string) =>
+        a.localeCompare(b, undefined, {numeric: true})
+      )
+      .pop() || 'latest'
+  );
+}
+
+/**
  * Function to get tool version
  *
  * @param version
@@ -423,10 +448,13 @@ export async function getData(
   data['php_version'] = php_version;
   data['prefix'] = data['github'] === data['domain'] ? 'releases' : '';
   data['verb'] = data['github'] === data['domain'] ? 'download' : '';
+  data['fetch_latest'] ??= 'false';
   data['version_parameter'] = JSON.stringify(data['version_parameter']) || '';
   data['version_prefix'] ??= '';
   data['release'] = await getRelease(release, data);
-  data['version'] = version ? await getVersion(version, data) : 'latest';
+  data['version'] = version
+    ? await getVersion(version, data)
+    : await getLatestVersion(data);
   return data;
 }
 

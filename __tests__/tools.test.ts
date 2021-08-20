@@ -3,7 +3,7 @@ import * as utils from '../src/utils';
 
 interface IData {
   tool: string;
-  version: string;
+  version?: string;
   domain?: string;
   extension?: string;
   os_version?: string;
@@ -11,6 +11,7 @@ interface IData {
   release?: string;
   repository?: string;
   type?: string;
+  fetch_latest?: string;
   version_parameter?: string;
   version_prefix?: string;
 }
@@ -18,7 +19,7 @@ interface IData {
 function getData(data: IData): Record<string, string> {
   return {
     tool: data.tool,
-    version: data.version,
+    version: data.version || '',
     domain: data.domain || 'https://example.com',
     extension: data.extension || '.phar',
     os_version: data.os_version || 'linux',
@@ -26,6 +27,7 @@ function getData(data: IData): Record<string, string> {
     release: data.release || [data.tool, data.version].join(':'),
     repository: data.repository || '',
     type: data.type || 'phar',
+    fetch_latest: data.fetch_latest || 'false',
     version_parameter: data.version_parameter || '-V',
     version_prefix: data.version_prefix || '',
     github: 'https://github.com',
@@ -38,7 +40,13 @@ jest
   .spyOn(utils, 'fetch')
   .mockImplementation(
     async (url: string, token?: string): Promise<Record<string, string>> => {
-      if (!token || token === 'valid_token') {
+      if (url.includes('atom') && !url.includes('no-release')) {
+        return {
+          data: '"releases/tag/1.2.3", "releases/tag/3.2.1", "releases/tag/2.3.1"'
+        };
+      } else if (url.includes('no-release')) {
+        return {data: ''};
+      } else if (!token || token === 'valid_token') {
         return {data: `[{"ref": "refs/tags/1.2.3", "url": "${url}"}]`};
       } else if (token === 'beta_token') {
         return {data: `[{"ref": "refs/tags/1.2.3-beta1", "url": "${url}"}]`};
@@ -63,6 +71,26 @@ describe('Tools tests', () => {
       await tools.getSemverVersion(getData({tool: 'tool', version: '1.2'}))
     ).toBe(version);
   });
+
+  it.each`
+    tool                 | fetch_latest | version
+    ${'tool'}            | ${'true'}    | ${'3.2.1'}
+    ${'tool-no-release'} | ${'true'}    | ${'latest'}
+    ${'tool'}            | ${'false'}   | ${'latest'}
+  `(
+    'checking getLatestVersion: $tool, $fetch_latest, $version',
+    async ({tool, fetch_latest, version}) => {
+      expect(
+        await tools.getLatestVersion(
+          getData({
+            tool: tool,
+            repository: 'user/' + tool,
+            fetch_latest: fetch_latest
+          })
+        )
+      ).toBe(version);
+    }
+  );
 
   it.each`
     version            | tool          | type          | expected
@@ -353,7 +381,7 @@ describe('Tools tests', () => {
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"',
         'add_composertool flex flex symfony/',
         'add_grpc_php_plugin latest',
-        'add_tool https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/latest/download/php-cs-fixer.phar php-cs-fixer "-V"',
+        'add_tool https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v3.2.1/php-cs-fixer.phar php-cs-fixer "-V"',
         'add_composertool phplint phplint overtrue/',
         'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar phpstan "-V"',
         'add_tool https://phar.phpunit.de/phpunit.phar phpunit "--version"',

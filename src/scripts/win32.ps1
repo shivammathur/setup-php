@@ -3,7 +3,7 @@ param (
   [ValidateNotNull()]
   [ValidateLength(1, [int]::MaxValue)]
   [string]
-  $version = '7.4',
+  $version = '8.0',
   [Parameter(Position = 1, Mandatory = $true)]
   [ValidateNotNull()]
   [ValidateLength(1, [int]::MaxValue)]
@@ -119,7 +119,32 @@ Function Install-PSPackage() {
   }
 }
 
-Function Add-ExtensionPrerequisites{
+# Function to link dependencies to PHP directory.
+Function Set-ExtensionPrerequisites
+{
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $deps_dir
+  )
+  $deps = Get-ChildItem -Recurse -Path $deps_dir
+  if ($deps.Count -ne 0) {
+    # Symlink dependencies instead of adding the directory to PATH ...
+    # as other actions change the PATH thus breaking extensions.
+    $deps | ForEach-Object {
+      New-Item -Itemtype SymbolicLink -Path $php_dir -Name $_.Name -Target $_.FullName -Force > $null 2>&1
+    }
+  } else {
+    Remove-Item $deps_dir -Recurse -Force
+  }
+}
+
+# Function to get extension pre-requisites.
+# https://windows.php.net/downloads/pecl/deps
+# Currently only imagick is supported using this Cmdlet.
+Function Get-ExtensionPrerequisites{
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     [ValidateNotNull()]
@@ -127,17 +152,13 @@ Function Add-ExtensionPrerequisites{
     [string]
     $extension
   )
-  $deps_dir = "$ext_dir\$extension-vc$installed.VCVersion-$arch"
+  $deps_dir = "$ext_dir\$extension-vc$($installed.VCVersion)-$arch"
   $extensions_with_dependencies = ('imagick')
+  New-Item $deps_dir -Type Directory 2>&1 | Out-Null
   if($extensions_with_dependencies.Contains($extension)) {
-    if(-not(Test-Path $deps_dir)) {
-      New-Item $deps_dir -Type Directory 2>&1 | Out-Null
-      Install-PhpExtensionPrerequisite -Extension $extension -InstallPath $deps_dir -PhpPath $php_dir
-    }
-    Get-ChildItem -Recurse -Path $deps_dir | ForEach-Object {
-      New-Item -Itemtype SymbolicLink -Path $php_dir -Name $_.Name -Target $_.FullName -Force >$null 2>&1
-    }
+    Install-PhpExtensionPrerequisite -Extension $extension -InstallPath $deps_dir -PhpPath $php_dir
   }
+  return $deps_dir
 }
 
 # Function to add PHP extensions.
@@ -170,20 +191,21 @@ Function Add-Extension {
           Add-Log $tick $extension "Enabled"
         }
         default {
-          Add-ExtensionPrerequisites $extension
+          $deps_dir = Get-ExtensionPrerequisites $extension
           Enable-PhpExtension -Extension $extension_info.Handle -Path $php_dir
+          Set-ExtensionPrerequisites $deps_dir
           Add-Log $tick $extension "Enabled"
         }
       }
     }
     else {
-      Add-ExtensionPrerequisites $extension
+      $deps_dir = Get-ExtensionPrerequisites $extension
+      $params = @{ Extension = $extension; MinimumStability = $stability; MaximumStability = $stability; Path = $php_dir; AdditionalFilesPath = $deps_dir; NoDependencies = $true }
       if($extension_version -ne '') {
-        Install-PhpExtension -Extension $extension -Version $extension_version -MinimumStability $stability -MaximumStability $stability -Path $php_dir -NoDependencies
-      } else {
-        Install-PhpExtension -Extension $extension -MinimumStability $stability -MaximumStability $stability -Path $php_dir -NoDependencies
+        $params["Version"] = $extension_version
       }
-
+      Install-PhpExtension @params
+      Set-ExtensionPrerequisites $deps_dir
       Add-Log $tick $extension "Installed and enabled"
     }
   }
@@ -216,6 +238,7 @@ Function Remove-Extension() {
   }
 }
 
+# Function to configure composer.
 Function Edit-ComposerConfig() {
   Param(
     [Parameter(Position = 0, Mandatory = $true)]

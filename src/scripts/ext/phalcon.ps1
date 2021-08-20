@@ -1,7 +1,7 @@
 # Function to install phalcon
 Function Add-PhalconHelper() {
   if ($extension_version -eq '4') {
-    Install-Phpextension phalcon -MinimumStability stable -Path $php_dir
+    Install-Phpextension -Extension phalcon -MinimumStability stable -Path $php_dir
   } else {
     $domain = 'https://github.com'
     $nts = if (!$installed.ThreadSafe) { "_nts" } else { "" }
@@ -30,7 +30,7 @@ Function Add-Phalcon() {
       if (Test-Path $ext_dir\php_psr.dll) {
         Enable-PhpExtension -Extension psr -Path $php_dir
       } else {
-        Install-Phpextension psr -MinimumStability stable -Path $php_dir
+        Install-Phpextension -Extension psr -MinimumStability stable -Path $php_dir
       }
     }
 
@@ -49,7 +49,6 @@ Function Add-Phalcon() {
     }
     Add-Log $tick $extension $status
   } catch [Exception] {
-    Write-Output $_.Exception|format-list -force
     Add-Log $cross $extension "Could not install $extension on PHP $($installed.FullVersion)"
   }
 }

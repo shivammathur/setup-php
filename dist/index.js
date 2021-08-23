@@ -230,7 +230,7 @@ async function addExtensionDarwin(extension_csv, version) {
                         ' ' +
                         ext_prefix;
                 return;
-            case /(5\.6|7\.[0-4]|8.0)(amqp|grpc|igbinary|imagick|imap|msgpack|^(pecl_)?http$|propro|protobuf|psr|raphf|rdkafka|redis|swoole|xdebug|xdebug2|zmq)/.test(version_extension):
+            case /(5\.6|7\.[0-4]|8.0)(amqp|grpc|igbinary|imagick|imap|mongodb|msgpack|^(pecl_)?http$|propro|protobuf|psr|raphf|rdkafka|redis|swoole|xdebug|xdebug2|yaml|zmq)/.test(version_extension):
             case /(7\.[1-4]|8\.0])pcov/.test(version_extension):
             case /^(5\.6|7\.[0-3])phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
                 command = 'add_brew_extension ' + extension_name.replace('pecl_', '');

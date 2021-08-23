@@ -62,7 +62,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |Ubuntu 20.04|`ubuntu-latest` or `ubuntu-20.04`|`PHP 7.4` to `PHP 8.0`|
 |Windows Server 2019|`windows-latest` or `windows-2019`|`PHP 8.0`|
 |macOS 10.15 Catalina|`macos-latest` or `macos-10.15`|`PHP 8.0`|
-|macOS 11.0 Big Sur|`macos-11.0`|`PHP 8.0`|
+|macOS 11.x Big Sur|`macos-11`|`PHP 8.0`|
 
 ## :heavy_plus_sign: PHP Extension Support
 - On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl` in the tools input.

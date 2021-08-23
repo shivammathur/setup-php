@@ -48,8 +48,8 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [JIT Configuration](#jit-configuration)
   - [Cache Extensions](#cache-extensions)
   - [Cache Composer Dependencies](#cache-composer-dependencies)
-  - [Cache Node.js Dependencies](#cache-nodejs-dependencies)
   - [Composer GitHub OAuth](#composer-github-oauth)
+  - [Inline PHP Scripts](#inline-php-scripts)
   - [Problem Matchers](#problem-matchers)
   - [Examples](#examples)
 - [Versioning](#bookmark-versioning)
@@ -79,12 +79,17 @@ Both `GitHub-hosted` and `self-hosted` runners are suppported by `setup-php` on 
 |--- |--- |
 |Ubuntu 18.04|`self-hosted` or `Linux`|
 |Ubuntu 20.04|`self-hosted` or `Linux`|
+|Ubuntu 21.04|`self-hosted` or `Linux`|
+|Debian 9|`self-hosted` or `Linux`|
+|Debian 10|`self-hosted` or `Linux`|
+|Debian 11|`self-hosted` or `Linux`|
 |Windows 7 and newer|`self-hosted` or `Windows`|
 |Windows Server 2012 R2 and newer|`self-hosted` or `Windows`|
 |macOS Catalina 10.15|`self-hosted` or `macOS`|
 |macOS Big Sur 11.x x86_64/arm64|`self-hosted` or `macOS`|
 
 - Refer to the [self-hosted setup](#self-hosted-setup) to use the action on self-hosted runners.
+- Operating systems based on the above Ubuntu and Debian versions are also supported on a best effort basis.
 - If the requested PHP version is pre-installed, `setup-php` switches to it, otherwise it installs the PHP version.
 
 ## :tada: PHP Support
@@ -114,7 +119,7 @@ On all supported OS/Platforms the following PHP versions are supported as per th
 
 ## :heavy_plus_sign: PHP Extension Support
 
-PHP extensions can be setup using the `extensions` input. It accepts a `string` in csv-format.
+PHP extensions can be set up using the `extensions` input. It accepts a `string` in csv-format.
 
 - On `Ubuntu`, extensions which are available as a package, available on `PECL` or a git repository can be set up.
 
@@ -122,7 +127,7 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
 - name: Setup PHP with PECL extension
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     extensions: imagick, swoole
 ```
 
@@ -134,7 +139,7 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
 
 - Extensions installed along with PHP if specified are enabled.
 
-- Specific versions of extensions available on `PECL` can be setup by suffixing the extension's name with the version. This is useful for installing old versions of extensions which support end of life PHP versions.
+- Specific versions of extensions available on `PECL` can be set up by suffixing the extension's name with the version. This is useful for installing old versions of extensions which support end of life PHP versions.
 
 ```yaml
 - name: Setup PHP with specific version of PECL extension
@@ -144,13 +149,13 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
     extensions: swoole-1.9.3
 ```
 
-- Pre-release versions extensions available on `PECL` can be setup by suffixing the extension's name with its state i.e `alpha`, `beta`, `devel` or `snapshot`.
+- Pre-release versions extensions available on `PECL` can be set up by suffixing the extension's name with its state i.e `alpha`, `beta`, `devel` or `snapshot`.
 
 ```yaml
 - name: Setup PHP with pre-release PECL extension
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     extensions: xdebug-beta
 ```
 
@@ -160,17 +165,17 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
 - name: Setup PHP and remove shared extension
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'  
+    php-version: '8.0'
     extensions: :opcache
 ```
 
-- Extension `intl` can be setup with specific `ICU` version for `PHP 5.6` and above in `Ubuntu` workflows by suffixing `intl` with the `ICU` version. `ICU 50.2` and newer versions are supported. Refer to [`ICU builds`](https://github.com/shivammathur/icu-intl#icu4c-builds) for the specific versions supported.
+- Extension `intl` can be set up with specific `ICU` version for `PHP 5.6` and above in `Ubuntu` workflows by suffixing `intl` with the `ICU` version. `ICU 50.2` and newer versions are supported. Refer to [`ICU builds`](https://github.com/shivammathur/icu-intl#icu4c-builds) for the specific versions supported.
 
 ```yaml
 - name: Setup PHP with intl
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     extensions: intl-69.1
 ```
 
@@ -187,7 +192,7 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
 - name: Setup PHP with fail-fast
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     extensions: oci8
   env:
     fail-fast: true
@@ -195,7 +200,7 @@ PHP extensions can be setup using the `extensions` input. It accepts a `string` 
 
 ## :wrench: Tools Support
 
-These tools can be setup globally using the `tools` input. It accepts a string in csv-format.
+These tools can be set up globally using the `tools` input. It accepts a string in csv-format.
 
 `behat`, `blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `composer-require-checker`, `composer-unused`, `cs2pr`, `deployer`, `flex`, `grpc_php_plugin`, `infection`, `pecl`, `phan`, `phing`, `phinx`, `phive`, `php-config`, `php-cs-fixer`, `phpcbf`, `phpcpd`, `phpcs`, `phpize`, `phplint`, `phpmd`, `phpspec`, `phpstan`, `phpunit`, `phpunit-bridge`, `prestissimo`, `protoc`, `psalm`, `symfony` or `symfony-cli`, `vapor` or `vapor-cli`, `wp` or `wp-cli`
 
@@ -203,7 +208,7 @@ These tools can be setup globally using the `tools` input. It accepts a string i
 - name: Setup PHP with tools
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     tools: php-cs-fixer, phpunit
 ```
 
@@ -213,7 +218,7 @@ These tools can be setup globally using the `tools` input. It accepts a string i
 - name: Setup PHP with tools
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     tools: vimeo/psalm
 ```
 
@@ -232,7 +237,7 @@ These tools can be setup globally using the `tools` input. It accepts a string i
 - name: Setup PHP with tools
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     tools: php-cs-fixer:3, phpunit:8.5
   env:
     COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -244,7 +249,7 @@ These tools can be setup globally using the `tools` input. It accepts a string i
 - name: Setup PHP with composer v2
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     tools: composer:v2
 ```
 
@@ -254,13 +259,13 @@ These tools can be setup globally using the `tools` input. It accepts a string i
 - name: Setup PHP without composer
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     tools: none
 ```
 
 - Scripts `phpize` and `php-config` are set up with the same version as of the input PHP version.
 
-- The latest version of `blackfire` cli is setup when `blackfire` is specified in tools input. Please refer to the [official documentation](https://blackfire.io/docs/integrations/ci/github-actions "Blackfire.io documentation for GitHub Actions") for using `blackfire` with GitHub Actions.
+- The latest version of `blackfire` cli is set up when `blackfire` is specified in tools input. Please refer to the [official documentation](https://blackfire.io/docs/integrations/ci/github-actions "Blackfire.io documentation for GitHub Actions") for using `blackfire` with GitHub Actions.
 
 - Tools `prestissimo` and `composer-prefetcher` will be skipped unless `composer:v1` is also specified in tools input. It is recommended to drop `prestissimo` and use `composer v2`.
 
@@ -270,7 +275,7 @@ These tools can be setup globally using the `tools` input. It accepts a string i
 - name: Setup PHP with fail-fast
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     tools: deployer
   env:
     fail-fast: true
@@ -292,7 +297,7 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
 - name: Setup PHP with Xdebug
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     coverage: xdebug
 ```
 
@@ -318,7 +323,7 @@ Runs on PHP 7.1 and newer PHP versions.
 - name: Setup PHP with PCOV
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     ini-values: pcov.directory=api #optional, see above for usage.
     coverage: pcov
 ```
@@ -349,7 +354,7 @@ Disable coverage for these reasons:
 - name: Setup PHP with no coverage driver
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     coverage: none
 ```
 
@@ -362,7 +367,7 @@ Disable coverage for these reasons:
 #### `php-version` (required)
 
 - Specify the PHP version you want to set up.
-- Accepts a `string`. For example `'7.4'`.
+- Accepts a `string`. For example `'8.0'`.
 - Accepts `latest` to set up the latest stable PHP version.
 - Accepts the format `d.x`, where `d` is the major version. For example `5.x`, `7.x` and `8.x`.  
 - See [PHP support](#tada-php-support) for supported PHP versions.
@@ -400,12 +405,12 @@ To use outputs, give the `setup-php` step an `id`, you can use the same to get t
 
 - Provides the PHP version in semver format.
 
-```yml
+```yaml
 - name: Setup PHP
   id: setup-php
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
 
 - name: Print PHP version
   run: echo ${{ steps.setup-php.outputs.php-version }}
@@ -444,13 +449,10 @@ See below for more info.
 
 ```yaml
 steps:
-- name: Checkout
-  uses: actions/checkout@v2
-
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     extensions: mbstring, intl
     ini-values: post_max_size=256M, max_execution_time=180
     coverage: xdebug    
@@ -468,16 +470,13 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-latest', 'windows-latest', 'macos-latest']
-        php-versions: ['7.3', '7.4']
+        php-versions: ['7.3', '7.4', '8.0']
         phpunit-versions: ['latest']
         include:
         - operating-system: 'ubuntu-latest'
           php-versions: '7.2'
-          phpunit-versions: '8.5.13'    
+          phpunit-versions: '8.5.19'    
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
@@ -497,9 +496,6 @@ jobs:
 
 ```yaml
 steps:
-- name: Checkout
-  uses: actions/checkout@v2
-
 - name: Setup nightly PHP
   uses: shivammathur/setup-php@v2
   with:
@@ -514,7 +510,7 @@ steps:
 
 > Setup `TS` or `NTS` PHP on `Windows`.
 
-- `NTS` versions are setup by default.
+- `NTS` versions are set up by default.
 - On `Ubuntu` and `macOS` only `NTS` versions are supported.
 - On `Windows` both `TS` and `NTS` versions are supported.
 
@@ -524,13 +520,10 @@ jobs:
     runs-on: windows-latest
     name: Setup PHP TS on Windows
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: '8.0'
       env:
         phpts: ts # specify ts or nts
 ```
@@ -546,7 +539,7 @@ jobs:
 - name: Setup PHP with latest versions
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
   env:
     update: true # specify true or false
 ```
@@ -561,7 +554,7 @@ To debug any issues, you can use the `verbose` tag instead of `v2`.
 - name: Setup PHP with logs
   uses: shivammathur/setup-php@verbose
   with:
-    php-version: '7.4'
+    php-version: '8.0'
 ```
 
 ### Multi-Arch Setup
@@ -569,9 +562,8 @@ To debug any issues, you can use the `verbose` tag instead of `v2`.
 > Setup PHP on multiple architecture on Ubuntu GitHub Runners.
 
 - `PHP 5.6` to `PHP 8.0` are supported by `setup-php` on multiple architecture on `Ubuntu`.
-- For this, you can use `shivammathur/node` images as containers. These have compatible `Nodejs` and `spc` utility.
-- Using `spc` you can run `setup-php` on both `i386` and `amd64` containers as opposed to [default syntax](#basic-setup), which only supports `amd64`.
-- Currently, for `Arm` based setup, you will need [self-hosted runners](#self-hosted-setup).
+- For this, you can use `shivammathur/node` images as containers. These have compatible `Nodejs` installed for JavaScript based GitHub Actions.
+- Currently, for `ARM` based setup, you will need [self-hosted runners](#self-hosted-setup).
 
 ```yaml
 jobs:
@@ -583,25 +575,21 @@ jobs:
         arch: ["amd64", "i386"]
     steps:
       - name: Install PHP
-        run: |
-          # Update spc (See https://github.com/shivammathur/spc for options)
-          spc -U
-
-          # Install PHP
-          spc --php-version "7.4" \
-              --extensions "mbstring, intl" \
-              --ini-values "post_max_size=256M, max_execution_time=180" \
-              --coverage "xdebug" \
-              --tools "php-cs-fixer, phpunit"
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
 ```
 
 ### Self Hosted Setup
 
 > Setup PHP on a self-hosted runner.
 
-- To set up a dockerized self-hosted runner, refer to this [guide](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Ubuntu) to set up in an `Ubuntu` container and refer to this [guide](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Windows) to set up in a `Windows` container.
+- To set up a containerised self-hosted runner, refer to the following guides as per your base operating system.
+  - [Linux](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Linux)
+  - [Windows](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Windows)
+
 - To set up the runner directly on the host OS or in a virtual machine, follow this [requirements guide](https://github.com/shivammathur/setup-php/wiki/Requirements-for-self-hosted-runners "Requirements guide for self-hosted runner to run setup-php") before setting up the self-hosted runner.
-- If your workflow uses [service containers](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idservices "GitHub Actions Services"), then setup the runner on a Linux host or in a Linux virtual machine. GitHub Actions does not support nested virtualization on Linux, so services will not work in a dockerized container.
+- If your workflow uses [service containers](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idservices "GitHub Actions Services"), then set up the runner on a Linux host or in a Linux virtual machine. GitHub Actions does not support nested virtualization on Linux, so services will not work in a dockerized container.
 
 Specify the environment variable `runner` with the value `self-hosted`. Without this your workflow will fail.
 
@@ -638,15 +626,11 @@ jobs:
 jobs:
   run:
     runs-on: ubuntu-latest
-    name: PHP 7.4 Test
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: 7.4
+        php-version: '8.0'
 ```
 
 Run the workflow locally with `act` using [`shivammathur/node`](https://github.com/shivammathur/node-docker "Docker image to run setup-php") docker images.
@@ -722,36 +706,37 @@ key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}-${{ matrix.p
 restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-
 ```
 
-### Cache Node.js Dependencies
-
-If your project has node.js dependencies, you can persist NPM or yarn cache directory. The cached files are available across check-runs and will reduce the workflow execution time.
-
-```yaml
-- name: Get node.js cache directory
-  id: node-cache-dir
-  run: echo "::set-output name=dir::$(npm config get cache)" # Use $(yarn cache dir) for yarn
-
-- name: Cache dependencies
-  uses: actions/cache@v2
-  with:
-    path: ${{ steps.node-cache-dir.outputs.dir }}
-    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # Use '**/yarn.lock' for yarn
-    restore-keys: ${{ runner.os }}-node-
-```
-
-**Note:** Please do not cache `node_modules` directory as that will have side effects.
-
 ### Composer GitHub OAuth
 
-If you have a number of workflows which setup multiple tools or have many composer dependencies, you might hit the GitHub's rate limit for composer. Also, if you specify only the major version or the version in `major.minor` format, you can hit the rate limit. To avoid this you can specify an `OAuth` token by setting `COMPOSER_TOKEN` environment variable. You can use [`GITHUB_TOKEN`](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token "GITHUB_TOKEN documentation") secret for this purpose.
+If you have a number of workflows which set up multiple tools or have many composer dependencies, you might hit the GitHub's rate limit for composer. Also, if you specify only the major version or the version in `major.minor` format, you can hit the rate limit. To avoid this you can specify an `OAuth` token by setting `COMPOSER_TOKEN` environment variable. You can use [`GITHUB_TOKEN`](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token "GITHUB_TOKEN documentation") secret for this purpose.
 
 ```yaml
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
   env:
     COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### Inline PHP Scripts
+
+If you have to run multiple lines of PHP code in your workflow, you can do that easily without saving it to a file.
+
+Put the code in the run property of a step and specify the shell as `php {0}`.
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '8.0'
+
+- name: Run PHP code
+  shell: php {0}
+  run: |
+    <?php
+    $welcome = "Hello, world";
+    echo $welcome;
 ```
 
 ### Problem Matchers
@@ -784,7 +769,7 @@ PHPStan supports error reporting in GitHub Actions, so it does not require probl
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     tools: phpstan
 
 - name: Run PHPStan
@@ -799,7 +784,7 @@ Psalm supports error reporting in GitHub Actions with an output format `github`.
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     tools: psalm
 
 - name: Run Psalm
@@ -817,7 +802,7 @@ For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-p
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '7.4'
+    php-version: '8.0'
     tools: cs2pr, phpcs
 
 - name: Run phpcs
@@ -926,8 +911,8 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 - [shivammathur/php-builder](https://github.com/shivammathur/php-builder "Nightly PHP package for Ubuntu")
 - [shivammathur/php-builder-windows](https://github.com/shivammathur/php-builder-windows "Nightly PHP package for Windows")
 - [shivammathur/php-ubuntu](https://github.com/shivammathur/php-ubuntu "Cache stable PHP Packages for Ubuntu")
-- [shivammathur/php5-darwin](https://github.com/shivammathur/php5-darwin "Scripts to setup PHP5 versions on darwin")
-- [shivammathur/php5-ubuntu](https://github.com/shivammathur/php5-ubuntu "Scripts to setup PHP5 versions on ubuntu")
+- [shivammathur/php5-darwin](https://github.com/shivammathur/php5-darwin "Scripts to set up PHP5 versions on darwin")
+- [shivammathur/php5-ubuntu](https://github.com/shivammathur/php5-ubuntu "Scripts to set up PHP5 versions on ubuntu")
 
 ## :bookmark_tabs: Further Reading
 

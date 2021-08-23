@@ -25,7 +25,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: blackfire
-          tools: blackfire #Setup Blackfire client and agent
+          tools: blackfire #Setup Blackfire cli
           coverage: none
       - name: Profile
         run: blackfire run php my-script.php # Refer to https://blackfire.io/docs/cookbooks/profiling-cli

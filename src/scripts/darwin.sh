@@ -95,7 +95,7 @@ add_brew_tap() {
   if ! [ -d "$tap_dir/$tap" ]; then
     fetch_brew_tap "$tap" >/dev/null 2>&1
     if ! [ -d "$tap_dir/$tap" ]; then
-      brew tap --shallow "$tap" >/dev/null 2>&1
+      brew tap "$tap" >/dev/null 2>&1
     fi
   fi
 }

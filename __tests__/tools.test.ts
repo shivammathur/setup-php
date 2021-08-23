@@ -127,6 +127,11 @@ describe('Tools tests', () => {
     expect(script).toContain(
       'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.5/phive-0.13.5.phar phive'
     );
+
+    script = await tools.addPhive('latest', '7.2', 'win32');
+    expect(script).toContain(
+      'Add-Tool https://github.com/phar-io/phive/releases/download/0.14.5/phive-0.14.5.phar phive'
+    );
   });
 
   it('checking getPhpunitUri', async () => {

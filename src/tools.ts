@@ -119,6 +119,9 @@ export async function addPhive(
     case /7\.1/.test(php_version):
       version = version.replace('latest', '0.13.5');
       break;
+    case /7\.2/.test(php_version):
+      version = version.replace('latest', '0.14.5');
+      break;
   }
   switch (version) {
     case 'latest':

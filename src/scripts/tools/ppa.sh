@@ -56,7 +56,7 @@ update_lists() {
     elif grep -Eq '^deb ' "$list_file"; then
       list="$list_file"
     fi
-    update_lists_helper "$list"
+    update_lists_helper "$list" >/dev/null 2>&1
     echo '' | tee /tmp/setup_php >/dev/null 2>&1
   fi
 }

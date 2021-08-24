@@ -14,7 +14,7 @@ self_hosted_helper() {
 # Function to install a package
 install_packages() {
   packages=("$@")
-  [[ "${packages[*]}" =~ php ]] && add_ppa ondrej/php
+  [[ "${packages[*]}" =~ php ]] && add_ppa ondrej/php >/dev/null 2>&1
   $apt_install "${packages[@]}" >/dev/null 2>&1 || (update_lists && $apt_install "${packages[@]}" >/dev/null 2>&1)
 }
 

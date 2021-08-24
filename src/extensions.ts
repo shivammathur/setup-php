@@ -21,7 +21,7 @@ export async function addExtensionDarwin(
     switch (true) {
       // match :extension
       case /^:/.test(ext_name):
-        remove_script += '\nremove_extension ' + ext_name.slice(1);
+        remove_script += '\ndisable_extension ' + ext_name.slice(1);
         return;
       // match extensions for compiling from source
       case /.+-.+\/.+@.+/.test(extension):
@@ -115,7 +115,7 @@ export async function addExtensionWindows(
     switch (true) {
       // Match :extension
       case /^:/.test(ext_name):
-        remove_script += '\nRemove-Extension ' + ext_name.slice(1);
+        remove_script += '\nDisable-Extension ' + ext_name.slice(1);
         break;
       // match 5.3blackfire...8.0blackfire
       // match 5.3blackfire-(semver)...8.0blackfire-(semver)
@@ -227,7 +227,7 @@ export async function addExtensionLinux(
     switch (true) {
       // Match :extension
       case /^:/.test(ext_name):
-        remove_script += '\nremove_extension ' + ext_name.slice(1);
+        remove_script += '\ndisable_extension ' + ext_name.slice(1);
         return;
       // match extensions for compiling from source
       case /.+-.+\/.+@.+/.test(extension):

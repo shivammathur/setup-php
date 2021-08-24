@@ -19,35 +19,10 @@ install_packages() {
 }
 
 # Function to disable an extension.
-disable_extension() {
+disable_extension_helper() {
   extension=$1
-  sudo sed -Ei "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file[@]}"
-  sudo sed -Ei "/=(.*\/)?\"?$extension(.so)?$/d" "$pecl_file"
+  sudo sed -Ei "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file[@]}" "$pecl_file"
   sudo find "$ini_dir"/.. -name "*$extension.ini" -delete >/dev/null 2>&1 || true
-}
-
-# Function to delete an extension.
-delete_extension() {
-  extension=$1
-  disable_extension "$extension"
-  sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
-  sudo sed -i "/Package: php$version-$extension/,/^$/d" /var/lib/dpkg/status
-}
-
-# Function to disable and delete extensions.
-remove_extension() {
-  extension=$1
-  if check_extension "$extension"; then
-    if [[ ! "$version" =~ ${old_versions:?} ]] && [ -e /etc/php/"$version"/mods-available/"$extension".ini ]; then
-      sudo phpdismod -v "$version" "$extension" >/dev/null 2>&1
-    fi
-    delete_extension "$extension"
-    (! check_extension "$extension" && add_log "${tick:?}" ":$extension" "Removed") ||
-      add_log "${cross:?}" ":$extension" "Could not remove $extension on PHP ${semver:?}"
-  else
-    delete_extension "$extension"
-    add_log "${tick:?}" ":$extension" "Could not find $extension on PHP $semver"
-  fi
 }
 
 # Function to add PDO extension.
@@ -59,7 +34,7 @@ add_pdo_extension() {
     ext=$1
     ext_name=$1
     if [ -e "$ext_dir"/pdo.so ]; then
-      disable_extension pdo
+      disable_extension_helper pdo
       echo "extension=pdo.so" | sudo tee "${ini_file[@]/php.ini/conf.d/10-pdo.ini}" >/dev/null 2>&1
     fi
     if [ "$ext" = "mysql" ]; then

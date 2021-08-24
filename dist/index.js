@@ -210,7 +210,7 @@ async function addExtensionDarwin(extension_csv, version) {
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
         switch (true) {
             case /^:/.test(ext_name):
-                remove_script += '\nremove_extension ' + ext_name.slice(1);
+                remove_script += '\ndisable_extension ' + ext_name.slice(1);
                 return;
             case /.+-.+\/.+@.+/.test(extension):
                 add_script += await utils.parseExtensionSource(extension, ext_prefix);
@@ -256,7 +256,7 @@ async function addExtensionWindows(extension_csv, version) {
         let matches;
         switch (true) {
             case /^:/.test(ext_name):
-                remove_script += '\nRemove-Extension ' + ext_name.slice(1);
+                remove_script += '\nDisable-Extension ' + ext_name.slice(1);
                 break;
             case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^pdo_oci$|^oci8$|^pdo_firebird$/.test(extension):
@@ -313,7 +313,7 @@ async function addExtensionLinux(extension_csv, version) {
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
         switch (true) {
             case /^:/.test(ext_name):
-                remove_script += '\nremove_extension ' + ext_name.slice(1);
+                remove_script += '\ndisable_extension ' + ext_name.slice(1);
                 return;
             case /.+-.+\/.+@.+/.test(extension):
                 add_script += await utils.parseExtensionSource(extension, ext_prefix);

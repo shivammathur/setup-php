@@ -214,8 +214,8 @@ Function Add-Extension {
   }
 }
 
-# Function to remove PHP extensions.
-Function Remove-Extension() {
+# Function to disable an extension.
+Function Disable-Extension() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     [ValidateNotNull()]
@@ -226,12 +226,9 @@ Function Remove-Extension() {
   if(php -m | findstr -i $extension) {
     try {
       Disable-PhpExtension $extension $php_dir
-      if (Test-Path $ext_dir\php_$extension.dll) {
-        Remove-Item $ext_dir\php_$extension.dll
-      }
-      Add-Log $tick ":$extension" "Removed"
+      Add-Log $tick ":$extension" "Disabled"
     } catch {
-      Add-Log $cross ":$extension" "Could not remove $extension on PHP $($installed.FullVersion)"
+      Add-Log $cross ":$extension" "Could not disable $extension on PHP $($installed.FullVersion)"
     }
   } else {
     Add-Log $tick ":$extension" "Could not find $extension on PHP $($installed.FullVersion)"

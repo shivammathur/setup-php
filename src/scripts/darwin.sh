@@ -7,29 +7,11 @@ self_hosted_helper() {
   fi
 }
 
-# Function to delete extension.
-delete_extension() {
-  extension=$1
-  sudo rm -rf "${scan_dir:?}"/*"$extension"* "${ext_dir:?}"/"$extension".so >/dev/null 2>&1
-}
-
-# Function to disable extension.
-disable_extension() {
+# Helper function to disable an extension.
+disable_extension_helper() {
   extension=$1
   sudo sed -Ei '' "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file:?}"
-}
-
-# Function to remove extensions.
-remove_extension() {
-  extension=$1
-  if check_extension "$extension"; then
-    disable_extension "$extension"
-    delete_extension "$extension"
-    (! check_extension "$extension" && add_log "${tick:?}" ":$extension" "Removed") ||
-      add_log "${cross:?}" ":$extension" "Could not remove $extension on PHP ${semver:?}"
-  else
-    add_log "${tick:?}" ":$extension" "Could not find $extension on PHP $semver"
-  fi
+  sudo rm -rf "$scan_dir"/*"$extension"*
 }
 
 # Function to fetch a brew tap.
@@ -217,7 +199,7 @@ setup_php() {
   semver=$(php_semver)
   extra_version=$(php_extra_version)
   if [ "${semver%.*}" != "$version" ]; then
-    add_log "$cross" "PHP" "Could not setup PHP $version"
+    add_log "${cross:?}" "PHP" "Could not setup PHP $version"
     exit 1
   fi
 

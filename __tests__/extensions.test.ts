@@ -10,7 +10,7 @@ describe('Extension tests', () => {
     expect(win32).toContain('Add-Extension xdebug');
     expect(win32).toContain('Add-Extension pcov');
     expect(win32).toContain('Add-Extension sqlite3');
-    expect(win32).toContain('Remove-Extension intl');
+    expect(win32).toContain('Disable-Extension intl');
     expect(win32).toContain('Add-Phalcon phalcon4');
     expect(win32).toContain('Add-Http');
     expect(win32).toContain('Add-Ioncube');
@@ -78,7 +78,7 @@ describe('Extension tests', () => {
     );
     expect(linux).toContain('add_extension xdebug');
     expect(linux).toContain('add_extension sqlite3');
-    expect(linux).toContain('remove_extension intl');
+    expect(linux).toContain('disable_extension intl');
     expect(linux).toContain('add_unstable_extension ast beta extension');
     expect(linux).toContain('add_pdo_extension mysql');
     expect(linux).toContain('add_pdo_extension odbc');
@@ -185,7 +185,7 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension swoole extension');
     expect(darwin).toContain('add_brew_extension yaml extension');
     expect(darwin).toContain('add_extension sqlite3');
-    expect(darwin).toContain('remove_extension intl');
+    expect(darwin).toContain('disable_extension intl');
     expect(darwin).toContain('add_unstable_extension ast beta extension');
     expect(darwin).toContain('add_pecl_extension grpc 1.2.3 extension');
 

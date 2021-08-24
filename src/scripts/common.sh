@@ -133,6 +133,18 @@ enable_extension() {
   fi
 }
 
+# Function to disable an extensions.
+disable_extension() {
+  extension=$1
+  if check_extension "$extension"; then
+    disable_extension_helper "$extension"
+    (! check_extension "$extension" && add_log "${tick:?}" ":$extension" "Disabled") ||
+      add_log "${cross:?}" ":$extension" "Could not disable $extension on PHP ${semver:?}"
+  else
+    add_log "${tick:?}" ":$extension" "Could not find $extension on PHP $semver"
+  fi
+}
+
 # Function to configure PHP
 configure_php() {
   (
@@ -186,8 +198,7 @@ add_pecl_extension() {
   if [ "$ext_version" = "$pecl_version" ]; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
-    disable_extension "$extension" >/dev/null 2>&1
-    delete_extension "$extension" >/dev/null 2>&1
+    disable_extension_helper "$extension" >/dev/null 2>&1
     pecl_install "$extension-$pecl_version"
     add_extension_log "$extension-$pecl_version" "Installed and enabled"
   fi

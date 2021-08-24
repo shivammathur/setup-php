@@ -126,7 +126,7 @@ add_extension_from_source() {
   step_log "Setup $slug"
   (
     add_devtools phpize >/dev/null 2>&1
-    delete_extension "$extension"
+    disable_extension_helper "$extension"
     fetch_extension "$fetch"
     if ! [ "$(find . -maxdepth 1 -name '*.m4' -exec grep -H 'PHP_NEW_EXTENSION' {} \; | wc -l)" != "0" ]; then
       add_log "${cross:?}" "$source" "$source does not have a PHP extension"

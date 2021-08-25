@@ -74,20 +74,20 @@ Function Add-Path {
 Function Add-Printf {
   if (-not(Test-Path "C:\Program Files\Git\usr\bin\printf.exe")) {
     if(Test-Path "C:\msys64\usr\bin\printf.exe") {
-      New-Item -Path $bin_dir\printf.exe -ItemType SymbolicLink -Value C:\msys64\usr\bin\printf.exe
+      New-Item -Path $bin_dir\printf.exe -ItemType SymbolicLink -Value C:\msys64\usr\bin\printf.exe -Force > $null 2>&1
     } else {
       Invoke-WebRequest -Uri "$github/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$bin_dir\printf.zip"
       Expand-Archive -Path $bin_dir\printf.zip -DestinationPath $bin_dir -Force
     }
   } else {
-    New-Item -Path $bin_dir\printf.exe -ItemType SymbolicLink -Value "C:\Program Files\Git\usr\bin\printf.exe"
+    New-Item -Path $bin_dir\printf.exe -ItemType SymbolicLink -Value "C:\Program Files\Git\usr\bin\printf.exe" -Force > $null 2>&1
   }
 }
 
 # Function to get a clean Powershell profile.
 Function Get-CleanPSProfile {
   if(-not(Test-Path -LiteralPath $profile)) {
-    New-Item -Path $profile -ItemType "file" -Force
+    New-Item -Path $profile -ItemType "file" -Force > $null 2>&1
   }
   Set-Content $current_profile -Value ''
   Add-ToProfile $profile $current_profile.replace('\', '\\') ". $current_profile"
@@ -154,7 +154,7 @@ Function Get-ExtensionPrerequisites{
   )
   $deps_dir = "$ext_dir\$extension-vc$($installed.VCVersion)-$arch"
   $extensions_with_dependencies = ('imagick')
-  New-Item $deps_dir -Type Directory 2>&1 | Out-Null
+  New-Item $deps_dir -Type Directory -Force > $null 2>&1
   if($extensions_with_dependencies.Contains($extension)) {
     Install-PhpExtensionPrerequisite -Extension $extension -InstallPath $deps_dir -PhpPath $php_dir
   }
@@ -414,7 +414,7 @@ if($env:RUNNER -eq 'self-hosted') {
   $ext_dir = "$php_dir\ext"
   $cert_source='Curl'
   Get-CleanPSProfile >$null 2>&1
-  New-Item $bin_dir -Type Directory 2>&1 | Out-Null
+  New-Item $bin_dir -Type Directory -Force > $null 2>&1
   Add-Path -PathItem $bin_dir
   if($version -lt 5.6) {
     Add-Log $cross "PHP" "PHP $version is not supported on self-hosted runner"
@@ -424,7 +424,7 @@ if($env:RUNNER -eq 'self-hosted') {
   if ((Get-InstalledModule).Name -notcontains 'VcRedist') {
     Install-Module -Name VcRedist -Force
   }
-  New-Item $php_dir -Type Directory 2>&1 | Out-Null
+  New-Item $php_dir -Type Directory -Force > $null 2>&1
   Add-Path -PathItem $php_dir
   setx PHPROOT $php_dir >$null 2>&1
 } else {
@@ -489,6 +489,6 @@ if($version -lt "5.5") {
 Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source $cert_source
 Copy-Item -Path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE
-New-Item -ItemType Directory -Path $composer_bin -Force 2>&1 | Out-Null
+New-Item -ItemType Directory -Path $composer_bin -Force > $null 2>&1
 Write-Output "::set-output name=php-version::$($installed.FullVersion)"
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)$extra_version"

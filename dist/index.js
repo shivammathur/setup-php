@@ -111,7 +111,8 @@ const config = __importStar(__nccwpck_require__(88));
 async function addCoverageXdebug(extension, version, os_version, pipe) {
     let script = '\n';
     script +=
-        (await extensions.addExtension(':pcov', version, os_version, true)) + pipe;
+        (await extensions.addExtension(':pcov:false', version, os_version, true)) +
+            pipe;
     script +=
         (await extensions.addExtension(extension, version, os_version, true)) +
             pipe;
@@ -124,8 +125,7 @@ async function addCoveragePCOV(version, os_version, pipe) {
     switch (true) {
         default:
             script +=
-                (await extensions.addExtension(':xdebug', version, os_version, true)) +
-                    pipe;
+                (await extensions.addExtension(':xdebug:false', version, os_version, true)) + pipe;
             script +=
                 (await extensions.addExtension('pcov', version, os_version, true)) +
                     pipe;
@@ -143,10 +143,10 @@ exports.addCoveragePCOV = addCoveragePCOV;
 async function disableCoverage(version, os_version, pipe) {
     let script = '\n';
     script +=
-        (await extensions.addExtension(':pcov', version, os_version, true)) + pipe;
-    script +=
-        (await extensions.addExtension(':xdebug', version, os_version, true)) +
+        (await extensions.addExtension(':pcov:false', version, os_version, true)) +
             pipe;
+    script +=
+        (await extensions.addExtension(':xdebug:false', version, os_version, true)) + pipe;
     script += await utils.addLog('$tick', 'none', 'Disabled Xdebug and PCOV', os_version);
     return script;
 }
@@ -210,7 +210,7 @@ async function addExtensionDarwin(extension_csv, version) {
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
         switch (true) {
             case /^:/.test(ext_name):
-                remove_script += '\ndisable_extension ' + ext_name.slice(1);
+                remove_script += '\ndisable_extension' + ext_name.replace(/:/g, ' ');
                 return;
             case /.+-.+\/.+@.+/.test(extension):
                 add_script += await utils.parseExtensionSource(extension, ext_prefix);
@@ -256,7 +256,7 @@ async function addExtensionWindows(extension_csv, version) {
         let matches;
         switch (true) {
             case /^:/.test(ext_name):
-                remove_script += '\nDisable-Extension ' + ext_name.slice(1);
+                remove_script += '\nDisable-Extension' + ext_name.replace(/:/g, ' ');
                 break;
             case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^pdo_oci$|^oci8$|^pdo_firebird$/.test(extension):
@@ -313,7 +313,7 @@ async function addExtensionLinux(extension_csv, version) {
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
         switch (true) {
             case /^:/.test(ext_name):
-                remove_script += '\ndisable_extension ' + ext_name.slice(1);
+                remove_script += '\ndisable_extension' + ext_name.replace(/:/g, ' ');
                 return;
             case /.+-.+\/.+@.+/.test(extension):
                 add_script += await utils.parseExtensionSource(extension, ext_prefix);

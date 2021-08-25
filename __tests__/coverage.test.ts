@@ -4,7 +4,7 @@ describe('Config tests', () => {
   it('checking addCoverage with PCOV on windows', async () => {
     let win32: string = await coverage.addCoverage('PCOV', '7.4', 'win32');
     expect(win32).toContain('Add-Extension pcov');
-    expect(win32).toContain('Disable-Extension xdebug');
+    expect(win32).toContain('Disable-Extension xdebug false');
 
     win32 = await coverage.addCoverage('pcov', '7.0', 'win32');
     expect(win32).toContain('PHP 7.1 or newer is required');
@@ -16,13 +16,13 @@ describe('Config tests', () => {
   it('checking addCoverage with PCOV on linux', async () => {
     const linux: string = await coverage.addCoverage('pcov', '7.4', 'linux');
     expect(linux).toContain('add_extension pcov');
-    expect(linux).toContain('disable_extension xdebug');
+    expect(linux).toContain('disable_extension xdebug false');
   });
 
   it('checking addCoverage with PCOV on darwin', async () => {
     const darwin: string = await coverage.addCoverage('pcov', '7.4', 'darwin');
     expect(darwin).toContain('add_brew_extension pcov');
-    expect(darwin).toContain('disable_extension xdebug');
+    expect(darwin).toContain('disable_extension xdebug false');
   });
 
   it('checking addCoverage with Xdebug on windows', async () => {
@@ -84,20 +84,20 @@ describe('Config tests', () => {
 
   it('checking disableCoverage windows', async () => {
     const win32 = await coverage.addCoverage('none', '7.4', 'win32');
-    expect(win32).toContain('Disable-Extension xdebug');
-    expect(win32).toContain('Disable-Extension pcov');
+    expect(win32).toContain('Disable-Extension xdebug false');
+    expect(win32).toContain('Disable-Extension pcov false');
   });
 
   it('checking disableCoverage on linux', async () => {
     const linux: string = await coverage.addCoverage('none', '7.4', 'linux');
-    expect(linux).toContain('disable_extension xdebug');
-    expect(linux).toContain('disable_extension pcov');
+    expect(linux).toContain('disable_extension xdebug false');
+    expect(linux).toContain('disable_extension pcov false');
   });
 
   it('checking disableCoverage on darwin', async () => {
     const darwin: string = await coverage.addCoverage('none', '7.4', 'darwin');
-    expect(darwin).toContain('disable_extension xdebug');
-    expect(darwin).toContain('disable_extension pcov');
+    expect(darwin).toContain('disable_extension xdebug false');
+    expect(darwin).toContain('disable_extension pcov false');
   });
 
   it('checking no or invalid coverage driver', async () => {

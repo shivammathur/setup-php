@@ -18,7 +18,8 @@ export async function addCoverageXdebug(
 ): Promise<string> {
   let script = '\n';
   script +=
-    (await extensions.addExtension(':pcov', version, os_version, true)) + pipe;
+    (await extensions.addExtension(':pcov:false', version, os_version, true)) +
+    pipe;
   script +=
     (await extensions.addExtension(extension, version, os_version, true)) +
     pipe;
@@ -47,8 +48,12 @@ export async function addCoveragePCOV(
   switch (true) {
     default:
       script +=
-        (await extensions.addExtension(':xdebug', version, os_version, true)) +
-        pipe;
+        (await extensions.addExtension(
+          ':xdebug:false',
+          version,
+          os_version,
+          true
+        )) + pipe;
       script +=
         (await extensions.addExtension('pcov', version, os_version, true)) +
         pipe;
@@ -92,10 +97,15 @@ export async function disableCoverage(
 ): Promise<string> {
   let script = '\n';
   script +=
-    (await extensions.addExtension(':pcov', version, os_version, true)) + pipe;
-  script +=
-    (await extensions.addExtension(':xdebug', version, os_version, true)) +
+    (await extensions.addExtension(':pcov:false', version, os_version, true)) +
     pipe;
+  script +=
+    (await extensions.addExtension(
+      ':xdebug:false',
+      version,
+      os_version,
+      true
+    )) + pipe;
   script += await utils.addLog(
     '$tick',
     'none',

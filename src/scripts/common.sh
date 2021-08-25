@@ -126,6 +126,7 @@ enable_cache_extension() {
 enable_extension() {
   modules_dir="/var/lib/php/modules/$version"
   [ -d "$modules_dir" ] && sudo find "$modules_dir" -path "*disabled*$1" -delete
+  enable_extension_dependencies "$1" "$2"
   if [ -d /tmp/extcache/"$1" ]; then
     enable_cache_extension "$1" "$2"
   elif ! check_extension "$1" && [ -e "${ext_dir:?}/$1.so" ]; then
@@ -133,13 +134,43 @@ enable_extension() {
   fi
 }
 
-# Function to disable an extensions.
+# Function to get a map of extensions and their dependent shared extensions.
+get_extension_map() {
+  php -d'error_reporting=0' "${dist:?}"/../src/scripts/ext/extension_map.php
+}
+
+# Function to enable extension dependencies which are also extensions.
+enable_extension_dependencies() {
+  extension=$1
+  prefix=$2
+  if ! [ -e /tmp/map.orig ]; then
+    get_extension_map | sudo tee /tmp/map.orig >/dev/null
+  fi
+  for dependency in $(grep "$extension:" /tmp/map.orig | cut -d ':' -f 2 | tr '\n' ' '); do
+    enable_extension "$dependency" "$prefix"
+  done
+}
+
+# Function to disable dependent extensions.
+disable_extension_dependents() {
+  local extension=$1
+  for dependent in $(get_extension_map | grep -E ".*:.*\s$extension(\s|$)" | cut -d ':' -f 1 | tr '\n' ' '); do
+    disable_extension_helper "$dependent" true
+    add_log "${tick:?}" ":$extension" "Disabled $dependent as it depends on $extension"
+  done
+}
+
+# Function to disable an extension.
 disable_extension() {
   extension=$1
   if check_extension "$extension"; then
-    disable_extension_helper "$extension"
-    (! check_extension "$extension" && add_log "${tick:?}" ":$extension" "Disabled") ||
-      add_log "${cross:?}" ":$extension" "Could not disable $extension on PHP ${semver:?}"
+    if [ -e "${ext_dir:?}"/"$extension".so ]; then
+      disable_extension_helper "$extension" true
+      (! check_extension "$extension" && add_log "${tick:?}" ":$extension" "Disabled") ||
+        add_log "${cross:?}" ":$extension" "Could not disable $extension on PHP ${semver:?}"
+    else
+      add_log "${cross:?}" ":$extension" "Could not disable $extension on PHP $semver as it not a shared extension"
+    fi
   else
     add_log "${tick:?}" ":$extension" "Could not find $extension on PHP $semver"
   fi

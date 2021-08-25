@@ -20,9 +20,13 @@ install_packages() {
 
 # Function to disable an extension.
 disable_extension_helper() {
-  extension=$1
+  local extension=$1
+  local disable_dependents=${2:-false}
+  if [ "$disable_dependents" = "true" ]; then
+    disable_extension_dependents "$extension"
+  fi
   sudo sed -Ei "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file[@]}" "$pecl_file"
-  sudo find "$ini_dir"/.. -name "*$extension.ini" -delete >/dev/null 2>&1 || true
+  sudo find "$ini_dir"/.. -name "*$extension.ini" -not -path "*mods-available*" -delete >/dev/null 2>&1 || true
 }
 
 # Function to add PDO extension.

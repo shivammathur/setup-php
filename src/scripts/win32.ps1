@@ -192,6 +192,7 @@ Function Add-Extension {
         }
         default {
           $deps_dir = Get-ExtensionPrerequisites $extension
+          Enable-ExtensionDependencies $extension
           Enable-PhpExtension -Extension $extension_info.Handle -Path $php_dir
           Set-ExtensionPrerequisites $deps_dir
           Add-Log $tick $extension "Enabled"
@@ -214,8 +215,13 @@ Function Add-Extension {
   }
 }
 
-# Function to disable an extension.
-Function Disable-Extension() {
+# Function to get a map of extensions and their dependent shared extensions.
+Function Get-ExtensionMap {
+  php -d'error_reporting=0' $dist\..\src\scripts\ext\extension_map.php
+}
+
+# Function to enable extension dependencies which are also extensions.
+Function Enable-ExtensionDependencies {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     [ValidateNotNull()]
@@ -223,12 +229,76 @@ Function Disable-Extension() {
     [string]
     $extension
   )
+  if (-not(Test-Path $env:TEMP\map.orig)) {
+    Get-ExtensionMap | Set-Content -Path $env:TEMP\map.orig
+  }
+  $entry = findstr /r "$extension`:.*" $env:TEMP\map.orig
+  if($entry) {
+    $entry.split(':')[1].trim().split(' ') | ForEach-Object {
+      if (-not(php -m | findstr -i $_)) {
+        Enable-PhpExtension -Extension $_ -Path $php_dir
+      }
+    }
+  }
+}
+
+# Function to disable dependent extensions.
+Function Disable-DependentExtensions() {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $extension
+  )
+  Get-ExtensionMap | Select-String -Pattern ".*:.*\s$extension(\s|$)" | ForEach-Object {
+    $dependent = $_.Matches[0].Value.split(':')[0];
+    Disable-ExtensionHelper -Extension $dependent -DisableDependents
+    Add-Log $tick ":$extension" "Disabled $dependent as it depends on $extension"
+  }
+}
+
+# Helper function to disable an extension.
+Function Disable-ExtensionHelper() {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $extension,
+    [switch] $DisableDependents
+  )
+  if($DisableDependents) {
+    Disable-DependentExtensions $extension
+  }
+  Disable-PhpExtension -Extension $extension -Path $php_dir
+}
+
+# Function to disable an extension.
+Function Disable-Extension() {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $extension,
+    [Parameter(Position = 1, Mandatory = $false)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $DisableDependents
+  )
   if(php -m | findstr -i $extension) {
-    try {
-      Disable-PhpExtension $extension $php_dir
-      Add-Log $tick ":$extension" "Disabled"
-    } catch {
-      Add-Log $cross ":$extension" "Could not disable $extension on PHP $($installed.FullVersion)"
+    if(Test-Path $ext_dir\php_$extension.dll) {
+      try {
+        $params = @{ Extension = $extension; DisableDependents = ($DisableDependents -ne 'false') }
+        Disable-ExtensionHelper @params
+        Add-Log $tick ":$extension" "Disabled"
+      } catch {
+        Add-Log $cross ":$extension" "Could not disable $extension on PHP $($installed.FullVersion)"
+      }
+    } else {
+      Add-Log $cross ":$extension" "Could not disable $extension on PHP $($installed.FullVersion) as it not a shared extension"
     }
   } else {
     Add-Log $tick ":$extension" "Could not find $extension on PHP $($installed.FullVersion)"
@@ -461,6 +531,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
     }
   } catch { }
 } else {
+  Set-PhpIniKey -Key 'extension_dir' -Value $ext_dir -Path $php_dir
   if($version -match $jit_versions) {
     ('opcache.enable=1', 'opcache.jit_buffer_size=256M', 'opcache.jit=1235') | ForEach-Object { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
   }

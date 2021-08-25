@@ -9,7 +9,11 @@ self_hosted_helper() {
 
 # Helper function to disable an extension.
 disable_extension_helper() {
-  extension=$1
+  local extension=$1
+  local disable_dependents=${2:-false}
+  if [ "$disable_dependents" = "true" ]; then
+    disable_extension_dependents "$extension"
+  fi
   sudo sed -Ei '' "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file:?}"
   sudo rm -rf "$scan_dir"/*"$extension"*
 }

@@ -126,12 +126,9 @@ describe('Utils tests', () => {
   });
 
   it('checking extensionArray', async () => {
-    expect(await utils.extensionArray('a, b, php_c, php-d')).toEqual([
-      'a',
-      'b',
-      'c',
-      'd'
-    ]);
+    expect(
+      await utils.extensionArray('a, :b, php_c, php-d, Zend e, :Zend f')
+    ).toEqual(['a', ':b', 'c', 'd', 'e', ':f']);
 
     expect(await utils.extensionArray('')).toEqual([]);
     expect(await utils.extensionArray(' ')).toEqual([]);

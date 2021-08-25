@@ -289,7 +289,7 @@ export async function extensionArray(
           return extension
             .trim()
             .toLowerCase()
-            .replace(/^php[-_]/, '');
+            .replace(/^(:)?(php[-_]|zend )/, '$1');
         })
         .filter(Boolean);
   }

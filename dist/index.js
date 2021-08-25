@@ -1050,7 +1050,7 @@ async function extensionArray(extension_csv) {
                 return extension
                     .trim()
                     .toLowerCase()
-                    .replace(/^php[-_]/, '');
+                    .replace(/^(:)?(php[-_]|zend )/, '$1');
             })
                 .filter(Boolean);
     }

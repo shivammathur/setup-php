@@ -300,6 +300,8 @@ Function Disable-Extension() {
     } else {
       Add-Log $cross ":$extension" "Could not disable $extension on PHP $($installed.FullVersion) as it not a shared extension"
     }
+  } elseif(Test-Path $ext_dir\php_$extension.dll) {
+    Add-Log $tick ":$extension" "Disabled"
   } else {
     Add-Log $tick ":$extension" "Could not find $extension on PHP $($installed.FullVersion)"
   }

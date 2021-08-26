@@ -6,7 +6,7 @@ add_blackfire() {
   platform=$(uname -s | tr '[:upper:]' '[:lower:]')
   extension_version=$(echo "$extension" | cut -d '-' -f 2)
   blackfire_ini_file="${pecl_file:-${ini_file[@]}}"
-  if [ ! -e "${ext_dir:?}/blackfire.so" ]; then
+  if ! shared_extension blackfire; then
     if [ "$extension_version" = "blackfire" ]; then
       if [[ ${version:?} =~ 5.[3-6] ]]; then
         extension_version='1.50.0'

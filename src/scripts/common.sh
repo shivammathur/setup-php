@@ -102,6 +102,11 @@ check_extension() {
   fi
 }
 
+# Function to check if extension is shared
+shared_extension() {
+  [ -e "${ext_dir:?}/$1.so" ]
+}
+
 # Function to enable cached extensions.
 enable_cache_extension() {
   deps=()
@@ -129,7 +134,7 @@ enable_extension() {
   enable_extension_dependencies "$1" "$2"
   if [ -d /tmp/extcache/"$1" ]; then
     enable_cache_extension "$1" "$2"
-  elif ! check_extension "$1" && [ -e "${ext_dir:?}/$1.so" ]; then
+  elif ! check_extension "$1" && shared_extension "$1"; then
     echo "$2=${ext_dir:?}/$1.so" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null
   fi
 }
@@ -164,13 +169,15 @@ disable_extension_dependents() {
 disable_extension() {
   extension=$1
   if check_extension "$extension"; then
-    if [ -e "${ext_dir:?}"/"$extension".so ]; then
+    if shared_extension "$extension"; then
       disable_extension_helper "$extension" true
       (! check_extension "$extension" && add_log "${tick:?}" ":$extension" "Disabled") ||
         add_log "${cross:?}" ":$extension" "Could not disable $extension on PHP ${semver:?}"
     else
       add_log "${cross:?}" ":$extension" "Could not disable $extension on PHP $semver as it not a shared extension"
     fi
+  elif shared_extension "$extension"; then
+    add_log "${tick:?}" ":$extension" "Disabled"
   else
     add_log "${tick:?}" ":$extension" "Could not find $extension on PHP $semver"
   fi

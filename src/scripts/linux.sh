@@ -37,7 +37,7 @@ add_pdo_extension() {
   else
     ext=$1
     ext_name=$1
-    if [ -e "$ext_dir"/pdo.so ]; then
+    if shared_extension pdo; then
       disable_extension_helper pdo
       echo "extension=pdo.so" | sudo tee "${ini_file[@]/php.ini/conf.d/10-pdo.ini}" >/dev/null 2>&1
     fi

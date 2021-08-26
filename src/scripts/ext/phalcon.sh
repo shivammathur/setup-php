@@ -10,7 +10,7 @@ add_phalcon_helper() {
 
 # Function to add phalcon3.
 add_phalcon3() {
-  if [ -e "${ext_dir:?}/phalcon.so" ]; then
+  if shared_extension phalcon; then
     phalcon_version=$(php -d="extension=phalcon.so" -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
     if [ "$phalcon_version" != "$extension_major_version" ]; then
       add_phalcon_helper
@@ -24,10 +24,10 @@ add_phalcon3() {
 
 # Function to add phalcon4.
 add_phalcon4() {
-  if [ -e "${ext_dir:?}/psr.so" ] && ! php -m | grep -i -q -w psr; then
+  if shared_extension phalcon && ! php -m | grep -i -q -w psr; then
     echo "extension=psr.so" | sudo tee -a "${ini_file:?}"
   fi
-  if [ -e "$ext_dir/phalcon.so" ]; then
+  if shared_extension phalcon; then
     if php -m | grep -i -q -w psr; then
       phalcon_version=$(php -d="extension=phalcon" -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
       if [ "$phalcon_version" != "$extension_major_version" ]; then

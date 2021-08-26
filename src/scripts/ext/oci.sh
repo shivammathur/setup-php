@@ -35,7 +35,7 @@ add_client() {
 
 # Function to install oci8 and pdo_oci.
 add_oci_helper() {
-  if ! [ -e "${ext_dir:?}/$ext.so" ]; then
+  if ! shared_extension "$ext"; then
     status='Installed and enabled'
     read -r "${ext}_LINUX_LIBS" <<< "libaio-dev"
     read -r "${ext}_CONFIGURE_OPTS" <<< "--with-php-config=$(command -v php-config) --with-${ext/_/-}=instantclient,$oracle_client"

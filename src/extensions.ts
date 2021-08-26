@@ -23,6 +23,10 @@ export async function addExtensionDarwin(
       case /^:/.test(ext_name):
         remove_script += '\ndisable_extension' + ext_name.replace(/:/g, ' ');
         return;
+      // Match none
+      case /^none$/.test(ext_name):
+        add_script += '\ndisable_all_shared';
+        return;
       // match extensions for compiling from source
       case /.+-.+\/.+@.+/.test(extension):
         add_script += await utils.parseExtensionSource(extension, ext_prefix);
@@ -116,6 +120,10 @@ export async function addExtensionWindows(
       // Match :extension
       case /^:/.test(ext_name):
         remove_script += '\nDisable-Extension' + ext_name.replace(/:/g, ' ');
+        break;
+      // Match none
+      case /^none$/.test(ext_name):
+        add_script += '\nDisable-AllShared';
         break;
       // match 5.3blackfire...8.0blackfire
       // match 5.3blackfire-(semver)...8.0blackfire-(semver)
@@ -228,6 +236,10 @@ export async function addExtensionLinux(
       // Match :extension
       case /^:/.test(ext_name):
         remove_script += '\ndisable_extension' + ext_name.replace(/:/g, ' ');
+        return;
+      // Match none
+      case /^none$/.test(ext_name):
+        add_script += '\ndisable_all_shared';
         return;
       // match extensions for compiling from source
       case /.+-.+\/.+@.+/.test(extension):

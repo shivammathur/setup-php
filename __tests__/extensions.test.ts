@@ -3,10 +3,11 @@ import * as extensions from '../src/extensions';
 describe('Extension tests', () => {
   it('checking addExtensionOnWindows', async () => {
     let win32: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, :intl, phalcon4, pecl_http, ioncube, oci8, pdo_oci, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2, sqlsrv-1.2.3preview1',
+      'none, Xdebug, pcov, sqlite, :intl, phalcon4, pecl_http, ioncube, oci8, pdo_oci, ast-beta, grpc-1.2.3, inotify-1.2.3alpha2, sqlsrv-1.2.3preview1',
       '7.4',
       'win32'
     );
+    expect(win32).toContain('Disable-AllShared');
     expect(win32).toContain('Add-Extension xdebug');
     expect(win32).toContain('Add-Extension pcov');
     expect(win32).toContain('Add-Extension sqlite3');
@@ -72,10 +73,11 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnLinux', async () => {
     let linux: string = await extensions.addExtension(
-      'Xdebug, pcov, sqlite, :intl, ast, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
+      'none, Xdebug, pcov, sqlite, :intl, ast, ast-beta, pdo_mysql, pdo-odbc, xdebug-alpha, grpc-1.2.3',
       '7.4',
       'linux'
     );
+    expect(linux).toContain('disable_all_shared');
     expect(linux).toContain('add_extension xdebug');
     expect(linux).toContain('add_extension sqlite3');
     expect(linux).toContain('disable_extension intl');
@@ -160,10 +162,11 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'amqp, apcu, Xdebug, pcov, grpc, igbinary, imagick, imap, memcache, memcached, mongodb, msgpack, phalcon3, phalcon4, protobuf, psr, rdkafka, redis, swoole, yaml, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
+      'none, amqp, apcu, Xdebug, pcov, grpc, igbinary, imagick, imap, memcache, memcached, mongodb, msgpack, phalcon3, phalcon4, protobuf, psr, rdkafka, redis, swoole, yaml, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
       '7.2',
       'darwin'
     );
+    expect(darwin).toContain('disable_all_shared');
     expect(darwin).toContain('add_brew_extension amqp extension');
     expect(darwin).toContain('add_brew_extension apcu extension');
     expect(darwin).toContain('add_brew_extension xdebug zend_extension');

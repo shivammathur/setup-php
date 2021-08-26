@@ -212,6 +212,9 @@ async function addExtensionDarwin(extension_csv, version) {
             case /^:/.test(ext_name):
                 remove_script += '\ndisable_extension' + ext_name.replace(/:/g, ' ');
                 return;
+            case /^none$/.test(ext_name):
+                add_script += '\ndisable_all_shared';
+                return;
             case /.+-.+\/.+@.+/.test(extension):
                 add_script += await utils.parseExtensionSource(extension, ext_prefix);
                 return;
@@ -257,6 +260,9 @@ async function addExtensionWindows(extension_csv, version) {
         switch (true) {
             case /^:/.test(ext_name):
                 remove_script += '\nDisable-Extension' + ext_name.replace(/:/g, ' ');
+                break;
+            case /^none$/.test(ext_name):
+                add_script += '\nDisable-AllShared';
                 break;
             case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^pdo_oci$|^oci8$|^pdo_firebird$/.test(extension):
@@ -314,6 +320,9 @@ async function addExtensionLinux(extension_csv, version) {
         switch (true) {
             case /^:/.test(ext_name):
                 remove_script += '\ndisable_extension' + ext_name.replace(/:/g, ' ');
+                return;
+            case /^none$/.test(ext_name):
+                add_script += '\ndisable_all_shared';
                 return;
             case /.+-.+\/.+@.+/.test(extension):
                 add_script += await utils.parseExtensionSource(extension, ext_prefix);
@@ -1041,18 +1050,20 @@ async function extensionArray(extension_csv) {
         case ' ':
             return [];
         default:
-            return extension_csv
-                .split(',')
-                .map(function (extension) {
-                if (/.+-.+\/.+@.+/.test(extension)) {
-                    return extension;
-                }
-                return extension
-                    .trim()
-                    .toLowerCase()
-                    .replace(/^(:)?(php[-_]|zend )/, '$1');
-            })
-                .filter(Boolean);
+            return [
+                extension_csv.match(/(^|,\s?)none(\s?,|$)/) ? 'none' : '',
+                ...extension_csv
+                    .split(',')
+                    .map(function (extension) {
+                    if (/.+-.+\/.+@.+/.test(extension)) {
+                        return extension;
+                    }
+                    return extension
+                        .trim()
+                        .toLowerCase()
+                        .replace(/^(:)?(php[-_]|none|zend )/, '$1');
+                })
+            ].filter(Boolean);
     }
 }
 exports.extensionArray = extensionArray;

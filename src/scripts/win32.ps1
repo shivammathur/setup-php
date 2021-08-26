@@ -307,6 +307,12 @@ Function Disable-Extension() {
   }
 }
 
+# Function to disable shared extensions.
+Function Disable-AllShared() {
+  (Get-Content $php_dir\php.ini) | Where-Object {$_ -notmatch '^(zend_)?extension\s*='} | Set-Content $php_dir\php.ini
+  Add-Log $tick "none" "Disabled all shared extensions"
+}
+
 # Function to configure composer.
 Function Edit-ComposerConfig() {
   Param(

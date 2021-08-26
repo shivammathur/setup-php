@@ -183,6 +183,13 @@ disable_extension() {
   fi
 }
 
+# Function to disable shared extensions.
+disable_all_shared() {
+  sudo sed -i.orig -E -e "/^(zend_)?extension\s*=/d" "${ini_file[@]}" "$pecl_file" 2>/dev/null || true
+  sudo find "${ini_dir:-$scan_dir}"/.. -name "*.ini" -not -path "*php.ini" -not -path "*mods-available*" -delete >/dev/null 2>&1 || true
+  add_log "${tick:?}" "none" "Disabled all shared extensions"
+}
+
 # Function to configure PHP
 configure_php() {
   (

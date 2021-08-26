@@ -280,18 +280,21 @@ export async function extensionArray(
     case ' ':
       return [];
     default:
-      return extension_csv
-        .split(',')
-        .map(function (extension: string) {
-          if (/.+-.+\/.+@.+/.test(extension)) {
-            return extension;
-          }
-          return extension
-            .trim()
-            .toLowerCase()
-            .replace(/^(:)?(php[-_]|zend )/, '$1');
-        })
-        .filter(Boolean);
+      return [
+        extension_csv.match(/(^|,\s?)none(\s?,|$)/) ? 'none' : '',
+        ...extension_csv
+          .split(',')
+
+          .map(function (extension: string) {
+            if (/.+-.+\/.+@.+/.test(extension)) {
+              return extension;
+            }
+            return extension
+              .trim()
+              .toLowerCase()
+              .replace(/^(:)?(php[-_]|none|zend )/, '$1');
+          })
+      ].filter(Boolean);
   }
 }
 

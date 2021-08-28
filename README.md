@@ -871,10 +871,7 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 ## :sparkling_heart: Support This Project
 
-- This project is provided as Free and Open-Source software. We need funds to maintain and do future improvements. Please sponsor setup-php using the below options:
-  - [Open Collective](https://opencollective.com/setup-php "setup-php Open Collective")
-  - [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal")
-  - [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon")
+- This project is provided as Free and Open-Source software. We need funds to maintain and do future improvements. Please sponsor setup-php using [GitHub sponsors](https://github.com/sponsors/shivammathur).
 - Please [reach out](mailto:contact@setup-php.com) if you have any questions about sponsoring setup-php.
 - Please star the project and share it. If you blog, please share your experience of using this action.
 

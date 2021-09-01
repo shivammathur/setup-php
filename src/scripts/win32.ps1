@@ -532,7 +532,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   try {
     if ($version -match $nightly_versions) {
       Invoke-WebRequest -UseBasicParsing -Uri $php_builder/releases/latest/download/Get-PhpNightly.ps1 -OutFile $php_dir\Get-PhpNightly.ps1 > $null 2>&1
-      & $php_dir\Get-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir > $null 2>&1
+      & $php_dir\Get-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir -Version $version > $null 2>&1
       $extra_version = " ($(Get-Content $php_dir\COMMIT))"
     } else {
       Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1

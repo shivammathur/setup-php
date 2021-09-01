@@ -236,6 +236,7 @@ async function addExtensionDarwin(extension_csv, version) {
             case /(5\.6|7\.[0-4])propro/.test(version_extension):
             case /(?<!5\.[3-6]|7\.0)pcov/.test(version_extension):
             case /(5\.6|7\.[0-3])phalcon3|7\.[2-4]phalcon4/.test(version_extension):
+            case /(?<!5\.[3-6])vips/.test(version_extension):
                 add_script += await utils.joins('\nadd_brew_extension', ext_name, ext_prefix);
                 return;
             case /^sqlite$/.test(extension):

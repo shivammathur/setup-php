@@ -10,7 +10,7 @@
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
   <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://img.shields.io/codecov/c/github/shivammathur/setup-php?logo=codecov"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg?logo=open%20source%20initiative&logoColor=white&labelColor=555555"></a>
-  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.1-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>  
+  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.2-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>  
 </p>
 <p align="center">
   <a href="https://reddit.com/r/setup_php" title="setup-php reddit"><img alt="setup-php reddit" src="https://img.shields.io/badge/reddit-join-FF5700?logo=reddit&logoColor=FF5700&labelColor=555555"></a>
@@ -97,8 +97,8 @@ Both `GitHub-hosted` and `self-hosted` runners are suppported by `setup-php` on 
 
 On all supported OS/Platforms the following PHP versions are supported as per the runner.
 
-- PHP 5.3 to PHP 8.1 on GitHub-hosted runners.
-- PHP 5.6 to PHP 8.1 on self-hosted runners.
+- PHP 5.3 to PHP 8.2 on GitHub-hosted runners.
+- PHP 5.6 to PHP 8.2 on self-hosted runners.
 
 |PHP Version|Stability|Release Support|Runner Support|
 |--- |--- |--- |--- |
@@ -113,10 +113,11 @@ On all supported OS/Platforms the following PHP versions are supported as per th
 |`7.4`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
 |`8.0`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
 |`8.1`|`Nightly`|`In development`|`GitHub-hosted`, `self-hosted`|
+|`8.2`|`Nightly`|`In development`|`GitHub-hosted`, `self-hosted`|
 
 **Notes:** 
-- Specifying `8.1` in `php-version` input installs a nightly build of `PHP 8.1.0-dev`. See [nightly build setup](#nightly-build-setup) for more information.
-- To use JIT on `PHP 8.0` and `PHP 8.1` refer to the [JIT configuration](#jit-configuration) section.
+- Specifying `8.1` and `8.2` in `php-version` input installs a nightly build of `PHP 8.1.0-dev` and `PHP 8.2.0-dev` respectively. See [nightly build setup](#nightly-build-setup) for more information.
+- To use JIT on `PHP 8.0` and above, refer to the [JIT configuration](#jit-configuration) section.
 
 ## :heavy_plus_sign: PHP Extension Support
 
@@ -490,7 +491,7 @@ jobs:
 
 ### Nightly Build Setup
 
-> Setup a nightly build of `PHP 8.1`. 
+> Setup a nightly build of `PHP 8.1` or `PHP 8.2`. 
 
 - This version is currently in development.
 - Some user space extensions might not support this version currently.
@@ -651,7 +652,7 @@ act -P ubuntu-18.04=shivammathur/node:1804
 
 ### JIT Configuration
 
-> Enable Just-in-time(JIT) on PHP 8.0 and PHP 8.1.
+> Enable Just-in-time(JIT) on PHP 8.0 and above.
 
 - To enable JIT, enable `opcache` in cli mode by setting `opcache.enable_cli=1`.
 - JIT conflicts with `Xdebug`, `PCOV`, and other extensions which override `zend_execute_ex` function, so set `coverage: none` and remove any such extension if added.

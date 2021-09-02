@@ -207,6 +207,7 @@ setup_php() {
   scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
   ini_dir=$(php --ini | grep "(php.ini)" | sed -e "s|.*: s*||")
   pecl_file="$scan_dir"/99-pecl.ini
+  export ext_dir
   mapfile -t ini_file < <(sudo find "$ini_dir/.." -name "php.ini" -exec readlink -m {} +)
   link_pecl_file
   configure_php

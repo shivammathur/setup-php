@@ -173,7 +173,7 @@ add_php() {
 # Function to get extra version.
 php_extra_version() {
   if [[ ${version:?} =~ ${nightly_versions:?} ]]; then
-    echo " ($(brew cat "$php_formula" | grep -Eo "commit=[0-9a-zA-Z]+" | cut -d'=' -f 2))"
+    echo " ($(brew cat "$php_formula" | grep -Eo "archive/[0-9a-zA-Z]+" | cut -d'/' -f 2))"
   fi
 }
 

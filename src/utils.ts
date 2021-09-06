@@ -102,7 +102,7 @@ export async function getManifestURL(): Promise<string> {
 export async function parseVersion(version: string): Promise<string> {
   const manifest = await getManifestURL();
   switch (true) {
-    case /^(latest|\d+\.x)$/.test(version):
+    case /^(latest|nightly|\d+\.x)$/.test(version):
       return JSON.parse((await fetch(manifest))['data'])[version];
     default:
       switch (true) {

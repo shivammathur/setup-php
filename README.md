@@ -416,14 +416,9 @@ Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "sh
 
 ## :sparkling_heart: Support This Project
 
-- If setup-php saved your developer time, please consider sponsoring setup-php:
-  - [Open Collective](https://opencollective.com/setup-php "setup-php Open Collective")
-  - [Paypal](https://www.paypal.me/shivammathur "Shivam Mathur PayPal")
-  - [Patreon](https://www.patreon.com/shivammathur "Shivam Mathur Patreon")
-- Please [reach out](mailto:contact@setup-php.com) if you have any questions regarding sponsoring setup-php.
-- Please star the project and share it. If you blog, please share your experience of using this action.
+- This project is provided as Free and Open-Source software. We need funds to maintain and do future improvements. Please sponsor setup-php using [GitHub sponsors](https://github.com/sponsors/shivammathur).
 
-*Huge thanks to the following companies for supporting `setup-php`*
+### Corporate Sponsors
 
 <p>
   <a href="https://www.jetbrains.com/?from=setup-php">
@@ -441,6 +436,14 @@ Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "sh
   <a href="https://tidelift.com/subscription/pkg/npm-setup-php">
     <img src="https://setup-php.com/sponsors//tidelift.png" alt="Tidelift" width="70" height="60">
   </a>  
+</p>
+
+### Individual Sponsors
+
+<p align="center">
+  <a href="https://github.com/sponsors/shivammathur">
+    <img src="https://setup-php.com/sponsors/?" alt="Sponsors of setup-php and related projects" width="100%">
+  </a>
 </p>
 
 ## :bookmark: Dependencies

@@ -445,8 +445,8 @@ async function run() {
         }
         core.warning('setup-php v1 is deprecated.\nPlease upgrade to v2 - https://setup-php.com/w/Switch-to-v2');
         const version = await utils.parseVersion(await utils.getInput('php-version', true));
-        if (version == '8.1') {
-            core.setFailed('PHP 8.1 is not supported on setup-php v1.\nPlease upgrade to v2 - https://setup-php.com/w/Switch-to-v2');
+        if (parseFloat(version) < 5.6 || parseFloat(version) > 8.0) {
+            core.setFailed(`setup-php v1 supports only PHP 5.6 to 8.0.\nPlease upgrade to v2 - https://setup-php.com/w/Switch-to-v2`);
             return;
         }
         if (version) {

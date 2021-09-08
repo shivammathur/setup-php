@@ -61,6 +61,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 |Ubuntu 18.04|`ubuntu-18.04`|`PHP 7.1` to `PHP 8.0`|
 |Ubuntu 20.04|`ubuntu-latest` or `ubuntu-20.04`|`PHP 7.4` to `PHP 8.0`|
 |Windows Server 2019|`windows-latest` or `windows-2019`|`PHP 8.0`|
+|Windows Server 2022|`windows-2022`|`PHP 8.0`|
 |macOS 10.15 Catalina|`macos-latest` or `macos-10.15`|`PHP 8.0`|
 |macOS 11.x Big Sur|`macos-11`|`PHP 8.0`|
 

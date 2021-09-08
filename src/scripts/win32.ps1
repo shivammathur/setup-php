@@ -46,13 +46,13 @@ Function Add-ToProfile {
 Function Add-Printf {
   if (-not(Test-Path "C:\Program Files\Git\usr\bin\printf.exe")) {
     if(Test-Path "C:\msys64\usr\bin\printf.exe") {
-      New-Item -Path $php_dir\printf.exe -ItemType SymbolicLink -Value C:\msys64\usr\bin\printf.exe
+      New-Item -Path $php_dir\printf.exe -ItemType SymbolicLink -Value C:\msys64\usr\bin\printf.exe -Force > $null 2>&1
     } else {
       Invoke-WebRequest -UseBasicParsing -Uri "$github/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$php_dir\printf.zip"
       Expand-Archive -Path $php_dir\printf.zip -DestinationPath $php_dir -Force
     }
   } else {
-    New-Item -Path $php_dir\printf.exe -ItemType SymbolicLink -Value "C:\Program Files\Git\usr\bin\printf.exe"
+    New-Item -Path $php_dir\printf.exe -ItemType SymbolicLink -Value "C:\Program Files\Git\usr\bin\printf.exe" -Force > $null 2>&1
   }
 }
 
@@ -329,5 +329,5 @@ if($installed.MajorMinorVersion -ne $version) {
 Enable-PhpExtension -Extension openssl, curl, opcache, mbstring -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source CurrentUser
 Copy-Item -Path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE
-New-Item -ItemType Directory -Path $composer_bin -Force 2>&1 | Out-Null
+New-Item -ItemType Directory -Path $composer_bin -Force > $null 2>&1
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)"

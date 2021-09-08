@@ -92,7 +92,7 @@ export async function run(): Promise<void> {
       core.setFailed('Unable to get the PHP version');
     }
   } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed(error as Error);
   }
 }
 

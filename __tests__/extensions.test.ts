@@ -73,7 +73,7 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'Xdebug, pcov, grpc, igbinary, imagick, phalcon3, phalcon4, protobuf, psr, rdkafka, swoole, sqlite, ast-beta',
+      'Xdebug, pcov, grpc, igbinary, imagick, phalcon3, phalcon4, protobuf, psr, rdkafka, swoole, vips, sqlite, ast-beta',
       '7.2',
       'darwin'
     );
@@ -88,6 +88,7 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension psr');
     expect(darwin).toContain('add_brew_extension rdkafka');
     expect(darwin).toContain('add_brew_extension swoole');
+    expect(darwin).toContain('add_brew_extension vips');
     expect(darwin).toContain('pecl_install sqlite3');
     expect(darwin).toContain('add_unstable_extension ast beta extension');
 

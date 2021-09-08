@@ -277,7 +277,6 @@ $github = 'https://github.com'
 $composer_bin = "$env:APPDATA\Composer\vendor\bin"
 $composer_json = "$env:APPDATA\Composer\composer.json"
 $composer_lock = "$env:APPDATA\Composer\composer.lock"
-$master_version = '8.0'
 $arch = 'x64'
 if(-not([Environment]::Is64BitOperatingSystem) -or $version -lt '7.0') {
   $arch = 'x86'
@@ -308,13 +307,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
     Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" Get-VcList >$null 2>&1
   }
   try {
-    if ($version -eq $master_version) {
-      $version = 'master'
-      Invoke-WebRequest -UseBasicParsing -Uri https://github.com/shivammathur/php-builder-windows/releases/latest/download/Get-Php.ps1 -OutFile $php_dir\Get-Php.ps1 > $null 2>&1
-      & $php_dir\Get-Php.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir
-    } else {
-      Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
-    }
+    Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
   } catch { }
 } else {
   $status = "Found"

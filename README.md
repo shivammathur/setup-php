@@ -877,7 +877,7 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 - Please [reach out](mailto:contact@setup-php.com) if you have any questions about sponsoring setup-php.
 - Please star the project and share it. If you blog, please share your experience of using this action.
 
-*`setup-php` is generously supported by*
+### Corporate Sponsors
 
 <p>
   <a href="https://www.jetbrains.com/?from=setup-php">
@@ -895,6 +895,14 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
   <a href="https://tidelift.com/subscription/pkg/npm-setup-php">
     <img src="https://setup-php.com/sponsors//tidelift.png" alt="Tidelift" width="70" height="60">
   </a>  
+</p>
+
+### Individual Sponsors
+
+<p align="center">
+  <a href="https://github.com/sponsors/shivammathur">
+    <img src="https://setup-php.com/sponsors/?" alt="Sponsors of setup-php and related projects" width="100%">
+  </a>
 </p>
 
 ## :package: Dependencies

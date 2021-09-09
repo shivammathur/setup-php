@@ -1,14 +1,24 @@
 {
   "name": "setup-php",
-  "version": "2.13.0",
+  "version": "2.14.0",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
   "main": "lib/install.js",
+  "types": "lib/install.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__",
+    "src": "src"
+  },
+  "files": [
+    "lib",
+    "src"
+  ],
   "scripts": {
     "build": "tsc",
-    "lint": "eslint **/*.ts --cache --fix",
-    "format": "prettier --write **/*.ts && git add .",
-    "format-check": "prettier --check **/*.ts",
+    "lint": "eslint **/src/*.ts --cache --fix",
+    "format": "prettier --write **/src/*.ts && git add .",
+    "format-check": "prettier --check **/src/*.ts",
     "release": "ncc build -o dist && git add -f dist/",
     "test": "jest"
   },
@@ -31,21 +41,24 @@
   },
   "devDependencies": {
     "@types/jest": "^27.0.1",
-    "@types/node": "^16.7.1",
-    "@typescript-eslint/eslint-plugin": "^4.29.2",
-    "@typescript-eslint/parser": "^4.29.2",
-    "@vercel/ncc": "^0.29.2",
+    "@types/node": "^16.9.1",
+    "@typescript-eslint/eslint-plugin": "^4.31.0",
+    "@typescript-eslint/parser": "^4.31.0",
+    "@vercel/ncc": "^0.31.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.24.1",
+    "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-jest": "^24.4.0",
-    "eslint-plugin-prettier": "^3.4.1",
+    "eslint-plugin-prettier": "^4.0.0",
     "husky": "^4.3.8",
-    "jest": "^27.0.6",
-    "jest-circus": "^27.0.6",
-    "prettier": "^2.3.2",
+    "jest": "^27.1.1",
+    "jest-circus": "^27.1.1",
+    "prettier": "^2.4.0",
     "ts-jest": "^27.0.5",
-    "typescript": "^4.3.5"
+    "typescript": "^4.4.3"
+  },
+  "bugs": {
+    "url": "https://github.com/shivammathur/setup-php/issues"
   },
   "husky": {
     "skipCI": true,

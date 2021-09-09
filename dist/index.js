@@ -424,8 +424,7 @@ const extensions = __importStar(__nccwpck_require__(390));
 const tools = __importStar(__nccwpck_require__(740));
 const utils = __importStar(__nccwpck_require__(918));
 async function getScript(filename, version, os_version) {
-    const name = 'setup-php';
-    const url = 'https://setup-php.com/support';
+    const url = 'https://setup-php.com/sponsor';
     process.env['fail_fast'] = await utils.getInput('fail-fast', false);
     const extension_csv = await utils.getInput('extensions', false);
     const ini_values_csv = await utils.getInput('ini-values', false);
@@ -442,8 +441,8 @@ async function getScript(filename, version, os_version) {
     if (ini_values_csv) {
         script += await config.addINIValues(ini_values_csv, os_version);
     }
-    script += '\n' + (await utils.stepLog('Support this project', os_version));
-    script += '\n' + (await utils.addLog('$tick', name, url, os_version));
+    script += '\n' + (await utils.stepLog(`Sponsor setup-php`, os_version));
+    script += '\n' + (await utils.addLog('$tick', 'setup-php', url, os_version));
     return await utils.writeScript(filename, script);
 }
 exports.getScript = getScript;
@@ -459,7 +458,7 @@ async function run() {
             const tool = await utils.scriptTool(os_version);
             const script = os_version + (await utils.scriptExtension(os_version));
             const location = await getScript(script, version, os_version);
-            await exec_1.exec(await utils.joins(tool, location, version, __dirname));
+            await (0, exec_1.exec)(await utils.joins(tool, location, version, __dirname));
         }
         else {
             core.setFailed('Unable to get the PHP version');

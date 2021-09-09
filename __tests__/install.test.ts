@@ -17,25 +17,11 @@ jest.mock('../src/install', () => ({
         const ini_values_csv: string = process.env['ini-values'] || '';
         const coverage_driver: string = process.env['coverage'] || '';
         let tools_csv: string = process.env['tools'] || '';
-        const pecl: string = process.env['pecl'] || '';
-        if (pecl == 'true') {
-          tools_csv = 'pecl, ' + tools_csv;
-        }
-
         let script = 'initial script ' + filename + version + os_version;
-        if (tools_csv) {
-          script += 'add_tool';
-        }
-        if (extension_csv) {
-          script += 'install extensions';
-        }
-        if (coverage_driver) {
-          script += 'set coverage driver';
-        }
-        if (ini_values_csv) {
-          script += 'edit php.ini';
-        }
-
+        script += tools_csv ? 'add_tool' : '';
+        script += extension_csv ? 'install extensions' : '';
+        script += coverage_driver ? 'set coverage driver' : '';
+        script += ini_values_csv ? 'edit php.ini' : '';
         return script;
       }
     ),

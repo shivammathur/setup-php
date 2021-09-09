@@ -161,14 +161,24 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
     extensions: xdebug-beta
 ```
 
-- Shared extensions can be removed by prefixing them with a `:`.
+- Shared extensions can be disabled by prefixing them with a `:`. All extensions depending on the specified extension will also be disabled.
 
 ```yaml
-- name: Setup PHP and remove shared extension
+- name: Setup PHP and disable opcache
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.0'
     extensions: :opcache
+```
+
+- All shared extensions can be disabled by specifying `none`. When `none` is specified along with other extensions, it is hoisted to the start of the input. So, all the shared extensions will be disabled first, then rest of the extensions in the input will be processed.
+
+```yaml
+- name: Setup PHP without any shared extensions except mbstring
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '8.0'
+    extensions: none, mbstring
 ```
 
 - Extension `intl` can be set up with specific `ICU` version for `PHP 5.6` and above in `Ubuntu` workflows by suffixing `intl` with the `ICU` version. `ICU 50.2` and newer versions are supported. Refer to [`ICU builds`](https://github.com/shivammathur/icu-intl#icu4c-builds) for the specific versions supported.
@@ -188,7 +198,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
   - `geos` on `Ubuntu` and `macOS`.
   - `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_firebird`, `pdo_oci`, `pecl_http`, `phalcon3` and `phalcon4` on all supported OS.
 
-- By default, extensions which cannot be added or removed gracefully leave an error message in the logs, the action is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`. 
+- By default, extensions which cannot be added or disabled gracefully leave an error message in the logs, the action is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.
 
 ```yaml
 - name: Setup PHP with fail-fast
@@ -342,12 +352,12 @@ Runs on PHP 7.1 and newer PHP versions.
 
 ### Disable Coverage
 
-Specify `coverage: none` to remove both `Xdebug` and `PCOV`.
+Specify `coverage: none` to disable both `Xdebug` and `PCOV`.
 
 Disable coverage for these reasons:
 
 - You are not generating coverage reports while testing.
-- It will remove `Xdebug`, which will have a positive impact on PHP performance.
+- It will disable `Xdebug`, which will have a positive impact on PHP performance.
 - You are using `phpdbg` for running your tests.
 - You are profiling your code using `blackfire`.
 - You are using PHP in JIT mode. Please refer to [JIT configuration](#jit-configuration) section for more details.
@@ -377,9 +387,10 @@ Disable coverage for these reasons:
 
 #### `extensions` (optional)
 
-- Specify the extensions you want to add or remove.
+- Specify the extensions you want to add or disable.
 - Accepts a `string` in csv-format. For example `mbstring, :opcache`.
-- Non-default extensions prefixed with `:` are removed.
+- Accepts `none` to disable all shared extensions.
+- Shared extensions prefixed with `:` are disabled.
 - See [PHP extension support](#heavy_plus_sign-php-extension-support) for more info.
 
 #### `ini-values` (optional)
@@ -390,7 +401,7 @@ Disable coverage for these reasons:
 
 #### `coverage` (optional)
 
-- Specify the code coverage driver you want to set up.
+- Specify the code-coverage driver you want to set up.
 - Accepts `xdebug`, `pcov` or `none`.
 - See [coverage support](#signal_strength-coverage-support) for more info.
 
@@ -656,7 +667,7 @@ act -P ubuntu-18.04=shivammathur/node:1804
 > Enable Just-in-time(JIT) on PHP 8.0 and above.
 
 - To enable JIT, enable `opcache` in cli mode by setting `opcache.enable_cli=1`.
-- JIT conflicts with `Xdebug`, `PCOV`, and other extensions which override `zend_execute_ex` function, so set `coverage: none` and remove any such extension if added.
+- JIT conflicts with `Xdebug`, `PCOV`, and other extensions which override `zend_execute_ex` function, so set `coverage: none` and disable any such extension if added.
 - By default, `opcache.jit=1235` and `opcache.jit_buffer_size=256M` are set which can be changed using `ini-values` input.
 - For detailed information about JIT related directives refer to the [`official PHP documentation`](https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.jit "opcache.jit documentation").
 

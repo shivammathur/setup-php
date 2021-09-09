@@ -1,110 +1,39 @@
 import * as coverage from '../src/coverage';
 
 describe('Config tests', () => {
-  it('checking addCoverage with PCOV on windows', async () => {
-    let win32: string = await coverage.addCoverage('PCOV', '7.4', 'win32');
-    expect(win32).toContain('Add-Extension pcov');
-    expect(win32).toContain('Disable-Extension xdebug false');
-
-    win32 = await coverage.addCoverage('pcov', '7.0', 'win32');
-    expect(win32).toContain('PHP 7.1 or newer is required');
-
-    win32 = await coverage.addCoverage('pcov', '5.6', 'win32');
-    expect(win32).toContain('PHP 7.1 or newer is required');
-  });
-
-  it('checking addCoverage with PCOV on linux', async () => {
-    const linux: string = await coverage.addCoverage('pcov', '7.4', 'linux');
-    expect(linux).toContain('add_extension pcov');
-    expect(linux).toContain('disable_extension xdebug false');
-  });
-
-  it('checking addCoverage with PCOV on darwin', async () => {
-    const darwin: string = await coverage.addCoverage('pcov', '7.4', 'darwin');
-    expect(darwin).toContain('add_brew_extension pcov');
-    expect(darwin).toContain('disable_extension xdebug false');
-  });
-
-  it('checking addCoverage with Xdebug on windows', async () => {
-    const win32: string = await coverage.addCoverage('xdebug', '7.4', 'win32');
-    expect(win32).toContain('Add-Extension xdebug');
-  });
-
-  it('checking addCoverage with Xdebug3 on windows', async () => {
-    const win32: string = await coverage.addCoverage('xdebug3', '7.4', 'win32');
-    expect(win32).toContain('Add-Extension xdebug');
-  });
-
-  it('checking addCoverage with Xdebug2 on windows', async () => {
-    const win32: string = await coverage.addCoverage('xdebug2', '7.4', 'win32');
-    expect(win32).toContain('Add-Extension xdebug stable 2.9.8');
-  });
-
-  it('checking addCoverage with Xdebug on linux', async () => {
-    const linux: string = await coverage.addCoverage('xdebug', '8.0', 'linux');
-    expect(linux).toContain('add_extension xdebug');
-  });
-
-  it('checking addCoverage with Xdebug3 on linux', async () => {
-    const linux: string = await coverage.addCoverage('xdebug3', '8.0', 'linux');
-    expect(linux).toContain('add_extension xdebug');
-  });
-
-  it('checking addCoverage with Xdebug2 on linux', async () => {
-    const linux: string = await coverage.addCoverage('xdebug2', '7.4', 'linux');
-    expect(linux).toContain('add_pecl_extension xdebug 2.9.8 zend_extension');
-  });
-
-  it('checking addCoverage with Xdebug on darwin', async () => {
-    const darwin: string = await coverage.addCoverage(
-      'xdebug',
-      '7.4',
-      'darwin'
-    );
-    expect(darwin).toContain('add_brew_extension xdebug');
-  });
-
-  it('checking addCoverage with Xdebug3 on darwin', async () => {
-    const darwin: string = await coverage.addCoverage(
-      'xdebug3',
-      '7.4',
-      'darwin'
-    );
-    expect(darwin).toContain('add_brew_extension xdebug');
-  });
-
-  it('checking addCoverage with Xdebug2 on darwin', async () => {
-    const darwin: string = await coverage.addCoverage(
-      'xdebug2',
-      '7.4',
-      'darwin'
-    );
-    expect(darwin).toContain('add_brew_extension xdebug2');
-  });
-
-  it('checking disableCoverage windows', async () => {
-    const win32 = await coverage.addCoverage('none', '7.4', 'win32');
-    expect(win32).toContain('Disable-Extension xdebug false');
-    expect(win32).toContain('Disable-Extension pcov false');
-  });
-
-  it('checking disableCoverage on linux', async () => {
-    const linux: string = await coverage.addCoverage('none', '7.4', 'linux');
-    expect(linux).toContain('disable_extension xdebug false');
-    expect(linux).toContain('disable_extension pcov false');
-  });
-
-  it('checking disableCoverage on darwin', async () => {
-    const darwin: string = await coverage.addCoverage('none', '7.4', 'darwin');
-    expect(darwin).toContain('disable_extension xdebug false');
-    expect(darwin).toContain('disable_extension pcov false');
-  });
-
-  it('checking no or invalid coverage driver', async () => {
-    let nocov: string = await coverage.addCoverage('nocov', '7.x', 'any');
-    expect(nocov).toEqual('');
-
-    nocov = await coverage.addCoverage('', '7.x', 'any');
-    expect(nocov).toEqual('');
-  });
+  it.each`
+    driver       | php      | os          | output
+    ${'PCOV'}    | ${'7.4'} | ${'win32'}  | ${'Add-Extension pcov,Disable-Extension xdebug false'}
+    ${'pcov'}    | ${'7.0'} | ${'win32'}  | ${'PHP 7.1 or newer is required'}
+    ${'pcov'}    | ${'5.6'} | ${'win32'}  | ${'PHP 7.1 or newer is required'}
+    ${'pcov'}    | ${'7.4'} | ${'win32'}  | ${'Add-Extension pcov,Disable-Extension xdebug false'}
+    ${'pcov'}    | ${'7.4'} | ${'linux'}  | ${'add_extension pcov,disable_extension xdebug false'}
+    ${'pcov'}    | ${'7.4'} | ${'darwin'} | ${'add_brew_extension pcov,disable_extension xdebug false'}
+    ${'xdebug'}  | ${'7.4'} | ${'win32'}  | ${'Add-Extension xdebug'}
+    ${'xdebug3'} | ${'7.4'} | ${'win32'}  | ${'Add-Extension xdebug'}
+    ${'xdebug2'} | ${'7.4'} | ${'win32'}  | ${'Add-Extension xdebug stable 2.9.8'}
+    ${'xdebug'}  | ${'8.0'} | ${'linux'}  | ${'add_extension xdebug'}
+    ${'xdebug3'} | ${'8.0'} | ${'linux'}  | ${'add_extension xdebug'}
+    ${'xdebug2'} | ${'7.4'} | ${'linux'}  | ${'add_pecl_extension xdebug 2.9.8 zend_extension'}
+    ${'xdebug'}  | ${'7.4'} | ${'darwin'} | ${'add_brew_extension xdebug'}
+    ${'xdebug3'} | ${'7.4'} | ${'darwin'} | ${'add_brew_extension xdebug'}
+    ${'xdebug2'} | ${'7.4'} | ${'darwin'} | ${'add_brew_extension xdebug2'}
+    ${'none'}    | ${'7.4'} | ${'win32'}  | ${'Disable-Extension xdebug false,Disable-Extension pcov false'}
+    ${'none'}    | ${'7.4'} | ${'linux'}  | ${'disable_extension xdebug false,disable_extension pcov false'}
+    ${'none'}    | ${'7.4'} | ${'darwin'} | ${'disable_extension xdebug false,disable_extension pcov false'}
+    ${'nocov'}   | ${'7.x'} | ${'any'}    | ${''}
+    ${''}        | ${'7.x'} | ${'any'}    | ${''}
+  `(
+    'checking addCoverage with $driver on $os',
+    async ({driver, php, os, output}) => {
+      const script: string = await coverage.addCoverage(driver, php, os);
+      if (output) {
+        output.split(',').forEach((command: string) => {
+          expect(script).toContain(command);
+        });
+      } else {
+        expect(script).toEqual(output);
+      }
+    }
+  );
 });

@@ -172,6 +172,8 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 ```
 
 - All shared extensions can be disabled by specifying `none`. When `none` is specified along with other extensions, it is hoisted to the start of the input. So, all the shared extensions will be disabled first, then rest of the extensions in the input will be processed.
+  
+**Note:** This disables all core and third-party shared extensions and thus, can break some tools which need them. So, make sure you add the required extensions after `none` in the `extensions` input.
 
 ```yaml
 - name: Setup PHP without any shared extensions except mbstring

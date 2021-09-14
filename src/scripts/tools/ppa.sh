@@ -96,6 +96,21 @@ add_key() {
   fi
 }
 
+# Function to check if a PPA and its lists exist
+check_lists() {
+  ppa=$1
+  ppa_search=$2
+  if grep -Eqr "$ppa_search" "$list_dir"; then
+    list_count="$(find /var/lib/apt/lists -name "*${ppa/\//_}*" | wc -l)"
+    if [ "$list_count" = "0" ]; then
+      update_lists "$ppa" "$ppa_search"
+    fi
+    return 0;
+  else
+    return 1;
+  fi
+}
+
 # Function to add a sources list.
 add_list() {
   ppa=${1-ondrej/php}
@@ -104,13 +119,16 @@ add_list() {
   package_dist=${4:-"$VERSION_CODENAME"}
   branches=${5:-main}
   ppa_search="deb .*$ppa_url $package_dist .*$branches"
-  grep -Eqr "$ppa_search" "$list_dir" && echo "Repository $ppa already exists" && return;
-  arch=$(dpkg --print-architecture)
-  [ -e "$key_source" ] && key_file=$key_source || key_file="$key_dir"/"${ppa/\//-}"-keyring.gpg
-  add_key "$ppa" "$ppa_url" "$package_dist" "$key_source" "$key_file"
-  echo "deb [arch=$arch signed-by=$key_file] $ppa_url $package_dist $branches" | sudo tee -a "$list_dir"/"${ppa/\//-}".list >/dev/null 2>&1
-  update_lists "$ppa" "$ppa_search"
-  . /etc/os-release
+  if check_lists "$ppa" "$ppa_search"; then
+    echo "Repository $ppa already exists";
+  else
+    arch=$(dpkg --print-architecture)
+    [ -e "$key_source" ] && key_file=$key_source || key_file="$key_dir"/"${ppa/\//-}"-keyring.gpg
+    add_key "$ppa" "$ppa_url" "$package_dist" "$key_source" "$key_file"
+    echo "deb [arch=$arch signed-by=$key_file] $ppa_url $package_dist $branches" | sudo tee -a "$list_dir"/"${ppa/\//-}".list >/dev/null 2>&1
+    update_lists "$ppa" "$ppa_search"
+    . /etc/os-release
+  fi
 }
 
 # Function to remove a PPA.

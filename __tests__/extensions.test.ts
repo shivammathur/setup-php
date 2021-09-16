@@ -162,13 +162,14 @@ describe('Extension tests', () => {
 
   it('checking addExtensionOnDarwin', async () => {
     let darwin: string = await extensions.addExtension(
-      'none, amqp, apcu, Xdebug, pcov, grpc, igbinary, imagick, imap, memcache, memcached, mongodb, msgpack, phalcon3, phalcon4, protobuf, psr, rdkafka, redis, swoole, vips, yaml, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
+      'none, amqp, apcu, expect, Xdebug, pcov, grpc, igbinary, imagick, imap, memcache, memcached, mongodb, msgpack, phalcon3, phalcon4, protobuf, psr, rdkafka, redis, ssh2, swoole, vips, yaml, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
       '7.2',
       'darwin'
     );
     expect(darwin).toContain('disable_all_shared');
     expect(darwin).toContain('add_brew_extension amqp extension');
     expect(darwin).toContain('add_brew_extension apcu extension');
+    expect(darwin).toContain('add_brew_extension expect extension');
     expect(darwin).toContain('add_brew_extension xdebug zend_extension');
     expect(darwin).toContain('add_brew_extension pcov extension');
     expect(darwin).toContain('add_brew_extension grpc extension');
@@ -185,6 +186,7 @@ describe('Extension tests', () => {
     expect(darwin).toContain('add_brew_extension psr extension');
     expect(darwin).toContain('add_brew_extension rdkafka extension');
     expect(darwin).toContain('add_brew_extension redis extension');
+    expect(darwin).toContain('add_brew_extension ssh2 extension');
     expect(darwin).toContain('add_brew_extension swoole extension');
     expect(darwin).toContain('add_brew_extension vips extension');
     expect(darwin).toContain('add_brew_extension yaml extension');

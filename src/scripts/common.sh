@@ -362,9 +362,10 @@ php_semver() {
 
 # Function to get the tag for a php version.
 php_src_tag() {
-  php_src_tag='master'
-  if ! [[ ${version:?} =~ $nightly_versions ]]; then
-    php_src_tag="php-$semver"
+  commit=$(php_extra_version | grep -Eo "[0-9a-zA-Z]+")
+  if [[ -n "${commit}" ]]; then
+    echo "$commit"
+  else
+    echo "php-$semver"
   fi
-  echo "$php_src_tag"
 }

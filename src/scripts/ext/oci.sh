@@ -43,6 +43,8 @@ add_oci_helper() {
     patch_phpize
     add_extension_from_source "$ext" https://github.com php php-src "$(php_src_tag)" extension get
     restore_phpize
+  else
+    enable_extension "$ext" extension
   fi
 }
 

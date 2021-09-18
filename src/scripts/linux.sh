@@ -168,7 +168,7 @@ link_pecl_file() {
 
 # Function to get extra version.
 php_extra_version() {
-  if [[ ${version:?} =~ ${nightly_versions:?} ]]; then
+  if [ -e /etc/php/"$version"/COMMIT ]; then
     echo " ($(cat "/etc/php/$version/COMMIT"))"
   fi
 }

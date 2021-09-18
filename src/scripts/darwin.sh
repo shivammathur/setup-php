@@ -172,8 +172,9 @@ add_php() {
 
 # Function to get extra version.
 php_extra_version() {
-  if [[ ${version:?} =~ ${nightly_versions:?} ]]; then
-    echo " ($(brew cat "$php_formula" | grep -Eo "archive/[0-9a-zA-Z]+" | cut -d'/' -f 2))"
+  php_formula_file="$tap_dir"/shivammathur/homebrew-php/Formula/php@"$version".rb
+  if [ -e "$php_formula_file" ] && grep -Eq "archive/[0-9a-zA-Z]+" "$php_formula_file"; then
+    echo " ($(grep -Eo "archive/[0-9a-zA-Z]+" "$php_formula_file" | cut -d'/' -f 2))"
   fi
 }
 

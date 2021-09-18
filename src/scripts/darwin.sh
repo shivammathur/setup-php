@@ -91,8 +91,8 @@ add_devtools() {
 # Function to handle request to add PECL.
 add_pecl() {
   configure_pecl >/dev/null 2>&1
-  pecl_version=$(get_tool_version "pecl" "version")
-  add_log "${tick:?}" "PECL" "Found PECL $pecl_version"
+  pear_version=$(get_tool_version "pecl" "version")
+  add_log "${tick:?}" "PECL" "Found PECL $pear_version"
 }
 
 # Function to link all libraries of a formula.

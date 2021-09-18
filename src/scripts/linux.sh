@@ -105,8 +105,8 @@ add_pecl() {
     install_packages php-pear
   fi
   configure_pecl >/dev/null 2>&1
-  pecl_version=$(get_tool_version "pecl" "version")
-  add_log "${tick:?}" "PECL" "Added PECL $pecl_version"
+  pear_version=$(get_tool_version "pecl" "version")
+  add_log "${tick:?}" "PECL" "Added PECL $pear_version"
 }
 
 # Function to switch versions of PHP binaries.

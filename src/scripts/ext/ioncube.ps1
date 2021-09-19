@@ -8,6 +8,7 @@ Function Add-LicenseLog() {
 # Function to add ioncube extension.
 Function Add-Ioncube() {
   try {
+    $status = 'Enabled'
     if (-not(Test-Path $ext_dir\php_ioncube.dll)) {
       $status = 'Installed and enabled'
       $arch_part = $arch

@@ -66,7 +66,7 @@ add_brew_extension() {
 
 # Function to setup extensions.
 add_extension() {
-  extension=$1
+  local extension=$1
   prefix=$2
   enable_extension "$extension" "$prefix"
   if check_extension "$extension"; then

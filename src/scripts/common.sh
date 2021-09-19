@@ -94,7 +94,7 @@ self_hosted_setup() {
 
 # Function to test if extension is loaded.
 check_extension() {
-  extension=$1
+  local extension=$1
   if [ "$extension" != "mysql" ]; then
     php -m | grep -i -q -w "$extension"
   else
@@ -146,7 +146,7 @@ get_extension_map() {
 
 # Function to enable extension dependencies which are also extensions.
 enable_extension_dependencies() {
-  extension=$1
+  local extension=$1
   prefix=$2
   if ! [ -e /tmp/map.orig ]; then
     get_extension_map | sudo tee /tmp/map.orig >/dev/null
@@ -167,7 +167,7 @@ disable_extension_dependents() {
 
 # Function to disable an extension.
 disable_extension() {
-  extension=$1
+  local extension=$1
   if check_extension "$extension"; then
     if shared_extension "$extension"; then
       disable_extension_helper "$extension" true
@@ -212,7 +212,7 @@ configure_pecl() {
 
 # Function to get the PECL version of an extension.
 get_pecl_version() {
-  extension=$1
+  local extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(stable|alpha|beta|rc|snapshot|preview)")"
   pecl_rest='https://pecl.php.net/rest/r/'
   response=$(get -s -n "" "$pecl_rest$extension"/allreleases.xml)
@@ -232,7 +232,7 @@ pecl_install() {
 
 # Function to install a specific version of PECL extension.
 add_pecl_extension() {
-  extension=$1
+  local extension=$1
   pecl_version=$2
   prefix=$3
   enable_extension "$extension" "$prefix"
@@ -251,7 +251,7 @@ add_pecl_extension() {
 
 # Function to setup pre-release extensions using PECL.
 add_unstable_extension() {
-  extension=$1
+  local extension=$1
   stability=$2
   prefix=$3
   pecl_version=$(get_pecl_version "$extension" "$stability")

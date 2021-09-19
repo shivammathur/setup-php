@@ -62,7 +62,7 @@ add_pdo_extension() {
 
 # Function to add extensions.
 add_extension() {
-  extension=$1
+  local extension=$1
   prefix=$2
   enable_extension "$extension" "$prefix"
   if check_extension "$extension"; then

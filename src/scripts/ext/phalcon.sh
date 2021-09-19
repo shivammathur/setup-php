@@ -15,7 +15,7 @@ add_phalcon3() {
     if [ "$phalcon_version" != "$extension_major_version" ]; then
       add_phalcon_helper
     else
-      echo "extension=phalcon.so" | sudo tee -a "$phalcon_ini_file"
+      enable_extension phalcon extension
     fi
   else
     add_phalcon_helper
@@ -24,16 +24,14 @@ add_phalcon3() {
 
 # Function to add phalcon4.
 add_phalcon4() {
-  if shared_extension phalcon && ! php -m | grep -i -q -w psr; then
-    echo "extension=psr.so" | sudo tee -a "${ini_file:?}"
-  fi
+  enable_extension psr extension
   if shared_extension phalcon; then
-    if php -m | grep -i -q -w psr; then
+    if check_extension psr; then
       phalcon_version=$(php -d="extension=phalcon" -r "echo phpversion('phalcon');" | cut -d'.' -f 1)
       if [ "$phalcon_version" != "$extension_major_version" ]; then
         add_phalcon_helper
       else
-        echo "extension=phalcon.so" | sudo tee -a "$phalcon_ini_file"
+        enable_extension phalcon extension
       fi
     else
       add_phalcon_helper
@@ -47,7 +45,6 @@ add_phalcon4() {
 add_phalcon() {
   extension=$1
   status='Enabled'
-  phalcon_ini_file="${pecl_file:-${ini_file[@]}}"
   extension_major_version=${extension: -1}
   if [ "$extension_major_version" = "4" ]; then
     add_phalcon4 >/dev/null 2>&1

@@ -56,6 +56,15 @@
     "version_prefix": "",
     "version_parameter": "--version"
   },
+  "phpDocumentor": {
+    "type": "phar",
+    "repository": "phpDocumentor/phpDocumentor",
+    "extension": ".phar",
+    "domain": "https://github.com",
+    "alias": "phpdoc",
+    "version_prefix": "v",
+    "version_parameter": "--version"
+  },
   "phpmd": {
     "type": "phar",
     "repository": "phpmd/phpmd",

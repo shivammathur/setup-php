@@ -373,7 +373,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'blackfire, blackfire-player, cs2pr, flex, grpc_php_plugin, php-cs-fixer, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, php-config, phpize, protoc, symfony, vapor, wp',
+      'blackfire, blackfire-player, cs2pr, flex, grpc_php_plugin, php-cs-fixer, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, php-config, phpize, protoc, symfony, vapor, wp',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_blackfire',
@@ -382,6 +382,7 @@ describe('Tools tests', () => {
         'add_composertool flex flex symfony/',
         'add_grpc_php_plugin latest',
         'add_tool https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v3.2.1/php-cs-fixer.phar php-cs-fixer "-V"',
+        'add_tool https://github.com/phpDocumentor/phpDocumentor/releases/latest/download/phpDocumentor.phar phpDocumentor "--version"',
         'add_composertool phplint phplint overtrue/',
         'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar phpstan "-V"',
         'add_tool https://phar.phpunit.de/phpunit.phar phpunit "--version"',
@@ -408,7 +409,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'behat, blackfire, blackfire-player, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, flex, grpc_php_plugin:1.2.3, infection, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpize, phpmd, phpspec, phpunit-bridge:5.6, protoc:v1.2.3, psalm, symfony-cli, symfony:1.2.3, vapor-cli, wp-cli',
+      'behat, blackfire, blackfire-player, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, flex, grpc_php_plugin:1.2.3, infection, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, protoc:v1.2.3, psalm, symfony-cli, symfony:1.2.3, vapor-cli, wp-cli',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_composertool behat behat behat/',
@@ -430,6 +431,7 @@ describe('Tools tests', () => {
         'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcbf.phar phpcbf "--version"',
         'add_tool https://phar.phpunit.de/phpcpd.phar phpcpd "--version"',
         'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcs.phar phpcs "--version"',
+        'add_tool https://github.com/phpDocumentor/phpDocumentor/releases/latest/download/phpDocumentor.phar phpDocumentor "--version"',
         'add_devtools phpize',
         'add_tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"',
         'add_composertool phpspec phpspec phpspec/',

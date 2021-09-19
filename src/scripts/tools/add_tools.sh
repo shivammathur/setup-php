@@ -14,6 +14,9 @@ add_tools_helper() {
     add_extension curl extension >/dev/null 2>&1
     add_extension mbstring extension >/dev/null 2>&1
     add_extension xml extension >/dev/null 2>&1
+  elif [ "$tool" = "phpDocumentor" ]; then
+    add_extension fileinfo extension >/dev/null 2>&1
+    sudo ln -s "${tool_path:?}" "${tool_path_dir:?}"/phpdoc
   elif [[ "$tool" =~ (symfony|vapor|wp)-cli ]]; then
     sudo ln -s "${tool_path:?}" "${tool_path_dir:?}"/${tool%-*}
   fi

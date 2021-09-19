@@ -15,6 +15,9 @@ Function Add-ToolsHelper() {
     Add-Extension ast >$null 2>&1
   } elseif($tool -eq "phive") {
     Add-Extension xml >$null 2>&1
+  } elseif($tool -eq "phpDocumentor") {
+    Add-Extension fileinfo >$null 2>&1
+    Copy-Item $bin_dir\phpDocumentor.bat -Destination $bin_dir\phpdoc.bat
   } elseif($tool -eq "symfony-cli") {
     Add-ToProfile $current_profile "symfony" "New-Alias symfony $bin_dir\symfony-cli.exe"
     Add-ToProfile $current_profile "symfony_cli" "New-Alias symfony-cli $bin_dir\symfony-cli.exe"

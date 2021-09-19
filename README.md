@@ -216,7 +216,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 
 These tools can be set up globally using the `tools` input. It accepts a string in csv-format.
 
-`behat`, `blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `composer-require-checker`, `composer-unused`, `cs2pr`, `deployer`, `flex`, `grpc_php_plugin`, `infection`, `pecl`, `phan`, `phing`, `phinx`, `phive`, `php-config`, `php-cs-fixer`, `phpcbf`, `phpcpd`, `phpcs`, `phpize`, `phplint`, `phpmd`, `phpspec`, `phpstan`, `phpunit`, `phpunit-bridge`, `prestissimo`, `protoc`, `psalm`, `symfony` or `symfony-cli`, `vapor` or `vapor-cli`, `wp` or `wp-cli`
+`behat`, `blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `composer-require-checker`, `composer-unused`, `cs2pr`, `deployer`, `flex`, `grpc_php_plugin`, `infection`, `pecl`, `phan`, `phing`, `phinx`, `phive`, `php-config`, `php-cs-fixer`, `phpcbf`, `phpcpd`, `phpcs`, `phpdoc` or `phpDocumentor`, `phpize`, `phplint`, `phpmd`, `phpspec`, `phpstan`, `phpunit`, `phpunit-bridge`, `prestissimo`, `protoc`, `psalm`, `symfony` or `symfony-cli`, `vapor` or `vapor-cli`, `wp` or `wp-cli`
 
 ```yaml
 - name: Setup PHP with tools

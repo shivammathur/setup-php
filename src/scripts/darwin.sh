@@ -7,6 +7,18 @@ self_hosted_helper() {
   fi
 }
 
+# Disable dependency extensions
+disable_dependency_extensions() {
+  local extension=$1
+  formula_file="$tap_dir/$ext_tap/Formula/$extension@${version:?}.rb"
+  if [ -e "$formula_file" ]; then
+    IFS=" " read -r -a dependency_extensions <<< "$(grep -Eo "shivammathur.*@" "$formula_file" | xargs -I {} -n 1 basename '{}' | cut -d '@' -f 1 | tr '\n' ' ')"
+    for dependency_extension in "${dependency_extensions[@]}"; do
+      sudo sed -Ei '' "/=(.*\/)?\"?$dependency_extension(.so)?$/d" "${ini_file:?}"
+    done
+  fi
+}
+
 # Helper function to disable an extension.
 disable_extension_helper() {
   local extension=$1
@@ -49,15 +61,16 @@ add_brew_tap() {
 add_brew_extension() {
   formula=$1
   prefix=$2
-  extension="$(echo "$formula" | sed -E "s/pecl_|[0-9]//g")"
+  shared_extension "$formula" && extension="$formula" || extension="$(echo "$formula" | sed -E "s/pecl_|[0-9]//g")"
   enable_extension "$extension" "$prefix"
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
-    add_brew_tap shivammathur/homebrew-php
-    add_brew_tap shivammathur/homebrew-extensions
-    sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$formula"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
+    add_brew_tap "$php_tap"
+    add_brew_tap "$ext_tap"
+    sudo mv "$tap_dir"/"$ext_tap"/.github/deps/"$formula"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
     update_dependencies >/dev/null 2>&1
+    disable_dependency_extensions "$extension" >/dev/null 2>&1
     brew install -f "$formula@$version" >/dev/null 2>&1
     sudo cp "$brew_prefix/opt/$formula@$version/$extension.so" "$ext_dir"
     add_extension_log "$extension" "Installed and enabled"
@@ -129,7 +142,7 @@ update_dependencies() {
     while read -r dependency; do
       update_dependencies_helper "$dependency" &
       to_wait+=($!)
-    done <"$tap_dir/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
+    done <"$tap_dir/$php_tap/.github/deps/${ImageOS:?}_${ImageVersion:?}"
     wait "${to_wait[@]}"
     echo '' | sudo tee /tmp/update_dependencies >/dev/null 2>&1
   fi
@@ -160,7 +173,7 @@ get_brewed_php() {
 add_php() {
   action=$1
   existing_version=$2
-  add_brew_tap shivammathur/homebrew-php
+  add_brew_tap "$php_tap"
   update_dependencies
   if [ "$existing_version" != "false" ]; then
     ([ "$action" = "upgrade" ] && brew upgrade -f "$php_formula") || brew unlink "$php_formula"
@@ -172,8 +185,8 @@ add_php() {
 
 # Function to get extra version.
 php_extra_version() {
-  php_formula_file="$tap_dir"/shivammathur/homebrew-php/Formula/php@"$version".rb
-  if [ -e "$php_formula_file" ] && ! grep -q "deprecate!" $php_formula_file && grep -Eq "archive/[0-9a-zA-Z]+" "$php_formula_file"; then
+  php_formula_file="$tap_dir"/"$php_tap"/Formula/php@"$version".rb
+  if [ -e "$php_formula_file" ] && ! grep -q "deprecate!" "$php_formula_file" && grep -Eq "archive/[0-9a-zA-Z]+" "$php_formula_file"; then
     echo " ($(grep -Eo "archive/[0-9a-zA-Z]+" "$php_formula_file" | cut -d'/' -f 2))"
   fi
 }
@@ -221,6 +234,8 @@ brew_prefix="$(brew --prefix)"
 brew_repo="$(brew --repository)"
 tap_dir="$brew_repo"/Library/Taps
 scripts="${dist}"/../src/scripts
+ext_tap=shivammathur/homebrew-extensions
+php_tap=shivammathur/homebrew-php
 export HOMEBREW_CHANGE_ARCH_TO_ARM=1
 export HOMEBREW_DEVELOPER=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1

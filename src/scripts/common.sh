@@ -107,22 +107,18 @@ shared_extension() {
   [ -e "${ext_dir:?}/$1.so" ]
 }
 
-# Function to enable cached extensions.
-enable_cache_extension() {
-  deps=()
-  for ext in /tmp/extcache/"$1"/*; do
-    deps+=("$(basename "$ext")")
-  done
-  if [ "x${deps[*]}" = "x" ]; then
-    sudo rm -rf /tmp/extcache/"$1"
-    enable_extension "$1" "$2"
-  else
-    deps+=("$1")
-    if php "${deps[@]/#/-d ${2}=}" -m 2>/dev/null | grep -i -q "$1"; then
-      for ext in "${deps[@]}"; do
-        sudo rm -rf /tmp/extcache/"$ext"
-        enable_extension "$ext" "$2"
-      done
+# Function to enable cached extension's dependencies.
+enable_cache_extension_dependencies() {
+  if [ -d /tmp/extcache ] && shared_extension "$1"; then
+    cache_dir=$(find /tmp/extcache -maxdepth 1 -type d -regex ".*$1[0-9]*")
+    if [[ -n "$cache_dir" ]]; then
+      IFS=" " read -r -a deps <<<"$(find "$cache_dir" -maxdepth 1 -type f -name "*" -exec basename {} \; | tr '\n' ' ')"
+      if [[ -n "${deps[*]}" ]] && php "${deps[@]/#/-d ${2}=}" -d "${2}=$1" -m 2>/dev/null | grep -i -q "$1"; then
+        for ext in "${deps[@]}"; do
+          sudo rm -rf /tmp/extcache/"$ext"
+          enable_extension "$ext" "$2"
+        done
+      fi
     fi
   fi
 }
@@ -132,9 +128,8 @@ enable_extension() {
   modules_dir="/var/lib/php/modules/$version"
   [ -d "$modules_dir" ] && sudo find "$modules_dir" -path "*disabled*$1" -delete
   enable_extension_dependencies "$1" "$2"
-  if [ -d /tmp/extcache/"$1" ]; then
-    enable_cache_extension "$1" "$2"
-  elif ! check_extension "$1" && shared_extension "$1"; then
+  enable_cache_extension_dependencies "$1" "$2"
+  if ! check_extension "$1" && shared_extension "$1"; then
     echo "$2=${ext_dir:?}/$1.so" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null
   fi
 }

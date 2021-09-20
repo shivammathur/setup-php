@@ -210,7 +210,7 @@
     "type": "custom-function",
     "repository": "sebastianbergmann/phpunit",
     "domain": "https://phar.phpunit.de",
-    "function": "phpcpd",
+    "function": "phpunit",
     "version_prefix": "",
     "version_parameter": "--version"
   },

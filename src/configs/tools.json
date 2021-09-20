@@ -31,6 +31,14 @@
     "version_prefix": "",
     "version_parameter": "-v"
   },
+  "parallel-lint": {
+    "type": "phar",
+    "repository": "php-parallel-lint/PHP-Parallel-Lint",
+    "extension": ".phar",
+    "domain": "https://github.com",
+    "version_prefix": "v",
+    "version_parameter": "--version"
+  },
   "php-cs-fixer": {
     "type": "phar",
     "repository": "FriendsOfPHP/PHP-CS-Fixer",

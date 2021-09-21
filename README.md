@@ -471,7 +471,7 @@ steps:
     php-version: '8.0'
     extensions: mbstring, intl
     ini-values: post_max_size=256M, max_execution_time=180
-    coverage: xdebug    
+    coverage: xdebug
     tools: php-cs-fixer, phpunit
 ```
 
@@ -491,7 +491,7 @@ jobs:
         include:
         - operating-system: 'ubuntu-latest'
           php-versions: '7.2'
-          phpunit-versions: '8.5.19'    
+          phpunit-versions: '8.5.21'
     steps:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -499,7 +499,7 @@ jobs:
         php-version: ${{ matrix.php-versions }}
         extensions: mbstring, intl
         ini-values: post_max_size=256M, max_execution_time=180
-        coverage: xdebug        
+        coverage: xdebug
         tools: php-cs-fixer, phpunit:${{ matrix.phpunit-versions }}
 ```
 
@@ -614,13 +614,10 @@ jobs:
   run:
     runs-on: self-hosted
     strategy:
-      matrix:        
+      matrix:
         php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0']
     name: PHP ${{ matrix.php-versions }}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
@@ -886,14 +883,16 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 
 ## :sparkling_heart: Support This Project
 
-- This project is provided as Free and Open-Source software. We need funds to maintain and do future improvements. Please sponsor setup-php using [GitHub sponsors](https://github.com/sponsors/shivammathur).
-- Please [reach out](mailto:contact@setup-php.com) if you have any questions about sponsoring setup-php.
 - Please star the project and share it. If you blog, please share your experience of using this action.
+- Please sponsor setup-php using [GitHub sponsors](https://github.com/sponsors/shivammathur).
+- Please [reach out](mailto:contact@setup-php.com) if you have any questions about sponsoring setup-php.
+
+[![Sponsor shivammathur](https://img.shields.io/badge/-Sponsor-fafbfc?logo=GitHub%20Sponsors)](https://github.com/sponsors/shivammathur)
 
 ### Corporate Sponsors
 
 <p align="center">
-  <a href="https://github.com/sponsors/shivammathur">
+  <a href="https://setup-php.com/sponsors-corp/?">
     <img src="https://setup-php.com/sponsors-corp/?" alt="Corporate sponsors of setup-php and related projects" width="100%">
   </a>
 </p>
@@ -901,7 +900,7 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 ### Individual Sponsors
 
 <p align="center">
-  <a href="https://github.com/sponsors/shivammathur">
+  <a href="https://setup-php.com/sponsors/?">
     <img src="https://setup-php.com/sponsors/?" alt="Individual sponsors of setup-php and related projects" width="100%">
   </a>
 </p>

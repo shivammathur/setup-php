@@ -61,7 +61,8 @@ add_brew_tap() {
 add_brew_extension() {
   formula=$1
   prefix=$2
-  shared_extension "$formula" && extension="$formula" || extension="$(echo "$formula" | sed -E "s/pecl_|[0-9]//g")"
+  extension=$(grep "$formula=" "$dist"/../src/configs/brew_extensions | cut -d '=' -f 2)
+  [[ -z "$extension" ]] && extension="$(echo "$formula" | sed -E "s/pecl_|[0-9]//g")"
   enable_extension "$extension" "$prefix"
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"

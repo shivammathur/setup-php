@@ -416,33 +416,23 @@ Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "sh
 
 ## :sparkling_heart: Support This Project
 
-- This project is provided as Free and Open-Source software. We need funds to maintain and do future improvements. Please sponsor setup-php using [GitHub sponsors](https://github.com/sponsors/shivammathur).
+Please sponsor setup-php using [GitHub sponsors](https://github.com/sponsors/shivammathur).
+
+[![Sponsor shivammathur](https://img.shields.io/badge/-Sponsor-fafbfc?logo=GitHub%20Sponsors)](https://github.com/sponsors/shivammathur)
 
 ### Corporate Sponsors
 
-<p>
-  <a href="https://www.jetbrains.com/?from=setup-php">
-    <img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="106" height="60">
+<p align="center">
+  <a href="https://setup-php.com/sponsors-corp/?">
+    <img src="https://setup-php.com/sponsors-corp/?" alt="Corporate sponsors of setup-php and related projects" width="100%">
   </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://blackfire.io/?utm_source=setup-php">
-    <img src="https://setup-php.com/sponsors//blackfire.svg" alt="Blackfire" width="212" height="60">
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://www.macstadium.com/?source=setup-php">
-    <img src="https://setup-php.com/sponsors//macstadium.png" alt="Mac Stadium" width="148" height="60">
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://tidelift.com/subscription/pkg/npm-setup-php">
-    <img src="https://setup-php.com/sponsors//tidelift.png" alt="Tidelift" width="70" height="60">
-  </a>  
 </p>
 
 ### Individual Sponsors
 
 <p align="center">
-  <a href="https://github.com/sponsors/shivammathur">
-    <img src="https://setup-php.com/sponsors/?" alt="Sponsors of setup-php and related projects" width="100%">
+  <a href="https://setup-php.com/sponsors/?">
+    <img src="https://setup-php.com/sponsors/?" alt="Individual sponsors of setup-php and related projects" width="100%">
   </a>
 </p>
 

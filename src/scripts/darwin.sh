@@ -103,7 +103,8 @@ add_brew_tap() {
 # Function to install a php extension from shivammathur/extensions tap.
 add_brew_extension() {
   formula=$1
-  extension=${formula//[0-9]/}
+  extension=$(grep "$formula=" "$dist"/../src/configs/brew_extensions | cut -d '=' -f 2)
+  [[ -z "$extension" ]] && extension="$(echo "$formula" | sed -E "s/pecl_|[0-9]//g")"
   add_brew_tap shivammathur/homebrew-php
   add_brew_tap shivammathur/homebrew-extensions
   sudo mv "$tap_dir"/shivammathur/homebrew-extensions/.github/deps/"$formula"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true

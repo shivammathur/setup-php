@@ -30,10 +30,10 @@ export async function addExtensionDarwin(
           ' ' +
           ext_prefix;
         return;
-      // match 5.6 to 8.0 amqp, grpc, igbinary, imagick, imap, mongodb, msgpack, pecl_http, propro, protobuf, raphf, rdkafka, redis, swoole, xdebug, xdebug2, yaml, zmq
+      // match 5.6 to 8.0 amqp, expect, grpc, igbinary, imagick, imap, mongodb, msgpack, pecl_http, propro, protobuf, raphf, rdkafka, redis, ssh2, swoole, xdebug, xdebug2, yaml, zmq
       // match 7.1pcov to 8.0pcov
       // match 7.0vips to 8.0vips
-      case /(5\.6|7\.[0-4]|8.0)(amqp|grpc|igbinary|imagick|imap|mongodb|msgpack|^(pecl_)?http$|propro|protobuf|psr|raphf|rdkafka|redis|swoole|xdebug|xdebug2|yaml|zmq)/.test(
+      case /(5\.6|7\.[0-4]|8.0)(amqp|expect|grpc|igbinary|imagick|imap|mongodb|msgpack|^(pecl_)?http$|propro|protobuf|psr|raphf|rdkafka|redis|ssh2|swoole|xdebug|xdebug2|yaml|zmq)/.test(
         version_extension
       ):
       case /(7\.[1-4]|8\.0])pcov/.test(version_extension):

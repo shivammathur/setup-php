@@ -18,7 +18,7 @@ add_log() {
 
 # Function to remove extensions
 remove_extension() {
-  extension=$1
+  local extension=$1
   sudo sed -Ei '' "/=(.*\/)?\"?$extension/d" "$ini_file"
   sudo rm -rf "$scan_dir"/*"$extension"* >/dev/null 2>&1
   sudo rm -rf "$ext_dir"/"$extension".so >/dev/null 2>&1
@@ -26,7 +26,7 @@ remove_extension() {
 
 # Function to test if extension is loaded
 check_extension() {
-  extension=$1
+  local extension=$1
   if [ "$extension" != "mysql" ]; then
     php -m | grep -i -q -w "$extension"
   else
@@ -42,7 +42,7 @@ pecl_install() {
 
 # Function to get the PECL version
 get_pecl_version() {
-  extension=$1
+  local extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(alpha|beta|rc|snapshot|preview)")"
   pecl_rest='https://pecl.php.net/rest/r/'
   response=$(curl "${curl_opts[@]}" "$pecl_rest$extension"/allreleases.xml)
@@ -55,7 +55,7 @@ get_pecl_version() {
 
 # Function to install a PECL version
 add_pecl_extension() {
-  extension=$1
+  local extension=$1
   pecl_version=$2
   prefix=$3
   if [[ $pecl_version =~ .*(alpha|beta|rc|snapshot|preview).* ]]; then
@@ -114,7 +114,7 @@ add_brew_extension() {
 
 # Function to setup extensions
 add_extension() {
-  extension=$1
+  local extension=$1
   install_command=$2
   prefix=$3
   if ! check_extension "$extension" && [ -e "$ext_dir/$extension.so" ]; then
@@ -132,7 +132,7 @@ add_extension() {
 
 # Function to pre-release extensions using PECL
 add_unstable_extension() {
-  extension=$1
+  local extension=$1
   stability=$2
   prefix=$3
   pecl_version=$(get_pecl_version "$extension" "$stability")

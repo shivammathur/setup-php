@@ -20,7 +20,7 @@ update_ppa() {
 
 # Function to install phalcon
 install_phalcon() {
-  extension=$1
+  local extension=$1
   version=$2
   (update_ppa && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "php$version-psr" "php$version-$extension" >/dev/null 2>&1 && add_log "$tick" "$extension" "Installed and enabled") ||
   add_log "$cross" "$extension" "Could not install $extension on PHP $semver"

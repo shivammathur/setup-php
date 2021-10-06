@@ -140,6 +140,13 @@ update_dependencies_helper() {
 update_dependencies() {
   if ! [ -e /tmp/update_dependencies ] && [ "${runner:?}" != "self-hosted" ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
     patch_brew
+
+    # Remove this patch when brew is updated on the images.
+    (
+      cd "$tap_dir/homebrew/homebrew-core" || true
+      git add . && git stash && git pull origin master
+    ) >/dev/null 2>&1 && return
+
     while read -r dependency; do
       update_dependencies_helper "$dependency" &
       to_wait+=($!)

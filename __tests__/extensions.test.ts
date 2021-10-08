@@ -64,114 +64,48 @@ describe('Extension tests', () => {
     ${'blackfire-1.31.0'}                        | ${'7.3'} | ${'add_blackfire blackfire-1.31.0'}
     ${'intl-65.1'}                               | ${'5.6'} | ${'add_intl intl-65.1'}
     ${'mongodb-mongodb/mongo-php-driver@master'} | ${'7.3'} | ${'add_extension_from_source mongodb https://github.com mongodb mongo-php-driver master extension'}
-  `('checking addExtensionOnLinux for extension $extension on version $version', async ({extension, version, output}) => {
-    expect(await extensions.addExtension(extension, version, 'linux')).toContain(output);
-  });
+  `(
+    'checking addExtensionOnLinux for extension $extension on version $version',
+    async ({extension, version, output}) => {
+      expect(
+        await extensions.addExtension(extension, version, 'linux')
+      ).toContain(output);
+    }
+  );
 
-  it('checking addExtensionOnDarwin', async () => {
-    let darwin: string = await extensions.addExtension(
-      'none, amqp, apcu, expect, Xdebug, pcov, grpc, igbinary, imagick, imap, memcache, memcached, mongodb, msgpack, phalcon3, phalcon4, protobuf, psr, rdkafka, redis, ssh2, swoole, vips, yaml, sqlite, oci8, pdo_oci, :intl, ast-beta, grpc-1.2.3',
-      '7.2',
-      'darwin'
-    );
-    expect(darwin).toContain('disable_all_shared');
-    expect(darwin).toContain('add_brew_extension amqp extension');
-    expect(darwin).toContain('add_brew_extension apcu extension');
-    expect(darwin).toContain('add_brew_extension expect extension');
-    expect(darwin).toContain('add_brew_extension xdebug zend_extension');
-    expect(darwin).toContain('add_brew_extension pcov extension');
-    expect(darwin).toContain('add_brew_extension grpc extension');
-    expect(darwin).toContain('add_brew_extension igbinary extension');
-    expect(darwin).toContain('add_brew_extension imagick extension');
-    expect(darwin).toContain('add_brew_extension imap extension');
-    expect(darwin).toContain('add_brew_extension memcache extension');
-    expect(darwin).toContain('add_brew_extension memcached extension');
-    expect(darwin).toContain('add_brew_extension mongodb extension');
-    expect(darwin).toContain('add_brew_extension msgpack extension');
-    expect(darwin).toContain('add_brew_extension phalcon3 extension');
-    expect(darwin).toContain('add_brew_extension phalcon4 extension');
-    expect(darwin).toContain('add_brew_extension protobuf extension');
-    expect(darwin).toContain('add_brew_extension psr extension');
-    expect(darwin).toContain('add_brew_extension rdkafka extension');
-    expect(darwin).toContain('add_brew_extension redis extension');
-    expect(darwin).toContain('add_brew_extension ssh2 extension');
-    expect(darwin).toContain('add_brew_extension swoole extension');
-    expect(darwin).toContain('add_brew_extension vips extension');
-    expect(darwin).toContain('add_brew_extension yaml extension');
-    expect(darwin).toContain('add_extension sqlite3');
-    expect(darwin).toContain('disable_extension intl');
-    expect(darwin).toContain('add_unstable_extension ast beta extension');
-    expect(darwin).toContain('add_pecl_extension grpc 1.2.3 extension');
-
-    darwin = await extensions.addExtension('couchbase', '5.6', 'darwin');
-    expect(darwin).toContain('add_couchbase');
-
-    darwin = await extensions.addExtension('couchbase', '7.3', 'darwin');
-    expect(darwin).toContain('add_couchbase');
-
-    darwin = await extensions.addExtension('ioncube', '7.3', 'darwin');
-    expect(darwin).toContain('add_ioncube');
-
-    darwin = await extensions.addExtension('geos', '7.3', 'darwin');
-    expect(darwin).toContain('add_geos');
-
-    darwin = await extensions.addExtension('pecl_http', '7.3', 'darwin');
-    expect(darwin).toContain('add_http');
-
-    darwin = await extensions.addExtension('http-1.2.3', '7.3', 'darwin');
-    expect(darwin).toContain('add_http http-1.2.3');
-
-    darwin = await extensions.addExtension('oci8, pdo_oci', '7.3', 'darwin');
-    expect(darwin).toContain('add_oci oci8');
-    expect(darwin).toContain('add_oci pdo_oci');
-
-    darwin = await extensions.addExtension('pcov', '5.6', 'darwin');
-    expect(darwin).toContain(
-      'add_log "$cross" "pcov" "pcov is not supported on PHP 5.6"'
-    );
-
-    darwin = await extensions.addExtension('pcov', '7.2', 'darwin');
-    expect(darwin).toContain('add_brew_extension pcov');
-
-    darwin = await extensions.addExtension('xdebug', '5.6', 'darwin');
-    expect(darwin).toContain('add_brew_extension xdebug');
-
-    darwin = await extensions.addExtension('xdebug', '7.0', 'darwin');
-    expect(darwin).toContain('add_brew_extension xdebug');
-
-    darwin = await extensions.addExtension('xdebug', '7.2', 'darwin');
-    expect(darwin).toContain('add_brew_extension xdebug');
-
-    darwin = await extensions.addExtension('xdebug2', '7.2', 'darwin');
-    expect(darwin).toContain('add_brew_extension xdebug2');
-
-    darwin = await extensions.addExtension('imagick', '5.5', 'darwin');
-    expect(darwin).toContain('add_extension imagick');
-
-    darwin = await extensions.addExtension('blackfire', '7.3', 'darwin');
-    expect(darwin).toContain('add_blackfire blackfire');
-
-    darwin = await extensions.addExtension('blackfire-1.31.0', '7.3', 'darwin');
-    expect(darwin).toContain('add_blackfire blackfire-1.31.0');
-
-    darwin = await extensions.addExtension(
-      'does_not_exist',
-      '7.2',
-      'darwin',
-      false
-    );
-    expect(darwin).toContain('add_extension does_not_exist');
-
-    darwin = await extensions.addExtension('xdebug', '7.2', 'openbsd');
-    expect(darwin).toContain('Platform openbsd is not supported');
-
-    darwin = await extensions.addExtension(
-      'mongodb-mongodb/mongo-php-driver@master',
-      '7.3',
-      'darwin'
-    );
-    expect(darwin).toContain(
-      'add_extension_from_source mongodb https://github.com mongodb mongo-php-driver master extension'
-    );
-  });
+  it.each`
+    extension                                    | version  | output
+    ${'none'}                                    | ${'7.2'} | ${'disable_all_shared'}
+    ${'amqp'}                                    | ${'7.2'} | ${'add_brew_extension amqp extension'}
+    ${'Xdebug'}                                  | ${'7.2'} | ${'add_brew_extension xdebug zend_extension'}
+    ${'sqlite'}                                  | ${'7.2'} | ${'add_extension sqlite3'}
+    ${':intl'}                                   | ${'7.2'} | ${'disable_extension intl'}
+    ${'ast-beta'}                                | ${'7.2'} | ${'add_unstable_extension ast beta extension'}
+    ${'grpc-1.2.3'}                              | ${'7.2'} | ${'add_pecl_extension grpc 1.2.3 extension'}
+    ${'couchbase'}                               | ${'5.6'} | ${'add_couchbase'}
+    ${'couchbase'}                               | ${'7.3'} | ${'add_couchbase'}
+    ${'ioncube'}                                 | ${'7.3'} | ${'add_ioncube'}
+    ${'geos'}                                    | ${'7.3'} | ${'add_geos'}
+    ${'pecl_http'}                               | ${'7.3'} | ${'add_http'}
+    ${'http-1.2.3'}                              | ${'7.3'} | ${'add_http http-1.2.3'}
+    ${'oci8'}                                    | ${'7.3'} | ${'add_oci oci8'}
+    ${'pdo_oci'}                                 | ${'7.3'} | ${'add_oci pdo_oci'}
+    ${'pcov'}                                    | ${'5.6'} | ${'add_log "$cross" "pcov" "pcov is not supported on PHP 5.6"'}
+    ${'pcov'}                                    | ${'7.2'} | ${'add_brew_extension pcov'}
+    ${'xdebug'}                                  | ${'5.6'} | ${'add_brew_extension xdebug'}
+    ${'xdebug'}                                  | ${'7.0'} | ${'add_brew_extension xdebug'}
+    ${'xdebug2'}                                 | ${'7.2'} | ${'add_brew_extension xdebug2'}
+    ${'imagick'}                                 | ${'5.5'} | ${'add_extension imagick'}
+    ${'blackfire'}                               | ${'7.3'} | ${'add_blackfire blackfire'}
+    ${'blackfire-1.31.0'}                        | ${'7.3'} | ${'add_blackfire blackfire-1.31.0'}
+    ${'does_not_exist'}                          | ${'7.2'} | ${'add_extension does_not_exist'}
+    ${'mongodb-mongodb/mongo-php-driver@master'} | ${'7.2'} | ${'add_extension_from_source mongodb https://github.com mongodb mongo-php-driver master extension'}
+  `(
+    'checking addExtensionOnDarwin for extension $extension on version $version',
+    async ({extension, version, output}) => {
+      expect(
+        await extensions.addExtension(extension, version, 'darwin')
+      ).toContain(output);
+    }
+  );
 });

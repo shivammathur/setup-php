@@ -5,6 +5,7 @@ describe('Extension tests', () => {
     extension                                    | version  | output
     ${'none'}                                    | ${'7.4'} | ${'Disable-AllShared'}
     ${'Xdebug'}                                  | ${'7.4'} | ${'Add-Extension xdebug'}
+    ${'sqlite'}                                  | ${'7.4'} | ${'Add-Extension sqlite3'}
     ${':intl'}                                   | ${'7.4'} | ${'Disable-Extension intl'}
     ${'phalcon4'}                                | ${'7.4'} | ${'Add-Phalcon phalcon4'}
     ${'pecl_http'}                               | ${'7.4'} | ${'Add-Http'}
@@ -39,6 +40,7 @@ describe('Extension tests', () => {
     extension                                    | version  | output
     ${'none'}                                    | ${'7.4'} | ${'disable_all_shared'}
     ${'Xdebug'}                                  | ${'7.4'} | ${'add_extension xdebug'}
+    ${'sqlite'}                                  | ${'7.4'} | ${'add_extension sqlite3'}
     ${':intl'}                                   | ${'7.4'} | ${'disable_extension intl'}
     ${'ast-beta'}                                | ${'7.4'} | ${'add_unstable_extension ast beta extension'}
     ${'pdo_mysql'}                               | ${'7.4'} | ${'add_pdo_extension mysql'}
@@ -105,6 +107,18 @@ describe('Extension tests', () => {
     async ({extension, version, output}) => {
       expect(
         await extensions.addExtension(extension, version, 'darwin')
+      ).toContain(output);
+    }
+  );
+
+  it.each`
+    extension   | version  | output
+    ${'xdebug'} | ${'7.2'} | ${'Platform openbsd is not supported'}
+  `(
+    'checking addExtension on openbsd for extension $extension on version $version',
+    async ({extension, version, output}) => {
+      expect(
+        await extensions.addExtension(extension, version, 'openbsd')
       ).toContain(output);
     }
   );

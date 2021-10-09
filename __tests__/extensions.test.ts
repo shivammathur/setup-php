@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as extensions from '../src/extensions';
 
 describe('Extension tests', () => {
@@ -24,7 +25,7 @@ describe('Extension tests', () => {
     ${'sqlsrv-1.2.3preview1'}                    | ${'7.4'} | ${'Add-Extension sqlsrv devel 1.2.3'}
     ${'Xdebug'}                                  | ${'7.4'} | ${'Add-Extension xdebug'}
     ${'xdebug2'}                                 | ${'7.2'} | ${'Add-Extension xdebug stable 2.9.8'}
-    `(
+  `(
     'checking addExtensionOnWindows for extension $extension on version $version',
     async ({extension, version, output}) => {
       expect(
@@ -74,7 +75,6 @@ describe('Extension tests', () => {
     extension                                    | version  | output
     ${'none'}                                    | ${'7.2'} | ${'disable_all_shared'}
     ${':intl'}                                   | ${'7.2'} | ${'disable_extension intl'}
-    ${'amqp'}                                    | ${'7.2'} | ${'add_brew_extension amqp extension'}
     ${'ast-beta'}                                | ${'7.2'} | ${'add_unstable_extension ast beta extension'}
     ${'blackfire'}                               | ${'7.3'} | ${'add_blackfire blackfire'}
     ${'blackfire-1.31.0'}                        | ${'7.3'} | ${'add_blackfire blackfire-1.31.0'}
@@ -88,16 +88,36 @@ describe('Extension tests', () => {
     ${'mongodb-mongodb/mongo-php-driver@master'} | ${'7.2'} | ${'add_extension_from_source mongodb https://github.com mongodb mongo-php-driver master extension'}
     ${'oci8'}                                    | ${'7.3'} | ${'add_oci oci8'}
     ${'pcov'}                                    | ${'5.6'} | ${'add_log "$cross" "pcov" "pcov is not supported on PHP 5.6"'}
-    ${'pcov'}                                    | ${'7.2'} | ${'add_brew_extension pcov'}
     ${'pdo_oci'}                                 | ${'7.3'} | ${'add_oci pdo_oci'}
     ${'pecl_http'}                               | ${'7.3'} | ${'add_http'}
     ${'sqlite'}                                  | ${'7.2'} | ${'add_extension sqlite3'}
-    ${'Xdebug'}                                  | ${'7.2'} | ${'add_brew_extension xdebug zend_extension'}
-    ${'xdebug'}                                  | ${'7.0'} | ${'add_brew_extension xdebug'}
-    ${'xdebug2'}                                 | ${'7.2'} | ${'add_brew_extension xdebug2'}
-    `(
+  `(
     'checking addExtensionOnDarwin for extension $extension on version $version',
     async ({extension, version, output}) => {
+      expect(
+        await extensions.addExtension(extension, version, 'darwin')
+      ).toContain(output);
+    }
+  );
+
+  const data: string[][] = fs
+    .readFileSync('src/configs/brew_extensions')
+    .toString()
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .map(line => {
+      const [formula, extension]: string[] = line.split('=');
+      const prefix: string =
+        extension == 'xdebug' ? 'zend_extension' : 'extension';
+      const output: string = fs.existsSync(`src/scripts/ext/${extension}.sh`)
+        ? `add_${extension}`
+        : `add_brew_extension ${formula} ${prefix}`;
+      return [formula, '7.3', output];
+    });
+
+  it.each(data)(
+    'checking addExtensionOnDarwin for brew extension %s',
+    async (extension, version, output) => {
       expect(
         await extensions.addExtension(extension, version, 'darwin')
       ).toContain(output);

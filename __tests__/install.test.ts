@@ -69,9 +69,9 @@ describe('Install', () => {
     ${'8'}      | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 ' + __dirname}
     ${'8.0'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 ' + __dirname}
     ${'8.1'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.1 ' + __dirname}
-    ${'7.3'}    | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 7.3'}
-    ${'7.3'}    | ${'linux'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${'phpunit'} | ${'initial script add_tool install extensions set coverage driver edit php.ini bash linux.sh 7.3'}
-    ${'latest'} | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 8.0'}
+    ${'7.3'}    | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 7.3 ' + __dirname}
+    ${'7.3'}    | ${'linux'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${'phpunit'} | ${'initial script add_tool install extensions set coverage driver edit php.ini bash linux.sh 7.3 ' + __dirname}
+    ${'latest'} | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 8.0 ' + __dirname}
     ${'7.0'}    | ${'win32'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.0 ' + __dirname}
     ${'7.3'}    | ${'win32'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.3 ' + __dirname}
     ${'7.3'}    | ${'win32'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${''}        | ${'initial script install extensions set coverage driver edit php.ini pwsh win32.ps1 7.3 ' + __dirname}
@@ -95,7 +95,7 @@ describe('Install', () => {
         tools
       );
 
-      expect(await install.run()).toMatch(output);
+      expect(await install.run()).toBe(output);
     }
   );
 });

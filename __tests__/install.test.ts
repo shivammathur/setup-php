@@ -16,7 +16,7 @@ jest.mock('../src/install', () => ({
         const extension_csv: string = process.env['extensions'] || '';
         const ini_values_csv: string = process.env['ini-values'] || '';
         const coverage_driver: string = process.env['coverage'] || '';
-        let tools_csv: string = process.env['tools'] || '';
+        const tools_csv: string = process.env['tools'] || '';
         let script = 'initial script ' + filename + version + os_version;
         script += tools_csv ? 'add_tool' : '';
         script += extension_csv ? 'install extensions' : '';
@@ -70,14 +70,24 @@ function setEnv(
 
 describe('Install', () => {
   it.each`
-    version  | extension_csv | ini_values_csv | coverage_driver | tools | output
-    ${'7.0'} | ${''}         | ${''}          | ${''}           | ${''} | ${new RegExp(`initial script.*pwsh win32.ps1 7.0.*${__dirname}`)}
-    ${'7.3'} | ${''}         | ${''}          | ${''}           | ${''} | ${new RegExp(`initial script.*pwsh win32.ps1 7.3.*${__dirname}`)}
-    ${'7.3'} | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${''} | ${new RegExp(`initial script.*install extensions*set coverage driver.*edit php.ini.*pwsh win32.ps1 7.3.*${__dirname}`)}
+    version     | os          | extension_csv | ini_values_csv | coverage_driver | tools        | output
+    ${'7.3'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash darwin.sh 7.3 .*${__dirname}`)}
+    ${'7.3'}    | ${'darwin'} | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${''}        | ${new RegExp(`initial script.*install extensions.*set coverage driver.*edit php.ini.*bash darwin.sh 7.3 .*${__dirname}`)}
+    ${'7.4.1'}  | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash darwin.sh 7.4 .*${__dirname}`)}
+    ${'8'}      | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash darwin.sh 8.0 .*${__dirname}`)}
+    ${'8.0'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash darwin.sh 8.0 .*${__dirname}`)}
+    ${'8.1'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash darwin.sh 8.1 .*${__dirname}`)}
+    ${'7.3'}    | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash linux.sh 7.3`)}
+    ${'7.3'}    | ${'linux'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${'phpunit'} | ${new RegExp(`initial script.*add_tool.*install extensions.*set coverage driver.*edit php.ini.*bash linux.sh 7.3`)}
+    ${'latest'} | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash linux.sh 8.0`)}
+    ${'7.0'}    | ${'win32'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*pwsh win32.ps1 7.0.*${__dirname}`)}
+    ${'7.3'}    | ${'win32'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*pwsh win32.ps1 7.3.*${__dirname}`)}
+    ${'7.3'}    | ${'win32'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${''}        | ${new RegExp(`initial script.*install extensions*set coverage driver.*edit php.ini.*pwsh win32.ps1 7.3.*${__dirname}`)}
   `(
-    'Test install on windows for $version with extensions=$extension_csv, ini_values=$ini_values_csv, coverage_driver=$coverage_driver, tools=$tools',
+    'Test install on $os for $version with extensions=$extension_csv, ini_values=$ini_values_csv, coverage_driver=$coverage_driver, tools=$tools',
     async ({
       version,
+      os,
       extension_csv,
       ini_values_csv,
       coverage_driver,
@@ -86,7 +96,7 @@ describe('Install', () => {
     }) => {
       setEnv(
         version,
-        'win32',
+        os,
         extension_csv,
         ini_values_csv,
         coverage_driver,
@@ -94,90 +104,6 @@ describe('Install', () => {
       );
 
       expect(await install.run()).toMatch(output);
-    }
-  );
-
-  it.each`
-    version     | extension_csv | ini_values_csv | coverage_driver | tools        | output
-    ${'7.3'}    | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash linux.sh 7.3`)}
-    ${'latest'} | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash linux.sh 8.0`)}
-    ${'7.3'}    | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${'phpunit'} | ${new RegExp(`initial script.*add_tool.*install extensions.*set coverage driver.*edit php.ini.*bash linux.sh 7.3`)}
-  `(
-    'Test install on linux for $version with extensions=$extension_csv, ini_values=$ini_values_csv, coverage_driver=$coverage_driver, tools=$tools',
-    async ({
-      version,
-      extension_csv,
-      ini_values_csv,
-      coverage_driver,
-      tools,
-      output
-    }) => {
-      setEnv(
-        version,
-        'linux',
-        extension_csv,
-        ini_values_csv,
-        coverage_driver,
-        tools
-      );
-
-      expect('' + (await install.run())).toMatch(output);
-    }
-  );
-
-  it.each`
-    version  | extension_csv | ini_values_csv | coverage_driver | tools | output
-    ${'7.3'} | ${''}         | ${''}          | ${''}           | ${''} | ${new RegExp(`initial script.*bash darwin.sh 7.3 .*${__dirname}`)}
-    ${'7.3'} | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${''} | ${new RegExp(`initial script.*install extensions.*set coverage driver.*edit php.ini.*bash darwin.sh 7.3 .*${__dirname}`)}
-  `(
-    'Test install on darwin for $version with extensions=$extension_csv, ini_values=$ini_values_csv, coverage_driver=$coverage_driver, tools=$tools',
-    async ({
-      version,
-      extension_csv,
-      ini_values_csv,
-      coverage_driver,
-      tools,
-      output
-    }) => {
-      setEnv(
-        version,
-        'darwin',
-        extension_csv,
-        ini_values_csv,
-        coverage_driver,
-        tools
-      );
-
-      expect('' + (await install.run())).toMatch(output);
-    }
-  );
-
-  it.each`
-    version    | extension_csv | ini_values_csv | coverage_driver | tools | output
-    ${'7.4.1'} | ${''}         | ${''}          | ${''}           | ${''} | ${new RegExp(`initial script.*bash darwin.sh 7.4 .*${__dirname}`)}
-    ${'8.0'}   | ${''}         | ${''}          | ${''}           | ${''} | ${new RegExp(`initial script.*bash darwin.sh 8.0 .*${__dirname}`)}
-    ${'8'}     | ${''}         | ${''}          | ${''}           | ${''} | ${new RegExp(`initial script.*bash darwin.sh 8.0 .*${__dirname}`)}
-    ${'8.1'}   | ${''}         | ${''}          | ${''}           | ${''} | ${new RegExp(`initial script.*bash darwin.sh 8.1 .*${__dirname}`)}
-  `(
-    'Test malformed version inputs for $version with extensions=$extension_csv, ini_values=$ini_values_csv, coverage_driver=$coverage_driver, tools=$tools',
-    async ({
-      version,
-      extension_csv,
-      ini_values_csv,
-      coverage_driver,
-      tools,
-      output
-    }) => {
-      setEnv(
-        version,
-        'darwin',
-        extension_csv,
-        ini_values_csv,
-        coverage_driver,
-        tools
-      );
-
-      expect('' + (await install.run())).toMatch(output);
     }
   );
 });

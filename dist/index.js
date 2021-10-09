@@ -221,6 +221,7 @@ async function addExtensionDarwin(extension_csv, version) {
             case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^couchbase$|^geos$|^pdo_oci$|^oci8$|^(pecl_)?http|^pdo_firebird$/.test(extension):
             case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
+            case /(5\.6|7\.[0-3])phalcon3|7\.[2-4]phalcon4/.test(version_extension):
                 add_script += await utils.customPackage(ext_name, 'ext', extension, 'darwin');
                 return;
             case /.+-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(extension):
@@ -235,7 +236,6 @@ async function addExtensionDarwin(extension_csv, version) {
             case /(?<!5\.[3-5])(amqp|apcu|expect|grpc|igbinary|imagick|imap|memcache|memcached|mongodb|msgpack|protobuf|psr|raphf|rdkafka|redis|ssh2|swoole|xdebug|xdebug2|yaml|zmq)/.test(version_extension):
             case /(5\.6|7\.[0-4])propro/.test(version_extension):
             case /(?<!5\.[3-6]|7\.0)pcov/.test(version_extension):
-            case /(5\.6|7\.[0-3])phalcon3|7\.[2-4]phalcon4/.test(version_extension):
             case /(?<!5\.[3-6])vips/.test(version_extension):
                 add_script += await utils.joins('\nadd_brew_extension', ext_name, ext_prefix);
                 return;

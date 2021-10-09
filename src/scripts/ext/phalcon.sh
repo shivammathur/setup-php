@@ -1,10 +1,14 @@
 # Helper function to add phalcon.
 add_phalcon_helper() {
   status='Installed and enabled'
-  if [ "$extension" = "phalcon4" ]; then
-    install_packages "php${version:?}-psr" "php${version:?}-$extension"
+  if [ "$(uname -s)" = "Darwin" ]; then
+    add_brew_extension "$extension" extension
   else
-    install_packages "php${version:?}-$extension"
+    if [ "$extension" = "phalcon4" ]; then
+      install_packages "php${version:?}-psr" "php${version:?}-$extension"
+    else
+      install_packages "php${version:?}-$extension"
+    fi
   fi
 }
 

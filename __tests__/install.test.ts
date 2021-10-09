@@ -5,26 +5,18 @@ import * as utils from '../src/utils';
  * Mock install.ts
  */
 jest.mock('../src/install', () => ({
-  getScript: jest
-    .fn()
-    .mockImplementation(
-      async (
-        filename: string,
-        version: string,
-        os_version: string
-      ): Promise<string> => {
-        const extension_csv: string = process.env['extensions'] || '';
-        const ini_values_csv: string = process.env['ini-values'] || '';
-        const coverage_driver: string = process.env['coverage'] || '';
-        const tools_csv: string = process.env['tools'] || '';
-        let script = 'initial script ' + filename + version + os_version;
-        script += tools_csv ? 'add_tool' : '';
-        script += extension_csv ? 'install extensions' : '';
-        script += coverage_driver ? 'set coverage driver' : '';
-        script += ini_values_csv ? 'edit php.ini' : '';
-        return script;
-      }
-    ),
+  getScript: jest.fn().mockImplementation(async (): Promise<string> => {
+    const extension_csv: string = process.env['extensions'] || '';
+    const ini_values_csv: string = process.env['ini-values'] || '';
+    const coverage_driver: string = process.env['coverage'] || '';
+    const tools_csv: string = process.env['tools'] || '';
+    let script = 'initial script';
+    script += tools_csv ? ' add_tool' : '';
+    script += extension_csv ? ' install extensions' : '';
+    script += coverage_driver ? ' set coverage driver' : '';
+    script += ini_values_csv ? ' edit php.ini' : '';
+    return script;
+  }),
   run: jest.fn().mockImplementation(async (): Promise<string> => {
     const os_version: string = process.env['RUNNER_OS'] || '';
     const version: string = await utils.parseVersion(
@@ -71,18 +63,18 @@ function setEnv(
 describe('Install', () => {
   it.each`
     version     | os          | extension_csv | ini_values_csv | coverage_driver | tools        | output
-    ${'7.3'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash darwin.sh 7.3 .*${__dirname}`)}
-    ${'7.3'}    | ${'darwin'} | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${''}        | ${new RegExp(`initial script.*install extensions.*set coverage driver.*edit php.ini.*bash darwin.sh 7.3 .*${__dirname}`)}
-    ${'7.4.1'}  | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash darwin.sh 7.4 .*${__dirname}`)}
-    ${'8'}      | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash darwin.sh 8.0 .*${__dirname}`)}
-    ${'8.0'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash darwin.sh 8.0 .*${__dirname}`)}
-    ${'8.1'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash darwin.sh 8.1 .*${__dirname}`)}
-    ${'7.3'}    | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash linux.sh 7.3`)}
-    ${'7.3'}    | ${'linux'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${'phpunit'} | ${new RegExp(`initial script.*add_tool.*install extensions.*set coverage driver.*edit php.ini.*bash linux.sh 7.3`)}
-    ${'latest'} | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*bash linux.sh 8.0`)}
-    ${'7.0'}    | ${'win32'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*pwsh win32.ps1 7.0.*${__dirname}`)}
-    ${'7.3'}    | ${'win32'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${new RegExp(`initial script.*pwsh win32.ps1 7.3.*${__dirname}`)}
-    ${'7.3'}    | ${'win32'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${''}        | ${new RegExp(`initial script.*install extensions*set coverage driver.*edit php.ini.*pwsh win32.ps1 7.3.*${__dirname}`)}
+    ${'7.3'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 7.3 ' + __dirname}
+    ${'7.3'}    | ${'darwin'} | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${''}        | ${'initial script install extensions set coverage driver edit php.ini bash darwin.sh 7.3 ' + __dirname}
+    ${'7.4.1'}  | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 7.4 ' + __dirname}
+    ${'8'}      | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 ' + __dirname}
+    ${'8.0'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 ' + __dirname}
+    ${'8.1'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.1 ' + __dirname}
+    ${'7.3'}    | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 7.3'}
+    ${'7.3'}    | ${'linux'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${'phpunit'} | ${'initial script add_tool install extensions set coverage driver edit php.ini bash linux.sh 7.3'}
+    ${'latest'} | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 8.0'}
+    ${'7.0'}    | ${'win32'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.0 ' + __dirname}
+    ${'7.3'}    | ${'win32'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.3 ' + __dirname}
+    ${'7.3'}    | ${'win32'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${''}        | ${'initial script install extensions set coverage driver edit php.ini pwsh win32.ps1 7.3 ' + __dirname}
   `(
     'Test install on $os for $version with extensions=$extension_csv, ini_values=$ini_values_csv, coverage_driver=$coverage_driver, tools=$tools',
     async ({

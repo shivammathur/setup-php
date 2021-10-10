@@ -564,9 +564,7 @@ if($version -lt "5.5") {
 }
 
 # Remove patch once root certificates are updated on image.
-if($env:ImageOS -eq 'win16') {
-  $cert_source = 'Curl'
-}
+$cert_source = 'Curl'
 
 Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
 Update-PhpCAInfo -Path $php_dir -Source $cert_source

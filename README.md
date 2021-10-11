@@ -216,7 +216,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 
 These tools can be set up globally using the `tools` input. It accepts a string in csv-format.
 
-`behat`, `blackfire`, `blackfire-player`, `codeception`, `composer`, `composer-normalize`, `composer-prefetcher`, `composer-require-checker`, `composer-unused`, `cs2pr`, `deployer`, `flex`, `grpc_php_plugin`, `infection`, `parallel-lint`, `pecl`, `phan`, `phing`, `phinx`, `phive`, `php-config`, `php-cs-fixer`, `phpcbf`, `phpcpd`, `phpcs`, `phpdoc` or `phpDocumentor`, `phpize`, `phplint`, `phpmd`, `phpspec`, `phpstan`, `phpunit`, `phpunit-bridge`, `phpunit-polyfills`, `prestissimo`, `protoc`, `psalm`, `symfony` or `symfony-cli`, `vapor` or `vapor-cli`, `wp` or `wp-cli`
+[`behat`], [`blackfire`], [`blackfire-player`], [`codeception`], [`composer`], [`composer-normalize`], [`composer-prefetcher`], [`composer-require-checker`], [`composer-unused`], [`cs2pr`], [`deployer`], [`flex`], [`grpc_php_plugin`], [`infection`], [`parallel-lint`], [`pecl`], [`phan`], [`phing`], [`phinx`], [`phive`], [`php-config`], [`php-cs-fixer`], [`phpcbf`], [`phpcpd`], [`phpcs`], [`phpdoc`] or [`phpDocumentor`], [`phpize`], [`phplint`], [`phpmd`], [`phpspec`], [`phpstan`], [`phpunit`], [`phpunit-bridge`], [`phpunit-polyfills`], [`prestissimo`], [`protoc`], [`psalm`], [`symfony`] or [`symfony-cli`], [`vapor`] or [`vapor-cli`], [`wp`] or [`wp-cli`]
 
 ```yaml
 - name: Setup PHP with tools
@@ -927,3 +927,50 @@ Examples of using `setup-php` with various PHP Frameworks and Packages.
 - [About GitHub Actions](https://github.com/features/actions "GitHub Actions")
 - [GitHub Actions Syntax](https://help.github.com/en/articles/workflow-syntax-for-github-actions "GitHub Actions Syntax")
 - [Other Awesome Actions](https://github.com/sdras/awesome-actions "List of Awesome GitHub Actions")
+
+
+<!-- Links to tools -->
+[`behat`]:                    https://docs.behat.org/en/latest/
+[`blackfire`]:                https://blackfire.io/docs/php/index
+[`blackfire-player`]:         https://blackfire.io/docs/builds-cookbooks/player
+[`codeception`]:              https://codeception.com/
+[`composer`]:                 https://getcomposer.org/
+[`composer-normalize`]:       https://github.com/ergebnis/composer-normalize
+[`composer-prefetcher`]:      https://github.com/narrowspark/automatic-composer-prefetcher
+[`composer-require-checker`]: https://github.com/maglnet/ComposerRequireChecker
+[`composer-unused`]:          https://github.com/composer-unused/composer-unused
+[`cs2pr`]:                    https://github.com/staabm/annotate-pull-request-from-checkstyle
+[`deployer`]:                 https://deployer.org/
+[`flex`]:                     https://flex.symfony.com/
+[`grpc_php_plugin`]:          https://grpc.io/
+[`infection`]:                https://infection.github.io/
+[`parallel-lint`]:            https://github.com/php-parallel-lint/PHP-Parallel-Lint
+[`pecl`]:                     https://pecl.php.net/
+[`phan`]:                     https://github.com/phan/phan/wiki
+[`phing`]:                    https://www.phing.info/
+[`phinx`]:                    https://phinx.org/
+[`phive`]:                    https://phar.io/
+[`php-config`]:               https://www.php.net/manual/en/install.pecl.php-config.php
+[`php-cs-fixer`]:             https://cs.symfony.com/
+[`phpcbf`]:                   https://github.com/squizlabs/php_codesniffer
+[`phpcpd`]:                   https://github.com/sebastianbergmann/phpcpd
+[`phpcs`]:                    https://github.com/squizlabs/php_codesniffer
+[`phpdoc`]:                   https://phpdoc.org/
+[`phpDocumentor`]:            https://phpdoc.org/
+[`phpize`]:                   https://www.php.net/manual/en/install.pecl.phpize.php
+[`phplint`]:                  https://github.com/overtrue/phplint
+[`phpmd`]:                    https://phpmd.org/
+[`phpspec`]:                  https://www.phpspec.net/
+[`phpstan`]:                  https://phpstan.org/
+[`phpunit`]:                  https://phpunit.de/
+[`phpunit-bridge`]:           https://symfony.com/doc/current/components/phpunit_bridge.html
+[`phpunit-polyfills`]:        https://github.com/Yoast/PHPUnit-Polyfills
+[`prestissimo`]:              https://github.com/hirak/prestissimo
+[`protoc`]:                   https://developers.google.com/protocol-buffers/
+[`psalm`]:                    https://psalm.dev/
+[`symfony`]:                  https://symfony.com/download
+[`symfony-cli`]:              https://symfony.com/download
+[`vapor`]:                    https://docs.vapor.build/
+[`vapor-cli`]:                https://docs.vapor.build/
+[`wp`]:                       https://wp-cli.org/
+[`wp-cli`]:                   https://wp-cli.org/

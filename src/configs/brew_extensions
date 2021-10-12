@@ -24,5 +24,6 @@ swoole=swoole
 vips=vips
 xdebug=xdebug
 xdebug2=xdebug
+xlswriter=xlswriter
 yaml=yaml
 zmq=zmq

@@ -76,13 +76,13 @@ export async function addExtensionDarwin(
       // match 5.6 and newer - amqp, apcu, expect, grpc, igbinary, imagick, imap, memcache, memcached, mongodb, msgpack, protobuf, raphf, rdkafka, redis, ssh2, swoole, xdebug, xdebug2, yaml, zmq
       // match 7.1 and newer - pcov
       // match 5.6 to 7.4 - propro
-      // match 7.0 and newer - vips
+      // match 7.0 and newer - vips, xlswriter
       case /(?<!5\.[3-5])(amqp|apcu|expect|grpc|igbinary|imagick|imap|memcache|memcached|mongodb|msgpack|protobuf|psr|raphf|rdkafka|redis|ssh2|swoole|xdebug|xdebug2|yaml|zmq)/.test(
         version_extension
       ):
       case /(5\.6|7\.[0-4])propro/.test(version_extension):
       case /(?<!5\.[3-6]|7\.0)pcov/.test(version_extension):
-      case /(?<!5\.[3-6])vips/.test(version_extension):
+      case /(?<!5\.[3-6])(vips|xlswriter)/.test(version_extension):
         add_script += await utils.joins(
           '\nadd_brew_extension',
           ext_name,

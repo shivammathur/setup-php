@@ -132,7 +132,7 @@ patch_brew() {
 # Helper function to update the dependencies.
 update_dependencies_helper() {
   dependency=$1
-  get -q -n "$tap_dir/homebrew/homebrew-core/Formula/$dependency.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$dependency.rb"
+  # get -q -n "$tap_dir/homebrew/homebrew-core/Formula/$dependency.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$dependency.rb"
   link_libraries "$dependency"
 }
 
@@ -145,7 +145,7 @@ update_dependencies() {
     (
       cd "$tap_dir/homebrew/homebrew-core" || true
       git add . && git stash && git pull origin master
-    ) >/dev/null 2>&1 && return
+    ) >/dev/null 2>&1
 
     while read -r dependency; do
       update_dependencies_helper "$dependency" &

@@ -161,6 +161,16 @@ Function Get-ExtensionPrerequisites{
   return $deps_dir
 }
 
+# Function to add CA certificates to PHP.
+Function Add-PhpCAInfo {
+  try {
+    Update-PhpCAInfo -Path $php_dir -Source Curl
+  } catch {
+    Add-Log $cross PHP "Could not fetch CA certificate bundle from Curl"
+    Update-PhpCAInfo -Path $php_dir -Source CurrentUser
+  }
+}
+
 # Function to add PHP extensions.
 Function Add-Extension {
   Param (
@@ -471,7 +481,6 @@ $current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $jit_versions = '8.[0-9]'
 $nightly_versions = '8.[1-9]'
-$cert_source='CurrentUser'
 $enable_extensions = ('openssl', 'curl', 'mbstring')
 
 $arch = 'x64'
@@ -487,7 +496,6 @@ if($env:RUNNER -eq 'self-hosted') {
   $bin_dir = 'C:\tools\bin'
   $php_dir = "$php_dir$version"
   $ext_dir = "$php_dir\ext"
-  $cert_source='Curl'
   Get-CleanPSProfile >$null 2>&1
   New-Item $bin_dir -Type Directory -Force > $null 2>&1
   Add-Path -PathItem $bin_dir
@@ -563,7 +571,7 @@ if($version -lt "5.5") {
   $enable_extensions += ('opcache')
 }
 Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
-Update-PhpCAInfo -Path $php_dir -Source $cert_source
+Add-PhpCAInfo
 Copy-Item -Path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE
 New-Item -ItemType Directory -Path $composer_bin -Force > $null 2>&1
 Write-Output "::set-output name=php-version::$($installed.FullVersion)"

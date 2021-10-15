@@ -69,7 +69,7 @@ add_brew_extension() {
   else
     add_brew_tap "$php_tap"
     add_brew_tap "$ext_tap"
-    sudo mv "$tap_dir"/"$ext_tap"/.github/deps/"$formula"/* "$tap_dir/homebrew/homebrew-core/Formula/" 2>/dev/null || true
+    sudo mv "$tap_dir"/"$ext_tap"/.github/deps/"$formula"/* "$core_repo/Formula/" 2>/dev/null || true
     update_dependencies >/dev/null 2>&1
     disable_dependency_extensions "$extension" >/dev/null 2>&1
     brew install -f "$formula@$version" >/dev/null 2>&1
@@ -132,19 +132,23 @@ patch_brew() {
 # Helper function to update the dependencies.
 update_dependencies_helper() {
   dependency=$1
-  get -q -n "$tap_dir/homebrew/homebrew-core/Formula/$dependency.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$dependency.rb"
+  get -q -n "$core_repo/Formula/$dependency.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$dependency.rb"
   link_libraries "$dependency"
 }
 
 # Function to update dependencies.
 update_dependencies() {
-  if ! [ -e /tmp/update_dependencies ] && [ "${runner:?}" != "self-hosted" ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
-    patch_brew
-    while read -r dependency; do
-      update_dependencies_helper "$dependency" &
-      to_wait+=($!)
-    done <"$tap_dir/$php_tap/.github/deps/${ImageOS:?}_${ImageVersion:?}"
-    wait "${to_wait[@]}"
+  if ! [ -e /tmp/update_dependencies ]; then
+    if [ "${runner:?}" != "self-hosted" ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
+      patch_brew
+      while read -r dependency; do
+        update_dependencies_helper "$dependency" &
+        to_wait+=($!)
+      done <"$tap_dir/$php_tap/.github/deps/${ImageOS:?}_${ImageVersion:?}"
+      wait "${to_wait[@]}"
+    else
+      git -C "$core_repo" fetch origin master && git -C "$core_repo" reset --hard origin/master
+    fi
     echo '' | sudo tee /tmp/update_dependencies >/dev/null 2>&1
   fi
 }
@@ -234,6 +238,7 @@ php_formula=shivammathur/php/php@"$version"
 brew_prefix="$(brew --prefix)"
 brew_repo="$(brew --repository)"
 tap_dir="$brew_repo"/Library/Taps
+core_repo="$tap_dir"/homebrew/homebrew-core
 scripts="${dist}"/../src/scripts
 ext_tap=shivammathur/homebrew-extensions
 php_tap=shivammathur/homebrew-php

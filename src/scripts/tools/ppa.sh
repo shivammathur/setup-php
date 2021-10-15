@@ -31,6 +31,10 @@ set_base_version() {
   else
     set_base_version_codename
     set_base_version_id
+
+    # Remove once PPAs start having bookworm releases
+    [ "$VERSION_CODENAME" = 'bookworm' ] && VERSION_CODENAME="bullseye"
+
     printf "ID=%s\nVERSION_ID=%s\nVERSION_CODENAME=%s\n" "$ID" "$VERSION_ID" "$VERSION_CODENAME" | tee /tmp/os-release >/dev/null 2>&1
   fi
 }

@@ -121,6 +121,7 @@ add_list() {
   ppa_search="deb .*$ppa_url $package_dist .*$branches"
   if check_lists "$ppa" "$ppa_search"; then
     echo "Repository $ppa already exists";
+    return 1;
   else
     arch=$(dpkg --print-architecture)
     [ -e "$key_source" ] && key_file=$key_source || key_file="$key_dir"/"${ppa/\//-}"-keyring.gpg
@@ -129,6 +130,7 @@ add_list() {
     update_lists "$ppa" "$ppa_search"
     . /etc/os-release
   fi
+  return 0;
 }
 
 # Function to remove a PPA.
@@ -150,6 +152,20 @@ add_ppa() {
   else
     add_list "$ppa"
   fi
+  status="$?"
+  . /etc/os-release
+  return $status
+}
+
+# Function to update a PPA.
+update_ppa() {
+  set_base_version
+  ppa=${1:-ondrej/php}
+  ppa_url=${2:-"$lp_ppa/$ppa/ubuntu"}
+  package_dist=${4:-"$VERSION_CODENAME"}
+  branches=${5:-main}
+  ppa_search="deb .*$ppa_url $package_dist .*$branches"
+  update_lists "$ppa" "$ppa_search"
   . /etc/os-release
 }
 

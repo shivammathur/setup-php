@@ -14,7 +14,6 @@ self_hosted_helper() {
 # Function to install a package
 install_packages() {
   packages=("$@")
-  [[ "${packages[*]}" =~ php ]] && add_ppa ondrej/php >/dev/null 2>&1
   $apt_install "${packages[@]}" >/dev/null 2>&1 || (update_lists && $apt_install "${packages[@]}" >/dev/null 2>&1)
 }
 
@@ -60,19 +59,22 @@ add_pdo_extension() {
   fi
 }
 
+# Function to check if a package exists
+check_package() {
+  sudo apt-cache policy "$1" 2>/dev/null | grep -q 'Candidate'
+}
+
 # Function to add extensions.
 add_extension() {
   local extension=$1
   prefix=$2
+  package=php"$version"-"$extension"
   enable_extension "$extension" "$prefix"
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
-    if [[ "$version" =~ ${nightly_versions:?} ]]; then
-      pecl_install "$extension"
-    else
-      install_packages "php$version-$extension" || pecl_install "$extension"
-    fi
+    add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
+    (check_package "$package" && install_packages "$package") || pecl_install "$extension"
     add_extension_log "$extension" "Installed and enabled"
   fi
   sudo chmod 777 "${ini_file[@]}"
@@ -125,7 +127,7 @@ switch_version() {
 # Function to install packaged PHP
 add_packaged_php() {
   if [ "$runner" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
-    update_lists
+    add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
     IFS=' ' read -r -a packages <<<"$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
     install_packages "${packages[@]}"
   else

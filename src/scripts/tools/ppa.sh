@@ -101,7 +101,7 @@ check_lists() {
   ppa=$1
   ppa_search=$2
   if grep -Eqr "$ppa_search" "$list_dir"; then
-    list_count="$(find /var/lib/apt/lists -name "*${ppa/\//_}*" | wc -l)"
+    list_count="$(sudo find /var/lib/apt/lists -type f -name "*${ppa/\//_}*" | wc -l)"
     if [ "$list_count" = "0" ]; then
       update_lists "$ppa" "$ppa_search"
     fi

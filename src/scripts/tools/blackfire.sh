@@ -1,7 +1,8 @@
 add_blackfire_linux() {
-  sudo mkdir -p /var/run/blackfire
+  sudo mkdir -p /var/run/blackfire /etc/blackfire
   add_list debian/blackfire http://packages.blackfire.io/debian https://packages.blackfire.io/gpg.key any main
   install_packages blackfire
+  sudo chmod 777 /etc/blackfire/agent
 }
 
 add_blackfire_darwin() {

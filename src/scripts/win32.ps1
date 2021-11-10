@@ -572,7 +572,7 @@ if($version -lt "5.5") {
 }
 Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
 Add-PhpCAInfo
-Copy-Item -Path $dist\..\src\configs\*.json -Destination $env:RUNNER_TOOL_CACHE
+Copy-Item -Path $dist\..\src\configs\pm\*.json -Destination $env:RUNNER_TOOL_CACHE
 New-Item -ItemType Directory -Path $composer_bin -Force > $null 2>&1
 Write-Output "::set-output name=php-version::$($installed.FullVersion)"
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)$extra_version"

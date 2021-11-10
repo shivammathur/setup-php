@@ -226,7 +226,7 @@ setup_php() {
     exit 1
   fi
 
-  sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
+  sudo cp "$dist"/../src/configs/pm/*.json "$RUNNER_TOOL_CACHE/"
   echo "::set-output name=php-version::$semver"
   add_log "$tick" "PHP" "$status PHP $semver$extra_version"
 }

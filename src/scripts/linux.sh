@@ -215,7 +215,7 @@ setup_php() {
   configure_php
   sudo rm -rf /usr/local/bin/phpunit >/dev/null 2>&1
   sudo chmod 777 "${ini_file[@]}" "$pecl_file" "${tool_path_dir:?}"
-  sudo cp "$dist"/../src/configs/*.json "$RUNNER_TOOL_CACHE/"
+  sudo cp "$dist"/../src/configs/pm/*.json "$RUNNER_TOOL_CACHE/"
   echo "::set-output name=php-version::$semver"
   add_log "${tick:?}" "PHP" "$status PHP $semver$extra_version"
 }

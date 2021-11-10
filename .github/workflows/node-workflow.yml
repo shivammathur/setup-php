@@ -25,6 +25,10 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
+      - name: Harden Runner
+        if: runner.os == 'Linux'
+        uses: step-security/harden-runner@main
+
       - name: Checkout
         uses: actions/checkout@v2
 

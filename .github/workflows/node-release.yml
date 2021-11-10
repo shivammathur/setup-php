@@ -1,0 +1,62 @@
+name: Publish Package
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      skip:
+        description: Skip release to repository
+        required: false
+      tag:
+        description: Tag name
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@main
+
+      - name: Checkout release
+        if: github.event_name != 'workflow_dispatch'
+        uses: actions/checkout@v2
+
+      - name: Checkout tag
+        uses: actions/checkout@v2
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          ref: ${{ github.event.inputs.tag }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Publish to NPM
+        if: "!contains(github.event.inputs.skip, 'skip-npm')"
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Change to GitHub Packages registry
+        uses: actions/setup-node@v2
+        with:
+          registry-url: https://npm.pkg.github.com
+          scope: '@shivammathur'
+
+      - name: Patch package.json
+        run: |
+          sed -i 's#"name": "#"name": "@shivammathur/#' package.json
+
+      - name: Publish to GitHub Packages
+        if: "!contains(github.event.inputs.skip, 'skip-github-packages')"
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

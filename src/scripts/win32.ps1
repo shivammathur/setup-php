@@ -141,26 +141,6 @@ Function Set-ExtensionPrerequisites
   }
 }
 
-# Function to get extension pre-requisites.
-# https://windows.php.net/downloads/pecl/deps
-# Currently only imagick is supported using this Cmdlet.
-Function Get-ExtensionPrerequisites{
-  Param (
-    [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateNotNull()]
-    [ValidateLength(1, [int]::MaxValue)]
-    [string]
-    $extension
-  )
-  $deps_dir = "$ext_dir\$extension-vc$($installed.VCVersion)-$arch"
-  $extensions_with_dependencies = ('imagick')
-  New-Item $deps_dir -Type Directory -Force > $null 2>&1
-  if($extensions_with_dependencies.Contains($extension)) {
-    Install-PhpExtensionPrerequisite -Extension $extension -InstallPath $deps_dir -PhpPath $php_dir
-  }
-  return $deps_dir
-}
-
 # Function to add CA certificates to PHP.
 Function Add-PhpCAInfo {
   try {
@@ -192,6 +172,8 @@ Function Add-Extension {
   )
   try {
     $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
+    $deps_dir = "$ext_dir\$extension-vc$($installed.VCVersion)-$arch"
+    New-Item $deps_dir -Type Directory -Force > $null 2>&1
     if ($null -ne $extension_info) {
       switch ($extension_info.State) {
         'Builtin' {
@@ -201,7 +183,6 @@ Function Add-Extension {
           Add-Log $tick $extension "Enabled"
         }
         default {
-          $deps_dir = Get-ExtensionPrerequisites $extension
           Enable-ExtensionDependencies $extension
           Enable-PhpExtension -Extension $extension_info.Handle -Path $php_dir
           Set-ExtensionPrerequisites $deps_dir
@@ -210,7 +191,6 @@ Function Add-Extension {
       }
     }
     else {
-      $deps_dir = Get-ExtensionPrerequisites $extension
       $params = @{ Extension = $extension; MinimumStability = $stability; MaximumStability = $stability; Path = $php_dir; AdditionalFilesPath = $deps_dir; NoDependencies = $true }
       if($extension_version -ne '') {
         $params["Version"] = $extension_version

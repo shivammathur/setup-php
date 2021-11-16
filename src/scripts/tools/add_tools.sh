@@ -18,6 +18,10 @@ add_tools_helper() {
     add_extension fileinfo extension >/dev/null 2>&1
     sudo ln -s "${tool_path:?}" "${tool_path_dir:?}"/phpdocumentor 2>/dev/null || true
     sudo ln -s "${tool_path:?}" "${tool_path_dir:?}"/phpdoc
+  elif [[ "$tool" =~ phpunit(-polyfills)?$ ]]; then
+    if [ -e "${tool_path_dir:?}"/phpunit ]; then
+      sudo cp "${tool_path_dir:?}"/phpunit "${composer_bin:?}"
+    fi
   elif [[ "$tool" =~ (symfony|vapor|wp)-cli ]]; then
     sudo ln -s "${tool_path:?}" "${tool_path_dir:?}"/"${tool%-*}"
   fi

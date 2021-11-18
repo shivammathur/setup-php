@@ -128,7 +128,7 @@ switch_version() {
 add_packaged_php() {
   if [ "$runner" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
     add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
-    IFS=' ' read -r -a packages <<<"$(echo "cli curl mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
+    IFS=' ' read -r -a packages <<<"$(echo "cli curl dev mbstring xml intl" | sed "s/[^ ]*/php$version-&/g")"
     install_packages "${packages[@]}"
   else
     run_script "php-ubuntu" "$version"

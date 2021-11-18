@@ -137,13 +137,13 @@ add_packaged_php() {
 
 # Function to update PHP.
 update_php() {
-  initial_version=$(php_semver)
-  add_packaged_php
-  updated_version=$(php_semver)
+  initial_version="$(php_semver)$(php_extra_version)"
+  add_php
+  updated_version="$(php_semver)$(php_extra_version)"
   if [ "$updated_version" != "$initial_version" ]; then
     status="Updated to"
   else
-    status="Switched to"
+    status="Found"
   fi
 }
 
@@ -155,6 +155,7 @@ add_php() {
     setup_old_versions
   else
     add_packaged_php
+    switch_version >/dev/null 2>&1
   fi
   status="Installed"
 }
@@ -183,14 +184,14 @@ setup_php() {
     if [ ! -e "/usr/bin/php$version" ]; then
       add_php >/dev/null 2>&1
     else
+      if ! [[ "$version" =~ ${old_versions:?} ]]; then
+        switch_version >/dev/null 2>&1
+      fi
       if [ "${update:?}" = "true" ]; then
         update_php >/dev/null 2>&1
       else
         status="Switched to"
       fi
-    fi
-    if ! [[ "$version" =~ ${old_versions:?}|${nightly_versions:?} ]]; then
-      switch_version >/dev/null 2>&1
     fi
   else
     if [ "$update" = "true" ]; then

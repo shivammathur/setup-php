@@ -431,10 +431,10 @@ async function getScript(filename, version, os_version) {
     const coverage_driver = await utils.getInput('coverage', false);
     const tools_csv = await utils.getInput('tools', false);
     let script = await utils.readFile(filename, 'src/scripts');
-    script += await tools.addTools(tools_csv, version, os_version);
     if (extension_csv) {
         script += await extensions.addExtension(extension_csv, version, os_version);
     }
+    script += await tools.addTools(tools_csv, version, os_version);
     if (coverage_driver) {
         script += await coverage.addCoverage(coverage_driver, version, os_version);
     }

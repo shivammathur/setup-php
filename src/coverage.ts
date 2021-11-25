@@ -2,6 +2,19 @@ import * as utils from './utils';
 import * as extensions from './extensions';
 import * as config from './config';
 
+export async function checkXdebugError(
+  extension: string,
+  version: string
+): Promise<string> {
+  if (
+    (/^5\.[3-6]$|^7\.[0-1]$/.test(version) && extension == 'xdebug3') ||
+    (/^8\.[0-9]$/.test(version) && extension == 'xdebug2')
+  ) {
+    return extension + ' is not supported on PHP ' + version;
+  }
+  return '';
+}
+
 /**
  * Function to setup Xdebug
  *
@@ -17,18 +30,24 @@ export async function addCoverageXdebug(
   pipe: string
 ): Promise<string> {
   let script = '\n';
-  script +=
-    (await extensions.addExtension(':pcov:false', version, os_version, true)) +
-    pipe;
-  script +=
-    (await extensions.addExtension(extension, version, os_version, true)) +
-    pipe;
-  script += await utils.addLog(
-    '$tick',
-    extension,
-    'Xdebug enabled as coverage driver',
-    os_version
-  );
+  let message: string = await checkXdebugError(extension, version);
+  let status = '$cross';
+  if (!message) {
+    script +=
+      (await extensions.addExtension(
+        ':pcov:false',
+        version,
+        os_version,
+        true
+      )) + pipe;
+    extension = extension == 'xdebug3' ? 'xdebug' : extension;
+    script +=
+      (await extensions.addExtension(extension, version, os_version, true)) +
+      pipe;
+    message = 'Xdebug enabled as coverage driver';
+    status = '$tick';
+  }
+  script += await utils.addLog(status, extension, message, os_version);
   return script;
 }
 
@@ -136,13 +155,11 @@ export async function addCoverage(
     case 'pcov':
       return script + (await addCoveragePCOV(version, os_version, pipe));
     case 'xdebug':
+    case 'xdebug2':
     case 'xdebug3':
       return (
-        script + (await addCoverageXdebug('xdebug', version, os_version, pipe))
-      );
-    case 'xdebug2':
-      return (
-        script + (await addCoverageXdebug('xdebug2', version, os_version, pipe))
+        script +
+        (await addCoverageXdebug(coverage_driver, version, os_version, pipe))
       );
     case 'none':
       return script + (await disableCoverage(version, os_version, pipe));

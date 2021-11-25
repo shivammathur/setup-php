@@ -508,7 +508,13 @@ Step-Log "Setup PHP"
 $installed = $null
 if (Test-Path -LiteralPath $php_dir -PathType Container) {
   try {
-    $installed = Get-Php -Path $php_dir
+    if(Test-Path $php_dir\php.ini) {
+      Rename-Item -Path $php_dir\php.ini -NewName 'php.ini.bak'
+    }
+    $installed = Get-Php -Path $php_dir -ErrorAction SilentlyContinue 2>$null 3>$null
+    if(Test-Path $php_dir\php.ini.bak) {
+      Rename-Item -Path $php_dir\php.ini.bak -NewName 'php.ini'
+    }
   } catch { }
 }
 $status = "Installed"

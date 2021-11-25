@@ -64,7 +64,7 @@ describe('Utils tests', () => {
           }
         }
       );
-    expect(await utils.parseVersion('latest')).toBe('8.0');
+    expect(await utils.parseVersion('latest')).toBe('8.1');
     expect(await utils.parseVersion('7')).toBe('7.0');
     expect(await utils.parseVersion('7.4')).toBe('7.4');
     expect(await utils.parseVersion('5.x')).toBe('5.6');

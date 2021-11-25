@@ -113,11 +113,11 @@ On all supported OS/Platforms the following PHP versions are supported as per th
 |`7.3`|`Stable`|`Security fixes only`|`GitHub-hosted`, `self-hosted`|
 |`7.4`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
 |`8.0`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
-|`8.1`|`Nightly`|`In development`|`GitHub-hosted`, `self-hosted`|
+|`8.1`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
 |`8.2`|`Nightly`|`In development`|`GitHub-hosted`, `self-hosted`|
 
 **Notes:** 
-- Specifying `8.1` and `8.2` in `php-version` input installs a nightly build of `PHP 8.1.0-dev` and `PHP 8.2.0-dev` respectively. See [nightly build setup](#nightly-build-setup) for more information.
+- Specifying `8.2` in `php-version` input installs a nightly build of `PHP 8.2.0-dev`. See [nightly build setup](#nightly-build-setup) for more information.
 - To use JIT on `PHP 8.0` and above, refer to the [JIT configuration](#jit-configuration) section.
 
 ## :heavy_plus_sign: PHP Extension Support
@@ -506,7 +506,7 @@ jobs:
 
 ### Nightly Build Setup
 
-> Setup a nightly build of `PHP 8.1` or `PHP 8.2`. 
+> Setup a nightly build of `PHP 8.2`. 
 
 - This version is currently in development.
 - Some user space extensions might not support this version currently.
@@ -516,7 +516,7 @@ steps:
 - name: Setup nightly PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.1'
+    php-version: '8.2'
     extensions: mbstring
     ini-values: post_max_size=256M, max_execution_time=180
     coverage: xdebug

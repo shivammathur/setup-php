@@ -5,6 +5,7 @@ grpc=grpc
 igbinary=igbinary
 imagick=imagick
 imap=imap
+mailparse=mailparse
 memcache=memcache
 memcached=memcached
 mongodb=mongodb

@@ -111,7 +111,7 @@ On all supported OS/Platforms the following PHP versions are supported as per th
 |`7.1`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
 |`7.2`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
 |`7.3`|`Stable`|`Security fixes only`|`GitHub-hosted`, `self-hosted`|
-|`7.4`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
+|`7.4`|`Stable`|`Security fixes only`|`GitHub-hosted`, `self-hosted`|
 |`8.0`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
 |`8.1`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
 |`8.2`|`Nightly`|`In development`|`GitHub-hosted`, `self-hosted`|

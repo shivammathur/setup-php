@@ -110,7 +110,7 @@ On all supported OS/Platforms the following PHP versions are supported as per th
 |`7.0`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
 |`7.1`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
 |`7.2`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
-|`7.3`|`Stable`|`Security fixes only`|`GitHub-hosted`, `self-hosted`|
+|`7.3`|`Stable`|`End of life`|`GitHub-hosted`, `self-hosted`|
 |`7.4`|`Stable`|`Security fixes only`|`GitHub-hosted`, `self-hosted`|
 |`8.0`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
 |`8.1`|`Stable`|`Active`|`GitHub-hosted`, `self-hosted`|
@@ -487,7 +487,7 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-latest', 'windows-latest', 'macos-latest']
-        php-versions: ['7.3', '7.4', '8.0']
+        php-versions: ['7.4', '8.0', '8.1']
         phpunit-versions: ['latest']
         include:
         - operating-system: 'ubuntu-latest'

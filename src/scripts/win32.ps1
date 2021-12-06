@@ -460,7 +460,7 @@ $composer_lock = "$env:APPDATA\Composer\composer.lock"
 $current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $jit_versions = '8.[0-9]'
-$nightly_versions = '8.[1-9]'
+$nightly_versions = '8.[2-9]'
 $enable_extensions = ('openssl', 'curl', 'mbstring')
 
 $arch = 'x64'

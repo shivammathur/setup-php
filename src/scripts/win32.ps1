@@ -191,7 +191,13 @@ Function Add-Extension {
       }
     }
     else {
-      $params = @{ Extension = $extension; MinimumStability = $stability; MaximumStability = $stability; Path = $php_dir; AdditionalFilesPath = $deps_dir; NoDependencies = $true }
+      # Patch till PHP 8.1 DLLs are released as stable.
+      $minimumStability = 'stable'
+      if($version -eq '8.1' -and $stability -eq 'stable') {
+        $minimumStability = 'snapshot'
+      }
+
+      $params = @{ Extension = $extension; MinimumStability = $minimumStability; MaximumStability = $stability; Path = $php_dir; AdditionalFilesPath = $deps_dir; NoDependencies = $true }
       if($extension_version -ne '') {
         $params["Version"] = $extension_version
       }

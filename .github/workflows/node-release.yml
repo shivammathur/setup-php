@@ -18,7 +18,12 @@ jobs:
       packages: write
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v1
+        with:
+          allowed-endpoints:
+            github.com:443
+            npm.pkg.github.com:443
+            registry.npmjs.org:443
 
       - name: Checkout release
         if: github.event_name != 'workflow_dispatch'

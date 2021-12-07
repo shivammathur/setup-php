@@ -26,11 +26,9 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Harden Runner
-        if: runner.os == 'Linux'
-        uses: step-security/harden-runner@main
+        uses: step-security/harden-runner@v1
         with:
           allowed-endpoints:
-            beta.api.stepsecurity.io.:443
             codecov.io.:443
             github.com.:443
             nodejs.org.:443

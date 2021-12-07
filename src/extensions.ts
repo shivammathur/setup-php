@@ -231,7 +231,9 @@ export async function addExtensionLinux(
   let remove_script = '';
   await utils.asyncForEach(extensions, async function (extension: string) {
     const version_extension: string = version + extension;
-    const [ext_name, ext_version]: string[] = extension.split('-');
+    const [ext_name, ext_version]: string[] = extension
+      .split(/-(.+)/)
+      .filter(Boolean);
     const ext_prefix = await utils.getExtensionPrefix(ext_name);
 
     switch (true) {

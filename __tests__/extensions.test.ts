@@ -59,6 +59,7 @@ describe('Extension tests', () => {
     ${'pecl_http'}                               | ${'7.3'} | ${'add_http'}
     ${'phalcon3'}                                | ${'7.3'} | ${'add_phalcon phalcon3'}
     ${'sqlite'}                                  | ${'7.4'} | ${'add_extension sqlite3'}
+    ${'sqlsrv-1.2.3-beta1'}                      | ${'7.4'} | ${'add_pecl_extension sqlsrv 1.2.3beta1 extension'}
     ${'Xdebug'}                                  | ${'7.4'} | ${'add_extension xdebug'}
     ${'xdebug-alpha'}                            | ${'7.4'} | ${'add_unstable_extension xdebug alpha zend_extension'}
     ${'xdebug2'}                                 | ${'7.2'} | ${'add_pecl_extension xdebug 2.9.8 zend_extension'}

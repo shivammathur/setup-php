@@ -292,7 +292,7 @@ export async function extensionArray(
             return extension
               .trim()
               .toLowerCase()
-              .replace(/^(:)?(php[-_]|none|zend )/, '$1');
+              .replace(/^(:)?(php[-_]|none|zend )|(-[^-]*)-/, '$1$3');
           })
       ].filter(Boolean);
   }

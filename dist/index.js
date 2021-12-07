@@ -332,7 +332,9 @@ async function addExtensionLinux(extension_csv, version) {
     let remove_script = '';
     await utils.asyncForEach(extensions, async function (extension) {
         const version_extension = version + extension;
-        const [ext_name, ext_version] = extension.split('-');
+        const [ext_name, ext_version] = extension
+            .split(/-(.+)/)
+            .filter(Boolean);
         const ext_prefix = await utils.getExtensionPrefix(ext_name);
         switch (true) {
             case /^:/.test(ext_name):
@@ -1080,7 +1082,7 @@ async function extensionArray(extension_csv) {
                     return extension
                         .trim()
                         .toLowerCase()
-                        .replace(/^(:)?(php[-_]|none|zend )/, '$1');
+                        .replace(/^(:)?(php[-_]|none|zend )|(-[^-]*)-/, '$1$3');
                 })
             ].filter(Boolean);
     }

@@ -1,7 +1,7 @@
 # Variables
 export tick="✓"
 export cross="✗"
-export curl_opts=(-sL)
+export curl_opts=(-L)
 export old_versions="5.[3-5]"
 export jit_versions="8.[0-9]"
 export nightly_versions="8.[2-9]"
@@ -12,6 +12,7 @@ export composer_bin="$composer_home/vendor/bin"
 export composer_json="$composer_home/composer.json"
 export composer_lock="$composer_home/composer.lock"
 export latest="releases/latest/download"
+export setup_php="https://setup-php.com"
 export github="https://github.com/shivammathur"
 export jsdeliver="https://cdn.jsdelivr.net/gh/shivammathur"
 
@@ -76,7 +77,7 @@ run_script() {
   repo=$1
   shift
   args=("$@")
-  get -q -e /tmp/install.sh "$github/$repo/$latest/install.sh" "$jsdeliver/$1@main/scripts/install.sh"
+  get -q -e /tmp/install.sh "$setup_php/$repo/install.sh" "$jsdeliver/$repo@main/scripts/install.sh" "$github/$repo/$latest/install.sh"
   bash /tmp/install.sh "${args[@]}"
 }
 

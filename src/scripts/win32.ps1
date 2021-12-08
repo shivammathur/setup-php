@@ -507,7 +507,7 @@ if($env:RUNNER -eq 'self-hosted') {
 
 Add-Printf >$null 2>&1
 Step-Log "Setup PhpManager"
-Install-PSPackage PhpManager PhpManager\PhpManager https://setup-php.com/PhpManager.zip Get-Php >$null 2>&1
+Install-PSPackage PhpManager PhpManager\PhpManager "$github/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip" Get-Php >$null 2>&1
 Add-Log $tick "PhpManager" "Installed"
 
 Step-Log "Setup PHP"
@@ -527,11 +527,11 @@ $status = "Installed"
 $extra_version = ""
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
   if ($version -lt '7.0' -and (Get-InstalledModule).Name -notcontains 'VcRedist') {
-    Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist https://setup-php.com/VcRedist.zip Get-VcList >$null 2>&1
+    Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" Get-VcList >$null 2>&1
   }
   try {
     if ($version -match $nightly_versions) {
-      Invoke-WebRequest -UseBasicParsing -Uri https://setup-php.com/Get-PhpNightly.ps1 -OutFile $php_dir\Get-PhpNightly.ps1 > $null 2>&1
+      Invoke-WebRequest -UseBasicParsing -Uri $php_builder/releases/latest/download/Get-PhpNightly.ps1 -OutFile $php_dir\Get-PhpNightly.ps1 > $null 2>&1
       & $php_dir\Get-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir -Version $version > $null 2>&1
       if(Test-Path $php_dir\COMMIT) {
         $extra_version = " ($( Get-Content $php_dir\COMMIT ))"

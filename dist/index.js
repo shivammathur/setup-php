@@ -724,26 +724,24 @@ async function addPhive(data) {
         case /5\.[3-5]/.test(data['php_version']):
             return await utils.addLog('$cross', 'phive', 'Phive is not supported on PHP ' + data['php_version'], data['os_version']);
         case /5\.6|7\.0/.test(data['php_version']):
-            data['version'] = data['version'].replace('latest', '0.12.1');
+            data['version'] = '0.12.1';
             break;
         case /7\.1/.test(data['php_version']):
-            data['version'] = data['version'].replace('latest', '0.13.5');
+            data['version'] = '0.13.5';
             break;
         case /7\.2/.test(data['php_version']):
-            data['version'] = data['version'].replace('latest', '0.14.5');
+            data['version'] = '0.14.5';
             break;
     }
     if (data['version'] === 'latest') {
-        data['domain'] = data['domain'] + '/releases';
+        data['version'] = await getLatestVersion(data);
     }
-    else {
-        data['domain'] = [
-            data['github'],
-            data['repository'],
-            'releases/download',
-            data['version']
-        ].join('/');
-    }
+    data['domain'] = [
+        data['github'],
+        data['repository'],
+        'releases/download',
+        data['version']
+    ].join('/');
     data['url'] = await getPharUrl(data);
     return await addArchive(data);
 }

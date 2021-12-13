@@ -205,7 +205,7 @@
   "phive": {
     "type": "custom-function",
     "repository": "phar-io/phive",
-    "domain": "https://phar.io",
+    "domain": "https://github.com",
     "function": "phive",
     "version_prefix": "",
     "version_parameter": "status"

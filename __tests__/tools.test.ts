@@ -227,7 +227,7 @@ describe('Tools tests', () => {
 
   it.each`
     version     | php_version | os_version  | script
-    ${'latest'} | ${'7.4'}    | ${'linux'}  | ${'add_tool https://phar.io/releases/phive.phar phive'}
+    ${'latest'} | ${'7.4'}    | ${'linux'}  | ${'add_tool https://github.com/phar-io/phive/releases/download/3.2.1/phive-3.2.1.phar phive'}
     ${'1.2.3'}  | ${'7.4'}    | ${'darwin'} | ${'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'}
     ${'1.2.3'}  | ${'7.2'}    | ${'win32'}  | ${'Add-Tool https://github.com/phar-io/phive/releases/download/0.14.5/phive-0.14.5.phar phive'}
     ${'1.2.3'}  | ${'7.1'}    | ${'win32'}  | ${'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.5/phive-0.13.5.phar phive'}
@@ -238,7 +238,6 @@ describe('Tools tests', () => {
     async ({version, php_version, os_version, script}) => {
       const data = getData({
         tool: 'phive',
-        domain: 'https://phar.io',
         repository: 'phar-io/phive',
         version_parameter: 'status',
         version: version,
@@ -391,7 +390,7 @@ describe('Tools tests', () => {
         'add_tool https://www.phing.info/get/phing-latest.phar phing "-v"',
         'add_composertool phinx phinx robmorgan/',
         'add_composertool phinx phinx:1.2.3 robmorgan/',
-        'add_tool https://phar.io/releases/phive.phar phive "status"',
+        'add_tool https://github.com/phar-io/phive/releases/download/3.2.1/phive-3.2.1.phar phive "status"',
         'add_composertool phpunit-bridge phpunit-bridge symfony/',
         'add_composertool phpunit-polyfills phpunit-polyfills yoast/',
         'add_devtools php-config',

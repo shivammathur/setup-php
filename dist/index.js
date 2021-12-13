@@ -732,17 +732,12 @@ async function addPhive(data) {
         case /7\.2/.test(data['php_version']):
             data['version'] = '0.14.5';
             break;
+        case /^latest$/.test(data['version']):
+            data['version'] = await getLatestVersion(data);
+            break;
     }
-    if (data['version'] === 'latest') {
-        data['version'] = await getLatestVersion(data);
-    }
-    data['domain'] = [
-        data['github'],
-        data['repository'],
-        'releases/download',
-        data['version']
-    ].join('/');
-    data['url'] = await getPharUrl(data);
+    data['extension'] = '-' + data['version'] + data['extension'];
+    data['url'] = await getUrl(data);
     return await addArchive(data);
 }
 exports.addPhive = addPhive;

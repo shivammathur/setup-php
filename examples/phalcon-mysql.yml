@@ -42,7 +42,7 @@ jobs:
           extensions: mbstring, dom, zip, phalcon4, mysql #use phalcon3 for the phalcon 3.x.
           coverage: xdebug #optional
       - name: Start mysql service
-        run: sudo /etc/init.d/mysql start
+        run: sudo systemctl start mysql
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"

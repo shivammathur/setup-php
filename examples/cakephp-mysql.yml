@@ -35,7 +35,7 @@ jobs:
           extensions: mbstring, intl, redis, pdo_mysql
           coverage: pcov
       - name: Start mysql service
-        run: sudo /etc/init.d/mysql start
+        run: sudo systemctl start mysql
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"

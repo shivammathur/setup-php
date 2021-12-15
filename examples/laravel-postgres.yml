@@ -17,7 +17,7 @@ jobs:
       DB_DATABASE: postgres
     services:
       postgres:
-        image: postgres:10.8
+        image: postgres:latest
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -25,6 +25,7 @@ jobs:
         ports:
           - 5432/tcp
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
       redis:
         image: redis
         ports:
@@ -33,19 +34,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.2', '7.3', '7.4']
+        php-versions: ['7.4', '8.0', '8.1']
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup PHP, with composer and extensions
-        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+
+      # Docs: https://github.com/shivammathur/setup-php
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, dom, fileinfo, pgsql
-          coverage: xdebug #optional
+          coverage: xdebug
+
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
       - name: Cache composer dependencies
         uses: actions/cache@v2
         with:
@@ -54,19 +59,24 @@ jobs:
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
+
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
+
       - name: Prepare the application
         run: |
           php -r "file_exists('.env') || copy('.env.example', '.env');"
           php artisan key:generate
+
       - name: Clear Config
         run: php artisan config:clear
+
       - name: Run Migration
         run: php artisan migrate -v
         env:
           DB_PORT: ${{ job.services.postgres.ports[5432] }}
           REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
+
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text
         env:

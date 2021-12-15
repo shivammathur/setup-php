@@ -15,17 +15,23 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
-        php-versions: ['7.2', '7.3', '7.4']
-        # Blackfire supports PHP >= 5.3 on ubuntu and macos and PHP >= 5.4 on windows
+        php-versions: ['7.4', '8.0', '8.1']
+        # Blackfire supports PHP >= 5.3 on Ubuntu and macOS, and PHP >= 5.4 on Windows
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup PHP, with composer and extensions
-        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+
+      # Docs: https://github.com/shivammathur/setup-php
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
+          # Setup Blackfire extension and CLI
           extensions: blackfire
-          tools: blackfire #Setup Blackfire cli
+          tools: blackfire
+          # Disable Xdebug and PCOV coverage drivers
           coverage: none
+
+      # Refer to https://blackfire.io/docs/cookbooks/profiling-cli
       - name: Profile
-        run: blackfire run php my-script.php # Refer to https://blackfire.io/docs/cookbooks/profiling-cli
+        run: blackfire run php my-script.php

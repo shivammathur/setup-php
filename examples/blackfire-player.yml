@@ -15,17 +15,22 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
-        php-versions: ['7.2', '7.3', '7.4']
+        php-versions: ['7.4', '8.0', '8.1']
         # blackfire-player supports PHP >= 5.5
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup PHP, with composer and extensions
-        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+
+      # Docs: https://github.com/shivammathur/setup-php
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: blackfire
-          tools: blackfire, blackfire-player #Setup Blackfire client, agent and player
+          # Setup Blackfire CLI and player
+          tools: blackfire, blackfire-player
           coverage: none
+
+      # Refer to https://blackfire.io/docs/player/index#usage
       - name: Play the scenario
-        run: blackfire-player run scenario.bkf # Refer to https://blackfire.io/docs/player/index#usage
+        run: blackfire-player run scenario.bkf

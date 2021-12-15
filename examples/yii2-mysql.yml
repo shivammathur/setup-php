@@ -13,7 +13,7 @@ jobs:
       DB_CHARSET: utf8
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:latest
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_ROOT_PASSWORD: yii
@@ -24,25 +24,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.2', '7.3', '7.4']
+        php-versions: ['7.4', '8.0']
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Set Node.js 10.x
         uses: actions/setup-node@v1
         with:
           node-version: 10.x
-      - name: Setup PHP, with composer and extensions
-        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+
+      # Docs: https://github.com/shivammathur/setup-php
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, intl, gd, imagick, zip, dom, mysql
-          coverage: xdebug #optional
+          coverage: xdebug
+
       - name: Start mysql service
         run: sudo systemctl start mysql
+
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
       - name: Cache composer dependencies
         uses: actions/cache@v2
         with:
@@ -51,8 +57,10 @@ jobs:
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
+
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
+
       - name: Prepare the application
         run: |
           php -r "file_exists('.env') || copy('.env.dist', '.env');"
@@ -62,6 +70,7 @@ jobs:
         env:
           DB_DSN: mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=yii
           TEST_DB_DSN: mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=yii
+
       - name: Run Tests
         run: |
           vendor/bin/codecept build

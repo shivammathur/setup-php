@@ -8,33 +8,41 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.1', '7.2', '7.3', '7.4']
-        node-versions: ['8', '10']
+        php-versions: ['7.4', '8.0', '8.1']
+        node-versions: [16']
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-versions }}
-      - name: Setup PHP, with composer and extensions
-        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+
+      # Docs: https://github.com/shivammathur/setup-php
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring
+
       - name: Check node versions
         run: node -v
+
       - name: Get yarn cache
         id: yarn-cache
         run: echo "::set-output name=dir::$(yarn cache dir)"
+
       - uses: actions/cache@v2
         with:
           path: ${{ steps.yarn-cache.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: ${{ runner.os }}-yarn-
+
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
       - name: Cache composer dependencies
         uses: actions/cache@v2
         with:
@@ -43,15 +51,19 @@ jobs:
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
+
       - name: Install yarn dependencies
         run: yarn -V
+
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
+
       - name: Yarn test and build
         run: |
           yarn run test
           yarn run build
           yarn run rmdist
           yarn run "build:production"
+
       - name: PHP test
         run: composer test

@@ -7,20 +7,24 @@ jobs:
     strategy:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
-        php-versions: ['7.2', '7.3', '7.4']
+        php-versions: ['7.4', '8.0', '8.1']
     runs-on: ${{ matrix.operating-system }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      # Docs: https://github.com/shivammathur/setup-php
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, intl, pdo_sqlite, pdo_mysql
-          coverage: pcov #optional
+          coverage: pcov
+
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
       - name: Cache composer dependencies
         uses: actions/cache@v2
         with:
@@ -29,10 +33,12 @@ jobs:
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
+
       - name: Install dependencies
         run: |
           composer install --no-progress --prefer-dist --optimize-autoloader
           composer run-script post-install-cmd --no-interaction
+
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text
 
@@ -42,14 +48,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      # Docs: https://github.com/shivammathur/setup-php
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.3'
+          php-version: '8.1'
           extensions: mbstring, intl
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
       - name: Cache composer dependencies
         uses: actions/cache@v2
         with:
@@ -58,8 +67,10 @@ jobs:
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
+
       - name: Install dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
+
       - name: PHP CodeSniffer
         run: composer cs-check
 
@@ -69,15 +80,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      # Docs: https://github.com/shivammathur/setup-php
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.3'
+          php-version: '8.1'
           extensions: mbstring, intl
           tools: phpstan
+
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
       - name: Cache composer dependencies
         uses: actions/cache@v2
         with:
@@ -86,7 +101,9 @@ jobs:
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
+
       - name: Install dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
+
       - name: Static Analysis using PHPStan
         run: phpstan analyse --no-progress src/

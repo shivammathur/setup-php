@@ -15,7 +15,7 @@ jobs:
       SESSION_DRIVER: redis
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:latest
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_ROOT_PASSWORD: password
@@ -23,6 +23,7 @@ jobs:
         ports:
           - 3306/tcp
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
       redis:
         image: redis
         ports:
@@ -31,21 +32,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.2', '7.3', '7.4']
+        php-versions: ['7.4', '8.0', '8.1']
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup PHP, with composer and extensions
-        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+
+      # Docs: https://github.com/shivammathur/setup-php
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, dom, fileinfo, mysql
-          coverage: xdebug #optional
+          coverage: xdebug
+
       - name: Start mysql service
         run: sudo systemctl start mysql
+
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
       - name: Cache composer dependencies
         uses: actions/cache@v2
         with:
@@ -54,19 +60,24 @@ jobs:
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
+
       - name: Install Composer dependencies
         run: |
           composer install --no-progress --prefer-dist --optimize-autoloader
           composer require predis/predis illuminate/redis
+
       - name: Prepare the application
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
       - name: Register Redis as service provider
         run: sed -i '$i\$app->register(Illuminate\\Redis\\RedisServiceProvider::class);' bootstrap/app.php
+
       - name: Run Migration
         run: php artisan migrate -v
         env:
           DB_PORT: ${{ job.services.mysql.ports['3306'] }}
           REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
+
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text
         env:

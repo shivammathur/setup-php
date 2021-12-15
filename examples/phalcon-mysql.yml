@@ -18,7 +18,7 @@ jobs:
       CODECEPTION_PORT: 8888
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:latest
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_ROOT_PASSWORD: password
@@ -30,22 +30,28 @@ jobs:
       fail-fast: false
       matrix:
         php-versions: ['7.2', '7.3', '7.4']
-      # For phalcon 3.x, use
-      # php-versions: ['7.0', '7.1', '7.2', '7.3']
+        # For phalcon 3.x, use
+        # php-versions: ['7.0', '7.1', '7.2', '7.3']
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup PHP, with composer and extensions
-        uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+
+      # Docs: https://github.com/shivammathur/setup-php
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, dom, zip, phalcon4, mysql #use phalcon3 for the phalcon 3.x.
-          coverage: xdebug #optional
+          # Use phalcon3 for the phalcon 3.x.
+          extensions: mbstring, dom, zip, phalcon4, mysql
+          coverage: xdebug
+
       - name: Start mysql service
         run: sudo systemctl start mysql
+
       - name: Get composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
       - name: Cache composer dependencies
         uses: actions/cache@v2
         with:
@@ -54,10 +60,13 @@ jobs:
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
+
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
+
       - name: Prepare the application
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
       - name: Run Migration
         run: |
           if [ ! -e phinx.yml ]; then vendor/bin/phinx init; fi
@@ -65,6 +74,7 @@ jobs:
           vendor/bin/phinx seed:run
         env:
           DB_PORT: ${{ job.services.mysql.ports['3306'] }}
+
       - name: Run Tests
         run: |
           (cd public && nohup php -S $CODECEPTION_URL:$CODECEPTION_PORT > phalcon.log 2>&1 &)

@@ -41,8 +41,11 @@ jobs:
           node-version: '16.x'
           registry-url: https://registry.npmjs.org
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install dependencies and add lib
+        run: |
+          npm install
+          npm run build
+          sed -i -e '/lib\//d' .gitignore
 
       - name: Publish to NPM
         if: "!contains(github.event.inputs.skip, 'skip-npm')"

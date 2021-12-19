@@ -316,7 +316,7 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
     coverage: xdebug
 ```
 
-- The latest version of Xdebug compatible with the PHP version is set up by default.
+- When you specify `coverage: xdebug`, the latest version of Xdebug compatible with the PHP version is set up by default.
 - If you need Xdebug 2.x on PHP 7.2, 7.3 or 7.4, you can specify `coverage: xdebug2`.
 
 ```yaml
@@ -326,6 +326,8 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
     php-version: '7.4'
     coverage: xdebug2
 ```
+
+**Note**: Xdebug is enabled by default on Ubuntu GitHub Actions images, so if you are not using it in your workflow it is recommended to disable it as that will have a positive impact on your PHP performance. Please refer to the [disable coverage](#disable-coverage) section for details.
 
 ### PCOV
 
@@ -360,7 +362,6 @@ Specify `coverage: none` to disable both `Xdebug` and `PCOV`.
 Disable coverage for these reasons:
 
 - You are not generating coverage reports while testing.
-- It will disable `Xdebug`, which will have a positive impact on PHP performance.
 - You are using `phpdbg` for running your tests.
 - You are profiling your code using `blackfire`.
 - You are using PHP in JIT mode. Please refer to [JIT configuration](#jit-configuration) section for more details.

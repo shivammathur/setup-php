@@ -31,12 +31,12 @@ export async function addExtensionDarwin(
       case /.+-.+\/.+@.+/.test(extension):
         add_script += await utils.parseExtensionSource(extension, ext_prefix);
         return;
-      // match 5.3blackfire...8.0blackfire
-      // match 5.3blackfire-(semver)...8.0blackfire-(semver)
+      // match 5.3blackfire...8.1blackfire
+      // match 5.3blackfire-(semver)...8.1blackfire-(semver)
       // match couchbase, geos, pdo_oci, oci8, http, pecl_http
       // match 5.3ioncube...7.4ioncube
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-      case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(
+      case /^(5\.[3-6]|7\.[0-4]|8\.[0-1])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
       case /^couchbase$|^geos$|^pdo_oci$|^oci8$|^(pecl_)?http|^pdo_firebird$/.test(
@@ -249,13 +249,13 @@ export async function addExtensionLinux(
       case /.+-.+\/.+@.+/.test(extension):
         add_script += await utils.parseExtensionSource(extension, ext_prefix);
         return;
-      // match 5.3blackfire...8.0blackfire
-      // match 5.3blackfire-(semver)...8.0blackfire-(semver)
+      // match 5.3blackfire...8.1blackfire
+      // match 5.3blackfire-(semver)...8.1blackfire-(semver)
       // match 5.3pdo_cubrid...7.2php_cubrid, 5.3cubrid...7.4cubrid
       // match couchbase, geos, pdo_oci, oci8, http, pecl_http
       // match 5.3ioncube...7.4ioncube
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
-      case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(
+      case /^(5\.[3-6]|7\.[0-4]|8\.[0-1])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
       case /^((5\.[3-6])|(7\.[0-2]))pdo_cubrid$|^((5\.[3-6])|(7\.[0-4]))cubrid$/.test(

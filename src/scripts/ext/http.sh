@@ -80,11 +80,9 @@ add_http_latest() {
   if ! check_extension http; then
     add_http_dependencies
     if [ "$os" = "Linux" ]; then
-      if ! [[ "${version:?}" =~ ${old_versions:?}|${nightly_versions:?} ]]; then
-        install_packages "php$version-http"
-      else
-        add_http_helper "$(get_http_version)" "$os"
-      fi
+      package="php$version-http"
+      add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
+      (check_package "$package" && install_packages "$package") || add_http_helper "$(get_http_version)" "$os"
     else
       if ! [[ "${version:?}" =~ ${old_versions:?} ]]; then
         add_brew_extension pecl_http extension

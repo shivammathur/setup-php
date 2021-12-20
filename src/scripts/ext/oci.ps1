@@ -20,6 +20,36 @@ Function Add-InstantClient() {
   }
 }
 
+# Function to oci8 extension URL.
+Function Get-Oci8Url() {
+  if($version -lt '8.0') {
+    $ociVersion = '2.2.0'
+    if ($version -eq '7.0') {
+      $ociVersion = '2.1.8'
+    } elseif ($version -lt '7.0') {
+      $ociVersion = '2.0.12'
+    }
+    return Get-PeclArchiveUrl oci8 $ociVersion $installed
+  } else {
+    $ociUrl = '';
+    Get-PeclPackageVersion oci8 -MinimumStability stable -MaximumStability stable | ForEach-Object {
+      $ociUrl = Get-PeclArchiveUrl oci8 $_ $installed
+      if($ociUrl) {
+        return $ociUrl
+      }
+    }
+  }
+}
+
+# Function to get OCI8 DLL.
+Function Get-Oci8DLL() {
+  Get-ChildItem $ext_dir\php_oci8*.dll | ForEach-Object {
+    if((Get-PhpExtension -Path $_).PhpVersion -eq $version) {
+      return $_
+    }
+  }
+}
+
 # Function to install oci8 and pdo_oci.
 Function Add-Oci() {
   Param (
@@ -36,19 +66,14 @@ Function Add-Oci() {
       Enable-PhpExtension pdo_oci -Path $php_dir
     } else {
       if(-not(Test-Path $ext_dir\php_oci8.dll)) {
-        $status = 'Installed and enabled'
-        $ociVersion = Get-PeclPackageVersion oci8 -MinimumStability stable -MaximumStability stable | Select-Object -First 1
-        if ($version -eq '7.0') {
-          $ociVersion = '2.1.8'
-        } elseif ($version -lt '7.0') {
-          $ociVersion = '2.0.12'
-        } elseif ($version -lt '8.0') {
-          $ociVersion = '2.2.0'
+        $oci8DLL = Get-Oci8DLL
+        if($oci8DLL) {
+          Copy-Item -Path $oci8DLL -Destination $ext_dir\php_oci8.dll
+        } else {
+          $status = 'Installed and enabled'
+          Invoke-WebRequest -Uri (Get-Oci8Url) -OutFile $php_dir\oci8.zip
+          Expand-Archive -Path $php_dir\oci8.zip -DestinationPath $ext_dir -Force
         }
-        $ociUrl = Get-PeclArchiveUrl oci8 $ociVersion $installed
-        Invoke-WebRequest -Uri $ociUrl -OutFile $php_dir\oci8.zip
-        Expand-Archive -Path $php_dir\oci8.zip -DestinationPath $ext_dir -Force
-
       }
       Add-Content -Value "`r`nextension=php_oci8.dll" -Path $php_dir\php.ini
     }

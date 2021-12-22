@@ -261,10 +261,11 @@ get_tool_version() {
   alp="[a-zA-Z0-9]"
   version_regex="[0-9]+((\.{1}$alp+)+)(\.{0})(-$alp+){0,1}"
   if [ "$tool" = "composer" ]; then
-    if [ "$param" != "snapshot" ]; then
-      composer_version="$(grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")"
+    composer_alias_version="$(grep -Ea "const\sBRANCH_ALIAS_VERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")"
+    if [[ -n "$composer_alias_version" ]]; then
+      composer_version="$composer_alias_version+$(grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "$alp+" | tail -n 1)"
     else
-      composer_version="$(grep -Ea "const\sBRANCH_ALIAS_VERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")+$(grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "[a-zA-z0-9]+" | tail -n 1)"
+      composer_version="$(grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")"
     fi
     echo "$composer_version" | sudo tee /tmp/composer_version
   else

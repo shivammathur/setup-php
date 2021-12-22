@@ -665,7 +665,7 @@ exports.addBlackfirePlayer = addBlackfirePlayer;
 async function addComposer(data) {
     const github = data['github'];
     const getcomposer = data['domain'];
-    let cache_url = `${github}/shivammathur/composer-cache/releases/latest/download/composer-${data['version'].replace('latest', 'stable')}.phar`;
+    let cache_url = `${github}/shivammathur/composer-cache/releases/latest/download/composer-${data['php_version']}-${data['version'].replace('latest', 'stable')}.phar`;
     let source_url = `${getcomposer}/composer.phar`;
     switch (true) {
         case /^snapshot$/.test(data['version']):

@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: |
           composer install --no-progress --prefer-dist --optimize-autoloader
-          composer run-script post-install-cmd --no-interaction
+          composer run-script post-install-cmd
 
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text

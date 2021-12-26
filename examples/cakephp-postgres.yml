@@ -54,7 +54,7 @@ jobs:
       - name: Install dependencies
         run: |
           composer install --no-progress --prefer-dist --optimize-autoloader
-          composer run-script post-install-cmd --no-interaction
+          composer run-script post-install-cmd
 
       # Add a step to run migrations if required
       - name: Test with phpunit

@@ -300,7 +300,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - Input `tools` is useful to set up tools which you only use in GitHub Actions, thus keeping your `composer.json` tidy.
 - If you do not want to use all your dev-dependencies in GitHub Actions workflow, you can run composer with `--no-dev` and install required tools using `tools` input to speed up your workflow.
 - If you have a tool in your `composer.json`, do not set up it with `tools` input as the two instances of the tool might conflict.
-- By default, `COMPOSER_NO_INTERACTION` is set to `1` and `COMPOSER_PROCESS_TIMEOUT` is set to `0`.
+- By default, `COMPOSER_NO_INTERACTION` is set to `1` and `COMPOSER_PROCESS_TIMEOUT` is set to `0`. In effect, this means that Composer commands in your scripts do not need to specify `--no-interaction`.
 
 ## :signal_strength: Coverage Support
 

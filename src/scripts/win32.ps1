@@ -327,7 +327,7 @@ Function Edit-ComposerConfig() {
   if (-not(Test-Path $composer_json)) {
     Set-Content -Path $composer_json -Value "{}"
   }
-  composer -q config -g process-timeout 0
+  Get-Content -Path $dist\..\src\configs\composer.env | Add-Content -Path $env:GITHUB_ENV
   Write-Output $composer_bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
   if (Test-Path env:COMPOSER_TOKEN) {
     composer -q config -g github-oauth.github.com $env:COMPOSER_TOKEN

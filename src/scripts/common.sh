@@ -291,7 +291,7 @@ configure_composer() {
     echo '{}' | tee "$composer_json" >/dev/null
     chmod 644 "$composer_json"
   fi
-  composer -q config -g process-timeout 0
+  cat "${dist:?}"/../src/configs/composer.env >> "$GITHUB_ENV"
   echo "$composer_bin" >>"$GITHUB_PATH"
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q config -g github-oauth.github.com "$COMPOSER_TOKEN"

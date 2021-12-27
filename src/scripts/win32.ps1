@@ -402,6 +402,9 @@ Function Add-Tool() {
     $tool_version = Get-ToolVersion $tool $ver_param
     Add-Log $tick $tool "Added $tool $tool_version"
   } else {
+    if($tool -eq "composer") {
+      $env:fail_fast = 'true'
+    }
     Add-Log $cross $tool "Could not add $tool"
   }
 }

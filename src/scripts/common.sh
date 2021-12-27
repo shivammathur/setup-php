@@ -322,6 +322,7 @@ add_tool() {
     tool_version=$(get_tool_version "$tool" "$ver_param")
     add_log "$tick" "$tool" "Added $tool $tool_version"
   else
+    [ "$tool" = "composer" ] && fail_fast=true
     add_log "$cross" "$tool" "Could not setup $tool"
   fi
 }

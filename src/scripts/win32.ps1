@@ -115,7 +115,7 @@ Function Install-PSPackage() {
   Add-ToProfile $current_profile "$package-search" "Import-Module $module_path"
 
   if($null -eq (Get-Command $cmdlet -ErrorAction SilentlyContinue)) {
-    Install-Module -Name $cmdlet -Force
+    Install-Module -Name $package -Force
   }
 }
 

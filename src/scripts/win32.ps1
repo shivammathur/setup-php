@@ -371,7 +371,7 @@ Function Add-Tool() {
     $ver_param
   )
   if (Test-Path $bin_dir\$tool) {
-    Remove-Item $bin_dir\$tool
+    Copy-Item $bin_dir\$tool -Destination $bin_dir\$tool.old -Force
   }
   if($url.Count -gt 1) {
     $url = $url[0]
@@ -404,6 +404,8 @@ Function Add-Tool() {
   } else {
     if($tool -eq "composer") {
       $env:fail_fast = 'true'
+    } elseif (Test-Path $bin_dir\$tool.old) {
+      Copy-Item $bin_dir\$tool.old -Destination $bin_dir\$tool -Force
     }
     Add-Log $cross $tool "Could not add $tool"
   }

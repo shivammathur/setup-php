@@ -308,8 +308,8 @@ add_tool() {
     export PATH=$PATH:"$tool_path_dir"
     echo "export PATH=\$PATH:$tool_path_dir" | sudo tee -a "$GITHUB_ENV" >/dev/null
   fi
-  if [ ! -e "$tool_path" ]; then
-    rm -rf "$tool_path"
+  if [ -e "$tool_path" ]; then
+    sudo cp -a "$tool_path" /tmp/"$tool"
   fi
   IFS="," read -r -a url <<<"$url"
   status_code=$(get -v -e "$tool_path" "${url[@]}")
@@ -322,7 +322,11 @@ add_tool() {
     tool_version=$(get_tool_version "$tool" "$ver_param")
     add_log "$tick" "$tool" "Added $tool $tool_version"
   else
-    [ "$tool" = "composer" ] && fail_fast=true
+    if [ "$tool" = "composer" ]; then
+      fail_fast=true
+    elif [ -e /tmp/"$tool" ]; then
+      sudo cp -a /tmp/"$tool" "$tool_path"
+    fi
     add_log "$cross" "$tool" "Could not setup $tool"
   fi
 }

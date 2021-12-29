@@ -435,7 +435,7 @@ describe('Tools tests', () => {
         'add_tool https://github.com/phpDocumentor/phpDocumentor/releases/latest/download/phpDocumentor.phar phpDocumentor "--version"',
         'add_devtools phpize',
         'add_tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"',
-        'add_composertool phpspec phpspec phpspec/',
+        'add_tool https://github.com/phpspec/phpspec/releases/latest/download/phpspec.phar phpspec "-V"',
         'add_composertool phpunit-bridge phpunit-bridge:5.6.* symfony/',
         'add_composertool phpunit-polyfills phpunit-polyfills:1.0.1 yoast/',
         'add_protoc 1.2.3',

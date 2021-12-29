@@ -81,6 +81,14 @@
     "version_prefix": "",
     "version_parameter": "--version"
   },
+  "phpspec": {
+    "type": "phar",
+    "repository": "phpspec/phpspec",
+    "extension": ".phar",
+    "domain": "https://github.com",
+    "version_prefix": "",
+    "version_parameter": "-V"
+  },
   "phpstan": {
     "type": "phar",
     "repository": "phpstan/phpstan",
@@ -129,10 +137,6 @@
   "phplint": {
     "type": "composer",
     "repository": "overtrue/phplint"
-  },
-  "phpspec": {
-    "type": "composer",
-    "repository": "phpspec/phpspec"
   },
   "phpunit-bridge": {
     "alias": "simple-phpunit",

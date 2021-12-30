@@ -423,18 +423,36 @@ Function Add-Composertool() {
     [ValidateNotNull()]
     [ValidateLength(1, [int]::MaxValue)]
     [string]
-    $prefix
+    $prefix,
+    [Parameter(Position = 3, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $scope
   )
   if($tool -match "prestissimo|composer-prefetcher" -and $composer_version.split('.')[0] -ne "1") {
     Write-Output "::warning:: Skipping $tool, as it does not support Composer $composer_version. Specify composer:v1 in tools to use $tool"
     Add-Log $cross $tool "Skipped"
     Return
   }
-  if(Test-Path $composer_lock) {
-    Remove-Item -Path $composer_lock -Force
+  if($scope -eq 'global') {
+    if(Test-Path $composer_lock) {
+      Remove-Item -Path $composer_lock -Force
+    }
+    (composer global require $prefix$release 2>&1 | Tee-Object -FilePath $env:APPDATA\Composer\composer.log) >$null 2>&1
+    $json = findstr $prefix$tool $env:APPDATA\Composer\composer.json
+  } else {
+    $release_stream = [System.IO.MemoryStream]::New([System.Text.Encoding]::ASCII.GetBytes($release))
+    $scoped_tool_dir_suffix = (Get-FileHash -InputStream $release_stream -Algorithm sha256).Hash
+    $scoped_tool_dir = "$composer_bin\_tools\$tool-$scoped_tool_dir_suffix"
+    if(-not(Test-Path $scoped_tool_dir)) {
+      New-Item -ItemType Directory -Force -Path $scoped_tool_dir > $null 2>&1
+      (composer global require $prefix$release -d $scoped_tool_dir.replace('\', '/') 2>&1 | Tee-Object -FilePath $env:APPDATA\Composer\composer.log) >$null 2>&1
+      Add-Content $scoped_tool_dir\vendor\bin -Path $env:GITHUB_PATH -Encoding utf8
+      New-Variable -Name ($tool.replace('-', '_') + '_bin') -Value $scoped_tool_dir\vendor\bin
+    }
+    $json = (Test-Path $scoped_tool_dir\composer.json) -and (findstr $prefix$tool $scoped_tool_dir\composer.json)
   }
-  (composer global require $prefix$release 2>&1 | Tee-Object -FilePath $env:APPDATA\Composer\composer.log) >$null 2>&1
-  $json = findstr $prefix$tool $env:APPDATA\Composer\composer.json
   $log = findstr $prefix$tool $env:APPDATA\Composer\composer.log
   if(Test-Path $composer_bin\composer) {
     Copy-Item -Path "$bin_dir\composer" -Destination "$composer_bin\composer" -Force

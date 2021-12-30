@@ -5,7 +5,7 @@ Function Add-ToolsHelper() {
     $tool
   )
   if($tool -eq "codeception") {
-    Copy-Item $composer_bin\codecept.bat -Destination $composer_bin\codeception.bat
+    Copy-Item $codeception_bin\codecept.bat -Destination $codeception_bin\codeception.bat
   } elseif($tool -eq "composer") {
     Edit-ComposerConfig $bin_dir\$tool
   } elseif($tool -eq "cs2pr") {
@@ -22,7 +22,7 @@ Function Add-ToolsHelper() {
     Add-ToProfile $current_profile "symfony" "New-Alias symfony $bin_dir\symfony-cli.exe"
     Add-ToProfile $current_profile "symfony_cli" "New-Alias symfony-cli $bin_dir\symfony-cli.exe"
   } elseif($tool -match "vapor-cli") {
-    Copy-Item $composer_bin\vapor.bat -Destination $composer_bin\vapor-cli.bat
+    Copy-Item $vapor_cli_bin\vapor.bat -Destination $vapor_cli_bin\vapor-cli.bat
   } elseif($tool -eq "wp-cli") {
     Copy-Item $bin_dir\wp-cli.bat -Destination $bin_dir\wp.bat
   }

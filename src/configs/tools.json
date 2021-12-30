@@ -107,54 +107,66 @@
   },
   "behat": {
     "type": "composer",
-    "repository": "behat/behat"
+    "repository": "behat/behat",
+    "scope": "scoped"
   },
   "codeception": {
     "type": "composer",
-    "repository": "codeception/codeception"
+    "repository": "codeception/codeception",
+    "scope": "scoped"
   },
   "automatic-composer-prefetcher": {
     "type": "composer",
     "alias": "composer-prefetcher",
-    "repository": "narrowspark/automatic-composer-prefetcher"
+    "repository": "narrowspark/automatic-composer-prefetcher",
+    "scope": "global"
   },
   "composer-require-checker": {
     "type": "composer",
-    "repository": "maglnet/composer-require-checker"
+    "repository": "maglnet/composer-require-checker",
+    "scope": "scoped"
   },
   "composer-unused": {
     "type": "composer",
-    "repository": "icanhazstring/composer-unused"
+    "repository": "icanhazstring/composer-unused",
+    "scope": "scoped"
   },
   "flex": {
     "type": "composer",
-    "repository": "symfony/flex"
+    "repository": "symfony/flex",
+    "scope": "global"
   },
   "phinx": {
     "type": "composer",
-    "repository": "robmorgan/phinx"
+    "repository": "robmorgan/phinx",
+    "scope": "scoped"
   },
   "phplint": {
     "type": "composer",
-    "repository": "overtrue/phplint"
+    "repository": "overtrue/phplint",
+    "scope": "scoped"
   },
   "phpunit-bridge": {
     "alias": "simple-phpunit",
     "type": "composer",
-    "repository": "symfony/phpunit-bridge"
+    "repository": "symfony/phpunit-bridge",
+    "scope": "global"
   },
   "phpunit-polyfills": {
     "type": "composer",
-    "repository": "yoast/phpunit-polyfills"
+    "repository": "yoast/phpunit-polyfills",
+    "scope": "global"
   },
   "prestissimo": {
     "type": "composer",
-    "repository": "hirak/prestissimo"
+    "repository": "hirak/prestissimo",
+    "scope": "global"
   },
   "vapor-cli": {
     "type": "composer",
     "alias": "vapor",
-    "repository": "laravel/vapor-cli"
+    "repository": "laravel/vapor-cli",
+    "scope": "scoped"
   },
   "blackfire": {
     "type": "custom-package",

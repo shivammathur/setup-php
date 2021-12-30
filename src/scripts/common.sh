@@ -331,6 +331,7 @@ add_composertool() {
   tool=$1
   release=$2
   prefix=$3
+  scope=$4
   if [[ "$tool" =~ prestissimo|composer-prefetcher ]]; then
     composer_version=$(cat /tmp/composer_version)
     if [ "$(echo "$composer_version" | cut -d'.' -f 1)" != "1" ]; then
@@ -340,8 +341,19 @@ add_composertool() {
     fi
   fi
   (
-    sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
-    composer global require "$prefix$release" 2>&1 | tee /tmp/composer.log >/dev/null 2>&1
+    if [ "$scope" = "global" ]; then
+      sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
+      composer global require "$prefix$release" 2>&1 | tee /tmp/composer.log >/dev/null 2>&1
+    else
+      scoped_dir="$composer_bin/_tools/$tool-$(echo -n "$release" | shasum -a 256 | cut -d ' ' -f 1)"
+      if ! [ -e "$scoped_dir" ]; then
+        mkdir -p "$scoped_dir"
+        composer require "$prefix$release" -d "$scoped_dir" 2>&1 | tee /tmp/composer.log >/dev/null 2>&1
+        export PATH=$PATH:"$scoped_dir"/vendor/bin
+        echo "${tool}"_bin="$scoped_dir"/vendor/bin | sudo tee -a "$GITHUB_ENV" >/dev/null
+        echo "$scoped_dir"/vendor/bin >>"$GITHUB_PATH"
+      fi
+    fi
     log=$(grep "$prefix$tool" /tmp/composer.log) &&
       tool_version=$(get_tool_version 'echo' "$log") &&
       add_log "$tick" "$tool" "Added $tool $tool_version"

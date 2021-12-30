@@ -193,7 +193,13 @@ export async function addArchive(data: RS): Promise<string> {
 export async function addPackage(data: RS): Promise<string> {
   const command = await utils.getCommand(data['os_version'], 'composertool');
   const parts: string[] = data['repository'].split('/');
-  return command + parts[1] + ' ' + data['release'] + ' ' + parts[0] + '/';
+  const args: string = await utils.joins(
+    parts[1],
+    data['release'],
+    parts[0] + '/',
+    data['scope']
+  );
+  return command + args;
 }
 
 /**
@@ -443,6 +449,7 @@ export async function getData(
   data['prefix'] = data['github'] === data['domain'] ? 'releases' : '';
   data['verb'] = data['github'] === data['domain'] ? 'download' : '';
   data['fetch_latest'] ??= 'false';
+  data['scope'] ??= 'global';
   data['version_parameter'] = JSON.stringify(data['version_parameter']) || '';
   data['version_prefix'] ??= '';
   data['release'] = await getRelease(release, data);

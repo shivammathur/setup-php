@@ -1,7 +1,8 @@
 add_tools_helper() {
   tool=$1
   if [ "$tool" = "codeception" ]; then
-    sudo ln -s "${composer_bin:?}"/codecept "${composer_bin:?}"/codeception
+    codeception_bin=$(grep codeception_bin "${GITHUB_ENV:?}" | cut -d '=' -f 2)
+    sudo ln -s "${codeception_bin:?}"/codecept "${codeception_bin:?}"/codeception
   elif [ "$tool" = "composer" ]; then
     configure_composer "${tool_path:?}"
   elif [ "$tool" = "cs2pr" ]; then

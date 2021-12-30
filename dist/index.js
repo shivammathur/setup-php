@@ -650,7 +650,8 @@ exports.addArchive = addArchive;
 async function addPackage(data) {
     const command = await utils.getCommand(data['os_version'], 'composertool');
     const parts = data['repository'].split('/');
-    return command + parts[1] + ' ' + data['release'] + ' ' + parts[0] + '/';
+    const args = await utils.joins(parts[1], data['release'], parts[0] + '/', data['scope']);
+    return command + args;
 }
 exports.addPackage = addPackage;
 async function addBlackfirePlayer(data) {
@@ -782,7 +783,7 @@ async function addWPCLI(data) {
 }
 exports.addWPCLI = addWPCLI;
 async function getData(release, php_version, os_version) {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
     const json_file = await utils.readFile('tools.json', 'src/configs');
     const json_objects = JSON.parse(json_file);
     release = release.replace(/\s+/g, '');
@@ -819,8 +820,9 @@ async function getData(release, php_version, os_version) {
     data['prefix'] = data['github'] === data['domain'] ? 'releases' : '';
     data['verb'] = data['github'] === data['domain'] ? 'download' : '';
     (_c = data['fetch_latest']) !== null && _c !== void 0 ? _c : (data['fetch_latest'] = 'false');
+    (_d = data['scope']) !== null && _d !== void 0 ? _d : (data['scope'] = 'global');
     data['version_parameter'] = JSON.stringify(data['version_parameter']) || '';
-    (_d = data['version_prefix']) !== null && _d !== void 0 ? _d : (data['version_prefix'] = '');
+    (_e = data['version_prefix']) !== null && _e !== void 0 ? _e : (data['version_prefix'] = '');
     data['release'] = await getRelease(release, data);
     data['version'] = version
         ? await getVersion(version, data)

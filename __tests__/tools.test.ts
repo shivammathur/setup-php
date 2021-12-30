@@ -10,6 +10,7 @@ interface IData {
   php_version?: string;
   release?: string;
   repository?: string;
+  scope?: string;
   type?: string;
   fetch_latest?: string;
   version_parameter?: string;
@@ -26,6 +27,7 @@ function getData(data: IData): Record<string, string> {
     php_version: data.php_version || '7.4',
     release: data.release || [data.tool, data.version].join(':'),
     repository: data.repository || '',
+    scope: data.scope || 'global',
     type: data.type || 'phar',
     fetch_latest: data.fetch_latest || 'false',
     version_parameter: data.version_parameter || '-V',
@@ -209,21 +211,25 @@ describe('Tools tests', () => {
   });
 
   it.each`
-    os_version   | script
-    ${'linux'}   | ${'add_composertool tool tool:1.2.3 user/'}
-    ${'darwin'}  | ${'add_composertool tool tool:1.2.3 user/'}
-    ${'win32'}   | ${'Add-Composertool tool tool:1.2.3 user/'}
-    ${'openbsd'} | ${'Platform openbsd is not supported'}
-  `('checking addPackage: $os_version', async ({os_version, script}) => {
-    const data = getData({
-      tool: 'tool',
-      version: '1.2.3',
-      repository: 'user/tool',
-      os_version: os_version
-    });
-    data['release'] = [data['tool'], data['version']].join(':');
-    expect(await tools.addPackage(data)).toContain(script);
-  });
+    os_version   | script                                             | scope
+    ${'linux'}   | ${'add_composertool tool tool:1.2.3 user/ global'} | ${'global'}
+    ${'darwin'}  | ${'add_composertool tool tool:1.2.3 user/ scoped'} | ${'scoped'}
+    ${'win32'}   | ${'Add-Composertool tool tool:1.2.3 user/ scoped'} | ${'scoped'}
+    ${'openbsd'} | ${'Platform openbsd is not supported'}             | ${'global'}
+  `(
+    'checking addPackage: $os_version, $scope',
+    async ({os_version, script, scope}) => {
+      const data = getData({
+        tool: 'tool',
+        version: '1.2.3',
+        repository: 'user/tool',
+        os_version: os_version,
+        scope: scope
+      });
+      data['release'] = [data['tool'], data['version']].join(':');
+      expect(await tools.addPackage(data)).toContain(script);
+    }
+  );
 
   it.each`
     version     | php_version | os_version  | script
@@ -378,7 +384,7 @@ describe('Tools tests', () => {
         'add_blackfire',
         'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player "-V"',
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"',
-        'add_composertool flex flex symfony/',
+        'add_composertool flex flex symfony/ global',
         'add_grpc_php_plugin latest',
         'add_tool https://github.com/php-parallel-lint/PHP-Parallel-Lint/releases/latest/download/parallel-lint.phar parallel-lint "--version"',
         'add_tool https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v3.2.1/php-cs-fixer.phar php-cs-fixer "-V"',
@@ -388,16 +394,16 @@ describe('Tools tests', () => {
         'add_tool https://phar.phpunit.de/phpunit.phar phpunit "--version"',
         'add_pecl',
         'add_tool https://www.phing.info/get/phing-latest.phar phing "-v"',
-        'add_composertool phinx phinx robmorgan/',
-        'add_composertool phinx phinx:1.2.3 robmorgan/',
+        'add_composertool phinx phinx robmorgan/ scoped',
+        'add_composertool phinx phinx:1.2.3 robmorgan/ scoped',
         'add_tool https://github.com/phar-io/phive/releases/download/3.2.1/phive-3.2.1.phar phive "status"',
-        'add_composertool phpunit-bridge phpunit-bridge symfony/',
-        'add_composertool phpunit-polyfills phpunit-polyfills yoast/',
+        'add_composertool phpunit-bridge phpunit-bridge symfony/ global',
+        'add_composertool phpunit-polyfills phpunit-polyfills yoast/ global',
         'add_devtools php-config',
         'add_devtools phpize',
         'add_protoc latest',
         'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_linux_amd64 symfony-cli "version"',
-        'add_composertool vapor-cli vapor-cli laravel/',
+        'add_composertool vapor-cli vapor-cli laravel/ scoped',
         'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"'
       ]
     ]
@@ -413,20 +419,20 @@ describe('Tools tests', () => {
       'behat, blackfire, blackfire-player, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, flex, grpc_php_plugin:1.2.3, infection, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, symfony-cli, symfony:1.2.3, vapor-cli, wp-cli',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
-        'add_composertool behat behat behat/',
+        'add_composertool behat behat behat/ scoped',
         'add_blackfire',
         'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player "-V"',
         'add_tool https://github.com/ergebnis/composer-normalize/releases/latest/download/composer-normalize.phar composer-normalize "-V"',
-        'add_composertool composer-require-checker composer-require-checker maglnet/',
-        'add_composertool composer-unused composer-unused icanhazstring/',
+        'add_composertool composer-require-checker composer-require-checker maglnet/ scoped',
+        'add_composertool composer-unused composer-unused icanhazstring/ scoped',
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr "-V"',
-        'add_composertool flex flex symfony/',
+        'add_composertool flex flex symfony/ global',
         'add_grpc_php_plugin 1.2.3',
         'add_tool https://github.com/infection/infection/releases/latest/download/infection.phar infection "-V"',
         'add_tool https://github.com/phan/phan/releases/latest/download/phan.phar phan "-v"',
         'add_tool https://github.com/phan/phan/releases/download/1.2.3/phan.phar phan "-v"',
         'add_tool https://www.phing.info/get/phing-1.2.3.phar phing "-v"',
-        'add_composertool phinx phinx robmorgan/',
+        'add_composertool phinx phinx robmorgan/ scoped',
         'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive',
         'add_devtools php-config',
         'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcbf.phar phpcbf "--version"',
@@ -436,13 +442,13 @@ describe('Tools tests', () => {
         'add_devtools phpize',
         'add_tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"',
         'add_tool https://github.com/phpspec/phpspec/releases/latest/download/phpspec.phar phpspec "-V"',
-        'add_composertool phpunit-bridge phpunit-bridge:5.6.* symfony/',
-        'add_composertool phpunit-polyfills phpunit-polyfills:1.0.1 yoast/',
+        'add_composertool phpunit-bridge phpunit-bridge:5.6.* symfony/ global',
+        'add_composertool phpunit-polyfills phpunit-polyfills:1.0.1 yoast/ global',
         'add_protoc 1.2.3',
         'add_tool https://github.com/vimeo/psalm/releases/latest/download/psalm.phar psalm "-v"',
         'add_tool https://github.com/symfony/cli/releases/latest/download/symfony_darwin_amd64 symfony-cli "version"',
         'add_tool https://github.com/symfony/cli/releases/download/v1.2.3/symfony_darwin_amd64 symfony-cli "version"',
-        'add_composertool vapor-cli vapor-cli laravel/',
+        'add_composertool vapor-cli vapor-cli laravel/ scoped',
         'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"'
       ]
     ]
@@ -463,13 +469,13 @@ describe('Tools tests', () => {
         'Add-Tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"',
         'Add-Tool https://deployer.org/deployer.phar deployer "-V"',
         'Tool does_not_exist is not supported',
-        'Add-Composertool flex flex symfony/',
-        'Add-Composertool phinx phinx robmorgan/',
+        'Add-Composertool flex flex symfony/ global',
+        'Add-Composertool phinx phinx robmorgan/ scoped',
         'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.2/phive-0.13.2.phar phive "status"',
         'php-config is not a windows tool',
         'phpize is not a windows tool',
         'Add-Tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"',
-        'Add-Composertool phpunit-bridge phpunit-bridge symfony/',
+        'Add-Composertool phpunit-bridge phpunit-bridge symfony/ global',
         'Add-Tool https://github.com/symfony/cli/releases/latest/download/symfony_windows_amd64.exe symfony-cli "version"',
         'Add-Tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"'
       ]
@@ -486,13 +492,13 @@ describe('Tools tests', () => {
       'composer:v1, codeception/codeception, prestissimo, hirak/prestissimo, composer-prefetcher, narrowspark/automatic-composer-prefetcher, phinx: 1.2, robmorgan/phinx: ^1.2, user/tool:1.2.3, user/tool:~1.2',
       [
         'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-1.phar,https://getcomposer.org/composer-1.phar composer',
-        'Add-Composertool codeception codeception codeception/',
-        'Add-Composertool prestissimo prestissimo hirak/',
-        'Add-Composertool automatic-composer-prefetcher automatic-composer-prefetcher narrowspark/',
-        'Add-Composertool phinx phinx:1.2.* robmorgan/',
-        'Add-Composertool phinx phinx:^1.2 robmorgan/',
-        'Add-Composertool tool tool:1.2.3 user/',
-        'Add-Composertool tool tool:~1.2 user/'
+        'Add-Composertool codeception codeception codeception/ global',
+        'Add-Composertool prestissimo prestissimo hirak/ global',
+        'Add-Composertool automatic-composer-prefetcher automatic-composer-prefetcher narrowspark/ global',
+        'Add-Composertool phinx phinx:1.2.* robmorgan/ scoped',
+        'Add-Composertool phinx phinx:^1.2 robmorgan/ global',
+        'Add-Composertool tool tool:1.2.3 user/ global',
+        'Add-Composertool tool tool:~1.2 user/ global'
       ]
     ]
   ])(

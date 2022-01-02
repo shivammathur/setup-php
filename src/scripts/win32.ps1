@@ -119,28 +119,6 @@ Function Install-PSPackage() {
   }
 }
 
-# Function to link dependencies to PHP directory.
-Function Set-ExtensionPrerequisites
-{
-  Param (
-    [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateNotNull()]
-    [ValidateLength(1, [int]::MaxValue)]
-    [string]
-    $deps_dir
-  )
-  $deps = Get-ChildItem -Recurse -Path $deps_dir
-  if ($deps.Count -ne 0) {
-    # Symlink dependencies instead of adding the directory to PATH ...
-    # as other actions change the PATH thus breaking extensions.
-    $deps | ForEach-Object {
-      New-Item -Itemtype SymbolicLink -Path $php_dir -Name $_.Name -Target $_.FullName -Force > $null 2>&1
-    }
-  } else {
-    Remove-Item $deps_dir -Recurse -Force
-  }
-}
-
 # Function to add CA certificates to PHP.
 Function Add-PhpCAInfo {
   try {
@@ -149,169 +127,6 @@ Function Add-PhpCAInfo {
     Add-Log $cross PHP "Could not fetch CA certificate bundle from Curl"
     Update-PhpCAInfo -Path $php_dir -Source CurrentUser
   }
-}
-
-# Function to add PHP extensions.
-Function Add-Extension {
-  Param (
-    [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateNotNull()]
-    [ValidateLength(1, [int]::MaxValue)]
-    [string]
-    $extension,
-    [Parameter(Position = 1, Mandatory = $false)]
-    [ValidateNotNull()]
-    [ValidateSet('stable', 'beta', 'alpha', 'devel', 'snapshot')]
-    [string]
-    $stability = 'stable',
-    [Parameter(Position = 2, Mandatory = $false)]
-    [ValidateNotNull()]
-    [ValidatePattern('^\d+(\.\d+){0,2}$')]
-    [string]
-    $extension_version = ''
-  )
-  try {
-    $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
-    $deps_dir = "$ext_dir\$extension-vc$($installed.VCVersion)-$arch"
-    New-Item $deps_dir -Type Directory -Force > $null 2>&1
-    if ($null -ne $extension_info) {
-      switch ($extension_info.State) {
-        'Builtin' {
-          Add-Log $tick $extension "Enabled"
-        }
-        'Enabled' {
-          Add-Log $tick $extension "Enabled"
-        }
-        default {
-          Enable-ExtensionDependencies $extension
-          Enable-PhpExtension -Extension $extension_info.Handle -Path $php_dir
-          Set-ExtensionPrerequisites $deps_dir
-          Add-Log $tick $extension "Enabled"
-        }
-      }
-    }
-    else {
-      # Patch till PHP 8.1 DLLs are released as stable.
-      $minimumStability = 'stable'
-      if($version -eq '8.1' -and $stability -eq 'stable') {
-        $minimumStability = 'snapshot'
-      }
-
-      $params = @{ Extension = $extension; MinimumStability = $minimumStability; MaximumStability = $stability; Path = $php_dir; AdditionalFilesPath = $deps_dir; NoDependencies = $true }
-      if($extension_version -ne '') {
-        $params["Version"] = $extension_version
-      }
-      Install-PhpExtension @params
-      Set-ExtensionPrerequisites $deps_dir
-      Add-Log $tick $extension "Installed and enabled"
-    }
-  }
-  catch {
-    Add-Log $cross $extension "Could not install $extension on PHP $($installed.FullVersion)"
-  }
-}
-
-# Function to get a map of extensions and their dependent shared extensions.
-Function Get-ExtensionMap {
-  php -d'error_reporting=0' $dist\..\src\scripts\ext\extension_map.php
-}
-
-# Function to enable extension dependencies which are also extensions.
-Function Enable-ExtensionDependencies {
-  Param (
-    [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateNotNull()]
-    [ValidateLength(1, [int]::MaxValue)]
-    [string]
-    $extension
-  )
-  if (-not(Test-Path $env:TEMP\map.orig)) {
-    Get-ExtensionMap | Set-Content -Path $env:TEMP\map.orig
-  }
-  $entry = findstr /r "$extension`:.*" $env:TEMP\map.orig
-  if($entry) {
-    $entry.split(':')[1].trim().split(' ') | ForEach-Object {
-      if (-not(php -m | findstr -i $_)) {
-        Enable-PhpExtension -Extension $_ -Path $php_dir
-      }
-    }
-  }
-}
-
-# Function to disable dependent extensions.
-Function Disable-DependentExtensions() {
-  Param (
-    [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateNotNull()]
-    [ValidateLength(1, [int]::MaxValue)]
-    [string]
-    $extension
-  )
-  Get-ExtensionMap | Select-String -Pattern ".*:.*\s$extension(\s|$)" | ForEach-Object {
-    $dependent = $_.Matches[0].Value.split(':')[0];
-    Disable-ExtensionHelper -Extension $dependent -DisableDependents
-    Add-Log $tick ":$extension" "Disabled $dependent as it depends on $extension"
-  }
-}
-
-# Helper function to disable an extension.
-Function Disable-ExtensionHelper() {
-  Param (
-    [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateNotNull()]
-    [ValidateLength(1, [int]::MaxValue)]
-    [string]
-    $extension,
-    [switch] $DisableDependents
-  )
-  if($DisableDependents) {
-    Disable-DependentExtensions $extension
-  }
-  Disable-PhpExtension -Extension $extension -Path $php_dir
-}
-
-# Function to disable an extension.
-Function Disable-Extension() {
-  Param (
-    [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateNotNull()]
-    [ValidateLength(1, [int]::MaxValue)]
-    [string]
-    $extension,
-    [Parameter(Position = 1, Mandatory = $false)]
-    [ValidateNotNull()]
-    [ValidateLength(1, [int]::MaxValue)]
-    [string]
-    $DisableDependents
-  )
-  if(php -m | findstr -i $extension) {
-    if(Test-Path $ext_dir\php_$extension.dll) {
-      try {
-        $params = @{ Extension = $extension; DisableDependents = ($DisableDependents -ne 'false') }
-        Disable-ExtensionHelper @params
-        Add-Log $tick ":$extension" "Disabled"
-      } catch {
-        Add-Log $cross ":$extension" "Could not disable $extension on PHP $($installed.FullVersion)"
-      }
-    } else {
-      Add-Log $cross ":$extension" "Could not disable $extension on PHP $($installed.FullVersion) as it not a shared extension"
-    }
-  } elseif(Test-Path $ext_dir\php_$extension.dll) {
-    Add-Log $tick ":$extension" "Disabled"
-  } else {
-    Add-Log $tick ":$extension" "Could not find $extension on PHP $($installed.FullVersion)"
-  }
-}
-
-# Function to disable shared extensions.
-Function Disable-AllShared() {
-  (Get-Content $php_dir\php.ini) | Where-Object {$_ -notmatch '^(zend_)?extension\s*='} | Set-Content $php_dir\php.ini
-  Add-Log $tick "none" "Disabled all shared extensions"
-}
-
-# Function to handle request to add PECL.
-Function Add-Pecl() {
-  Add-Log $tick "PECL" "Use extensions input to setup PECL extensions on windows"
 }
 
 # Variables
@@ -363,6 +178,7 @@ if($env:RUNNER -eq 'self-hosted') {
 }
 
 . $dist\..\src\scripts\tools\add_tools.ps1
+. $dist\..\src\scripts\extensions\add_extensions.ps1
 
 Add-Printf >$null 2>&1
 Step-Log "Setup PhpManager"

@@ -231,9 +231,10 @@ scripts="${dist}"/../src/scripts
 . /etc/os-release
 # shellcheck source=.
 . "${scripts:?}"/common.sh
-. "${scripts:?}"/ext/source.sh
 . "${scripts:?}"/tools/ppa.sh
 . "${scripts:?}"/tools/add_tools.sh
+. "${scripts:?}"/extensions/source.sh
+. "${scripts:?}"/extensions/add_extensions.sh
 read_env
 self_hosted_setup
 setup_php

@@ -62,4 +62,4 @@ add_oci() {
 }
 
 # shellcheck source=.
-. "${scripts:?}"/ext/patches/phpize.sh
+. "${scripts:?}"/extensions/patches/phpize.sh

@@ -46,7 +46,7 @@ export async function addExtensionDarwin(
       case /(5\.6|7\.[0-3])phalcon3|7\.[2-4]phalcon4/.test(version_extension):
         add_script += await utils.customPackage(
           ext_name,
-          'ext',
+          'extensions',
           extension,
           'darwin'
         );
@@ -142,7 +142,7 @@ export async function addExtensionWindows(
       case /^(7\.[1-4]|8\.0)(pecl_)?http/.test(version_extension):
         add_script += await utils.customPackage(
           ext_name,
-          'ext',
+          'extensions',
           extension,
           'win32'
         );
@@ -269,7 +269,7 @@ export async function addExtensionLinux(
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
         add_script += await utils.customPackage(
           ext_name,
-          'ext',
+          'extensions',
           extension,
           'linux'
         );

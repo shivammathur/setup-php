@@ -250,8 +250,9 @@ export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
 
 # shellcheck source=.
 . "${scripts:?}"/common.sh
-. "${scripts:?}"/ext/source.sh
 . "${scripts:?}"/tools/add_tools.sh
+. "${scripts:?}"/extensions/source.sh
+. "${scripts:?}"/extensions/add_extensions.sh
 read_env
 self_hosted_setup
 setup_php

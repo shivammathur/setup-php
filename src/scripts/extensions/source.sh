@@ -76,9 +76,9 @@ run_group() {
 
 patch_extension() {
   extension=$1
-  if [ -e "${scripts:?}"/ext/patches/"$extension".sh ]; then
+  if [ -e "${scripts:?}"/extensions/patches/"$extension".sh ]; then
     # shellcheck source=.
-    . "${scripts:?}"/ext/patches/"$extension".sh
+    . "${scripts:?}"/extensions/patches/"$extension".sh
     patch_"${extension}"
   fi
 }

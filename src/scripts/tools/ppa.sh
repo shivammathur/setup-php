@@ -54,14 +54,17 @@ update_lists_helper() {
 update_lists() {
   local ppa=${1:-}
   local ppa_search=${2:-}
-  if [ ! -e /tmp/setup_php ] || [[ -n $ppa && -n $ppa_search ]]; then
-    if [[ -n "$ppa" && -n "$ppa_search" ]]; then
-      list="$list_dir"/"$(basename "$(grep -lr "$ppa_search" "$list_dir")")"
-    elif grep -Eq '^deb ' "$list_file"; then
-      list="$list_file"
-    fi
+  local list=
+  status_file=/tmp/os_lists
+  if [[ -n "$ppa" && -n "$ppa_search" ]]; then
+    list="$list_dir"/"$(basename "$(grep -lr "$ppa_search" "$list_dir")")"
+    status_file=/tmp/"${ppa/\//_}"
+  elif grep -Eq '^deb ' "$list_file"; then
+    list="$list_file"
+  fi
+  if [ ! -e "$status_file" ]; then
     update_lists_helper "$list" >/dev/null 2>&1
-    echo '' | tee /tmp/setup_php >/dev/null 2>&1
+    echo '' | tee "$status_file" >/dev/null 2>&1
   fi
 }
 

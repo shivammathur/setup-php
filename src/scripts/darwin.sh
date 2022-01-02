@@ -249,7 +249,7 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
 
 # shellcheck source=.
-. "${scripts:?}"/common.sh
+. "${scripts:?}"/unix.sh
 . "${scripts:?}"/tools/add_tools.sh
 . "${scripts:?}"/extensions/source.sh
 . "${scripts:?}"/extensions/add_extensions.sh

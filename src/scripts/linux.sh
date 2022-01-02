@@ -230,7 +230,7 @@ scripts="${dist}"/../src/scripts
 
 . /etc/os-release
 # shellcheck source=.
-. "${scripts:?}"/common.sh
+. "${scripts:?}"/unix.sh
 . "${scripts:?}"/tools/ppa.sh
 . "${scripts:?}"/tools/add_tools.sh
 . "${scripts:?}"/extensions/source.sh

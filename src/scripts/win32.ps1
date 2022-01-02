@@ -129,6 +129,15 @@ Function Add-PhpCAInfo {
   }
 }
 
+# Function to set PHP config.
+Function Add-PhpConfig {
+  $ini_config_dir = "$dist\..\src\configs\ini"
+  $ini_files = @("$ini_config_dir\php.ini")
+  $version -match $jit_versions -and ($ini_files += ("$ini_config_dir\jit.ini")) > $null 2>&1
+  $version -match $xdebug3_versions -and ($ini_files += ("$ini_config_dir\xdebug.ini")) > $null 2>&1
+  Get-Content -Path $ini_files | Add-Content -Path $php_dir\php.ini
+}
+
 # Variables
 $tick = ([char]8730)
 $cross = ([char]10007)
@@ -141,6 +150,7 @@ $current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $jit_versions = '8.[0-9]'
 $nightly_versions = '8.[2-9]'
+$xdebug3_versions = "7.[2-4]|8.[0-9]"
 $enable_extensions = ('openssl', 'curl', 'mbstring')
 
 $arch = 'x64'
@@ -217,9 +227,6 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   } catch { }
 } else {
   Set-PhpIniKey -Key 'extension_dir' -Value $ext_dir -Path $php_dir
-  if($version -match $jit_versions) {
-    ('opcache.enable=1', 'opcache.jit_buffer_size=256M', 'opcache.jit=1235') | ForEach-Object { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
-  }
   if($env:update -eq 'true') {
     Update-Php $php_dir >$null 2>&1
     $status = "Updated to"
@@ -233,7 +240,6 @@ if($installed.MajorMinorVersion -ne $version) {
   Add-Log $cross "PHP" "Could not setup PHP $version"
   exit 1
 }
-('date.timezone=UTC', 'memory_limit=-1', 'xdebug.mode=coverage') | ForEach-Object { $p=$_.split('='); Set-PhpIniKey -Key $p[0] -Value $p[1] -Path $php_dir }
 if($version -lt "5.5") {
   ('libeay32.dll', 'ssleay32.dll') | ForEach-Object { Invoke-WebRequest -Uri "$php_builder/releases/download/openssl-1.0.2u/$_" -OutFile $php_dir\$_ >$null 2>&1 }
 } else {
@@ -241,6 +247,7 @@ if($version -lt "5.5") {
 }
 Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
 Add-PhpCAInfo
+Add-PhpConfig
 Copy-Item -Path $dist\..\src\configs\pm\*.json -Destination $env:RUNNER_TOOL_CACHE
 Write-Output "::set-output name=php-version::$($installed.FullVersion)"
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)$extra_version"

@@ -83,11 +83,11 @@ self_hosted_setup() {
 
 # Function to configure PHP
 configure_php() {
-  (
-    echo -e "date.timezone=UTC\nmemory_limit=-1"
-    [[ "$version" =~ $jit_versions ]] && echo -e "opcache.enable=1\nopcache.jit_buffer_size=256M\nopcache.jit=1235"
-    [[ "$version" =~ $xdebug3_versions ]] && echo -e "xdebug.mode=coverage"
-  ) | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null
+  ini_config_dir="${dist:?}"/../src/configs/ini
+  ini_files=("$ini_config_dir"/php.ini)
+  [[ "$version" =~ $jit_versions ]] && ini_files+=("$ini_config_dir"/jit.ini)
+  [[ "$version" =~ $xdebug3_versions ]] && ini_files+=("$ini_config_dir"/xdebug.ini)
+  cat "${ini_files[@]}" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null 2>&1
 }
 
 # Function to get PHP version in semver format.

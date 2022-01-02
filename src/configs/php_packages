@@ -1,6 +1,12 @@
+cgi
 cli
 curl
 dev
+fpm
 intl
 mbstring
+mysql
+opcache
+pgsql
 xml
+zip

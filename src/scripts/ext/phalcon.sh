@@ -4,11 +4,10 @@ add_phalcon_helper() {
   if [ "$(uname -s)" = "Darwin" ]; then
     add_brew_extension "$extension" extension
   else
-    if [ "$extension" = "phalcon4" ]; then
-      install_packages "php${version:?}-psr" "php${version:?}-$extension"
-    else
-      install_packages "php${version:?}-$extension"
-    fi
+    packages=("php${version:?}-$extension")
+    [ "$extension" = "phalcon4" ] && packages+=("php${version:?}-psr")
+    add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
+    check_package "${packages[0]}" && install_packages "${packages[@]}"
   fi
 }
 

@@ -91,7 +91,7 @@ add_tool() {
     echo "export PATH=\$PATH:$tool_path_dir" | sudo tee -a "$GITHUB_ENV" >/dev/null
   fi
   if [ -e "$tool_path" ]; then
-    sudo cp -a "$tool_path" /tmp/"$tool"
+    sudo cp -aL "$tool_path" /tmp/"$tool"
   fi
   IFS="," read -r -a url <<<"$url"
   status_code=$(get -v -e "$tool_path" "${url[@]}")
@@ -155,6 +155,6 @@ add_composertool() {
   ) || add_log "$cross" "$tool" "Could not setup $tool"
   add_tools_helper "$tool"
   if [ -e "$composer_bin/composer" ]; then
-    sudo cp -p "$tool_path_dir/composer" "$composer_bin"
+    sudo cp -a "$tool_path_dir/composer" "$composer_bin"
   fi
 }

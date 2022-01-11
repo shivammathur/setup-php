@@ -43,7 +43,7 @@ configure_composer() {
     chmod 644 "$composer_json"
   fi
   cat "${dist:?}"/../src/configs/composer.env >> "$GITHUB_ENV"
-  echo "$composer_bin" >>"$GITHUB_PATH"
+  add_path "$composer_bin"
   if [ -n "$COMPOSER_TOKEN" ]; then
     composer -q config -g github-oauth.github.com "$COMPOSER_TOKEN"
   fi
@@ -53,8 +53,7 @@ configure_composer() {
 add_tools_helper() {
   tool=$1
   if [ "$tool" = "codeception" ]; then
-    codeception_bin=$(grep codeception_bin "${GITHUB_ENV:?}" | cut -d '=' -f 2)
-    sudo ln -s "$codeception_bin"/codecept "$codeception_bin"/codeception
+    sudo ln -s "$scoped_dir"/vendor/bin/codecept "$scoped_dir"/vendor/bin/codeception
   elif [ "$tool" = "composer" ]; then
     configure_composer "$tool_path"
   elif [ "$tool" = "cs2pr" ]; then
@@ -75,6 +74,8 @@ add_tools_helper() {
     if [ -e "$tool_path_dir"/phpunit ]; then
       sudo cp "$tool_path_dir"/phpunit "$composer_bin"
     fi
+  elif [[ "$tool" =~ vapor-cli ]]; then
+    sudo ln -s "$scoped_dir"/vendor/bin/vapor "$scoped_dir"/vendor/bin/vapor-cli
   elif [[ "$tool" =~ (symfony|vapor|wp)-cli ]]; then
     sudo ln -s "$tool_path" "$tool_path_dir"/"${tool%-*}"
   fi
@@ -86,10 +87,7 @@ add_tool() {
   tool=$2
   ver_param=$3
   tool_path="$tool_path_dir/$tool"
-  if ! [[ "$PATH" =~ $tool_path_dir ]]; then
-    export PATH=$PATH:"$tool_path_dir"
-    echo "export PATH=\$PATH:$tool_path_dir" | sudo tee -a "$GITHUB_ENV" >/dev/null
-  fi
+  add_path "$tool_path_dir"
   if [ -e "$tool_path" ]; then
     sudo cp -aL "$tool_path" /tmp/"$tool"
   fi
@@ -114,17 +112,23 @@ add_tool() {
 }
 
 # Function to setup a tool using composer in a different scope.
-add_scoped_composertool() {
+add_composertool_helper() {
   tool=$1
   release=$2
   prefix=$3
-  scoped_dir="$composer_bin/_tools/$tool-$(echo -n "$release" | shasum -a 256 | cut -d ' ' -f 1)"
-  if ! [ -e "$scoped_dir" ]; then
-    mkdir -p "$scoped_dir"
-    composer require "$prefix$release" -d "$scoped_dir" 2>&1 | tee /tmp/composer.log >/dev/null 2>&1
-    export PATH=$PATH:"$scoped_dir"/vendor/bin
-    echo "${tool}"_bin="$scoped_dir"/vendor/bin | sudo tee -a "$GITHUB_ENV" >/dev/null
-    echo "$scoped_dir"/vendor/bin >>"$GITHUB_PATH"
+  scope=$4
+  if [ "$scope" = "global" ]; then
+    sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
+    composer global require "$prefix$release" >/dev/null 2>&1
+    composer global show "$prefix$tool" 2>&1 | grep -E ^versions | sudo tee /tmp/composer.log >/dev/null 2>&1
+  else
+    scoped_dir="$composer_bin/_tools/$tool-$(echo -n "$release" | shasum -a 256 | cut -d ' ' -f 1)"
+    if ! [ -d "$scoped_dir" ]; then
+      mkdir -p "$scoped_dir"
+      composer require "$prefix$release" -d "$scoped_dir" >/dev/null 2>&1
+      composer show "$prefix$tool" -d "$scoped_dir" 2>&1 | grep -E ^versions | sudo tee /tmp/composer.log >/dev/null 2>&1
+    fi
+    add_path "$scoped_dir"/vendor/bin
   fi
 }
 
@@ -142,16 +146,9 @@ add_composertool() {
       return
     fi
   fi
-  (
-    if [ "$scope" = "global" ]; then
-      sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
-      composer global require "$prefix$release" 2>&1 | tee /tmp/composer.log >/dev/null 2>&1
-    else
-      add_scoped_composertool "$tool" "$release" "$prefix"
-    fi
-    log=$(grep "$prefix$tool" /tmp/composer.log) &&
-      tool_version=$(get_tool_version 'echo' "$log") &&
-      add_log "$tick" "$tool" "Added $tool $tool_version"
+  add_composertool_helper "$tool" "$release" "$prefix" "$scope"
+  tool_version=$(get_tool_version cat /tmp/composer.log)
+  ([ -s /tmp/composer.log ] && add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"
   add_tools_helper "$tool"
   if [ -e "$composer_bin/composer" ]; then

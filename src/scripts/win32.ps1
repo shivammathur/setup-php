@@ -64,10 +64,17 @@ Function Add-Path {
   param(
     [string]$PathItem
   )
-  $newPath = (Get-ItemProperty -Path 'hkcu:\Environment' -Name PATH).Path.replace("$PathItem;", '')
-  $newPath = $PathItem + ';' + $newPath
-  Set-ItemProperty -Path 'hkcu:\Environment' -Name Path -Value $newPath
-  Get-PathFromRegistry
+  if(-not(Test-Path $PathItem) -or "$env:PATH;".contains("$PathItem;")) {
+    return
+  }
+  if ($env:GITHUB_PATH) {
+    Add-Content $PathItem -Path $env:GITHUB_PATH -Encoding utf8
+  } else {
+    $newPath = (Get-ItemProperty -Path 'hkcu:\Environment' -Name PATH).Path.replace("$PathItem;", '')
+    $newPath = $PathItem + ';' + $newPath
+    Set-ItemProperty -Path 'hkcu:\Environment' -Name Path -Value $newPath
+    Get-PathFromRegistry
+  }
 }
 
 # Function to make sure printf is in PATH.

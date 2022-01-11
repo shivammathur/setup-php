@@ -23,7 +23,7 @@ Function Edit-ComposerConfig() {
     Set-Content -Path $composer_json -Value "{}"
   }
   Get-Content -Path $dist\..\src\configs\composer.env | Add-Content -Path $env:GITHUB_ENV
-  Write-Output $composer_bin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+  Add-Path $composer_bin
   if (Test-Path env:COMPOSER_TOKEN) {
     composer -q config -g github-oauth.github.com $env:COMPOSER_TOKEN
   }
@@ -60,7 +60,7 @@ Function Add-ToolsHelper() {
     $tool
   )
   if($tool -eq "codeception") {
-    Copy-Item $codeception_bin\codecept.bat -Destination $codeception_bin\codeception.bat
+    Copy-Item $env:codeception_bin\codecept.bat -Destination $env:codeception_bin\codeception.bat
   } elseif($tool -eq "composer") {
     Edit-ComposerConfig $bin_dir\$tool
   } elseif($tool -eq "cs2pr") {
@@ -77,7 +77,7 @@ Function Add-ToolsHelper() {
     Add-ToProfile $current_profile "symfony" "New-Alias symfony $bin_dir\symfony-cli.exe"
     Add-ToProfile $current_profile "symfony_cli" "New-Alias symfony-cli $bin_dir\symfony-cli.exe"
   } elseif($tool -match "vapor-cli") {
-    Copy-Item $vapor_cli_bin\vapor.bat -Destination $vapor_cli_bin\vapor-cli.bat
+    Copy-Item $env:vapor_cli_bin\vapor.bat -Destination $env:vapor_cli_bin\vapor-cli.bat
   } elseif($tool -eq "wp-cli") {
     Copy-Item $bin_dir\wp-cli.bat -Destination $bin_dir\wp.bat
   }
@@ -137,7 +137,7 @@ Function Add-Tool() {
   }
 }
 
-Function Add-ScopedComposertool() {
+Function Add-ComposertoolHelper() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     [string]
@@ -147,18 +147,30 @@ Function Add-ScopedComposertool() {
     $release,
     [Parameter(Position = 2, Mandatory = $true)]
     [string]
-    $prefix
+    $prefix,
+    [Parameter(Position = 3, Mandatory = $true)]
+    [string]
+    $scope
   )
-  $release_stream = [System.IO.MemoryStream]::New([System.Text.Encoding]::ASCII.GetBytes($release))
-  $scoped_tool_dir_suffix = (Get-FileHash -InputStream $release_stream -Algorithm sha256).Hash
-  $scoped_tool_dir = "$composer_bin\_tools\$tool-$scoped_tool_dir_suffix"
-  if(-not(Test-Path $scoped_tool_dir)) {
-    New-Item -ItemType Directory -Force -Path $scoped_tool_dir > $null 2>&1
-    (composer global require $prefix$release -d $scoped_tool_dir.replace('\', '/') 2>&1 | Tee-Object -FilePath $env:APPDATA\Composer\composer.log) >$null 2>&1
-    Add-Content $scoped_tool_dir\vendor\bin -Path $env:GITHUB_PATH -Encoding utf8
-    New-Variable -Name ($tool.replace('-', '_') + '_bin') -Value $scoped_tool_dir\vendor\bin
+  if($scope -eq 'global') {
+    if(Test-Path $composer_lock) {
+      Remove-Item -Path $composer_lock -Force
+    }
+    composer global require $prefix$release >$null 2>&1
+    return composer global show $prefix$tool 2>&1 | findstr '^versions'
+  } else {
+    $release_stream = [System.IO.MemoryStream]::New([System.Text.Encoding]::ASCII.GetBytes($release))
+    $scoped_dir_suffix = (Get-FileHash -InputStream $release_stream -Algorithm sha256).Hash
+    $scoped_dir = "$composer_bin\_tools\$tool-$scoped_dir_suffix"
+    $unix_scoped_dir = $scoped_dir.replace('\', '/')
+    if(-not(Test-Path $scoped_dir)) {
+      New-Item -ItemType Directory -Force -Path $scoped_dir > $null 2>&1
+      composer require $prefix$release -d $unix_scoped_dir >$null 2>&1
+    }
+    [System.Environment]::SetEnvironmentVariable(($tool.replace('-', '_') + '_bin'), "$scoped_dir\vendor\bin")
+    Add-Path $scoped_dir\vendor\bin
+    return composer show $prefix$tool -d $unix_scoped_dir 2>&1 | findstr '^versions'
   }
-  return ((Test-Path $scoped_tool_dir\composer.json) -and (findstr $prefix$tool $scoped_tool_dir\composer.json))
 }
 
 # Function to setup a tool using composer.
@@ -190,21 +202,12 @@ Function Add-Composertool() {
     Add-Log $cross $tool "Skipped"
     Return
   }
-  if($scope -eq 'global') {
-    if(Test-Path $composer_lock) {
-      Remove-Item -Path $composer_lock -Force
-    }
-    (composer global require $prefix$release 2>&1 | Tee-Object -FilePath $env:APPDATA\Composer\composer.log) >$null 2>&1
-    $json = findstr $prefix$tool $env:APPDATA\Composer\composer.json
-  } else {
-    $json = Add-ScopedComposertool -tool $tool -release $release -prefix $prefix
-  }
-  $log = findstr $prefix$tool $env:APPDATA\Composer\composer.log
+  $log = Add-ComposertoolHelper -tool $tool -release $release -prefix $prefix -scope $scope
   if(Test-Path $composer_bin\composer) {
     Copy-Item -Path "$bin_dir\composer" -Destination "$composer_bin\composer" -Force
   }
   Add-ToolsHelper $tool
-  if($json) {
+  if($log) {
     $tool_version = Get-ToolVersion "Write-Output" "$log"
     Add-Log $tick $tool "Added $tool $tool_version"
   } else {

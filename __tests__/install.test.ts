@@ -11,8 +11,8 @@ jest.mock('../src/install', () => ({
     const coverage_driver: string = process.env['coverage'] || '';
     const tools_csv: string = process.env['tools'] || '';
     let script = 'initial script';
-    script += tools_csv ? ' add_tool' : '';
     script += extension_csv ? ' install extensions' : '';
+    script += tools_csv ? ' add_tool' : '';
     script += coverage_driver ? ' set coverage driver' : '';
     script += ini_values_csv ? ' edit php.ini' : '';
     return script;
@@ -70,7 +70,7 @@ describe('Install', () => {
     ${'8.0'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 ' + __dirname}
     ${'8.1'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.1 ' + __dirname}
     ${'7.3'}    | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 7.3 ' + __dirname}
-    ${'7.3'}    | ${'linux'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${'phpunit'} | ${'initial script add_tool install extensions set coverage driver edit php.ini bash linux.sh 7.3 ' + __dirname}
+    ${'7.3'}    | ${'linux'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${'phpunit'} | ${'initial script install extensions add_tool set coverage driver edit php.ini bash linux.sh 7.3 ' + __dirname}
     ${'latest'} | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 8.1 ' + __dirname}
     ${'7.0'}    | ${'win32'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.0 ' + __dirname}
     ${'7.3'}    | ${'win32'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.3 ' + __dirname}

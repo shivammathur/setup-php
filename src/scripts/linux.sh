@@ -1,9 +1,13 @@
+# Function to add sudo
+add_sudo() {
+  if ! command -v sudo >/dev/null; then
+    check_package sudo || apt-get update
+    apt-get install -y sudo
+  fi
+}
+
 # Function to setup environment for self-hosted runners.
 self_hosted_helper() {
-  if ! command -v sudo >/dev/null; then
-    apt-get update
-    apt-get install -y sudo || add_log "${cross:?}" "sudo" "Could not install sudo"
-  fi
   if ! command -v apt-fast >/dev/null; then
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
     trap "sudo rm -f /usr/bin/apt-fast 2>/dev/null" exit
@@ -61,7 +65,7 @@ add_pdo_extension() {
 
 # Function to check if a package exists
 check_package() {
-  sudo apt-cache policy "$1" 2>/dev/null | grep -q 'Candidate'
+  apt-cache policy "$1" 2>/dev/null | grep -q 'Candidate'
 }
 
 # Function to add extensions.
@@ -201,7 +205,7 @@ setup_php() {
     fi
   fi
   if ! command -v php"$version" >/dev/null; then
-    add_log "$cross" "PHP" "Could not setup PHP $version"
+    add_log "${cross:?}" "PHP" "Could not setup PHP $version"
     exit 1
   fi
   semver=$(php_semver)
@@ -227,6 +231,8 @@ dist=$2
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y --no-install-recommends"
 scripts="${dist}"/../src/scripts
+
+add_sudo
 
 . /etc/os-release
 # shellcheck source=.

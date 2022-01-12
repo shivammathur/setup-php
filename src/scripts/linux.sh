@@ -88,8 +88,9 @@ add_extension() {
 add_devtools() {
   tool=$1
   if ! command -v "$tool$version" >/dev/null; then
-    install_packages "php$version-dev" "php$version-xml"
+    install_packages "php$version-dev"
   fi
+  add_extension xml extension >/dev/null 2>&1
   switch_version "phpize" "php-config"
   add_log "${tick:?}" "$tool" "Added $tool $semver"
 }

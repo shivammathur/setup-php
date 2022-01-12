@@ -104,6 +104,7 @@ add_devtools() {
 
 # Function to handle request to add PECL.
 add_pecl() {
+  enable_extension xml extension >/dev/null 2>&1
   configure_pecl >/dev/null 2>&1
   pear_version=$(get_tool_version "pecl" "version")
   add_log "${tick:?}" "PECL" "Found PECL $pear_version"

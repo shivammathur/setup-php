@@ -32,11 +32,10 @@ add_log() {
 
 # Function to read env inputs.
 read_env() {
-  [[ -z "${update}" ]] && update='false' && UPDATE='false' || update="${update}"
-  [ "$update" = false ] && [[ -n ${UPDATE} ]] && update="${UPDATE}"
-  [[ -z "${runner}" ]] && runner='github' && RUNNER='github' || runner="${runner}"
-  [ "$runner" = false ] && [[ -n ${RUNNER} ]] && runner="${RUNNER}"
-  [[ -z "${fail_fast}" ]] && fail_fast='false' || fail_fast="${fail_fast}"
+  update="${update:-${UPDATE:-false}}"
+  fail_fast="${fail_fast:-${FAIL_FAST:-false}}"
+  [[ -z "${ImageOS}" && -z "${ImageVersion}" ]] && _runner=self-hosted || _runner=github
+  runner="${runner:-${RUNNER:-$_runner}}"
 }
 
 # Function to download a file using cURL.

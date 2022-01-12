@@ -169,7 +169,7 @@ $ts = $env:PHPTS -eq 'ts'
 if($env:PHPTS -ne 'ts') {
   $env:PHPTS = 'nts'
 }
-if($env:RUNNER -eq 'self-hosted') {
+if($env:RUNNER -eq 'self-hosted' -or (-not($env:ImageOS) -and -not($env:ImageVersion))) {
   $bin_dir = 'C:\tools\bin'
   $php_dir = "$php_dir$version"
   $ext_dir = "$php_dir\ext"

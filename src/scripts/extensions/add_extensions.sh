@@ -109,6 +109,18 @@ configure_pecl() {
   fi
 }
 
+# Function to add an extension.
+add_extension() {
+  local extension=$1
+  prefix=$2
+  enable_extension "$extension" "$prefix"
+  if check_extension "$extension"; then
+    add_log "${tick:?}" "$extension" "Enabled"
+  else
+    add_extension_helper "$extension" "$prefix"
+  fi
+}
+
 # Function to get the PECL version of an extension.
 get_pecl_version() {
   local extension=$1

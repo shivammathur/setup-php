@@ -68,19 +68,13 @@ check_package() {
   apt-cache policy "$1" 2>/dev/null | grep -q 'Candidate'
 }
 
-# Function to add extensions.
-add_extension() {
+# Helper function to add an extension.
+add_extension_helper() {
   local extension=$1
-  prefix=$2
   package=php"$version"-"$extension"
-  enable_extension "$extension" "$prefix"
-  if check_extension "$extension"; then
-    add_log "${tick:?}" "$extension" "Enabled"
-  else
-    add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
-    (check_package "$package" && install_packages "$package") || pecl_install "$extension"
-    add_extension_log "$extension" "Installed and enabled"
-  fi
+  add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
+  (check_package "$package" && install_packages "$package") || pecl_install "$extension"
+  add_extension_log "$extension" "Installed and enabled"
   sudo chmod 777 "${ini_file[@]}"
 }
 

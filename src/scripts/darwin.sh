@@ -78,22 +78,17 @@ add_brew_extension() {
   fi
 }
 
-# Function to setup extensions.
-add_extension() {
+# Helper function to add an extension.
+add_extension_helper() {
   local extension=$1
   prefix=$2
-  enable_extension "$extension" "$prefix"
-  if check_extension "$extension"; then
-    add_log "${tick:?}" "$extension" "Enabled"
+  if [[ "$version" =~ ${old_versions:?} ]] && [ "$extension" = "imagick" ]; then
+    run_script "php5-darwin" "${version/./}" "$extension" >/dev/null 2>&1
   else
-    if [[ "$version" =~ ${old_versions:?} ]] && [ "$extension" = "imagick" ]; then
-      run_script "php5-darwin" "${version/./}" "$extension" >/dev/null 2>&1
-    else
-      pecl_install "$extension" >/dev/null 2>&1 &&
-      if [[ "$version" =~ ${old_versions:?} ]]; then echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"; fi
-    fi
-    add_extension_log "$extension" "Installed and enabled"
+    pecl_install "$extension" >/dev/null 2>&1 &&
+    if [[ "$version" =~ ${old_versions:?} ]]; then echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"; fi
   fi
+  add_extension_log "$extension" "Installed and enabled"
 }
 
 # Function to handle request to add phpize and php-config.

@@ -242,8 +242,9 @@ ext_tap=shivammathur/homebrew-extensions
 php_tap=shivammathur/homebrew-php
 export HOMEBREW_CHANGE_ARCH_TO_ARM=1
 export HOMEBREW_DEVELOPER=1
-export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_ENV_HINTS=1
+export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
 
 # shellcheck source=.

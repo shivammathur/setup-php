@@ -119,7 +119,7 @@ configure_php() {
 
 # Function to get PHP version in semver format.
 php_semver() {
-  grep -Eo 'version="[0-9]+(\.[0-9]+){2}((-?[a-zA-Z]+([0-9]+)?)?){2}' "$(command -v php-config)" | cut -d '"' -f 2
+  grep -Eo 'version="[0-9]+(\.[0-9]+){2}((-?[a-zA-Z]+([0-9]+)?)?){2}' "${php_config:?}" | cut -d '"' -f 2
 }
 
 # Function to get the tag for a php version.

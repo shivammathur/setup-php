@@ -209,14 +209,16 @@ setup_php() {
     status="Found"
     fix_dependencies >/dev/null 2>&1
   fi
-  ini_file=$(php -d "date.timezone=UTC" --ini | grep "Loaded Configuration" | sed -e "s|.*:s*||" | sed "s/ //g")
-  sudo chmod 777 "$ini_file" "${tool_path_dir:?}"
-  configure_php
-  ext_dir=$(php -i | grep -Ei "extension_dir => /" | sed -e "s|.*=> s*||")
-  scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
+  php_config="$(command -v php-config)"
+  ext_dir="$(grep 'extension_dir=' "$php_config" | cut -d "'" -f 2)"
+  ini_dir="$(php --ini | grep '(php.ini)' | sed -e "s|.*: s*||")"
+  scan_dir="$ini_dir"/conf.d
+  ini_file="$ini_dir"/php.ini
   sudo mkdir -m 777 -p "$ext_dir" "$HOME/.composer"
+  sudo chmod 777 "$ini_file" "${tool_path_dir:?}"
   semver=$(php_semver)
   extra_version=$(php_extra_version)
+  configure_php
   if [ "${semver%.*}" != "$version" ]; then
     add_log "${cross:?}" "PHP" "Could not setup PHP $version"
     exit 1

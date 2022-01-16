@@ -203,12 +203,13 @@ setup_php() {
     add_log "${cross:?}" "PHP" "Could not setup PHP $version"
     exit 1
   fi
+  php_config="$(command -v php-config)"
+  ext_dir="/usr/$(grep -Po "extension_dir=..[^/]*/\K[^'\"]*" "$php_config")"
+  ini_dir=$(php --ini | grep "(php.ini)" | sed -e "s|.*: s*||")
+  scan_dir="$ini_dir"/conf.d
+  pecl_file="$scan_dir"/99-pecl.ini
   semver=$(php_semver)
   extra_version=$(php_extra_version)
-  ext_dir=$(php -i | grep "extension_dir => /" | sed -e "s|.*=> s*||")
-  scan_dir=$(php --ini | grep additional | sed -e "s|.*: s*||")
-  ini_dir=$(php --ini | grep "(php.ini)" | sed -e "s|.*: s*||")
-  pecl_file="$scan_dir"/99-pecl.ini
   export ext_dir
   mapfile -t ini_file < <(sudo find "$ini_dir/.." -name "php.ini" -exec readlink -m {} +)
   link_pecl_file

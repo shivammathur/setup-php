@@ -31,7 +31,7 @@ class ExtensionMap {
     /**
      * Function to read the extension map.
      */
-    public function parseMap($path) {
+    private function parseMap($path) {
         if(file_exists($path)) {
             $handle = fopen($path, "r");
             if ($handle) {
@@ -50,7 +50,7 @@ class ExtensionMap {
      * @param string $extension
      * @return bool
      */
-    public function checkSharedExtension($extension) {
+    private function checkSharedExtension($extension) {
         $extension_file = $this->extension_dir. DIRECTORY_SEPARATOR . $this->file_prefix . $extension . $this->file_extension;
         return file_exists($extension_file);
     }
@@ -60,7 +60,7 @@ class ExtensionMap {
      *
      * @return string[]
      */
-    public function getSharedExtensions() {
+    private function getSharedExtensions() {
         $files = scandir($this->extension_dir);
         $extensions = array_diff($files, array('.','..'));
         $filter_pattern = "/$this->file_extension|$this->file_prefix/";
@@ -76,7 +76,7 @@ class ExtensionMap {
      * @param array $dependencies
      * @return array
      */
-    public function patchDependencies($extension, $dependencies) {
+    private function patchDependencies($extension, $dependencies) {
         // memcached 2.2.0 has no dependencies in reflection data.
         if($extension == 'memcached') {
             $dependencies = array_unique(array_merge($dependencies, array('igbinary', 'json', 'msgpack')));
@@ -90,7 +90,7 @@ class ExtensionMap {
      * @param string $extension
      * @throws ReflectionException
      */
-    public function addExtensionToMap($extension) {
+    private function addExtensionToMap($extension) {
         if($this->map && array_key_exists($extension, $this->map) && !empty($this->map[$extension])) {
             return;
         }

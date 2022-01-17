@@ -49,7 +49,7 @@ enable_extension() {
 
 # Function to get a map of extensions and their dependent shared extensions.
 get_extension_map() {
-  php -d'error_reporting=0' "${dist:?}"/../src/scripts/extensions/extension_map.php /tmp/map.orig
+  php -d'error_reporting=0' "${dist:?}"/../src/scripts/extensions/extension_map.php /tmp/map"$version".orig
 }
 
 # Function to enable extension dependencies which are also extensions.
@@ -58,7 +58,7 @@ enable_extension_dependencies() {
   prefix=$2
   [ -e /tmp/extdisabled/"$version"/"$extension" ] || return;
   get_extension_map
-  for dependency in $(grep "$extension:" /tmp/map.orig | cut -d ':' -f 2 | tr '\n' ' '); do
+  for dependency in $(grep "$extension:" /tmp/map"$version".orig | cut -d ':' -f 2 | tr '\n' ' '); do
     enable_extension "$dependency" "$prefix"
   done
   rm /tmp/extdisabled/"$version"/"$extension"
@@ -67,7 +67,7 @@ enable_extension_dependencies() {
 # Function to disable dependent extensions.
 disable_extension_dependents() {
   local extension=$1
-  for dependent in $(grep -E ".*:.*\s$extension(\s|$)" /tmp/map.orig | cut -d ':' -f 1 | tr '\n' ' '); do
+  for dependent in $(grep -E ".*:.*\s$extension(\s|$)" /tmp/map"$version".orig | cut -d ':' -f 1 | tr '\n' ' '); do
     disable_extension_helper "$dependent" true
     add_log "${tick:?}" ":$extension" "Disabled $dependent as it depends on $extension"
   done

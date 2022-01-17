@@ -82,7 +82,7 @@ Function Add-Extension {
 
 # Function to get a map of extensions and their dependent shared extensions.
 Function Get-ExtensionMap {
-  php -d'error_reporting=0' $dist\..\src\scripts\extensions\extension_map.php $env:TEMP\map.orig
+  php -d'error_reporting=0' $dist\..\src\scripts\extensions\extension_map.php $env:TEMP\map$version.orig
 }
 
 # Function to enable extension dependencies which are also extensions.
@@ -98,7 +98,7 @@ Function Enable-ExtensionDependencies {
     return
   }
   Get-ExtensionMap
-  $entry = findstr /r "$extension`:.*" $env:TEMP\map.orig
+  $entry = findstr /r "$extension`:.*" $env:TEMP\map$version.orig
   if($entry) {
     $entry.split(':')[1].trim().split(' ') | ForEach-Object {
       if (-not(php -m | findstr -i $_)) {
@@ -118,7 +118,7 @@ Function Disable-DependentExtensions() {
     [string]
     $extension
   )
-  Select-String -Pattern ".*:.*\s$extension(\s|$)" $env:TEMP\map.orig | ForEach-Object {
+  Select-String -Pattern ".*:.*\s$extension(\s|$)" $env:TEMP\map$version.orig | ForEach-Object {
     $dependent = $_.Matches[0].Value.split(':')[0];
     Disable-ExtensionHelper -Extension $dependent -DisableDependents
     Add-Log $tick ":$extension" "Disabled $dependent as it depends on $extension"

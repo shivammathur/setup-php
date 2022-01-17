@@ -82,7 +82,7 @@ Function Add-Extension {
 
 # Function to get a map of extensions and their dependent shared extensions.
 Function Get-ExtensionMap {
-  php -d'error_reporting=0' $dist\..\src\scripts\ext\extension_map.php
+  php -d'error_reporting=0' $dist\..\src\scripts\extensions\extension_map.php $env:TEMP\map.orig
 }
 
 # Function to enable extension dependencies which are also extensions.
@@ -94,9 +94,10 @@ Function Enable-ExtensionDependencies {
     [string]
     $extension
   )
-  if (-not(Test-Path $env:TEMP\map.orig)) {
-    Get-ExtensionMap | Set-Content -Path $env:TEMP\map.orig
+  if (-not(Test-Path $env:TEMP\extdisabled\$extension)) {
+    return
   }
+  Get-ExtensionMap
   $entry = findstr /r "$extension`:.*" $env:TEMP\map.orig
   if($entry) {
     $entry.split(':')[1].trim().split(' ') | ForEach-Object {
@@ -105,6 +106,7 @@ Function Enable-ExtensionDependencies {
       }
     }
   }
+  Remove-Item $env:TEMP\extdisabled\$extension -Force
 }
 
 # Function to disable dependent extensions.
@@ -116,7 +118,7 @@ Function Disable-DependentExtensions() {
     [string]
     $extension
   )
-  Get-ExtensionMap | Select-String -Pattern ".*:.*\s$extension(\s|$)" | ForEach-Object {
+  Select-String -Pattern ".*:.*\s$extension(\s|$)" $env:TEMP\map.orig | ForEach-Object {
     $dependent = $_.Matches[0].Value.split(':')[0];
     Disable-ExtensionHelper -Extension $dependent -DisableDependents
     Add-Log $tick ":$extension" "Disabled $dependent as it depends on $extension"
@@ -133,10 +135,13 @@ Function Disable-ExtensionHelper() {
     $extension,
     [switch] $DisableDependents
   )
+  Get-ExtensionMap
   if($DisableDependents) {
     Disable-DependentExtensions $extension
   }
   Disable-PhpExtension -Extension $extension -Path $php_dir
+  New-Item $env:TEMP\extdisabled -Type Directory -Force > $null 2>&1
+  New-Item $env:TEMP\extdisabled\$extension -Type File -Force > $null 2>&1
 }
 
 # Function to disable an extension.
@@ -174,7 +179,12 @@ Function Disable-Extension() {
 
 # Function to disable shared extensions.
 Function Disable-AllShared() {
+  Get-ExtensionMap
   (Get-Content $php_dir\php.ini) | Where-Object {$_ -notmatch '^(zend_)?extension\s*='} | Set-Content $php_dir\php.ini
+  New-Item $env:TEMP\extdisabled\$version -Type Directory -Force > $null 2>&1
+  Get-Childitem $ext_dir\*.dll | ForEach-Object {
+    New-Item ("$env:TEMP\extdisabled\$version\" + ($_.Name.split('.')[0].split('_')[1])) -Type File -Force > $null 2>&1
+  }
   Add-Log $tick "none" "Disabled all shared extensions"
 }
 

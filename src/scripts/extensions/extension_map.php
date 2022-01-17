@@ -15,7 +15,7 @@ class ExtensionMap {
     /** @var string Prefix in PHP extension file. */
     private $file_prefix;
 
-    /** @var string String to store the map */
+    /** @var array Array to store the map */
     private $map;
 
     /**
@@ -25,7 +25,23 @@ class ExtensionMap {
         $this->extension_dir = ini_get('extension_dir');
         $this->file_extension = (PHP_OS == 'WINNT' ? '.dll' : '.so');
         $this->file_prefix = (PHP_OS == 'WINNT' ? 'php_' : '');
-        $this->map = '';
+        $this->map = array();
+    }
+
+    /**
+     * Function to read the extension map.
+     */
+    public function parseMap($path) {
+        if(file_exists($path)) {
+            $handle = fopen($path, "r");
+            if ($handle) {
+                while (($line = fgets($handle)) !== false) {
+                    $line_parts = explode(':', $line);
+                    $this->map[$line_parts[0]] = explode(' ', trim($line_parts[1]));
+                }
+                fclose($handle);
+            }
+        }
     }
 
     /**
@@ -75,6 +91,9 @@ class ExtensionMap {
      * @throws ReflectionException
      */
     public function addExtensionToMap($extension) {
+        if($this->map && array_key_exists($extension, $this->map) && !empty($this->map[$extension])) {
+            return;
+        }
         // PHP 5.3 does not allow using $this.
         $self = $this;
 
@@ -84,15 +103,15 @@ class ExtensionMap {
         $dependencies = array_filter($dependencies, function ($dependency) use ($self) {
             return $self->checkSharedExtension($dependency);
         });
-        $self->map .= $extension . ': ' . implode(' ', $dependencies) . PHP_EOL;
+        $self->map[$extension] = $dependencies;
     }
 
     /**
-     * Function to print the map of shared extensions and their dependent extensions.
-     *
-     * @return string
+     * Function to write the map of shared extensions and their dependent extensions.
      */
-    public function __toString() {
+    public function write() {
+        $path = $_SERVER['argv'][1];
+        $this->parseMap($path);
         $extensions = array_map('strtolower', $this->getSharedExtensions());
         foreach ($extensions as $extension) {
             try {
@@ -101,9 +120,13 @@ class ExtensionMap {
 
             }
         }
-        return $this->map;
+        $map_string = '';
+        foreach($this->map as $extension => $dependencies) {
+            $map_string .= $extension . ': ' . implode(' ', $dependencies) . PHP_EOL;
+        }
+        file_put_contents($path, $map_string);
     }
 }
 
 $extension_map = new ExtensionMap();
-echo $extension_map;
+$extension_map->write();

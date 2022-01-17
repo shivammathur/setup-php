@@ -49,25 +49,25 @@ enable_extension() {
 
 # Function to get a map of extensions and their dependent shared extensions.
 get_extension_map() {
-  php -d'error_reporting=0' "${dist:?}"/../src/scripts/extensions/extension_map.php
+  php -d'error_reporting=0' "${dist:?}"/../src/scripts/extensions/extension_map.php /tmp/map.orig
 }
 
 # Function to enable extension dependencies which are also extensions.
 enable_extension_dependencies() {
   local extension=$1
   prefix=$2
-  if ! [ -e /tmp/map.orig ]; then
-    get_extension_map | sudo tee /tmp/map.orig >/dev/null
-  fi
+  [ -e /tmp/extdisabled/"$version"/"$extension" ] || return;
+  get_extension_map
   for dependency in $(grep "$extension:" /tmp/map.orig | cut -d ':' -f 2 | tr '\n' ' '); do
     enable_extension "$dependency" "$prefix"
   done
+  rm /tmp/extdisabled/"$version"/"$extension"
 }
 
 # Function to disable dependent extensions.
 disable_extension_dependents() {
   local extension=$1
-  for dependent in $(get_extension_map | grep -E ".*:.*\s$extension(\s|$)" | cut -d ':' -f 1 | tr '\n' ' '); do
+  for dependent in $(grep -E ".*:.*\s$extension(\s|$)" /tmp/map.orig | cut -d ':' -f 1 | tr '\n' ' '); do
     disable_extension_helper "$dependent" true
     add_log "${tick:?}" ":$extension" "Disabled $dependent as it depends on $extension"
   done
@@ -93,8 +93,11 @@ disable_extension() {
 
 # Function to disable shared extensions.
 disable_all_shared() {
+  get_extension_map
   sudo sed -i.orig -E -e "/^(zend_)?extension\s*=/d" "${ini_file[@]}" "$pecl_file" 2>/dev/null || true
   sudo find "${ini_dir:-$scan_dir}"/.. -name "*.ini" -not -path "*php.ini" -not -path "*phar.ini" -not -path "*pecl.ini" -not -path "*mods-available*" -delete >/dev/null 2>&1 || true
+  mkdir -p /tmp/extdisabled/"$version"
+  sudo find "$ext_dir" -name '*.so' -print0 | xargs -0 -n 1 basename -s .so | xargs -n 1 -I{} touch /tmp/extdisabled/"$version"/{}
   add_log "${tick:?}" "none" "Disabled all shared extensions"
 }
 

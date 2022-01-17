@@ -22,10 +22,10 @@ Function Edit-ComposerConfig() {
   if (-not(Test-Path $composer_json)) {
     Set-Content -Path $composer_json -Value "{}"
   }
-  Get-Content -Path $dist\..\src\configs\composer.env | Add-Content -Path $env:GITHUB_ENV
+  Add-EnvPATH $dist\..\src\configs\composer.env
   Add-Path $composer_bin
   if (Test-Path env:COMPOSER_TOKEN) {
-    composer -q config -g github-oauth.github.com $env:COMPOSER_TOKEN
+    Add-Env COMPOSER_AUTH ('{"github-oauth": {"github.com": "' + $env:COMPOSER_TOKEN + '"}}')
   }
 }
 

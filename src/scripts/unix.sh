@@ -87,6 +87,31 @@ add_path() {
   export PATH="${PATH:+${PATH}:}$path_to_add"
 }
 
+# Function to add environment variables using a PATH.
+add_env_path() {
+  env_path=$1
+  [ -e "$env_path" ] || return
+  if [[ -n "$GITHUB_ENV" ]]; then
+    cat "$env_path" >> "$GITHUB_ENV"
+  else
+    profile=$(get_shell_profile)
+    cat "$env_path" >> "$profile"
+  fi
+}
+
+# Function to add an environment variable.
+add_env() {
+  env_name=$1
+  env_value=$2
+  if [[ -n "$GITHUB_ENV" ]]; then
+    echo "$env_name=$env_value" | tee -a "$GITHUB_ENV" >/dev/null 2>&1
+  else
+    profile=$(get_shell_profile)
+    echo "export $env_name=\"$env_value\"" | sudo tee -a "$profile" >/dev/null 2>&1
+  fi
+  export "$env_name"="$env_value"
+}
+
 # Function to download and run scripts from GitHub releases with jsdeliver fallback.
 run_script() {
   repo=$1

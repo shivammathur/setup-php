@@ -77,6 +77,34 @@ Function Add-Path {
   }
 }
 
+# Function to add an environment variable.
+Function Add-Env {
+  param(
+    [string]$EnvName,
+    [string]$EnvValue
+  )
+  if ($env:GITHUB_ENV) {
+    Add-Content "$EnvName=$EnvValue" -Path $env:GITHUB_ENV -Encoding utf8
+  } else {
+    Set-ItemProperty -Path 'hkcu:\Environment' -Name $EnvName -Value $EnvValue
+  }
+}
+
+# Function to add environment variables using a PATH.
+Function Add-EnvPATH {
+  param(
+    [string]$EnvPATH
+  )
+  if(-not(Test-Path $EnvPATH)) {
+    return
+  }
+  $env_file = $current_profile
+  if ($env:GITHUB_ENV) {
+    $env_file = $env:GITHUB_ENV
+  }
+  Get-Content -Path $EnvPATH | Add-Content -Path $env_file -Encoding utf8
+}
+
 # Function to make sure printf is in PATH.
 Function Add-Printf {
   if (-not(Test-Path "C:\Program Files\Git\usr\bin\printf.exe")) {

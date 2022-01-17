@@ -1,6 +1,7 @@
 amqp=amqp
 apcu=apcu
 expect=expect
+gnupg=gnupg
 grpc=grpc
 igbinary=igbinary
 imagick=imagick

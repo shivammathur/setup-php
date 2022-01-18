@@ -147,6 +147,11 @@ php_semver() {
   grep -Eo 'version="[0-9]+(\.[0-9]+){2}((-?[a-zA-Z]+([0-9]+)?)?){2}' "${php_config:?}" | cut -d '"' -f 2
 }
 
+# Function to get ini_path.
+php_ini_path() {
+  cut -d '"' -f 2 < <(grep "ini_path=" "$php_config" || php --ini | grep '(php.ini)' | sed -e "s|.*: s*||")
+}
+
 # Function to get the tag for a php version.
 php_src_tag() {
   commit=$(php_extra_version | grep -Eo "[0-9a-zA-Z]+")

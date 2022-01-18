@@ -182,7 +182,8 @@ php_extra_version() {
 setup_php() {
   step_log "Setup PHP"
   sudo mkdir -m 777 -p /var/run /run/php
-  if [ "$(php-config --version 2>/dev/null | cut -c 1-3)" != "$version" ]; then
+  php_config="$(command -v php-config)"
+  if [[ -z "$php_config" ]] || [ "$(php_semver | cut -c 1-3)" != "$version" ]; then
     if [ ! -e "/usr/bin/php$version" ]; then
       add_php >/dev/null 2>&1
     else
@@ -195,6 +196,7 @@ setup_php() {
         status="Switched to"
       fi
     fi
+    php_config="$(command -v php-config)"
   else
     if [ "$update" = "true" ]; then
       update_php >/dev/null 2>&1
@@ -206,13 +208,12 @@ setup_php() {
     add_log "${cross:?}" "PHP" "Could not setup PHP $version"
     exit 1
   fi
-  php_config="$(command -v php-config)"
   ext_dir="/usr/$(grep -Po "extension_dir=..[^/]*/\K[^'\"]*" "$php_config")"
-  ini_dir=$(php --ini | grep "(php.ini)" | sed -e "s|.*: s*||")
+  ini_dir="$(php_ini_path)"
   scan_dir="$ini_dir"/conf.d
   pecl_file="$scan_dir"/99-pecl.ini
-  semver=$(php_semver)
-  extra_version=$(php_extra_version)
+  semver="$(php_semver)"
+  extra_version="$(php_extra_version)"
   export ext_dir
   mapfile -t ini_file < <(sudo find "$ini_dir/.." -name "php.ini" -exec readlink -m {} +)
   link_pecl_file

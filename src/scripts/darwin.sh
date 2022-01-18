@@ -167,7 +167,7 @@ fix_dependencies() {
 get_brewed_php() {
   php_cellar="$brew_prefix"/Cellar/php
   if [ -d "$php_cellar" ] && ! [[ "$(find "$php_cellar" -maxdepth 1 -name "$version*" | wc -l 2>/dev/null)" -eq 0 ]]; then
-    php-config --version 2>/dev/null | cut -c 1-3
+    php_semver | cut -c 1-3
   else
     echo 'false';
   fi
@@ -198,6 +198,7 @@ php_extra_version() {
 # Function to Setup PHP.
 setup_php() {
   step_log "Setup PHP"
+  php_config="$(command -v php-config 2>/dev/null)"
   existing_version=$(get_brewed_php)
   if [[ "$version" =~ ${old_versions:?} ]]; then
     run_script "php5-darwin" "${version/./}" >/dev/null 2>&1
@@ -214,13 +215,13 @@ setup_php() {
   fi
   php_config="$(command -v php-config)"
   ext_dir="$(grep 'extension_dir=' "$php_config" | cut -d "'" -f 2)"
-  ini_dir="$(php --ini | grep '(php.ini)' | sed -e "s|.*: s*||")"
+  ini_dir="$(php_ini_path)"
   scan_dir="$ini_dir"/conf.d
   ini_file="$ini_dir"/php.ini
   sudo mkdir -m 777 -p "$ext_dir" "$HOME/.composer"
   sudo chmod 777 "$ini_file" "${tool_path_dir:?}"
-  semver=$(php_semver)
-  extra_version=$(php_extra_version)
+  semver="$(php_semver)"
+  extra_version="$(php_extra_version)"
   configure_php
   if [ "${semver%.*}" != "$version" ]; then
     add_log "${cross:?}" "PHP" "Could not setup PHP $version"
@@ -236,8 +237,10 @@ setup_php() {
 version=$1
 dist=$2
 php_formula=shivammathur/php/php@"$version"
-brew_prefix="$(brew --prefix)"
-brew_repo="$(brew --repository)"
+brew_path="$(command -v brew)"
+brew_path_dir="$(dirname "$brew_path")"
+brew_prefix="$brew_path_dir"/..
+brew_repo="$brew_path_dir/$(dirname "$(readlink "$brew_path")")"/..
 tap_dir="$brew_repo"/Library/Taps
 core_repo="$tap_dir"/homebrew/homebrew-core
 scripts="${dist}"/../src/scripts

@@ -68,27 +68,27 @@ Both `GitHub-hosted` and `self-hosted` runners are suppported by `setup-php` on 
 
 |Virtual environment|YAML workflow label|Pre-installed PHP|
 |--- |--- |--- |
-|Ubuntu 18.04|`ubuntu-18.04`|`PHP 7.1` to `PHP 8.0`|
-|Ubuntu 20.04|`ubuntu-latest` or `ubuntu-20.04`|`PHP 7.4` to `PHP 8.0`|
-|Windows Server 2019|`windows-latest` or `windows-2019`|`PHP 8.0`|
-|Windows Server 2022|`windows-2022`|`PHP 8.0`|
-|macOS Catalina 10.15|`macos-latest` or `macos-10.15`|`PHP 8.0`|
-|macOS Big Sur 11.x|`macos-11`|`PHP 8.0`|
+|Ubuntu 20.04|`ubuntu-latest` or `ubuntu-20.04`|`PHP 7.4` to `PHP 8.1`|
+|Ubuntu 18.04|`ubuntu-18.04`|`PHP 7.1` to `PHP 8.1`|
+|Windows Server 2022|`windows-latest` or `windows-2022`|`PHP 8.1`|
+|Windows Server 2019|`windows-2019`|`PHP 8.1`|
+|macOS Big Sur 11.x|`macos-11`|`PHP 8.1`|
+|macOS Catalina 10.15|`macos-latest` or `macos-10.15`|`PHP 8.1`|
 
 ### Self-Hosted Runners
 
 |Host OS/Virtual environment|YAML workflow label|
 |--- |--- |
-|Ubuntu 18.04|`self-hosted` or `Linux`|
-|Ubuntu 20.04|`self-hosted` or `Linux`|
 |Ubuntu 21.04|`self-hosted` or `Linux`|
-|Debian 9|`self-hosted` or `Linux`|
-|Debian 10|`self-hosted` or `Linux`|
+|Ubuntu 20.04|`self-hosted` or `Linux`|
+|Ubuntu 18.04|`self-hosted` or `Linux`|
 |Debian 11|`self-hosted` or `Linux`|
+|Debian 10|`self-hosted` or `Linux`|
+|Debian 9|`self-hosted` or `Linux`|
 |Windows 7 and newer|`self-hosted` or `Windows`|
 |Windows Server 2012 R2 and newer|`self-hosted` or `Windows`|
-|macOS Catalina 10.15|`self-hosted` or `macOS`|
 |macOS Big Sur 11.x x86_64/arm64|`self-hosted` or `macOS`|
+|macOS Catalina 10.15|`self-hosted` or `macOS`|
 
 - Refer to the [self-hosted setup](#self-hosted-setup) to use the action on self-hosted runners.
 - Operating systems based on the above Ubuntu and Debian versions are also supported on a best effort basis.

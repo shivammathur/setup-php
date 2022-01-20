@@ -25,18 +25,6 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v1
-        with:
-          allowed-endpoints:
-            codecov.io.:443
-            github.com.:443
-            nodejs.org.:443
-            raw.githubusercontent.com.:443
-            registry.npmjs.org.:443
-            setup-php.com.:443
-            storage.googleapis.com.:443
-
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -56,6 +44,9 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Run npm audit
+        run: npm audit
 
       - name: Send Coverage
         continue-on-error: true

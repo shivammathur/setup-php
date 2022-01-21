@@ -492,7 +492,8 @@ export async function parseExtensionSource(
   prefix: string
 ): Promise<string> {
   // Groups: extension, domain url, org, repo, release
-  const regex = /(\w+)-(.+:\/\/.+(?:[.:].+)+\/)?([\w.-]+)\/([\w.-]+)@(.+)/;
+  const regex =
+    /(\w+)-(\w+:\/\/.{1,253}(?:[.:][^:/\s]{2,63})+\/)?([\w.-]+)\/([\w.-]+)@(.+)/;
   const matches = regex.exec(extension) as RegExpExecArray;
   matches[2] = matches[2] ? matches[2].slice(0, -1) : 'https://github.com';
   return await joins(

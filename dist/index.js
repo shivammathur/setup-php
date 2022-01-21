@@ -1177,7 +1177,7 @@ async function customPackage(pkg, type, version, os_version) {
 }
 exports.customPackage = customPackage;
 async function parseExtensionSource(extension, prefix) {
-    const regex = /(\w+)-(.+:\/\/.+(?:[.:].+)+\/)?([\w.-]+)\/([\w.-]+)@(.+)/;
+    const regex = /(\w+)-(\w+:\/\/.{1,253}(?:[.:][^:/\s]{2,63})+\/)?([\w.-]+)\/([\w.-]+)@(.+)/;
     const matches = regex.exec(extension);
     matches[2] = matches[2] ? matches[2].slice(0, -1) : 'https://github.com';
     return await joins('\nadd_extension_from_source', ...matches.splice(1, matches.length), prefix);

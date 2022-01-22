@@ -718,7 +718,7 @@ key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
 
 - If you support a range of `composer` dependencies and use `prefer-lowest` and `prefer-stable` options, you can store them in your matrix and add them to the keys.
 ```yaml
-key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}-${{ matrix.prefer }}-
+key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.lock') }}
 restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-
 ```
 

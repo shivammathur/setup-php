@@ -71,7 +71,7 @@ add_tools_helper() {
     sudo ln -s "$tool_path" "$tool_path_dir"/phpdocumentor 2>/dev/null || true
     sudo ln -s "$tool_path" "$tool_path_dir"/phpdoc
   elif [[ "$tool" =~ phpunit(-polyfills)?$ ]]; then
-    if [ -e "$tool_path_dir"/phpunit ]; then
+    if [ -e "$tool_path_dir"/phpunit ] && [ -d "$composer_bin" ]; then
       sudo cp "$tool_path_dir"/phpunit "$composer_bin"
     fi
   elif [[ "$tool" =~ vapor-cli ]]; then

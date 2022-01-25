@@ -8,6 +8,11 @@ param (
   [ValidateNotNull()]
   [ValidateLength(1, [int]::MaxValue)]
   [string]
+  $ini = 'production',
+  [Parameter(Position = 2, Mandatory = $true)]
+  [ValidateNotNull()]
+  [ValidateLength(1, [int]::MaxValue)]
+  [string]
   $dist
 )
 
@@ -166,10 +171,18 @@ Function Add-PhpCAInfo {
 
 # Function to set PHP config.
 Function Add-PhpConfig {
+  $current = Get-Content -Path $php_dir\php.ini-current -ErrorAction SilentlyContinue
+  if($ini -eq 'development' -or ($ini -eq 'production' -and $current -and $current -ne 'production')) {
+    Copy-Item -Path $php_dir\php.ini-$ini -Destination $php_dir\php.ini -Force
+  } elseif ($ini -eq 'none') {
+    Set-Content -Path $php_dir\php.ini -Value ''
+  }
+  Set-Content -Path $php_dir\php.ini-current -Value $ini
   $ini_config_dir = "$dist\..\src\configs\ini"
   $ini_files = @("$ini_config_dir\php.ini")
   $version -match $jit_versions -and ($ini_files += ("$ini_config_dir\jit.ini")) > $null 2>&1
   $version -match $xdebug3_versions -and ($ini_files += ("$ini_config_dir\xdebug.ini")) > $null 2>&1
+  Add-Content -Path $ini_config_dir\php.ini -Value extension_dir=$ext_dir
   Get-Content -Path $ini_files | Add-Content -Path $php_dir\php.ini
 }
 
@@ -257,17 +270,18 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
         $extra_version = " ($( Get-Content $php_dir\COMMIT ))"
       }
     } else {
-      Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni Production -Force > $null 2>&1
+      Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni production -Force > $null 2>&1
     }
+    Add-PhpConfig
   } catch { }
 } else {
-  Set-PhpIniKey -Key 'extension_dir' -Value $ext_dir -Path $php_dir
   if($env:update -eq 'true') {
     Update-Php $php_dir >$null 2>&1
     $status = "Updated to"
   } else {
     $status = "Found"
   }
+  Add-PhpConfig
 }
 
 $installed = Get-Php -Path $php_dir
@@ -282,7 +296,6 @@ if($version -lt "5.5") {
 }
 Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
 Add-PhpCAInfo
-Add-PhpConfig
 Copy-Item -Path $dist\..\src\configs\pm\*.json -Destination $env:RUNNER_TOOL_CACHE
 Write-Output "::set-output name=php-version::$($installed.FullVersion)"
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)$extra_version"

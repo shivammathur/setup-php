@@ -71,6 +71,15 @@ describe('Utils tests', () => {
     expect(await utils.parseVersion('4.x')).toBe(undefined);
   });
 
+  it('checking parseIniFile', async () => {
+    expect(await utils.parseIniFile('production')).toBe('production');
+    expect(await utils.parseIniFile('development')).toBe('development');
+    expect(await utils.parseIniFile('none')).toBe('none');
+    expect(await utils.parseIniFile('php.ini-production')).toBe('production');
+    expect(await utils.parseIniFile('php.ini-development')).toBe('development');
+    expect(await utils.parseIniFile('invalid')).toBe('production');
+  })
+
   it('checking asyncForEach', async () => {
     const array: Array<string> = ['a', 'b', 'c'];
     let concat = '';

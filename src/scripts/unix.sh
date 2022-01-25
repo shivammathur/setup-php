@@ -135,6 +135,7 @@ self_hosted_setup() {
 
 # Function to configure PHP
 configure_php() {
+  add_php_config
   ini_config_dir="${dist:?}"/../src/configs/ini
   ini_files=("$ini_config_dir"/php.ini)
   [[ "$version" =~ $jit_versions ]] && ini_files+=("$ini_config_dir"/jit.ini)

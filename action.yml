@@ -12,6 +12,10 @@ inputs:
   extensions:
     description: 'Setup PHP extensions.'
     required: false
+  ini-file:
+    description: 'Set base ini file.'
+    default: 'production'
+    required: false
   ini-values:
     description: 'Add values to php.ini.'
     required: false

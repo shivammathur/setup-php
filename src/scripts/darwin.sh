@@ -195,6 +195,18 @@ php_extra_version() {
   fi
 }
 
+# Function to set php.ini
+add_php_config() {
+  if ! [ -e "$ini_dir"/php.ini-development ]; then
+    sudo cp "$ini_dir"/php.ini "$ini_dir"/php.ini-development
+  fi
+  if [[ "$ini" = "production" || "$ini" = "development" ]]; then
+    sudo cp "$ini_dir"/php.ini-"$ini" "$ini_dir"/php.ini
+  elif [ "$ini" = "none" ]; then
+    echo '' | sudo tee "${ini_file[@]}" >/dev/null 2>&1
+  fi
+}
+
 # Function to Setup PHP.
 setup_php() {
   step_log "Setup PHP"
@@ -234,8 +246,9 @@ setup_php() {
 }
 
 # Variables
-version=$1
-dist=$2
+version=${1:-'8.1'}
+ini=${2:-'production'}
+dist=$3
 php_formula=shivammathur/php/php@"$version"
 brew_path="$(command -v brew)"
 brew_path_dir="$(dirname "$brew_path")"

@@ -178,6 +178,27 @@ php_extra_version() {
   fi
 }
 
+# Function to set php.ini
+add_php_config() {
+  php_lib_dir=/usr/lib/php/"$version"
+  current_ini="$php_lib_dir"/php.ini-current
+  current=$(cat "$current_ini" 2>/dev/null)
+  if [ "$current" = "$ini" ]; then
+    return;
+  fi
+  if [[ "$ini" = "production" && "x$current" != "xproduction" ]]; then
+    echo "${ini_file[@]}" | xargs -n 1 -P 6 sudo cp "$php_lib_dir"/php.ini-production
+    if [ -e "$php_lib_dir"/php.ini-production.cli ]; then
+      sudo cp "$php_lib_dir"/php.ini-production.cli "$ini_dir"/php.ini
+    fi
+  elif [ "$ini" = "development" ]; then
+    echo "${ini_file[@]}" | xargs -n 1 -P 6 sudo cp "$php_lib_dir"/php.ini-development
+  elif [ "$ini" = "none" ]; then
+    echo '' | sudo tee "${ini_file[@]}" >/dev/null 2>&1
+  fi
+  echo "$ini" | sudo tee "$current_ini" >/dev/null 2>&1
+}
+
 # Function to Setup PHP
 setup_php() {
   step_log "Setup PHP"
@@ -226,8 +247,9 @@ setup_php() {
 }
 
 # Variables
-version=$1
-dist=$2
+version=${1:-'8.1'}
+ini=${2:-'production'}
+dist=$3
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y --no-install-recommends"
 scripts="${dist}"/../src/scripts

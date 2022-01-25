@@ -22,6 +22,9 @@ jest.mock('../src/install', () => ({
     const version: string = await utils.parseVersion(
       await utils.getInput('php-version', true)
     );
+    const ini_file: string = await utils.parseIniFile(
+      await utils.getInput('ini-file', false)
+    );
     const tool = await utils.scriptTool(os_version);
     const filename = os_version + (await utils.scriptExtension(os_version));
     return [
@@ -29,6 +32,7 @@ jest.mock('../src/install', () => ({
       tool,
       filename,
       version,
+      ini_file,
       __dirname
     ].join(' ');
   })
@@ -48,6 +52,7 @@ function setEnv(
   version: string | number,
   os: string,
   extension_csv: string,
+  ini_file: string,
   ini_values_csv: string,
   coverage_driver: string,
   tools: string
@@ -55,6 +60,7 @@ function setEnv(
   process.env['php-version'] = version.toString();
   process.env['RUNNER_OS'] = os;
   process.env['extensions'] = extension_csv;
+  process.env['ini-file'] = ini_file;
   process.env['ini-values'] = ini_values_csv;
   process.env['coverage'] = coverage_driver;
   process.env['tools'] = tools;
@@ -62,25 +68,26 @@ function setEnv(
 
 describe('Install', () => {
   it.each`
-    version     | os          | extension_csv | ini_values_csv | coverage_driver | tools        | output
-    ${'7.3'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 7.3 ' + __dirname}
-    ${'7.3'}    | ${'darwin'} | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${''}        | ${'initial script install extensions set coverage driver edit php.ini bash darwin.sh 7.3 ' + __dirname}
-    ${'7.4.1'}  | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 7.4 ' + __dirname}
-    ${'8'}      | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 ' + __dirname}
-    ${'8.0'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 ' + __dirname}
-    ${'8.1'}    | ${'darwin'} | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.1 ' + __dirname}
-    ${'7.3'}    | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 7.3 ' + __dirname}
-    ${'7.3'}    | ${'linux'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${'phpunit'} | ${'initial script install extensions add_tool set coverage driver edit php.ini bash linux.sh 7.3 ' + __dirname}
-    ${'latest'} | ${'linux'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 8.1 ' + __dirname}
-    ${'7.0'}    | ${'win32'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.0 ' + __dirname}
-    ${'7.3'}    | ${'win32'}  | ${''}         | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.3 ' + __dirname}
-    ${'7.3'}    | ${'win32'}  | ${'a, b'}     | ${'a=b'}       | ${'x'}          | ${''}        | ${'initial script install extensions set coverage driver edit php.ini pwsh win32.ps1 7.3 ' + __dirname}
+    version     | os          | extension_csv | ini_file         | ini_values_csv | coverage_driver | tools        | output
+    ${'7.3'}    | ${'darwin'} | ${''}         | ${'production'}  | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 7.3 production ' + __dirname}
+    ${'7.3'}    | ${'darwin'} | ${'a, b'}     | ${'development'} | ${'a=b'}       | ${'x'}          | ${''}        | ${'initial script install extensions set coverage driver edit php.ini bash darwin.sh 7.3 development ' + __dirname}
+    ${'7.4.1'}  | ${'darwin'} | ${''}         | ${'none'}        | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 7.4 none ' + __dirname}
+    ${'8'}      | ${'darwin'} | ${''}         | ${''}            | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 production ' + __dirname}
+    ${'8.0'}    | ${'darwin'} | ${''}         | ${'development'} | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 development ' + __dirname}
+    ${'8.1'}    | ${'darwin'} | ${''}         | ${'none'}        | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.1 none ' + __dirname}
+    ${'7.3'}    | ${'linux'}  | ${''}         | ${'invalid'}     | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 7.3 production ' + __dirname}
+    ${'7.3'}    | ${'linux'}  | ${'a, b'}     | ${'development'} | ${'a=b'}       | ${'x'}          | ${'phpunit'} | ${'initial script install extensions add_tool set coverage driver edit php.ini bash linux.sh 7.3 development ' + __dirname}
+    ${'latest'} | ${'linux'}  | ${''}         | ${'none'}        | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 8.1 none ' + __dirname}
+    ${'7.0'}    | ${'win32'}  | ${''}         | ${'production'}  | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.0 production ' + __dirname}
+    ${'7.3'}    | ${'win32'}  | ${''}         | ${'development'} | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.3 development ' + __dirname}
+    ${'7.3'}    | ${'win32'}  | ${'a, b'}     | ${'none'}        | ${'a=b'}       | ${'x'}          | ${''}        | ${'initial script install extensions set coverage driver edit php.ini pwsh win32.ps1 7.3 none ' + __dirname}
   `(
     'Test install on $os for $version with extensions=$extension_csv, ini_values=$ini_values_csv, coverage_driver=$coverage_driver, tools=$tools',
     async ({
       version,
       os,
       extension_csv,
+      ini_file,
       ini_values_csv,
       coverage_driver,
       tools,
@@ -90,6 +97,7 @@ describe('Install', () => {
         version,
         os,
         extension_csv,
+        ini_file,
         ini_values_csv,
         coverage_driver,
         tools

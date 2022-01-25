@@ -398,6 +398,12 @@ Disable coverage for these reasons:
 - Shared extensions prefixed with `:` are disabled.
 - See [PHP extension support](#heavy_plus_sign-php-extension-support) for more info.
 
+#### `ini-file` (optional)
+
+- Specify the base `php.ini` file.
+- Accepts `production`, `development` or `none`.
+- By default, production `php.ini` file is used.
+
 #### `ini-values` (optional)
 
 - Specify the values you want to add to `php.ini`. 

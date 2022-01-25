@@ -115,6 +115,22 @@ export async function parseVersion(version: string): Promise<string> {
 }
 
 /**
+ * Function to parse ini file.
+ *
+ * @param ini_file
+ */
+export async function parseIniFile(ini_file: string): Promise<string> {
+  switch (true) {
+    case /^(production|development|none)$/.test(ini_file):
+      return ini_file;
+    case /php\.ini-(production|development)$/.test(ini_file):
+      return ini_file.split('-')[1];
+    default:
+      return 'production';
+  }
+}
+
+/**
  * Async foreach loop
  *
  * @author https://github.com/Atinux

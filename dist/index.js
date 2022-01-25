@@ -472,12 +472,13 @@ async function run() {
             return;
         }
         const version = await utils.parseVersion(await utils.getInput('php-version', true));
+        const ini_file = await utils.parseIniFile(await utils.getInput('ini-file', false));
         if (version) {
             const os_version = process.platform;
             const tool = await utils.scriptTool(os_version);
             const script = os_version + (await utils.scriptExtension(os_version));
             const location = await getScript(script, version, os_version);
-            await (0, exec_1.exec)(await utils.joins(tool, location, version, __dirname));
+            await (0, exec_1.exec)(await utils.joins(tool, location, version, ini_file, __dirname));
         }
         else {
             core.setFailed('Unable to get the PHP version');
@@ -911,7 +912,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readFile = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseVersion = exports.getManifestURL = exports.fetch = exports.getInput = exports.readEnv = void 0;
+exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readFile = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseIniFile = exports.parseVersion = exports.getManifestURL = exports.fetch = exports.getInput = exports.readEnv = void 0;
 const fs = __importStar(__nccwpck_require__(147));
 const https = __importStar(__nccwpck_require__(687));
 const path = __importStar(__nccwpck_require__(17));
@@ -992,6 +993,17 @@ async function parseVersion(version) {
     }
 }
 exports.parseVersion = parseVersion;
+async function parseIniFile(ini_file) {
+    switch (true) {
+        case /^(production|development|none)$/.test(ini_file):
+            return ini_file;
+        case /php\.ini-(production|development)$/.test(ini_file):
+            return ini_file.split('-')[1];
+        default:
+            return 'production';
+    }
+}
+exports.parseIniFile = parseIniFile;
 async function asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index++) {
         await callback(array[index], index, array);

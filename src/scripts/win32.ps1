@@ -186,6 +186,20 @@ Function Add-PhpConfig {
   Get-Content -Path $ini_files | Add-Content -Path $php_dir\php.ini
 }
 
+# Function to get PHP from GitHub releases cache
+Function Set-PhpCache {
+  try {
+    $release = Invoke-RestMethod https://api.github.com/repos/shivammathur/php-builder-windows/releases/tags/php$version
+    $asset = $release.assets | ForEach-Object {
+      if($_.name -match "php-$version.[0-9]+$env:PHPTS-Win32-.*-$arch.zip") {
+        return $_.name
+      }
+    }
+    Invoke-WebRequest -UseBasicParsing -Uri $php_builder/releases/download/php$version/$asset -OutFile $php_dir\$asset
+    Set-PhpDownloadCache -Path $php_dir CurrentUser
+  } catch { }
+}
+
 # Variables
 $tick = ([char]8730)
 $cross = ([char]10007)
@@ -208,7 +222,9 @@ if(-not([Environment]::Is64BitOperatingSystem) -or $version -lt '7.0') {
 
 $ts = $env:PHPTS -eq 'ts'
 if($env:PHPTS -ne 'ts') {
-  $env:PHPTS = 'nts'
+  $env:PHPTS = '-nts'
+} else {
+  $env:PHPTS = ''
 }
 if($env:RUNNER -eq 'self-hosted' -or (-not($env:ImageOS) -and -not($env:ImageVersion))) {
   $bin_dir = 'C:\tools\bin'
@@ -270,6 +286,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
         $extra_version = " ($( Get-Content $php_dir\COMMIT ))"
       }
     } else {
+      Set-PhpCache
       Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni production -Force > $null 2>&1
     }
     Add-PhpConfig

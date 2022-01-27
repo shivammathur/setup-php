@@ -238,7 +238,7 @@ if($env:RUNNER -eq 'self-hosted' -or (-not($env:ImageOS) -and -not($env:ImageVer
     Start-Sleep 1
     exit 1
   }
-  if ((Get-InstalledModule).Name -notcontains 'VcRedist') {
+  if ($null -eq (Get-Module -ListAvailable -Name VcRedist)) {
     Install-Module -Name VcRedist -Force
   }
   New-Item $php_dir -Type Directory -Force > $null 2>&1
@@ -275,7 +275,7 @@ if (Test-Path -LiteralPath $php_dir -PathType Container) {
 $status = "Installed"
 $extra_version = ""
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
-  if ($version -lt '7.0' -and (Get-InstalledModule).Name -notcontains 'VcRedist') {
+  if ($version -lt '7.0' -and ($null -eq (Get-Module -ListAvailable -Name VcRedist))) {
     Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" Get-VcList >$null 2>&1
   }
   try {

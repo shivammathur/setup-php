@@ -548,12 +548,15 @@ async function getLatestVersion(data) {
         return 'latest';
     }
     const resp = await utils.fetch(`${data['github']}/${data['repository']}/releases.atom`);
-    const releases = [
-        ...resp['data'].matchAll(/releases\/tag\/([a-zA-Z]*)?(\d+.\d+.\d+)"/g)
-    ].map(match => match[2]);
-    return (releases
-        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-        .pop() || 'latest');
+    if (resp['data']) {
+        const releases = [
+            ...resp['data'].matchAll(/releases\/tag\/([a-zA-Z]*)?(\d+.\d+.\d+)"/g)
+        ].map(match => match[2]);
+        return (releases
+            .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+            .pop() || 'latest');
+    }
+    return 'latest';
 }
 exports.getLatestVersion = getLatestVersion;
 async function getVersion(version, data) {

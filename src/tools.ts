@@ -43,17 +43,20 @@ export async function getLatestVersion(data: RS): Promise<string> {
   const resp: Record<string, string> = await utils.fetch(
     `${data['github']}/${data['repository']}/releases.atom`
   );
-  const releases: string[] = [
-    ...resp['data'].matchAll(/releases\/tag\/([a-zA-Z]*)?(\d+.\d+.\d+)"/g)
-  ].map(match => match[2]);
+  if (resp['data']) {
+    const releases: string[] = [
+      ...resp['data'].matchAll(/releases\/tag\/([a-zA-Z]*)?(\d+.\d+.\d+)"/g)
+    ].map(match => match[2]);
 
-  return (
-    releases
-      .sort((a: string, b: string) =>
-        a.localeCompare(b, undefined, {numeric: true})
-      )
-      .pop() || 'latest'
-  );
+    return (
+      releases
+        .sort((a: string, b: string) =>
+          a.localeCompare(b, undefined, {numeric: true})
+        )
+        .pop() || 'latest'
+    );
+  }
+  return 'latest';
 }
 
 /**

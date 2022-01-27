@@ -307,7 +307,7 @@ if($installed.MajorMinorVersion -ne $version) {
   exit 1
 }
 if($version -lt "5.5") {
-  ('libeay32.dll', 'ssleay32.dll') | ForEach-Object { Invoke-WebRequest -Uri "$php_builder/releases/download/openssl-1.0.2u/$_" -OutFile $php_dir\$_ >$null 2>&1 }
+  ('libeay32.dll', 'ssleay32.dll') | ForEach-Object -Parallel { Invoke-WebRequest -Uri "$using:php_builder/releases/download/openssl-1.0.2u/$_" -OutFile $using:php_dir\$_ >$null 2>&1 }
 } else {
   $enable_extensions += ('opcache')
 }

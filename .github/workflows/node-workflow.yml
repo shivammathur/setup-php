@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
 
       - name: Setup Node.js 16.x
         uses: actions/setup-node@v1
@@ -49,6 +51,10 @@ jobs:
         run: npm audit
 
       - name: Send Coverage
-        continue-on-error: true
-        timeout-minutes: 1
-        run: curl -s https://codecov.io/bash | bash -s -- -t ${{secrets.CODECOV_TOKEN}} -f coverage/lcov.info -n github-actions-codecov-${{ matrix.operating-system }}
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/lcov.info
+          name: github-actions-codecov-${{ matrix.operating-system }}
+          fail_ci_if_error: false
+          verbose: true

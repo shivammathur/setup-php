@@ -20,13 +20,13 @@ export async function checkXdebugError(
  *
  * @param extension
  * @param version
- * @param os_version
+ * @param os
  * @param pipe
  */
 export async function addCoverageXdebug(
   extension: string,
   version: string,
-  os_version: string,
+  os: string,
   pipe: string
 ): Promise<string> {
   let script = '\n';
@@ -34,20 +34,14 @@ export async function addCoverageXdebug(
   let status = '$cross';
   if (!message) {
     script +=
-      (await extensions.addExtension(
-        ':pcov:false',
-        version,
-        os_version,
-        true
-      )) + pipe;
+      (await extensions.addExtension(':pcov:false', version, os, true)) + pipe;
     extension = extension == 'xdebug3' ? 'xdebug' : extension;
     script +=
-      (await extensions.addExtension(extension, version, os_version, true)) +
-      pipe;
+      (await extensions.addExtension(extension, version, os, true)) + pipe;
     message = 'Xdebug enabled as coverage driver';
     status = '$tick';
   }
-  script += await utils.addLog(status, extension, message, os_version);
+  script += await utils.addLog(status, extension, message, os);
   return script;
 }
 
@@ -55,36 +49,30 @@ export async function addCoverageXdebug(
  * Function to setup PCOV
  *
  * @param version
- * @param os_version
+ * @param os
  * @param pipe
  */
 export async function addCoveragePCOV(
   version: string,
-  os_version: string,
+  os: string,
   pipe: string
 ): Promise<string> {
   let script = '\n';
   switch (true) {
     default:
       script +=
-        (await extensions.addExtension(
-          ':xdebug:false',
-          version,
-          os_version,
-          true
-        )) + pipe;
-      script +=
-        (await extensions.addExtension('pcov', version, os_version, true)) +
+        (await extensions.addExtension(':xdebug:false', version, os, true)) +
         pipe;
       script +=
-        (await config.addINIValues('pcov.enabled=1', os_version, true)) + '\n';
+        (await extensions.addExtension('pcov', version, os, true)) + pipe;
+      script += (await config.addINIValues('pcov.enabled=1', os, true)) + '\n';
 
       // success
       script += await utils.addLog(
         '$tick',
         'coverage: pcov',
         'PCOV enabled as coverage driver',
-        os_version
+        os
       );
       // version is not supported
       break;
@@ -94,7 +82,7 @@ export async function addCoveragePCOV(
         '$cross',
         'pcov',
         'PHP 7.1 or newer is required',
-        os_version
+        os
       );
       break;
   }
@@ -106,31 +94,20 @@ export async function addCoveragePCOV(
  * Function to disable Xdebug and PCOV
  *
  * @param version
- * @param os_version
+ * @param os
  * @param pipe
  */
 export async function disableCoverage(
   version: string,
-  os_version: string,
+  os: string,
   pipe: string
 ): Promise<string> {
   let script = '\n';
   script +=
-    (await extensions.addExtension(':pcov:false', version, os_version, true)) +
-    pipe;
+    (await extensions.addExtension(':pcov:false', version, os, true)) + pipe;
   script +=
-    (await extensions.addExtension(
-      ':xdebug:false',
-      version,
-      os_version,
-      true
-    )) + pipe;
-  script += await utils.addLog(
-    '$tick',
-    'none',
-    'Disabled Xdebug and PCOV',
-    os_version
-  );
+    (await extensions.addExtension(':xdebug:false', version, os, true)) + pipe;
+  script += await utils.addLog('$tick', 'none', 'Disabled Xdebug and PCOV', os);
 
   return script;
 }
@@ -140,29 +117,27 @@ export async function disableCoverage(
  *
  * @param coverage_driver
  * @param version
- * @param os_version
+ * @param os
  */
 export async function addCoverage(
   coverage_driver: string,
   version: string,
-  os_version: string
+  os: string
 ): Promise<string> {
   coverage_driver = coverage_driver.toLowerCase();
-  const script: string =
-    '\n' + (await utils.stepLog('Setup Coverage', os_version));
-  const pipe: string = (await utils.suppressOutput(os_version)) + '\n';
+  const script: string = '\n' + (await utils.stepLog('Setup Coverage', os));
+  const pipe: string = (await utils.suppressOutput(os)) + '\n';
   switch (coverage_driver) {
     case 'pcov':
-      return script + (await addCoveragePCOV(version, os_version, pipe));
+      return script + (await addCoveragePCOV(version, os, pipe));
     case 'xdebug':
     case 'xdebug2':
     case 'xdebug3':
       return (
-        script +
-        (await addCoverageXdebug(coverage_driver, version, os_version, pipe))
+        script + (await addCoverageXdebug(coverage_driver, version, os, pipe))
       );
     case 'none':
-      return script + (await disableCoverage(version, os_version, pipe));
+      return script + (await disableCoverage(version, os, pipe));
     default:
       return '';
   }

@@ -51,28 +51,28 @@ async function addINIValuesWindows(ini_values_csv) {
     return ('Add-Content "$php_dir\\php.ini" "' + ini_values.join('\n') + '"' + script);
 }
 exports.addINIValuesWindows = addINIValuesWindows;
-async function addINIValues(ini_values_csv, os_version, no_step = false) {
+async function addINIValues(ini_values_csv, os, no_step = false) {
     let script = '\n';
     switch (no_step) {
         case true:
             script +=
-                (await utils.stepLog('Add php.ini values', os_version)) +
-                    (await utils.suppressOutput(os_version)) +
+                (await utils.stepLog('Add php.ini values', os)) +
+                    (await utils.suppressOutput(os)) +
                     '\n';
             break;
         case false:
         default:
-            script += (await utils.stepLog('Add php.ini values', os_version)) + '\n';
+            script += (await utils.stepLog('Add php.ini values', os)) + '\n';
             break;
     }
-    switch (os_version) {
+    switch (os) {
         case 'win32':
             return script + (await addINIValuesWindows(ini_values_csv));
         case 'darwin':
         case 'linux':
             return script + (await addINIValuesUnix(ini_values_csv));
         default:
-            return await utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+            return await utils.log('Platform ' + os + ' is not supported', os, 'error');
     }
 }
 exports.addINIValues = addINIValues;
@@ -117,69 +117,65 @@ async function checkXdebugError(extension, version) {
     return '';
 }
 exports.checkXdebugError = checkXdebugError;
-async function addCoverageXdebug(extension, version, os_version, pipe) {
+async function addCoverageXdebug(extension, version, os, pipe) {
     let script = '\n';
     let message = await checkXdebugError(extension, version);
     let status = '$cross';
     if (!message) {
         script +=
-            (await extensions.addExtension(':pcov:false', version, os_version, true)) + pipe;
+            (await extensions.addExtension(':pcov:false', version, os, true)) + pipe;
         extension = extension == 'xdebug3' ? 'xdebug' : extension;
         script +=
-            (await extensions.addExtension(extension, version, os_version, true)) +
-                pipe;
+            (await extensions.addExtension(extension, version, os, true)) + pipe;
         message = 'Xdebug enabled as coverage driver';
         status = '$tick';
     }
-    script += await utils.addLog(status, extension, message, os_version);
+    script += await utils.addLog(status, extension, message, os);
     return script;
 }
 exports.addCoverageXdebug = addCoverageXdebug;
-async function addCoveragePCOV(version, os_version, pipe) {
+async function addCoveragePCOV(version, os, pipe) {
     let script = '\n';
     switch (true) {
         default:
             script +=
-                (await extensions.addExtension(':xdebug:false', version, os_version, true)) + pipe;
-            script +=
-                (await extensions.addExtension('pcov', version, os_version, true)) +
+                (await extensions.addExtension(':xdebug:false', version, os, true)) +
                     pipe;
             script +=
-                (await config.addINIValues('pcov.enabled=1', os_version, true)) + '\n';
-            script += await utils.addLog('$tick', 'coverage: pcov', 'PCOV enabled as coverage driver', os_version);
+                (await extensions.addExtension('pcov', version, os, true)) + pipe;
+            script += (await config.addINIValues('pcov.enabled=1', os, true)) + '\n';
+            script += await utils.addLog('$tick', 'coverage: pcov', 'PCOV enabled as coverage driver', os);
             break;
         case /5\.[3-6]|7\.0/.test(version):
-            script += await utils.addLog('$cross', 'pcov', 'PHP 7.1 or newer is required', os_version);
+            script += await utils.addLog('$cross', 'pcov', 'PHP 7.1 or newer is required', os);
             break;
     }
     return script;
 }
 exports.addCoveragePCOV = addCoveragePCOV;
-async function disableCoverage(version, os_version, pipe) {
+async function disableCoverage(version, os, pipe) {
     let script = '\n';
     script +=
-        (await extensions.addExtension(':pcov:false', version, os_version, true)) +
-            pipe;
+        (await extensions.addExtension(':pcov:false', version, os, true)) + pipe;
     script +=
-        (await extensions.addExtension(':xdebug:false', version, os_version, true)) + pipe;
-    script += await utils.addLog('$tick', 'none', 'Disabled Xdebug and PCOV', os_version);
+        (await extensions.addExtension(':xdebug:false', version, os, true)) + pipe;
+    script += await utils.addLog('$tick', 'none', 'Disabled Xdebug and PCOV', os);
     return script;
 }
 exports.disableCoverage = disableCoverage;
-async function addCoverage(coverage_driver, version, os_version) {
+async function addCoverage(coverage_driver, version, os) {
     coverage_driver = coverage_driver.toLowerCase();
-    const script = '\n' + (await utils.stepLog('Setup Coverage', os_version));
-    const pipe = (await utils.suppressOutput(os_version)) + '\n';
+    const script = '\n' + (await utils.stepLog('Setup Coverage', os));
+    const pipe = (await utils.suppressOutput(os)) + '\n';
     switch (coverage_driver) {
         case 'pcov':
-            return script + (await addCoveragePCOV(version, os_version, pipe));
+            return script + (await addCoveragePCOV(version, os, pipe));
         case 'xdebug':
         case 'xdebug2':
         case 'xdebug3':
-            return (script +
-                (await addCoverageXdebug(coverage_driver, version, os_version, pipe)));
+            return (script + (await addCoverageXdebug(coverage_driver, version, os, pipe)));
         case 'none':
-            return script + (await disableCoverage(version, os_version, pipe));
+            return script + (await disableCoverage(version, os, pipe));
         default:
             return '';
     }
@@ -381,19 +377,19 @@ async function addExtensionLinux(extension_csv, version) {
     return add_script + remove_script;
 }
 exports.addExtensionLinux = addExtensionLinux;
-async function addExtension(extension_csv, version, os_version, no_step = false) {
-    const log = await utils.stepLog('Setup Extensions', os_version);
+async function addExtension(extension_csv, version, os, no_step = false) {
+    const log = await utils.stepLog('Setup Extensions', os);
     let script = '\n';
     switch (no_step) {
         case true:
-            script += log + (await utils.suppressOutput(os_version));
+            script += log + (await utils.suppressOutput(os));
             break;
         case false:
         default:
             script += log;
             break;
     }
-    switch (os_version) {
+    switch (os) {
         case 'win32':
             return script + (await addExtensionWindows(extension_csv, version));
         case 'darwin':
@@ -401,7 +397,7 @@ async function addExtension(extension_csv, version, os_version, no_step = false)
         case 'linux':
             return script + (await addExtensionLinux(extension_csv, version));
         default:
-            return await utils.log('Platform ' + os_version + ' is not supported', os_version, 'error');
+            return await utils.log('Platform ' + os + ' is not supported', os, 'error');
     }
 }
 exports.addExtension = addExtension;
@@ -447,7 +443,7 @@ const tools = __importStar(__nccwpck_require__(740));
 const utils = __importStar(__nccwpck_require__(918));
 const path_1 = __importDefault(__nccwpck_require__(17));
 const fs_1 = __importDefault(__nccwpck_require__(147));
-async function getScript(filename, version, os_version) {
+async function getScript(filename, version, os) {
     const url = 'https://setup-php.com/sponsor';
     process.env['fail_fast'] = await utils.getInput('fail-fast', false);
     const extension_csv = await utils.getInput('extensions', false);
@@ -457,17 +453,17 @@ async function getScript(filename, version, os_version) {
     const script_path = path_1.default.join(__dirname, '../src/scripts', filename);
     let script = '\n';
     if (extension_csv) {
-        script += await extensions.addExtension(extension_csv, version, os_version);
+        script += await extensions.addExtension(extension_csv, version, os);
     }
-    script += await tools.addTools(tools_csv, version, os_version);
+    script += await tools.addTools(tools_csv, version, os);
     if (coverage_driver) {
-        script += await coverage.addCoverage(coverage_driver, version, os_version);
+        script += await coverage.addCoverage(coverage_driver, version, os);
     }
     if (ini_values_csv) {
-        script += await config.addINIValues(ini_values_csv, os_version);
+        script += await config.addINIValues(ini_values_csv, os);
     }
-    script += '\n' + (await utils.stepLog(`Sponsor setup-php`, os_version));
-    script += '\n' + (await utils.addLog('$tick', 'setup-php', url, os_version));
+    script += '\n' + (await utils.stepLog(`Sponsor setup-php`, os));
+    script += '\n' + (await utils.addLog('$tick', 'setup-php', url, os));
     fs_1.default.appendFileSync(script_path, script, { mode: 0o755 });
     return script_path;
 }
@@ -481,10 +477,10 @@ async function run() {
         const version = await utils.parseVersion(await utils.getInput('php-version', true));
         const ini_file = await utils.parseIniFile(await utils.getInput('ini-file', false));
         if (version) {
-            const os_version = process.platform;
-            const tool = await utils.scriptTool(os_version);
-            const script = os_version + (await utils.scriptExtension(os_version));
-            const location = await getScript(script, version, os_version);
+            const os = process.platform;
+            const tool = await utils.scriptTool(os);
+            const script = os + (await utils.scriptExtension(os));
+            const location = await getScript(script, version, os);
             await (0, exec_1.exec)(await utils.joins(tool, location, version, ini_file, __dirname));
         }
         else {
@@ -659,12 +655,12 @@ async function getPharUrl(data) {
 }
 exports.getPharUrl = getPharUrl;
 async function addArchive(data) {
-    return ((await utils.getCommand(data['os_version'], 'tool')) +
+    return ((await utils.getCommand(data['os'], 'tool')) +
         (await utils.joins(data['url'], data['tool'], data['version_parameter'])));
 }
 exports.addArchive = addArchive;
 async function addPackage(data) {
-    const command = await utils.getCommand(data['os_version'], 'composertool');
+    const command = await utils.getCommand(data['os'], 'composertool');
     const parts = data['repository'].split('/');
     const args = await utils.joins(parts[1], data['release'], parts[0] + '/', data['scope']);
     return command + args;
@@ -715,19 +711,19 @@ async function addDeployer(data) {
 }
 exports.addDeployer = addDeployer;
 async function addDevTools(data) {
-    switch (data['os_version']) {
+    switch (data['os']) {
         case 'linux':
         case 'darwin':
             return 'add_devtools ' + data['tool'];
         case 'win32':
             return await utils.addLog('$tick', data['tool'], data['tool'] + ' is not a windows tool', 'win32');
         default:
-            return await utils.log('Platform ' + data['os_version'] + ' is not supported', data['os_version'], 'error');
+            return await utils.log('Platform ' + data['os'] + ' is not supported', data['os'], 'error');
     }
 }
 exports.addDevTools = addDevTools;
 async function addPECL(data) {
-    return await utils.getCommand(data['os_version'], 'pecl');
+    return await utils.getCommand(data['os'], 'pecl');
 }
 exports.addPECL = addPECL;
 async function addPhing(data) {
@@ -739,7 +735,7 @@ exports.addPhing = addPhing;
 async function addPhive(data) {
     switch (true) {
         case /5\.[3-5]/.test(data['php_version']):
-            return await utils.addLog('$cross', 'phive', 'Phive is not supported on PHP ' + data['php_version'], data['os_version']);
+            return await utils.addLog('$cross', 'phive', 'Phive is not supported on PHP ' + data['php_version'], data['os']);
         case /5\.6|7\.0/.test(data['php_version']):
             data['version'] = '0.12.1';
             break;
@@ -765,16 +761,16 @@ async function addPHPUnitTools(data) {
 exports.addPHPUnitTools = addPHPUnitTools;
 async function addSymfony(data) {
     let filename;
-    switch (data['os_version']) {
+    switch (data['os']) {
         case 'linux':
         case 'darwin':
-            filename = 'symfony_' + data['os_version'] + '_amd64';
+            filename = 'symfony_' + data['os'] + '_amd64';
             break;
         case 'win32':
             filename = 'symfony_windows_amd64.exe';
             break;
         default:
-            return await utils.log('Platform ' + data['os_version'] + ' is not supported', data['os_version'], 'error');
+            return await utils.log('Platform ' + data['os'] + ' is not supported', data['os'], 'error');
     }
     if (data['version'] === 'latest') {
         data['uri'] = ['releases/latest/download', filename].join('/');
@@ -798,7 +794,7 @@ async function addWPCLI(data) {
     return await addArchive(data);
 }
 exports.addWPCLI = addWPCLI;
-async function getData(release, php_version, os_version) {
+async function getData(release, php_version, os) {
     var _a, _b, _c, _d, _e;
     const json_file_path = path_1.default.join(__dirname, '../src/configs/tools.json');
     const json_file = fs_1.default.readFileSync(json_file_path, 'utf8');
@@ -832,7 +828,7 @@ async function getData(release, php_version, os_version) {
     data['github'] = 'https://github.com';
     (_a = data['domain']) !== null && _a !== void 0 ? _a : (data['domain'] = data['github']);
     (_b = data['extension']) !== null && _b !== void 0 ? _b : (data['extension'] = '.phar');
-    data['os_version'] = os_version;
+    data['os'] = os;
     data['php_version'] = php_version;
     data['prefix'] = data['github'] === data['domain'] ? 'releases' : '';
     data['verb'] = data['github'] === data['domain'] ? 'download' : '';
@@ -860,21 +856,21 @@ exports.functionRecord = {
     symfony: addSymfony,
     wp_cli: addWPCLI
 };
-async function addTools(tools_csv, php_version, os_version) {
+async function addTools(tools_csv, php_version, os) {
     let script = '\n';
     if (tools_csv === 'none') {
         return '';
     }
     else {
-        script += await utils.stepLog('Setup Tools', os_version);
+        script += await utils.stepLog('Setup Tools', os);
     }
     const tools_list = await filterList(await utils.CSVArray(tools_csv));
     await utils.asyncForEach(tools_list, async function (release) {
-        const data = await getData(release, php_version, os_version);
+        const data = await getData(release, php_version, os);
         script += '\n';
         switch (true) {
             case data['error'] !== undefined:
-                script += await utils.addLog('$cross', data['tool'], data['error'], data['os_version']);
+                script += await utils.addLog('$cross', data['tool'], data['error'], data['os']);
                 break;
             case 'phar' === data['type']:
                 data['url'] = await getUrl(data);
@@ -884,7 +880,7 @@ async function addTools(tools_csv, php_version, os_version) {
                 script += await addPackage(data);
                 break;
             case 'custom-package' === data['type']:
-                script += await utils.customPackage(data['tool'].split('-')[0], 'tools', data['version'], data['os_version']);
+                script += await utils.customPackage(data['tool'].split('-')[0], 'tools', data['version'], data['os']);
                 break;
             case 'custom-function' === data['type']:
                 script += await exports.functionRecord[data['function']](data);
@@ -892,7 +888,7 @@ async function addTools(tools_csv, php_version, os_version) {
             case /^none$/.test(data['tool']):
                 break;
             default:
-                script += await utils.addLog('$cross', data['tool'], 'Tool ' + data['tool'] + ' is not supported', data['os_version']);
+                script += await utils.addLog('$cross', data['tool'], 'Tool ' + data['tool'] + ' is not supported', data['os']);
                 break;
         }
     });
@@ -1037,8 +1033,8 @@ async function color(type) {
     }
 }
 exports.color = color;
-async function log(message, os_version, log_type) {
-    switch (os_version) {
+async function log(message, os, log_type) {
+    switch (os) {
         case 'win32':
             return ('printf "\\033[' +
                 (await color(log_type)) +
@@ -1052,27 +1048,27 @@ async function log(message, os_version, log_type) {
     }
 }
 exports.log = log;
-async function stepLog(message, os_version) {
-    switch (os_version) {
+async function stepLog(message, os) {
+    switch (os) {
         case 'win32':
             return 'Step-Log "' + message + '"';
         case 'linux':
         case 'darwin':
             return 'step_log "' + message + '"';
         default:
-            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+            return await log('Platform ' + os + ' is not supported', os, 'error');
     }
 }
 exports.stepLog = stepLog;
-async function addLog(mark, subject, message, os_version) {
-    switch (os_version) {
+async function addLog(mark, subject, message, os) {
+    switch (os) {
         case 'win32':
             return 'Add-Log "' + mark + '" "' + subject + '" "' + message + '"';
         case 'linux':
         case 'darwin':
             return 'add_log "' + mark + '" "' + subject + '" "' + message + '"';
         default:
-            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+            return await log('Platform ' + os + ' is not supported', os, 'error');
     }
 }
 exports.addLog = addLog;
@@ -1126,33 +1122,33 @@ async function getExtensionPrefix(extension) {
     }
 }
 exports.getExtensionPrefix = getExtensionPrefix;
-async function suppressOutput(os_version) {
-    switch (os_version) {
+async function suppressOutput(os) {
+    switch (os) {
         case 'win32':
             return ' >$null 2>&1';
         case 'linux':
         case 'darwin':
             return ' >/dev/null 2>&1';
         default:
-            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+            return await log('Platform ' + os + ' is not supported', os, 'error');
     }
 }
 exports.suppressOutput = suppressOutput;
-async function getUnsupportedLog(extension, version, os_version) {
+async function getUnsupportedLog(extension, version, os) {
     return ('\n' +
-        (await addLog('$cross', extension, [extension, 'is not supported on PHP', version].join(' '), os_version)) +
+        (await addLog('$cross', extension, [extension, 'is not supported on PHP', version].join(' '), os)) +
         '\n');
 }
 exports.getUnsupportedLog = getUnsupportedLog;
-async function getCommand(os_version, suffix) {
-    switch (os_version) {
+async function getCommand(os, suffix) {
+    switch (os) {
         case 'linux':
         case 'darwin':
             return 'add_' + suffix + ' ';
         case 'win32':
             return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
         default:
-            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+            return await log('Platform ' + os + ' is not supported', os, 'error');
     }
 }
 exports.getCommand = getCommand;
@@ -1160,35 +1156,35 @@ async function joins(...str) {
     return [...str].join(' ');
 }
 exports.joins = joins;
-async function scriptExtension(os_version) {
-    switch (os_version) {
+async function scriptExtension(os) {
+    switch (os) {
         case 'win32':
             return '.ps1';
         case 'linux':
         case 'darwin':
             return '.sh';
         default:
-            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+            return await log('Platform ' + os + ' is not supported', os, 'error');
     }
 }
 exports.scriptExtension = scriptExtension;
-async function scriptTool(os_version) {
-    switch (os_version) {
+async function scriptTool(os) {
+    switch (os) {
         case 'win32':
             return 'pwsh';
         case 'linux':
         case 'darwin':
             return 'bash';
         default:
-            return await log('Platform ' + os_version + ' is not supported', os_version, 'error');
+            return await log('Platform ' + os + ' is not supported', os, 'error');
     }
 }
 exports.scriptTool = scriptTool;
-async function customPackage(pkg, type, version, os_version) {
+async function customPackage(pkg, type, version, os) {
     const pkg_name = pkg.replace(/\d+|(pdo|pecl)[_-]/, '');
-    const script_extension = await scriptExtension(os_version);
+    const script_extension = await scriptExtension(os);
     const script = path.join(__dirname, '../src/scripts/' + type + '/' + pkg_name + script_extension);
-    const command = await getCommand(os_version, pkg_name);
+    const command = await getCommand(os, pkg_name);
     return '\n. ' + script + '\n' + command + version;
 }
 exports.customPackage = customPackage;

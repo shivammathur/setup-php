@@ -170,15 +170,15 @@ export async function color(type: string): Promise<string> {
  * Log to console
  *
  * @param message
- * @param os_version
+ * @param os
  * @param log_type
  */
 export async function log(
   message: string,
-  os_version: string,
+  os: string,
   log_type: string
 ): Promise<string> {
-  switch (os_version) {
+  switch (os) {
     case 'win32':
       return (
         'printf "\\033[' +
@@ -201,24 +201,17 @@ export async function log(
  * Function to log a step
  *
  * @param message
- * @param os_version
+ * @param os
  */
-export async function stepLog(
-  message: string,
-  os_version: string
-): Promise<string> {
-  switch (os_version) {
+export async function stepLog(message: string, os: string): Promise<string> {
+  switch (os) {
     case 'win32':
       return 'Step-Log "' + message + '"';
     case 'linux':
     case 'darwin':
       return 'step_log "' + message + '"';
     default:
-      return await log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
+      return await log('Platform ' + os + ' is not supported', os, 'error');
   }
 }
 
@@ -227,26 +220,22 @@ export async function stepLog(
  * @param mark
  * @param subject
  * @param message
- * @param os_version
+ * @param os
  */
 export async function addLog(
   mark: string,
   subject: string,
   message: string,
-  os_version: string
+  os: string
 ): Promise<string> {
-  switch (os_version) {
+  switch (os) {
     case 'win32':
       return 'Add-Log "' + mark + '" "' + subject + '" "' + message + '"';
     case 'linux':
     case 'darwin':
       return 'add_log "' + mark + '" "' + subject + '" "' + message + '"';
     default:
-      return await log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
+      return await log('Platform ' + os + ' is not supported', os, 'error');
   }
 }
 
@@ -322,21 +311,17 @@ export async function getExtensionPrefix(extension: string): Promise<string> {
 /**
  * Function to get the suffix to suppress console output
  *
- * @param os_version
+ * @param os
  */
-export async function suppressOutput(os_version: string): Promise<string> {
-  switch (os_version) {
+export async function suppressOutput(os: string): Promise<string> {
+  switch (os) {
     case 'win32':
       return ' >$null 2>&1';
     case 'linux':
     case 'darwin':
       return ' >/dev/null 2>&1';
     default:
-      return await log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
+      return await log('Platform ' + os + ' is not supported', os, 'error');
   }
 }
 
@@ -345,12 +330,12 @@ export async function suppressOutput(os_version: string): Promise<string> {
  *
  * @param extension
  * @param version
- * @param os_version
+ * @param os
  */
 export async function getUnsupportedLog(
   extension: string,
   version: string,
-  os_version: string
+  os: string
 ): Promise<string> {
   return (
     '\n' +
@@ -358,7 +343,7 @@ export async function getUnsupportedLog(
       '$cross',
       extension,
       [extension, 'is not supported on PHP', version].join(' '),
-      os_version
+      os
     )) +
     '\n'
   );
@@ -367,25 +352,18 @@ export async function getUnsupportedLog(
 /**
  * Function to get command to setup tools
  *
- * @param os_version
+ * @param os
  * @param suffix
  */
-export async function getCommand(
-  os_version: string,
-  suffix: string
-): Promise<string> {
-  switch (os_version) {
+export async function getCommand(os: string, suffix: string): Promise<string> {
+  switch (os) {
     case 'linux':
     case 'darwin':
       return 'add_' + suffix + ' ';
     case 'win32':
       return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
     default:
-      return await log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
+      return await log('Platform ' + os + ' is not supported', os, 'error');
   }
 }
 
@@ -401,42 +379,34 @@ export async function joins(...str: string[]): Promise<string> {
 /**
  * Function to get script extensions
  *
- * @param os_version
+ * @param os
  */
-export async function scriptExtension(os_version: string): Promise<string> {
-  switch (os_version) {
+export async function scriptExtension(os: string): Promise<string> {
+  switch (os) {
     case 'win32':
       return '.ps1';
     case 'linux':
     case 'darwin':
       return '.sh';
     default:
-      return await log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
+      return await log('Platform ' + os + ' is not supported', os, 'error');
   }
 }
 
 /**
  * Function to get script tool
  *
- * @param os_version
+ * @param os
  */
-export async function scriptTool(os_version: string): Promise<string> {
-  switch (os_version) {
+export async function scriptTool(os: string): Promise<string> {
+  switch (os) {
     case 'win32':
       return 'pwsh';
     case 'linux':
     case 'darwin':
       return 'bash';
     default:
-      return await log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
-        'error'
-      );
+      return await log('Platform ' + os + ' is not supported', os, 'error');
   }
 }
 
@@ -446,21 +416,21 @@ export async function scriptTool(os_version: string): Promise<string> {
  * @param pkg
  * @param type
  * @param version
- * @param os_version
+ * @param os
  */
 export async function customPackage(
   pkg: string,
   type: string,
   version: string,
-  os_version: string
+  os: string
 ): Promise<string> {
   const pkg_name: string = pkg.replace(/\d+|(pdo|pecl)[_-]/, '');
-  const script_extension: string = await scriptExtension(os_version);
+  const script_extension: string = await scriptExtension(os);
   const script: string = path.join(
     __dirname,
     '../src/scripts/' + type + '/' + pkg_name + script_extension
   );
-  const command: string = await getCommand(os_version, pkg_name);
+  const command: string = await getCommand(os, pkg_name);
   return '\n. ' + script + '\n' + command + version;
 }
 

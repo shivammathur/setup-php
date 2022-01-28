@@ -13,12 +13,12 @@ import fs from 'fs';
  *
  * @param filename
  * @param version
- * @param os_version
+ * @param os
  */
 export async function getScript(
   filename: string,
   version: string,
-  os_version: string
+  os: string
 ): Promise<string> {
   const url = 'https://setup-php.com/sponsor';
   // taking inputs
@@ -30,17 +30,17 @@ export async function getScript(
   const script_path = path.join(__dirname, '../src/scripts', filename);
   let script = '\n';
   if (extension_csv) {
-    script += await extensions.addExtension(extension_csv, version, os_version);
+    script += await extensions.addExtension(extension_csv, version, os);
   }
-  script += await tools.addTools(tools_csv, version, os_version);
+  script += await tools.addTools(tools_csv, version, os);
   if (coverage_driver) {
-    script += await coverage.addCoverage(coverage_driver, version, os_version);
+    script += await coverage.addCoverage(coverage_driver, version, os);
   }
   if (ini_values_csv) {
-    script += await config.addINIValues(ini_values_csv, os_version);
+    script += await config.addINIValues(ini_values_csv, os);
   }
-  script += '\n' + (await utils.stepLog(`Sponsor setup-php`, os_version));
-  script += '\n' + (await utils.addLog('$tick', 'setup-php', url, os_version));
+  script += '\n' + (await utils.stepLog(`Sponsor setup-php`, os));
+  script += '\n' + (await utils.addLog('$tick', 'setup-php', url, os));
 
   fs.appendFileSync(script_path, script, {mode: 0o755});
 
@@ -65,10 +65,10 @@ export async function run(): Promise<void> {
       await utils.getInput('ini-file', false)
     );
     if (version) {
-      const os_version: string = process.platform;
-      const tool = await utils.scriptTool(os_version);
-      const script = os_version + (await utils.scriptExtension(os_version));
-      const location = await getScript(script, version, os_version);
+      const os: string = process.platform;
+      const tool = await utils.scriptTool(os);
+      const script = os + (await utils.scriptExtension(os));
+      const location = await getScript(script, version, os);
       await exec(
         await utils.joins(tool, location, version, ini_file, __dirname)
       );

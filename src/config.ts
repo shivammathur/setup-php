@@ -45,28 +45,28 @@ export async function addINIValuesWindows(
  * Function to add custom ini values
  *
  * @param ini_values_csv
- * @param os_version
+ * @param os
  * @param no_step
  */
 export async function addINIValues(
   ini_values_csv: string,
-  os_version: string,
+  os: string,
   no_step = false
 ): Promise<string> {
   let script = '\n';
   switch (no_step) {
     case true:
       script +=
-        (await utils.stepLog('Add php.ini values', os_version)) +
-        (await utils.suppressOutput(os_version)) +
+        (await utils.stepLog('Add php.ini values', os)) +
+        (await utils.suppressOutput(os)) +
         '\n';
       break;
     case false:
     default:
-      script += (await utils.stepLog('Add php.ini values', os_version)) + '\n';
+      script += (await utils.stepLog('Add php.ini values', os)) + '\n';
       break;
   }
-  switch (os_version) {
+  switch (os) {
     case 'win32':
       return script + (await addINIValuesWindows(ini_values_csv));
     case 'darwin':
@@ -74,8 +74,8 @@ export async function addINIValues(
       return script + (await addINIValuesUnix(ini_values_csv));
     default:
       return await utils.log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
+        'Platform ' + os + ' is not supported',
+        os,
         'error'
       );
   }

@@ -70,7 +70,7 @@ describe('Utils tests', () => {
     expect(await utils.parseIniFile('php.ini-production')).toBe('production');
     expect(await utils.parseIniFile('php.ini-development')).toBe('development');
     expect(await utils.parseIniFile('invalid')).toBe('production');
-  })
+  });
 
   it('checking asyncForEach', async () => {
     const array: Array<string> = ['a', 'b', 'c'];

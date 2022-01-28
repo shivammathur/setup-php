@@ -6,7 +6,7 @@ interface IData {
   version?: string;
   domain?: string;
   extension?: string;
-  os_version?: string;
+  os?: string;
   php_version?: string;
   release?: string;
   repository?: string;
@@ -23,7 +23,7 @@ function getData(data: IData): Record<string, string> {
     version: data.version || '',
     domain: data.domain || 'https://example.com',
     extension: data.extension || '.phar',
-    os_version: data.os_version || 'linux',
+    os: data.os || 'linux',
     php_version: data.php_version || '7.4',
     release: data.release || [data.tool, data.version].join(':'),
     repository: data.repository || '',
@@ -197,45 +197,42 @@ describe('Tools tests', () => {
   );
 
   it.each`
-    os_version   | script
+    os           | script
     ${'linux'}   | ${'add_tool https://example.com/tool.phar tool "-v"'}
     ${'darwin'}  | ${'add_tool https://example.com/tool.phar tool "-v"'}
     ${'win32'}   | ${'Add-Tool https://example.com/tool.phar tool "-v"'}
     ${'openbsd'} | ${'Platform openbsd is not supported'}
-  `('checking addArchive: $os_version', async ({os_version, script}) => {
+  `('checking addArchive: $os', async ({os, script}) => {
     const data = getData({
       tool: 'tool',
       version: 'latest',
       version_parameter: JSON.stringify('-v'),
-      os_version: os_version
+      os: os
     });
     data['url'] = 'https://example.com/tool.phar';
     expect(await tools.addArchive(data)).toContain(script);
   });
 
   it.each`
-    os_version   | script                                             | scope
+    os           | script                                             | scope
     ${'linux'}   | ${'add_composertool tool tool:1.2.3 user/ global'} | ${'global'}
     ${'darwin'}  | ${'add_composertool tool tool:1.2.3 user/ scoped'} | ${'scoped'}
     ${'win32'}   | ${'Add-Composertool tool tool:1.2.3 user/ scoped'} | ${'scoped'}
     ${'openbsd'} | ${'Platform openbsd is not supported'}             | ${'global'}
-  `(
-    'checking addPackage: $os_version, $scope',
-    async ({os_version, script, scope}) => {
-      const data = getData({
-        tool: 'tool',
-        version: '1.2.3',
-        repository: 'user/tool',
-        os_version: os_version,
-        scope: scope
-      });
-      data['release'] = [data['tool'], data['version']].join(':');
-      expect(await tools.addPackage(data)).toContain(script);
-    }
-  );
+  `('checking addPackage: $os, $scope', async ({os, script, scope}) => {
+    const data = getData({
+      tool: 'tool',
+      version: '1.2.3',
+      repository: 'user/tool',
+      os: os,
+      scope: scope
+    });
+    data['release'] = [data['tool'], data['version']].join(':');
+    expect(await tools.addPackage(data)).toContain(script);
+  });
 
   it.each`
-    version     | php_version | os_version  | script
+    version     | php_version | os          | script
     ${'latest'} | ${'7.4'}    | ${'linux'}  | ${'add_tool https://github.com/phar-io/phive/releases/download/3.2.1/phive-3.2.1.phar phive'}
     ${'1.2.3'}  | ${'7.4'}    | ${'darwin'} | ${'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'}
     ${'1.2.3'}  | ${'7.2'}    | ${'win32'}  | ${'Add-Tool https://github.com/phar-io/phive/releases/download/0.14.5/phive-0.14.5.phar phive'}
@@ -243,15 +240,15 @@ describe('Tools tests', () => {
     ${'latest'} | ${'5.6'}    | ${'win32'}  | ${'Add-Tool https://github.com/phar-io/phive/releases/download/0.12.1/phive-0.12.1.phar phive'}
     ${'latest'} | ${'5.5'}    | ${'win32'}  | ${'Phive is not supported on PHP 5.5'}
   `(
-    'checking addPhive: $version, $php_version, $os_version',
-    async ({version, php_version, os_version, script}) => {
+    'checking addPhive: $version, $php_version, $os',
+    async ({version, php_version, os, script}) => {
       const data = getData({
         tool: 'phive',
         repository: 'phar-io/phive',
         version_parameter: 'status',
         version: version,
         php_version: php_version,
-        os_version: os_version
+        os: os
       });
       script = await tools.addPhive(data);
       expect(script).toContain(script);
@@ -322,7 +319,7 @@ describe('Tools tests', () => {
   );
 
   it.each`
-    version     | os_version   | uri
+    version     | os           | uri
     ${'latest'} | ${'linux'}   | ${'releases/latest/download/symfony_linux_amd64'}
     ${'1.2.3'}  | ${'linux'}   | ${'releases/download/v1.2.3/symfony_linux_amd64'}
     ${'latest'} | ${'darwin'}  | ${'releases/latest/download/symfony_darwin_amd64'}
@@ -330,18 +327,15 @@ describe('Tools tests', () => {
     ${'latest'} | ${'win32'}   | ${'releases/latest/download/symfony_windows_amd64.exe'}
     ${'1.2.3'}  | ${'win32'}   | ${'releases/download/v1.2.3/symfony_windows_amd64.exe'}
     ${'latest'} | ${'openbsd'} | ${'Platform openbsd is not supported'}
-  `(
-    'checking addSymfony: $version, $os_version',
-    async ({version, os_version, uri}) => {
-      const data = getData({
-        tool: 'symfony',
-        php_version: '7.4',
-        version: version,
-        os_version: os_version
-      });
-      expect(await tools.addSymfony(data)).toContain(uri);
-    }
-  );
+  `('checking addSymfony: $version, $os', async ({version, os, uri}) => {
+    const data = getData({
+      tool: 'symfony',
+      php_version: '7.4',
+      version: version,
+      os: os
+    });
+    expect(await tools.addSymfony(data)).toContain(uri);
+  });
 
   it.each`
     version     | uri
@@ -359,7 +353,7 @@ describe('Tools tests', () => {
   });
 
   it.each`
-    tool            | os_version   | script
+    tool            | os           | script
     ${'phpize'}     | ${'linux'}   | ${'add_devtools phpize'}
     ${'php-config'} | ${'linux'}   | ${'add_devtools php-config'}
     ${'phpize'}     | ${'darwin'}  | ${'add_devtools phpize'}
@@ -367,17 +361,14 @@ describe('Tools tests', () => {
     ${'phpize'}     | ${'win32'}   | ${'Add-Log "$tick" "phpize" "phpize is not a windows tool"'}
     ${'php-config'} | ${'win32'}   | ${'Add-Log "$tick" "php-config" "php-config is not a windows tool"'}
     ${'phpize'}     | ${'openbsd'} | ${'Platform openbsd is not supported'}
-  `(
-    'checking addDevTools: $tool, $os_version',
-    async ({tool, os_version, script}) => {
-      const data = getData({
-        version: '7.4',
-        tool: tool,
-        os_version: os_version
-      });
-      expect(await tools.addDevTools(data)).toContain(script);
-    }
-  );
+  `('checking addDevTools: $tool, $os', async ({tool, os, script}) => {
+    const data = getData({
+      version: '7.4',
+      tool: tool,
+      os: os
+    });
+    expect(await tools.addDevTools(data)).toContain(script);
+  });
 
   it.each([
     [

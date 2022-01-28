@@ -327,20 +327,20 @@ export async function addExtensionLinux(
  *
  * @param extension_csv
  * @param version
- * @param os_version
+ * @param os
  * @param no_step
  */
 export async function addExtension(
   extension_csv: string,
   version: string,
-  os_version: string,
+  os: string,
   no_step = false
 ): Promise<string> {
-  const log: string = await utils.stepLog('Setup Extensions', os_version);
+  const log: string = await utils.stepLog('Setup Extensions', os);
   let script = '\n';
   switch (no_step) {
     case true:
-      script += log + (await utils.suppressOutput(os_version));
+      script += log + (await utils.suppressOutput(os));
       break;
     case false:
     default:
@@ -348,7 +348,7 @@ export async function addExtension(
       break;
   }
 
-  switch (os_version) {
+  switch (os) {
     case 'win32':
       return script + (await addExtensionWindows(extension_csv, version));
     case 'darwin':
@@ -357,8 +357,8 @@ export async function addExtension(
       return script + (await addExtensionLinux(extension_csv, version));
     default:
       return await utils.log(
-        'Platform ' + os_version + ' is not supported',
-        os_version,
+        'Platform ' + os + ' is not supported',
+        os,
         'error'
       );
   }

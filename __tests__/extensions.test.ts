@@ -110,7 +110,9 @@ describe('Extension tests', () => {
       const [formula, extension]: string[] = line.split('=');
       const prefix: string =
         extension == 'xdebug' ? 'zend_extension' : 'extension';
-      const output: string = fs.existsSync(`src/scripts/extensions/${extension}.sh`)
+      const output: string = fs.existsSync(
+        `src/scripts/extensions/${extension}.sh`
+      )
         ? `add_${extension}`
         : `add_brew_extension ${formula} ${prefix}`;
       return [formula, '7.3', output];

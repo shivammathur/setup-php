@@ -18,17 +18,17 @@ jest.mock('../src/install', () => ({
     return script;
   }),
   run: jest.fn().mockImplementation(async (): Promise<string> => {
-    const os_version: string = process.env['RUNNER_OS'] || '';
+    const os: string = process.env['RUNNER_OS'] || '';
     const version: string = await utils.parseVersion(
       await utils.getInput('php-version', true)
     );
     const ini_file: string = await utils.parseIniFile(
       await utils.getInput('ini-file', false)
     );
-    const tool = await utils.scriptTool(os_version);
-    const filename = os_version + (await utils.scriptExtension(os_version));
+    const tool = await utils.scriptTool(os);
+    const filename = os + (await utils.scriptExtension(os));
     return [
-      await install.getScript(filename, version, os_version),
+      await install.getScript(filename, version, os),
       tool,
       filename,
       version,

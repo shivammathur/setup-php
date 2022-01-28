@@ -185,7 +185,7 @@ export async function getPharUrl(data: RS): Promise<string> {
  */
 export async function addArchive(data: RS): Promise<string> {
   return (
-    (await utils.getCommand(data['os_version'], 'tool')) +
+    (await utils.getCommand(data['os'], 'tool')) +
     (await utils.joins(data['url'], data['tool'], data['version_parameter']))
   );
 }
@@ -196,7 +196,7 @@ export async function addArchive(data: RS): Promise<string> {
  * @param data
  */
 export async function addPackage(data: RS): Promise<string> {
-  const command = await utils.getCommand(data['os_version'], 'composertool');
+  const command = await utils.getCommand(data['os'], 'composertool');
   const parts: string[] = data['repository'].split('/');
   const args: string = await utils.joins(
     parts[1],
@@ -275,7 +275,7 @@ export async function addDeployer(data: RS): Promise<string> {
  * @param data
  */
 export async function addDevTools(data: RS): Promise<string> {
-  switch (data['os_version']) {
+  switch (data['os']) {
     case 'linux':
     case 'darwin':
       return 'add_devtools ' + data['tool'];
@@ -288,8 +288,8 @@ export async function addDevTools(data: RS): Promise<string> {
       );
     default:
       return await utils.log(
-        'Platform ' + data['os_version'] + ' is not supported',
-        data['os_version'],
+        'Platform ' + data['os'] + ' is not supported',
+        data['os'],
         'error'
       );
   }
@@ -301,7 +301,7 @@ export async function addDevTools(data: RS): Promise<string> {
  * @param data
  */
 export async function addPECL(data: RS): Promise<string> {
-  return await utils.getCommand(data['os_version'], 'pecl');
+  return await utils.getCommand(data['os'], 'pecl');
 }
 
 /**
@@ -327,7 +327,7 @@ export async function addPhive(data: RS): Promise<string> {
         '$cross',
         'phive',
         'Phive is not supported on PHP ' + data['php_version'],
-        data['os_version']
+        data['os']
       );
     case /5\.6|7\.0/.test(data['php_version']):
       data['version'] = '0.12.1';
@@ -364,18 +364,18 @@ export async function addPHPUnitTools(data: RS): Promise<string> {
  */
 export async function addSymfony(data: RS): Promise<string> {
   let filename: string;
-  switch (data['os_version']) {
+  switch (data['os']) {
     case 'linux':
     case 'darwin':
-      filename = 'symfony_' + data['os_version'] + '_amd64';
+      filename = 'symfony_' + data['os'] + '_amd64';
       break;
     case 'win32':
       filename = 'symfony_windows_amd64.exe';
       break;
     default:
       return await utils.log(
-        'Platform ' + data['os_version'] + ' is not supported',
-        data['os_version'],
+        'Platform ' + data['os'] + ' is not supported',
+        data['os'],
         'error'
       );
   }
@@ -411,12 +411,12 @@ export async function addWPCLI(data: RS): Promise<string> {
  *
  * @param release
  * @param php_version
- * @param os_version
+ * @param os
  */
 export async function getData(
   release: string,
   php_version: string,
-  os_version: string
+  os: string
 ): Promise<RS> {
   const json_file_path = path.join(__dirname, '../src/configs/tools.json');
   const json_file: string = fs.readFileSync(json_file_path, 'utf8');
@@ -450,7 +450,7 @@ export async function getData(
   data['github'] = 'https://github.com';
   data['domain'] ??= data['github'];
   data['extension'] ??= '.phar';
-  data['os_version'] = os_version;
+  data['os'] = os;
   data['php_version'] = php_version;
   data['prefix'] = data['github'] === data['domain'] ? 'releases' : '';
   data['verb'] = data['github'] === data['domain'] ? 'download' : '';
@@ -484,22 +484,22 @@ export const functionRecord: Record<string, (data: RS) => Promise<string>> = {
  *
  * @param tools_csv
  * @param php_version
- * @param os_version
+ * @param os
  */
 export async function addTools(
   tools_csv: string,
   php_version: string,
-  os_version: string
+  os: string
 ): Promise<string> {
   let script = '\n';
   if (tools_csv === 'none') {
     return '';
   } else {
-    script += await utils.stepLog('Setup Tools', os_version);
+    script += await utils.stepLog('Setup Tools', os);
   }
   const tools_list = await filterList(await utils.CSVArray(tools_csv));
   await utils.asyncForEach(tools_list, async function (release: string) {
-    const data: RS = await getData(release, php_version, os_version);
+    const data: RS = await getData(release, php_version, os);
     script += '\n';
     switch (true) {
       case data['error'] !== undefined:
@@ -507,7 +507,7 @@ export async function addTools(
           '$cross',
           data['tool'],
           data['error'],
-          data['os_version']
+          data['os']
         );
         break;
       case 'phar' === data['type']:
@@ -522,7 +522,7 @@ export async function addTools(
           data['tool'].split('-')[0],
           'tools',
           data['version'],
-          data['os_version']
+          data['os']
         );
         break;
       case 'custom-function' === data['type']:
@@ -535,7 +535,7 @@ export async function addTools(
           '$cross',
           data['tool'],
           'Tool ' + data['tool'] + ' is not supported',
-          data['os_version']
+          data['os']
         );
         break;
     }

@@ -8,14 +8,6 @@ jest.mock('@actions/core', () => ({
   })
 }));
 
-async function cleanup(path: string): Promise<void> {
-  fs.unlink(path, error => {
-    if (error) {
-      console.log(error);
-    }
-  });
-}
-
 describe('Utils tests', () => {
   it('checking readEnv', async () => {
     process.env['test'] = 'setup-php';
@@ -97,41 +89,6 @@ describe('Utils tests', () => {
     expect(await utils.color('success')).toBe('32');
     expect(await utils.color('any')).toBe('32');
     expect(await utils.color('warning')).toBe('33');
-  });
-
-  it('checking readFile', async () => {
-    const darwin: string = fs.readFileSync(
-      path.join(__dirname, '../src/scripts/darwin.sh'),
-      'utf8'
-    );
-    const linux: string = fs.readFileSync(
-      path.join(__dirname, '../src/scripts/linux.sh'),
-      'utf8'
-    );
-    const win32: string = fs.readFileSync(
-      path.join(__dirname, '../src/scripts/win32.ps1'),
-      'utf8'
-    );
-    expect(await utils.readFile('darwin.sh', 'src/scripts')).toBe(darwin);
-    expect(await utils.readFile('darwin.sh', 'src/scripts')).toBe(darwin);
-    expect(await utils.readFile('linux.sh', 'src/scripts')).toBe(linux);
-    expect(await utils.readFile('linux.sh', 'src/scripts')).toBe(linux);
-    expect(await utils.readFile('win32.ps1', 'src/scripts')).toBe(win32);
-    expect(await utils.readFile('win32.ps1', 'src/scripts')).toBe(win32);
-  });
-
-  it('checking writeScripts', async () => {
-    const testString = 'sudo apt-get install php';
-    const runner_dir: string = process.env['RUNNER_TOOL_CACHE'] || '';
-    const script_path: string = path.join(runner_dir, 'test.sh');
-    await utils.writeScript('test.sh', testString);
-    await fs.readFile(
-      script_path,
-      function (error: Error | null, data: Buffer) {
-        expect(testString).toBe(data.toString());
-      }
-    );
-    await cleanup(script_path);
   });
 
   it('checking extensionArray', async () => {

@@ -1,4 +1,6 @@
 import * as utils from './utils';
+import path from 'path';
+import fs from 'fs';
 
 type RS = Record<string, string>;
 type RSRS = Record<string, RS>;
@@ -416,7 +418,8 @@ export async function getData(
   php_version: string,
   os_version: string
 ): Promise<RS> {
-  const json_file: string = await utils.readFile('tools.json', 'src/configs');
+  const json_file_path = path.join(__dirname, '../src/configs/tools.json');
+  const json_file: string = fs.readFileSync(json_file_path, 'utf8');
   const json_objects: RSRS = JSON.parse(json_file);
   release = release.replace(/\s+/g, '');
   const parts: string[] = release.split(':');

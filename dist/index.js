@@ -433,6 +433,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = exports.getScript = void 0;
 const exec_1 = __nccwpck_require__(514);
@@ -442,6 +445,8 @@ const coverage = __importStar(__nccwpck_require__(730));
 const extensions = __importStar(__nccwpck_require__(390));
 const tools = __importStar(__nccwpck_require__(740));
 const utils = __importStar(__nccwpck_require__(918));
+const path_1 = __importDefault(__nccwpck_require__(17));
+const fs_1 = __importDefault(__nccwpck_require__(147));
 async function getScript(filename, version, os_version) {
     const url = 'https://setup-php.com/sponsor';
     process.env['fail_fast'] = await utils.getInput('fail-fast', false);
@@ -449,7 +454,8 @@ async function getScript(filename, version, os_version) {
     const ini_values_csv = await utils.getInput('ini-values', false);
     const coverage_driver = await utils.getInput('coverage', false);
     const tools_csv = await utils.getInput('tools', false);
-    let script = await utils.readFile(filename, 'src/scripts');
+    const script_path = path_1.default.join(__dirname, '../src/scripts', filename);
+    let script = fs_1.default.readFileSync(script_path, 'utf8');
     if (extension_csv) {
         script += await extensions.addExtension(extension_csv, version, os_version);
     }
@@ -462,7 +468,8 @@ async function getScript(filename, version, os_version) {
     }
     script += '\n' + (await utils.stepLog(`Sponsor setup-php`, os_version));
     script += '\n' + (await utils.addLog('$tick', 'setup-php', url, os_version));
-    return await utils.writeScript(filename, script);
+    fs_1.default.writeFileSync(script_path, script, { mode: 0o755 });
+    return script_path;
 }
 exports.getScript = getScript;
 async function run() {
@@ -522,9 +529,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addTools = exports.functionRecord = exports.getData = exports.addWPCLI = exports.addSymfony = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.getRelease = exports.getVersion = exports.getLatestVersion = exports.getSemverVersion = void 0;
 const utils = __importStar(__nccwpck_require__(918));
+const path_1 = __importDefault(__nccwpck_require__(17));
+const fs_1 = __importDefault(__nccwpck_require__(147));
 async function getSemverVersion(data) {
     var _a;
     const search = data['version_prefix'] + data['version'];
@@ -788,7 +800,8 @@ async function addWPCLI(data) {
 exports.addWPCLI = addWPCLI;
 async function getData(release, php_version, os_version) {
     var _a, _b, _c, _d, _e;
-    const json_file = await utils.readFile('tools.json', 'src/configs');
+    const json_file_path = path_1.default.join(__dirname, '../src/configs/tools.json');
+    const json_file = fs_1.default.readFileSync(json_file_path, 'utf8');
     const json_objects = JSON.parse(json_file);
     release = release.replace(/\s+/g, '');
     const parts = release.split(':');
@@ -915,8 +928,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.writeScript = exports.readFile = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseIniFile = exports.parseVersion = exports.getManifestURL = exports.fetch = exports.getInput = exports.readEnv = void 0;
-const fs = __importStar(__nccwpck_require__(147));
+exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseIniFile = exports.parseVersion = exports.getManifestURL = exports.fetch = exports.getInput = exports.readEnv = void 0;
 const https = __importStar(__nccwpck_require__(687));
 const path = __importStar(__nccwpck_require__(17));
 const url = __importStar(__nccwpck_require__(310));
@@ -1064,17 +1076,6 @@ async function addLog(mark, subject, message, os_version) {
     }
 }
 exports.addLog = addLog;
-async function readFile(filename, directory) {
-    return fs.readFileSync(path.join(__dirname, '../' + directory, filename), 'utf8');
-}
-exports.readFile = readFile;
-async function writeScript(filename, script) {
-    const runner_dir = await getInput('RUNNER_TOOL_CACHE', false);
-    const script_path = path.join(runner_dir, filename);
-    fs.writeFileSync(script_path, script, { mode: 0o755 });
-    return script_path;
-}
-exports.writeScript = writeScript;
 async function extensionArray(extension_csv) {
     switch (extension_csv) {
         case '':

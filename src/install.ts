@@ -5,6 +5,8 @@ import * as coverage from './coverage';
 import * as extensions from './extensions';
 import * as tools from './tools';
 import * as utils from './utils';
+import path from 'path';
+import fs from 'fs';
 
 /**
  * Build the script
@@ -25,8 +27,8 @@ export async function getScript(
   const ini_values_csv: string = await utils.getInput('ini-values', false);
   const coverage_driver: string = await utils.getInput('coverage', false);
   const tools_csv: string = await utils.getInput('tools', false);
-
-  let script: string = await utils.readFile(filename, 'src/scripts');
+  const script_path = path.join(__dirname, '../src/scripts', filename);
+  let script: string = fs.readFileSync(script_path, 'utf8');
   if (extension_csv) {
     script += await extensions.addExtension(extension_csv, version, os_version);
   }
@@ -40,7 +42,9 @@ export async function getScript(
   script += '\n' + (await utils.stepLog(`Sponsor setup-php`, os_version));
   script += '\n' + (await utils.addLog('$tick', 'setup-php', url, os_version));
 
-  return await utils.writeScript(filename, script);
+  fs.writeFileSync(script_path, script, {mode: 0o755});
+
+  return script_path;
 }
 
 /**

@@ -1,5 +1,4 @@
 import {IncomingMessage, OutgoingHttpHeaders} from 'http';
-import * as fs from 'fs';
 import * as https from 'https';
 import * as path from 'path';
 import * as url from 'url';
@@ -249,38 +248,6 @@ export async function addLog(
         'error'
       );
   }
-}
-
-/**
- * Read the scripts
- *
- * @param filename
- * @param directory
- */
-export async function readFile(
-  filename: string,
-  directory: string
-): Promise<string> {
-  return fs.readFileSync(
-    path.join(__dirname, '../' + directory, filename),
-    'utf8'
-  );
-}
-
-/**
- * Write final script which runs
- *
- * @param filename
- * @param script
- */
-export async function writeScript(
-  filename: string,
-  script: string
-): Promise<string> {
-  const runner_dir: string = await getInput('RUNNER_TOOL_CACHE', false);
-  const script_path: string = path.join(runner_dir, filename);
-  fs.writeFileSync(script_path, script, {mode: 0o755});
-  return script_path;
 }
 
 /**

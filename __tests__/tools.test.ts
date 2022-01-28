@@ -378,11 +378,12 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'blackfire, blackfire-player, cs2pr, flex, grpc_php_plugin, parallel-lint, php-cs-fixer, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, phpunit-polyfills, php-config, phpize, protoc, symfony, vapor, wp',
+      'blackfire, blackfire-player, churn, cs2pr, flex, grpc_php_plugin, parallel-lint, php-cs-fixer, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, phpunit-polyfills, php-config, phpize, protoc, symfony, vapor, wp',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_blackfire',
         'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player "-V"',
+        'add_tool https://github.com/bmitch/churn-php/releases/latest/download/churn.phar churn "-V"',
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"',
         'add_composertool flex flex symfony/ global',
         'add_grpc_php_plugin latest',
@@ -416,12 +417,13 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'behat, blackfire, blackfire-player, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, flex, grpc_php_plugin:1.2.3, infection, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, symfony-cli, symfony:1.2.3, vapor-cli, wp-cli',
+      'behat, blackfire, blackfire-player, churn, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, flex, grpc_php_plugin:1.2.3, infection, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, symfony-cli, symfony:1.2.3, vapor-cli, wp-cli',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_composertool behat behat behat/ scoped',
         'add_blackfire',
         'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player "-V"',
+        'add_tool https://github.com/bmitch/churn-php/releases/latest/download/churn.phar churn "-V"',
         'add_tool https://github.com/ergebnis/composer-normalize/releases/latest/download/composer-normalize.phar composer-normalize "-V"',
         'add_composertool composer-require-checker composer-require-checker maglnet/ scoped',
         'add_composertool composer-unused composer-unused icanhazstring/ scoped',
@@ -461,12 +463,13 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'blackfire, blackfire-player:1.2.3, cs2pr, deployer, does_not_exist, flex, phinx, phive:0.13.2, php-config, phpize, phpmd, simple-phpunit, symfony, wp',
+      'blackfire, blackfire-player:1.2.3, cs2pr, churn, deployer, does_not_exist, flex, phinx, phive:0.13.2, php-config, phpize, phpmd, simple-phpunit, symfony, wp',
       [
         'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'Add-Blackfire',
         'Add-Tool https://get.blackfire.io/blackfire-player-v1.2.3.phar blackfire-player "-V"',
         'Add-Tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"',
+        'Add-Tool https://github.com/bmitch/churn-php/releases/latest/download/churn.phar churn "-V"',
         'Add-Tool https://deployer.org/deployer.phar deployer "-V"',
         'Tool does_not_exist is not supported',
         'Add-Composertool flex flex symfony/ global',

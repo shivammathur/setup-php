@@ -1,4 +1,12 @@
 {
+  "churn": {
+    "type": "phar",
+    "repository": "bmitch/churn-php",
+    "extension": ".phar",
+    "domain": "https://github.com",
+    "version_prefix": "",
+    "version_parameter": "-V"
+  },
   "composer-normalize": {
     "type": "phar",
     "repository": "ergebnis/composer-normalize",

@@ -455,7 +455,7 @@ async function getScript(filename, version, os_version) {
     const coverage_driver = await utils.getInput('coverage', false);
     const tools_csv = await utils.getInput('tools', false);
     const script_path = path_1.default.join(__dirname, '../src/scripts', filename);
-    let script = fs_1.default.readFileSync(script_path, 'utf8');
+    let script = '\n';
     if (extension_csv) {
         script += await extensions.addExtension(extension_csv, version, os_version);
     }
@@ -468,7 +468,7 @@ async function getScript(filename, version, os_version) {
     }
     script += '\n' + (await utils.stepLog(`Sponsor setup-php`, os_version));
     script += '\n' + (await utils.addLog('$tick', 'setup-php', url, os_version));
-    fs_1.default.writeFileSync(script_path, script, { mode: 0o755 });
+    fs_1.default.appendFileSync(script_path, script, { mode: 0o755 });
     return script_path;
 }
 exports.getScript = getScript;

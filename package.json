@@ -16,9 +16,9 @@
   ],
   "scripts": {
     "build": "tsc",
-    "lint": "eslint **/src/*.ts --cache --fix",
-    "format": "prettier --write **/src/*.ts && git add -f src/",
-    "format-check": "prettier --check **/src/*.ts",
+    "lint": "eslint **/src/*.ts **/__tests__/*.ts --cache --fix",
+    "format": "prettier --write **/src/*.ts **/__tests__/*.ts && git add -f src/",
+    "format-check": "prettier --check **/src/*.ts **/__tests__/*.ts",
     "release": "ncc build -o dist && git add -f dist/",
     "test": "jest"
   },

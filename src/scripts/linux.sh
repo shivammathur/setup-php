@@ -130,7 +130,7 @@ switch_version() {
 add_packaged_php() {
   if [ "$runner" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
     add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
-    IFS=' ' read -r -a packages <<<"$(sed "s/[^ ]*/php$version-&/g" "$dist"/../src/configs/php_packages | tr '\n' ' ')"
+    IFS=' ' read -r -a packages <<<"$(sed "s/[^ ]*/php$version-&/g" "$src"/configs/php_packages | tr '\n' ' ')"
     install_packages "${packages[@]}"
   else
     run_script "php-ubuntu" "$version"
@@ -241,7 +241,7 @@ setup_php() {
   configure_php
   sudo rm -rf /usr/local/bin/phpunit >/dev/null 2>&1
   sudo chmod 777 "${ini_file[@]}" "$pecl_file" "${tool_path_dir:?}"
-  sudo cp "$dist"/../src/configs/pm/*.json "$RUNNER_TOOL_CACHE/"
+  sudo cp "$src"/configs/pm/*.json "$RUNNER_TOOL_CACHE/"
   echo "::set-output name=php-version::$semver"
   add_log "${tick:?}" "PHP" "$status PHP $semver$extra_version"
 }
@@ -249,10 +249,10 @@ setup_php() {
 # Variables
 version=${1:-'8.1'}
 ini=${2:-'production'}
-dist=$3
+src=${0%/*}/..
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y --no-install-recommends"
-scripts="${dist}"/../src/scripts
+scripts="$src"/scripts
 
 add_sudo
 

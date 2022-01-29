@@ -8,12 +8,7 @@ param (
   [ValidateNotNull()]
   [ValidateLength(1, [int]::MaxValue)]
   [string]
-  $ini = 'production',
-  [Parameter(Position = 2, Mandatory = $true)]
-  [ValidateNotNull()]
-  [ValidateLength(1, [int]::MaxValue)]
-  [string]
-  $dist
+  $ini = 'production'
 )
 
 # Function to log start of a operation.
@@ -178,7 +173,7 @@ Function Add-PhpConfig {
     Set-Content -Path $php_dir\php.ini -Value ''
   }
   Set-Content -Path $php_dir\php.ini-current -Value $ini
-  $ini_config_dir = "$dist\..\src\configs\ini"
+  $ini_config_dir = "$src\configs\ini"
   $ini_files = @("$ini_config_dir\php.ini")
   $version -match $jit_versions -and ($ini_files += ("$ini_config_dir\jit.ini")) > $null 2>&1
   $version -match $xdebug3_versions -and ($ini_files += ("$ini_config_dir\xdebug.ini")) > $null 2>&1
@@ -261,8 +256,9 @@ if($env:RUNNER -eq 'self-hosted' -or (-not($env:ImageOS) -and -not($env:ImageVer
   }
 }
 
-. $dist\..\src\scripts\tools\add_tools.ps1
-. $dist\..\src\scripts\extensions\add_extensions.ps1
+$src = Join-Path -Path $PSScriptRoot -ChildPath \..
+. $src\scripts\tools\add_tools.ps1
+. $src\scripts\extensions\add_extensions.ps1
 
 Add-Printf >$null 2>&1
 Step-Log "Setup PhpManager"
@@ -319,6 +315,6 @@ if($version -lt "5.5") {
 }
 Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
 Add-PhpCAInfo
-Copy-Item -Path $dist\..\src\configs\pm\*.json -Destination $env:RUNNER_TOOL_CACHE
+Copy-Item -Path $src\configs\pm\*.json -Destination $env:RUNNER_TOOL_CACHE
 Write-Output "::set-output name=php-version::$($installed.FullVersion)"
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)$extra_version"

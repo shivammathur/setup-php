@@ -64,7 +64,7 @@ add_brew_tap() {
 add_brew_extension() {
   formula=$1
   prefix=$2
-  extension=$(grep "$formula=" "$dist"/../src/configs/brew_extensions | cut -d '=' -f 2)
+  extension=$(grep "$formula=" "$src"/configs/brew_extensions | cut -d '=' -f 2)
   [[ -z "$extension" ]] && extension="$(echo "$formula" | sed -E "s/pecl_|[0-9]//g")"
   enable_extension "$extension" "$prefix"
   if check_extension "$extension"; then
@@ -240,7 +240,7 @@ setup_php() {
     exit 1
   fi
 
-  sudo cp "$dist"/../src/configs/pm/*.json "$RUNNER_TOOL_CACHE/"
+  sudo cp "$src"/configs/pm/*.json "$RUNNER_TOOL_CACHE/"
   echo "::set-output name=php-version::$semver"
   add_log "$tick" "PHP" "$status PHP $semver$extra_version"
 }
@@ -248,7 +248,7 @@ setup_php() {
 # Variables
 version=${1:-'8.1'}
 ini=${2:-'production'}
-dist=$3
+src=${0%/*}/..
 php_formula=shivammathur/php/php@"$version"
 brew_path="$(command -v brew)"
 brew_path_dir="$(dirname "$brew_path")"
@@ -256,7 +256,7 @@ brew_prefix="$brew_path_dir"/..
 brew_repo="$brew_path_dir/$(dirname "$(readlink "$brew_path")")"/..
 tap_dir="$brew_repo"/Library/Taps
 core_repo="$tap_dir"/homebrew/homebrew-core
-scripts="${dist}"/../src/scripts
+scripts="$src"/scripts
 ext_tap=shivammathur/homebrew-extensions
 php_tap=shivammathur/homebrew-php
 export HOMEBREW_CHANGE_ARCH_TO_ARM=1

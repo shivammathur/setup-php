@@ -32,8 +32,7 @@ jest.mock('../src/install', () => ({
       tool,
       filename,
       version,
-      ini_file,
-      __dirname
+      ini_file
     ].join(' ');
   })
 }));
@@ -69,18 +68,18 @@ function setEnv(
 describe('Install', () => {
   it.each`
     version     | os          | extension_csv | ini_file         | ini_values_csv | coverage_driver | tools        | output
-    ${'7.3'}    | ${'darwin'} | ${''}         | ${'production'}  | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 7.3 production ' + __dirname}
-    ${'7.3'}    | ${'darwin'} | ${'a, b'}     | ${'development'} | ${'a=b'}       | ${'x'}          | ${''}        | ${'initial script install extensions set coverage driver edit php.ini bash darwin.sh 7.3 development ' + __dirname}
-    ${'7.4.1'}  | ${'darwin'} | ${''}         | ${'none'}        | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 7.4 none ' + __dirname}
-    ${'8'}      | ${'darwin'} | ${''}         | ${''}            | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 production ' + __dirname}
-    ${'8.0'}    | ${'darwin'} | ${''}         | ${'development'} | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 development ' + __dirname}
-    ${'8.1'}    | ${'darwin'} | ${''}         | ${'none'}        | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.1 none ' + __dirname}
-    ${'7.3'}    | ${'linux'}  | ${''}         | ${'invalid'}     | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 7.3 production ' + __dirname}
-    ${'7.3'}    | ${'linux'}  | ${'a, b'}     | ${'development'} | ${'a=b'}       | ${'x'}          | ${'phpunit'} | ${'initial script install extensions add_tool set coverage driver edit php.ini bash linux.sh 7.3 development ' + __dirname}
-    ${'latest'} | ${'linux'}  | ${''}         | ${'none'}        | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 8.1 none ' + __dirname}
-    ${'7.0'}    | ${'win32'}  | ${''}         | ${'production'}  | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.0 production ' + __dirname}
-    ${'7.3'}    | ${'win32'}  | ${''}         | ${'development'} | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.3 development ' + __dirname}
-    ${'7.3'}    | ${'win32'}  | ${'a, b'}     | ${'none'}        | ${'a=b'}       | ${'x'}          | ${''}        | ${'initial script install extensions set coverage driver edit php.ini pwsh win32.ps1 7.3 none ' + __dirname}
+    ${'7.3'}    | ${'darwin'} | ${''}         | ${'production'}  | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 7.3 production'}
+    ${'7.3'}    | ${'darwin'} | ${'a, b'}     | ${'development'} | ${'a=b'}       | ${'x'}          | ${''}        | ${'initial script install extensions set coverage driver edit php.ini bash darwin.sh 7.3 development'}
+    ${'7.4.1'}  | ${'darwin'} | ${''}         | ${'none'}        | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 7.4 none'}
+    ${'8'}      | ${'darwin'} | ${''}         | ${''}            | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 production'}
+    ${'8.0'}    | ${'darwin'} | ${''}         | ${'development'} | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.0 development'}
+    ${'8.1'}    | ${'darwin'} | ${''}         | ${'none'}        | ${''}          | ${''}           | ${''}        | ${'initial script bash darwin.sh 8.1 none'}
+    ${'7.3'}    | ${'linux'}  | ${''}         | ${'invalid'}     | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 7.3 production'}
+    ${'7.3'}    | ${'linux'}  | ${'a, b'}     | ${'development'} | ${'a=b'}       | ${'x'}          | ${'phpunit'} | ${'initial script install extensions add_tool set coverage driver edit php.ini bash linux.sh 7.3 development'}
+    ${'latest'} | ${'linux'}  | ${''}         | ${'none'}        | ${''}          | ${''}           | ${''}        | ${'initial script bash linux.sh 8.1 none'}
+    ${'7.0'}    | ${'win32'}  | ${''}         | ${'production'}  | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.0 production'}
+    ${'7.3'}    | ${'win32'}  | ${''}         | ${'development'} | ${''}          | ${''}           | ${''}        | ${'initial script pwsh win32.ps1 7.3 development'}
+    ${'7.3'}    | ${'win32'}  | ${'a, b'}     | ${'none'}        | ${'a=b'}       | ${'x'}          | ${''}        | ${'initial script install extensions set coverage driver edit php.ini pwsh win32.ps1 7.3 none'}
   `(
     'Test install on $os for $version with extensions=$extension_csv, ini_values=$ini_values_csv, coverage_driver=$coverage_driver, tools=$tools',
     async ({

@@ -481,7 +481,7 @@ async function run() {
             const tool = await utils.scriptTool(os);
             const script = os + (await utils.scriptExtension(os));
             const location = await getScript(script, version, os);
-            await (0, exec_1.exec)(await utils.joins(tool, location, version, ini_file, __dirname));
+            await (0, exec_1.exec)(await utils.joins(tool, location, version, ini_file));
         }
         else {
             core.setFailed('Unable to get the PHP version');

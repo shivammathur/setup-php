@@ -82,7 +82,7 @@ Function Add-Extension {
 
 # Function to get a map of extensions and their dependent shared extensions.
 Function Get-ExtensionMap {
-  php -d'error_reporting=0' $dist\..\src\scripts\extensions\extension_map.php $env:TEMP\map$version.orig
+  php -d'error_reporting=0' $src\scripts\extensions\extension_map.php $env:TEMP\map$version.orig
 }
 
 # Function to enable extension dependencies which are also extensions.

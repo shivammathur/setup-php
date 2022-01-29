@@ -42,7 +42,7 @@ configure_composer() {
     echo '{}' | tee "$composer_json" >/dev/null
     chmod 644 "$composer_json"
   fi
-  add_env_path "${dist:?}"/../src/configs/composer.env
+  add_env_path "${src:?}"/configs/composer.env
   add_path "$composer_bin"
   if [ -n "$COMPOSER_TOKEN" ]; then
     add_env COMPOSER_AUTH '{"github-oauth": {"github.com": "'"$COMPOSER_TOKEN"'"}}'

@@ -2,23 +2,18 @@
 
 ## Supported Versions
 
-The following versions of this project are supported for security updates.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.11.x  | :white_check_mark: |
-| 2.14.x  | :white_check_mark: |
+The latest patch versions of `v1` and `v2` releases of this project are supported for security updates.
 
 ## Supported PHP Versions
 
 This security policy only applies to the latest patches of the following PHP versions.
 
 | Version | Supported          |
-| ------- | ------------------ |
-| 7.3     | :white_check_mark: |
+|---------|--------------------|
 | 7.4     | :white_check_mark: |
 | 8.0     | :white_check_mark: |
 | 8.1     | :white_check_mark: |
+| 8.2     | :white_check_mark: |
 
 ## Reporting a Vulnerability
 

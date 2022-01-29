@@ -17,7 +17,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-      - name: Save unix
+      - name: Create for Linux and macOS
         env:
           file: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
           version: ${{ matrix.php-versions }}
@@ -29,7 +29,7 @@ jobs:
           php -m >> "$file"
           echo "\`\`\`" >> "$file"
           printf "\n" >> "$file"
-      - name: Save Windows
+      - name: Create for Windows
         env:
           file: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
           version: ${{ matrix.php-versions }}
@@ -39,7 +39,8 @@ jobs:
           Write-Output "``````" | Out-File -FilePath "$env:file" -Append
           php -m | Out-File -FilePath "$env:file" -Append
           Write-Output "```````n" | Out-File -FilePath "$env:file" -Append
-      - uses: actions/upload-artifact@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
         with:
           name: lists
           path: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
@@ -52,13 +53,16 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: ${{ github.repository }}.wiki
-      - uses: actions/download-artifact@v2
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
         with:
           path: ${{ github.workspace }}
-      - name: Combine
-        run: |
+      - name: Configure Git
+        run : |
           git config --local user.email "${{ secrets.email }}"
           git config --local user.name "${{ github.repository_owner }}"
+      - name: Combine
+        run: |
           for os in ubuntu-20.04 ubuntu-18.04 windows-2022 windows-2019 macos-11 macos-10.15; do
             echo "These are extensions which are loaded by default on the following PHP versions. More extensions which are available as packages and available on pecl are supported by setup-php. Refer to [php extension support](https://github.com/shivammathur/setup-php#heavy_plus_sign-php-extension-support) for more details." > Php-extensions-loaded-on-"$os".md
             for version in 5.3 5.4 5.5 5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1 8.2; do
@@ -72,6 +76,8 @@ jobs:
             done
           done
           rm -rf ./lists
+      - name: Update
+        run: |
           if [ "$(git status --porcelain=v1 2>/dev/null | wc -l)" != "0" ]; then
             git add .
             git commit -m "Update PHP extensions on wiki - $(date +'%d-%m-%y')"

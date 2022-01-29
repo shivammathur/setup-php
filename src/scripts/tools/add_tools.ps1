@@ -73,9 +73,6 @@ Function Add-ToolsHelper() {
   } elseif($tool -eq "phpDocumentor") {
     Add-Extension fileinfo >$null 2>&1
     Copy-Item $bin_dir\phpDocumentor.bat -Destination $bin_dir\phpdoc.bat
-  } elseif($tool -eq "symfony-cli") {
-    Add-ToProfile $current_profile "symfony" "New-Alias symfony $bin_dir\symfony-cli.exe"
-    Add-ToProfile $current_profile "symfony_cli" "New-Alias symfony-cli $bin_dir\symfony-cli.exe"
   } elseif($tool -match "vapor-cli") {
     Copy-Item $env:vapor_cli_bin\vapor.bat -Destination $env:vapor_cli_bin\vapor-cli.bat
   } elseif($tool -eq "wp-cli") {

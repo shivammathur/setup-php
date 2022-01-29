@@ -192,6 +192,13 @@
     "domain": "https://github.com",
     "version_prefix": "v"
   },
+  "symfony-cli": {
+    "alias": "symfony",
+    "type": "custom-package",
+    "repository": "symfony-cli/symfony-cli",
+    "domain": "https://github.com",
+    "version_prefix": "-V"
+  },
   "blackfire-player": {
     "type": "custom-function",
     "domain": "https://get.blackfire.io",
@@ -258,15 +265,6 @@
   "php-config": {
     "type": "custom-function",
     "function": "dev_tools"
-  },
-  "symfony-cli": {
-    "type": "custom-function",
-    "function": "symfony",
-    "alias": "symfony",
-    "domain": "https://github.com",
-    "repository": "symfony/cli",
-    "version_prefix": "v",
-    "version_parameter": "version"
   },
   "wp-cli": {
     "type": "custom-function",

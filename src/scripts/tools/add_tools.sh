@@ -76,7 +76,7 @@ add_tools_helper() {
     fi
   elif [[ "$tool" =~ vapor-cli ]]; then
     sudo ln -s "$scoped_dir"/vendor/bin/vapor "$scoped_dir"/vendor/bin/vapor-cli
-  elif [[ "$tool" =~ (symfony|vapor|wp)-cli ]]; then
+  elif [ "$tool" = wp-cli ]; then
     sudo ln -s "$tool_path" "$tool_path_dir"/"${tool%-*}"
   fi
 }

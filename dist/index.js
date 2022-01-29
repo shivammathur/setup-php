@@ -529,7 +529,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.addTools = exports.functionRecord = exports.getData = exports.addWPCLI = exports.addSymfony = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.getRelease = exports.getVersion = exports.getLatestVersion = exports.getSemverVersion = void 0;
+exports.addTools = exports.functionRecord = exports.getData = exports.addWPCLI = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.getRelease = exports.getVersion = exports.getLatestVersion = exports.getSemverVersion = void 0;
 const utils = __importStar(__nccwpck_require__(918));
 const path_1 = __importDefault(__nccwpck_require__(17));
 const fs_1 = __importDefault(__nccwpck_require__(147));
@@ -759,29 +759,6 @@ async function addPHPUnitTools(data) {
     return await addArchive(data);
 }
 exports.addPHPUnitTools = addPHPUnitTools;
-async function addSymfony(data) {
-    let filename;
-    switch (data['os']) {
-        case 'linux':
-        case 'darwin':
-            filename = 'symfony_' + data['os'] + '_amd64';
-            break;
-        case 'win32':
-            filename = 'symfony_windows_amd64.exe';
-            break;
-        default:
-            return await utils.log('Platform ' + data['os'] + ' is not supported', data['os'], 'error');
-    }
-    if (data['version'] === 'latest') {
-        data['uri'] = ['releases/latest/download', filename].join('/');
-    }
-    else {
-        data['uri'] = ['releases/download', 'v' + data['version'], filename].join('/');
-    }
-    data['url'] = [data['domain'], data['repository'], data['uri']].join('/');
-    return await addArchive(data);
-}
-exports.addSymfony = addSymfony;
 async function addWPCLI(data) {
     if (data['version'] === 'latest') {
         data['uri'] = 'wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true';
@@ -853,7 +830,6 @@ exports.functionRecord = {
     phing: addPhing,
     phpunit: addPHPUnitTools,
     phpcpd: addPHPUnitTools,
-    symfony: addSymfony,
     wp_cli: addWPCLI
 };
 async function addTools(tools_csv, php_version, os) {

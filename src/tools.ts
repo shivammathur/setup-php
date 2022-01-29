@@ -358,39 +358,6 @@ export async function addPHPUnitTools(data: RS): Promise<string> {
 }
 
 /**
- * Function to add Symfony
- *
- * @param data
- */
-export async function addSymfony(data: RS): Promise<string> {
-  let filename: string;
-  switch (data['os']) {
-    case 'linux':
-    case 'darwin':
-      filename = 'symfony_' + data['os'] + '_amd64';
-      break;
-    case 'win32':
-      filename = 'symfony_windows_amd64.exe';
-      break;
-    default:
-      return await utils.log(
-        'Platform ' + data['os'] + ' is not supported',
-        data['os'],
-        'error'
-      );
-  }
-  if (data['version'] === 'latest') {
-    data['uri'] = ['releases/latest/download', filename].join('/');
-  } else {
-    data['uri'] = ['releases/download', 'v' + data['version'], filename].join(
-      '/'
-    );
-  }
-  data['url'] = [data['domain'], data['repository'], data['uri']].join('/');
-  return await addArchive(data);
-}
-
-/**
  * Function to add WP-CLI
  *
  * @param data
@@ -475,7 +442,6 @@ export const functionRecord: Record<string, (data: RS) => Promise<string>> = {
   phing: addPhing,
   phpunit: addPHPUnitTools,
   phpcpd: addPHPUnitTools,
-  symfony: addSymfony,
   wp_cli: addWPCLI
 };
 

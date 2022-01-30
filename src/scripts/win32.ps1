@@ -28,6 +28,25 @@ Function Add-Log($mark, $subject, $message) {
   }
 }
 
+# Function to set output on GitHub Actions.
+Function Set-Output() {
+  param(
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $output,
+    [Parameter(Position = 1, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $value
+  )
+  if ($env:GITHUB_ACTIONS -eq 'true') {
+    Write-Output "::set-output name=$output::$value"
+  }
+}
+
 # Function to add a line to a powershell profile safely.
 Function Add-ToProfile {
   param(
@@ -231,6 +250,15 @@ if($env:PHPTS -ne 'ts') {
 } else {
   $env:PHPTS = ''
 }
+
+if ( $env:GITHUB_ACTIONS -eq 'true') {
+  $env:GROUP = '::group::'
+  $env:END_GROUP = '::endgroup::'
+} else {
+  $env:GROUP = ''
+  $env:END_GROUP = ''
+}
+
 if($env:RUNNER -eq 'self-hosted' -or (-not($env:ImageOS) -and -not($env:ImageVersion))) {
   $bin_dir = 'C:\tools\bin'
   $php_dir = "$php_dir$version"
@@ -316,5 +344,5 @@ if($version -lt "5.5") {
 Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
 Add-PhpCAInfo
 Copy-Item -Path $src\configs\pm\*.json -Destination $env:RUNNER_TOOL_CACHE
-Write-Output "::set-output name=php-version::$($installed.FullVersion)"
+Set-Output php-version $($installed.FullVersion)
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)$extra_version"

@@ -50,9 +50,9 @@ add_grpc_php_plugin() {
   else
     add_grpc_php_plugin_compile >/dev/null 2>&1
   fi
-  echo "::set-output name=grpc_php_plugin_path::$(command -v grpc_php_plugin)"
+  set_output grpc_php_plugin_path "$(command -v grpc_php_plugin)"
   add_log "${tick:?}" "grpc_php_plugin" "Added grpc_php_plugin ${grpc_tag:1}"
-  printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "grpc_php_plugin" "Click to read the grpc_php_plugin related license information"
+  printf "$GROUP\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "grpc_php_plugin" "Click to read the grpc_php_plugin related license information"
   cat "$license_path"
-  echo "::endgroup::"
+  echo "$END_GROUP"
 }

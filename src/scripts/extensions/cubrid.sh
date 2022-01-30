@@ -1,10 +1,10 @@
 # Function to log license details.
 add_license_log() {
-  printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "$ext" "Click to read the $ext related license information"
+  printf "$GROUP\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "$ext" "Click to read the $ext related license information"
   printf "Cubrid CCI package is required for %s extension.\n" "$ext"
   printf "The extension %s and Cubrid CCI are provided under the license linked below.\n" "$ext"
   printf "Refer to: \033[35;1m%s \033[0m\n" "https://github.com/CUBRID/cubrid-cci/blob/develop/COPYING"
-  echo "::endgroup::"
+  echo "$END_GROUP"
 }
 
 # Function to setup gcc-7 and g++-7

@@ -235,13 +235,13 @@ setup_php() {
   semver="$(php_semver)"
   extra_version="$(php_extra_version)"
   configure_php
+  set_output "php-version" "$semver"
   if [ "${semver%.*}" != "$version" ]; then
     add_log "${cross:?}" "PHP" "Could not setup PHP $version"
     exit 1
   fi
 
   sudo cp "$src"/configs/pm/*.json "$RUNNER_TOOL_CACHE/"
-  echo "::set-output name=php-version::$semver"
   add_log "$tick" "PHP" "$status PHP $semver$extra_version"
 }
 

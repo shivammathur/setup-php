@@ -239,10 +239,10 @@ setup_php() {
   mapfile -t ini_file < <(sudo find "$ini_dir/.." -name "php.ini" -exec readlink -m {} +)
   link_pecl_file
   configure_php
+  set_output "php-version" "$semver"
   sudo rm -rf /usr/local/bin/phpunit >/dev/null 2>&1
   sudo chmod 777 "${ini_file[@]}" "$pecl_file" "${tool_path_dir:?}"
   sudo cp "$src"/configs/pm/*.json "$RUNNER_TOOL_CACHE/"
-  echo "::set-output name=php-version::$semver"
   add_log "${tick:?}" "PHP" "$status PHP $semver$extra_version"
 }
 

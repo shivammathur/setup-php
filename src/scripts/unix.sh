@@ -11,6 +11,14 @@ export github="https://github.com/shivammathur"
 export jsdeliver="https://cdn.jsdelivr.net/gh/shivammathur"
 export setup_php="https://setup-php.com"
 
+if [ -n "${GITHUB_ACTIONS}" ]; then
+  export GROUP='::group::'
+  export END_GROUP='::endgroup::'
+else
+  export GROUP=''
+  export END_GROUP=''
+fi
+
 # Function to log start of a operation.
 step_log() {
   message=$1
@@ -27,6 +35,15 @@ add_log() {
   else
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
     [ "$fail_fast" = "true" ] && exit 1
+  fi
+}
+
+# Function to set output on GitHub Actions.
+set_output() {
+  name=$1
+  value=$2
+  if [ "${GITHUB_ACTIONS}" = "true" ]; then
+    echo "::set-output name=${name}::${value}"
   fi
 }
 

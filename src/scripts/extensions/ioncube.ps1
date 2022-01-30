@@ -1,8 +1,8 @@
 # Function to log result of a operation.
 Function Add-LicenseLog() {
-  printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "ioncube" "Click to read the ioncube loader license information"
+  printf "$env:GROUP\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "ioncube" "Click to read the ioncube loader license information"
   Get-Content $ext_dir\ioncube\LICENSE.txt
-  Write-Output "::endgroup::"
+  Write-Output "$env:END_GROUP"
 }
 
 # Function to add ioncube extension.

@@ -68,10 +68,10 @@ run_group() {
   command=$1
   log=$2
   echo "$command" | sudo tee ./run_group.sh >/dev/null 2>&1
-  echo "::group::$log"
+  echo "$GROUP$log"
   . ./run_group.sh
   rm ./run_group.sh
-  echo "::endgroup::"
+  echo "$END_GROUP"
 }
 
 patch_extension() {

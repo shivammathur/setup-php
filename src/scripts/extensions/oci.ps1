@@ -1,10 +1,10 @@
 # Function to log license information.
 Function Add-LicenseLog() {
-    printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $extension "Click to read the $extension related license information"
+    printf "$env:GROUP\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $extension "Click to read the $extension related license information"
     printf "Oracle Instant Client package is required for %s extension.\n" $extension
     printf "It is provided under the Oracle Technology Network Development and Distribution License.\n"
     printf "Refer to: \033[35;1m%s \033[0m\n" "https://www.oracle.com/downloads/licenses/instant-client-lic.html"
-    Write-Output "::endgroup::"
+    Write-Output "$env:END_GROUP"
 }
 
 # Function to get instantclinet.

@@ -12,10 +12,10 @@ Function Add-Grpc_php_plugin() {
   $logs = . $msys_location\usr\bin\bash -l -c "pacman -S --noconfirm mingw-w64-x86_64-grpc" >$null 2>&1
   $grpc_version = Get-ToolVersion 'Write-Output' "$logs"
   Add-Path $msys_location\mingw64\bin
-  Write-Output "::set-output name=grpc_php_plugin_path::$msys_location\mingw64\bin\grpc_php_plugin.exe"
+  Set-Output grpc_php_plugin_path "$msys_location\mingw64\bin\grpc_php_plugin.exe"
   Add-ToProfile $current_profile 'grpc_php_plugin' "New-Alias grpc_php_plugin $msys_location\mingw64\bin\grpc_php_plugin.exe"
   Add-Log $tick "grpc_php_plugin" "Added grpc_php_plugin $grpc_version"
-  printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "grpc_php_plugin" "Click to read the grpc_php_plugin related license information"
+  printf "$env:GROUP\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "grpc_php_plugin" "Click to read the grpc_php_plugin related license information"
   Write-Output (Invoke-WebRequest https://raw.githubusercontent.com/grpc/grpc/master/LICENSE).Content
-  Write-Output "::endgroup::"
+  Write-Output "$env:END_GROUP"
 }

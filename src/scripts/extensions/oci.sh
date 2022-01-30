@@ -1,10 +1,10 @@
 # Function to log result of a operation.
 add_license_log() {
-  printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "$ext" "Click to read the $ext related license information"
+  printf "$GROUP\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "$ext" "Click to read the $ext related license information"
   printf "Oracle Instant Client package is required for %s extension.\n" "$ext"
   printf "It is provided under the Oracle Technology Network Development and Distribution License.\n"
   printf "Refer to: \033[35;1m%s \033[0m\n" "https://www.oracle.com/downloads/licenses/instant-client-lic.html"
-  echo "::endgroup::"
+  echo "$END_GROUP"
 }
 
 # Function to install instantclient and SDK.

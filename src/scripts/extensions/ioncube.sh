@@ -1,8 +1,8 @@
 # Function to log result of a operation.
 add_license_log() {
-  printf "::group::\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "ioncube" "Click to read the ioncube loader license information"
+  printf "$GROUP\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "ioncube" "Click to read the ioncube loader license information"
   cat "${ext_dir:?}"/IONCUBE_LICENSE.txt
-  echo "::endgroup::"
+  echo "$END_GROUP"
 }
 
 # Function to install ioncube.

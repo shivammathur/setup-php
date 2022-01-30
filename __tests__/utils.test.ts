@@ -219,9 +219,9 @@ describe('Utils tests', () => {
   });
 
   it('checking scriptTool', async () => {
-    expect(await utils.scriptTool('linux')).toBe('bash');
-    expect(await utils.scriptTool('darwin')).toBe('bash');
-    expect(await utils.scriptTool('win32')).toBe('pwsh');
+    expect(await utils.scriptTool('linux')).toBe('bash ');
+    expect(await utils.scriptTool('darwin')).toBe('bash ');
+    expect(await utils.scriptTool('win32')).toBe('pwsh ');
     expect(await utils.scriptTool('openbsd')).toContain(
       'Platform openbsd is not supported'
     );

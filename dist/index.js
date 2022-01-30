@@ -434,6 +434,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = exports.getScript = void 0;
+const path_1 = __importDefault(__nccwpck_require__(17));
+const fs_1 = __importDefault(__nccwpck_require__(147));
 const exec_1 = __nccwpck_require__(514);
 const core = __importStar(__nccwpck_require__(186));
 const config = __importStar(__nccwpck_require__(88));
@@ -441,17 +443,19 @@ const coverage = __importStar(__nccwpck_require__(730));
 const extensions = __importStar(__nccwpck_require__(390));
 const tools = __importStar(__nccwpck_require__(740));
 const utils = __importStar(__nccwpck_require__(918));
-const path_1 = __importDefault(__nccwpck_require__(17));
-const fs_1 = __importDefault(__nccwpck_require__(147));
-async function getScript(filename, version, os) {
+async function getScript(os) {
     const url = 'https://setup-php.com/sponsor';
+    const filename = os + (await utils.scriptExtension(os));
+    const script_path = path_1.default.join(__dirname, '../src/scripts', filename);
+    const run_path = script_path.replace(os, 'run');
     process.env['fail_fast'] = await utils.getInput('fail-fast', false);
     const extension_csv = await utils.getInput('extensions', false);
     const ini_values_csv = await utils.getInput('ini-values', false);
     const coverage_driver = await utils.getInput('coverage', false);
     const tools_csv = await utils.getInput('tools', false);
-    const script_path = path_1.default.join(__dirname, '../src/scripts', filename);
-    let script = '\n';
+    const version = await utils.parseVersion(await utils.getInput('php-version', true));
+    const ini_file = await utils.parseIniFile(await utils.getInput('ini-file', false));
+    let script = await utils.joins('.', script_path, version, ini_file);
     if (extension_csv) {
         script += await extensions.addExtension(extension_csv, version, os);
     }
@@ -464,32 +468,15 @@ async function getScript(filename, version, os) {
     }
     script += '\n' + (await utils.stepLog(`Sponsor setup-php`, os));
     script += '\n' + (await utils.addLog('$tick', 'setup-php', url, os));
-    fs_1.default.appendFileSync(script_path, script, { mode: 0o755 });
-    return script_path;
+    fs_1.default.writeFileSync(run_path, script, { mode: 0o755 });
+    return run_path;
 }
 exports.getScript = getScript;
 async function run() {
-    try {
-        if ((await utils.readEnv('ImageOS')) == 'ubuntu16') {
-            core.setFailed('setup-php is not supported on Ubuntu 16.04. Please upgrade to Ubuntu 18.04 or Ubuntu 20.04 - https://setup-php.com/i/452');
-            return;
-        }
-        const version = await utils.parseVersion(await utils.getInput('php-version', true));
-        const ini_file = await utils.parseIniFile(await utils.getInput('ini-file', false));
-        if (version) {
-            const os = process.platform;
-            const tool = await utils.scriptTool(os);
-            const script = os + (await utils.scriptExtension(os));
-            const location = await getScript(script, version, os);
-            await (0, exec_1.exec)(await utils.joins(tool, location, version, ini_file));
-        }
-        else {
-            core.setFailed('Unable to get the PHP version');
-        }
-    }
-    catch (error) {
-        core.setFailed(error.message);
-    }
+    const os = process.platform;
+    const tool = await utils.scriptTool(os);
+    const run_path = await getScript(os);
+    await (0, exec_1.exec)(tool + run_path);
 }
 exports.run = run;
 (async () => {
@@ -1147,10 +1134,10 @@ exports.scriptExtension = scriptExtension;
 async function scriptTool(os) {
     switch (os) {
         case 'win32':
-            return 'pwsh';
+            return 'pwsh ';
         case 'linux':
         case 'darwin':
-            return 'bash';
+            return 'bash ';
         default:
             return await log('Platform ' + os + ' is not supported', os, 'error');
     }

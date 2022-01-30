@@ -401,10 +401,10 @@ export async function scriptExtension(os: string): Promise<string> {
 export async function scriptTool(os: string): Promise<string> {
   switch (os) {
     case 'win32':
-      return 'pwsh';
+      return 'pwsh ';
     case 'linux':
     case 'darwin':
-      return 'bash';
+      return 'bash ';
     default:
       return await log('Platform ' + os + ' is not supported', os, 'error');
   }

@@ -61,7 +61,7 @@ Function Add-Extension {
     }
     else {
       # Patch till PHP 8.1 DLLs are released as stable.
-      $minimumStability = 'stable'
+      $minimumStability = $stability
       if($version -eq '8.1' -and $stability -eq 'stable') {
         $minimumStability = 'snapshot'
       }

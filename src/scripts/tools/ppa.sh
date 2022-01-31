@@ -159,9 +159,9 @@ add_ppa() {
   else
     add_list "$ppa"
   fi
-  status="$?"
+  exit_code="$?"
   . /etc/os-release
-  return $status
+  return $exit_code
 }
 
 # Function to update a PPA.

@@ -207,6 +207,15 @@ add_php_config() {
   fi
 }
 
+# Function to get scan directory.
+get_scan_dir() {
+  if [[ "$version" =~ ${old_versions:?} ]]; then
+    php --ini | grep additional | sed -e "s|.*: s*||"
+  else
+    echo "$ini_dir"/conf.d
+  fi
+}
+
 # Function to Setup PHP.
 setup_php() {
   step_log "Setup PHP"
@@ -228,7 +237,7 @@ setup_php() {
   php_config="$(command -v php-config)"
   ext_dir="$(grep 'extension_dir=' "$php_config" | cut -d "'" -f 2)"
   ini_dir="$(php_ini_path)"
-  scan_dir="$ini_dir"/conf.d
+  scan_dir="$(get_scan_dir)"
   ini_file="$ini_dir"/php.ini
   sudo mkdir -m 777 -p "$ext_dir" "$HOME/.composer"
   sudo chmod 777 "$ini_file" "${tool_path_dir:?}"

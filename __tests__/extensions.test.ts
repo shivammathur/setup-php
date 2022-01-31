@@ -56,6 +56,7 @@ describe('Extension tests', () => {
     ${'pdo_cubrid'}                              | ${'7.4'} | ${'add_pdo_extension cubrid'}
     ${'pdo_mysql'}                               | ${'7.4'} | ${'add_pdo_extension mysql'}
     ${'pdo_oci'}                                 | ${'7.3'} | ${'add_oci pdo_oci'}
+    ${'pdo_sqlsrv'}                              | ${'7.4'} | ${'add_sqlsrv pdo_sqlsrv'}
     ${'pecl_http'}                               | ${'7.3'} | ${'add_http'}
     ${'phalcon3'}                                | ${'7.3'} | ${'add_phalcon phalcon3'}
     ${'sqlite'}                                  | ${'7.4'} | ${'add_extension sqlite3'}
@@ -92,6 +93,7 @@ describe('Extension tests', () => {
     ${'pdo_oci'}                                 | ${'7.3'} | ${'add_oci pdo_oci'}
     ${'pecl_http'}                               | ${'7.3'} | ${'add_http'}
     ${'sqlite'}                                  | ${'7.2'} | ${'add_extension sqlite3'}
+    ${'sqlsrv'}                                  | ${'7.3'} | ${'add_sqlsrv sqlsrv'}
   `(
     'checking addExtensionOnDarwin for extension $extension on version $version',
     async ({extension, version, output}) => {

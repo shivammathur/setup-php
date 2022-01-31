@@ -44,6 +44,7 @@ export async function addExtensionDarwin(
       ):
       case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
       case /(5\.6|7\.[0-3])phalcon3|7\.[2-4]phalcon4/.test(version_extension):
+      case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
         add_script += await utils.customPackage(
           ext_name,
           'extensions',
@@ -267,6 +268,7 @@ export async function addExtensionLinux(
       case /(?<!5\.[3-5])intl-[\d]+\.[\d]+$/.test(version_extension):
       case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
       case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+      case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
         add_script += await utils.customPackage(
           ext_name,
           'extensions',

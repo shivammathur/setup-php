@@ -19,15 +19,6 @@ enable_http() {
   fi
 }
 
-# Function to install extensions.
-add_extension_helper() {
-  if [ "$os" = "Linux" ]; then
-    add_extension "$1" extension
-  else
-    add_brew_extension "$1" extension
-  fi
-}
-
 # Function to install http dependencies.
 add_http_dependencies() {
   if [[ ${version:?} =~ ${old_versions:?} ]]; then
@@ -78,8 +69,8 @@ add_http_helper() {
 add_http_latest() {
   enable_http
   if ! check_extension http; then
-    add_http_dependencies
     if [ "$os" = "Linux" ]; then
+      add_http_dependencies
       package="php$version-http"
       add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
       (check_package "$package" && install_packages "$package") || add_http_helper "$(get_http_version)" "$os"

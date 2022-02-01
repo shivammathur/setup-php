@@ -199,6 +199,7 @@ Function Add-Composertool() {
     Add-Log $cross $tool "Skipped"
     Return
   }
+  Enable-PhpExtension -Extension mbstring, openssl -Path $php_dir
   $log = Add-ComposertoolHelper -tool $tool -release $release -prefix $prefix -scope $scope
   if(Test-Path $composer_bin\composer) {
     Copy-Item -Path "$bin_dir\composer" -Destination "$composer_bin\composer" -Force

@@ -117,6 +117,8 @@ add_composertool_helper() {
   release=$2
   prefix=$3
   scope=$4
+  enable_extension mbstring extension >/dev/null 2>&1
+  enable_extension openssl extension >/dev/null 2>&1
   if [ "$scope" = "global" ]; then
     sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
     composer global require "$prefix$release" >/dev/null 2>&1

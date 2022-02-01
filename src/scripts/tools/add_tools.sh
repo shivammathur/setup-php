@@ -117,17 +117,18 @@ add_composertool_helper() {
   release=$2
   prefix=$3
   scope=$4
+  composer_args=$5
   enable_extension mbstring extension >/dev/null 2>&1
   enable_extension openssl extension >/dev/null 2>&1
   if [ "$scope" = "global" ]; then
     sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
-    composer global require "$prefix$release" >/dev/null 2>&1
+    composer global require "$prefix$release" "$composer_args" >/dev/null 2>&1
     composer global show "$prefix$tool" 2>&1 | grep -E ^versions | sudo tee /tmp/composer.log >/dev/null 2>&1
   else
     scoped_dir="$composer_bin/_tools/$tool-$(echo -n "$release" | shasum -a 256 | cut -d ' ' -f 1)"
     if ! [ -d "$scoped_dir" ]; then
       mkdir -p "$scoped_dir"
-      composer require "$prefix$release" -d "$scoped_dir" >/dev/null 2>&1
+      composer require "$prefix$release" -d "$scoped_dir" "$composer_args" >/dev/null 2>&1
       composer show "$prefix$tool" -d "$scoped_dir" 2>&1 | grep -E ^versions | sudo tee /tmp/composer.log >/dev/null 2>&1
     fi
     add_path "$scoped_dir"/vendor/bin
@@ -140,15 +141,16 @@ add_composertool() {
   release=$2
   prefix=$3
   scope=$4
-  if [[ "$tool" =~ prestissimo|composer-prefetcher ]]; then
-    composer_version=$(cat /tmp/composer_version)
-    if [ "$(echo "$composer_version" | cut -d'.' -f 1)" != "1" ]; then
+  composer_major_version=$(cat /tmp/composer_version | cut -d'.' -f 1)
+  if [ "$composer_major_version" != "1" ]; then
+    composer_args="--ignore-platform-req=ext-*"
+    if [[ "$tool" =~ prestissimo|composer-prefetcher ]]; then
       echo "::warning:: Skipping $tool, as it does not support Composer $composer_version. Specify composer:v1 in tools to use $tool"
       add_log "$cross" "$tool" "Skipped"
       return
     fi
   fi
-  add_composertool_helper "$tool" "$release" "$prefix" "$scope"
+  add_composertool_helper "$tool" "$release" "$prefix" "$scope" "$composer_args"
   tool_version=$(get_tool_version cat /tmp/composer.log)
   ([ -s /tmp/composer.log ] && add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"

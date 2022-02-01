@@ -147,13 +147,16 @@ Function Add-ComposertoolHelper() {
     $prefix,
     [Parameter(Position = 3, Mandatory = $true)]
     [string]
-    $scope
+    $scope,
+    [Parameter(Position = 4, Mandatory = $false)]
+    [string]
+    $composer_args
   )
   if($scope -eq 'global') {
     if(Test-Path $composer_lock) {
       Remove-Item -Path $composer_lock -Force
     }
-    composer global require $prefix$release >$null 2>&1
+    composer global require $prefix$release $composer_args >$null 2>&1
     return composer global show $prefix$tool 2>&1 | findstr '^versions'
   } else {
     $release_stream = [System.IO.MemoryStream]::New([System.Text.Encoding]::ASCII.GetBytes($release))
@@ -162,7 +165,7 @@ Function Add-ComposertoolHelper() {
     $unix_scoped_dir = $scoped_dir.replace('\', '/')
     if(-not(Test-Path $scoped_dir)) {
       New-Item -ItemType Directory -Force -Path $scoped_dir > $null 2>&1
-      composer require $prefix$release -d $unix_scoped_dir >$null 2>&1
+      composer require $prefix$release -d $unix_scoped_dir $composer_args >$null 2>&1
     }
     [System.Environment]::SetEnvironmentVariable(($tool.replace('-', '_') + '_bin'), "$scoped_dir\vendor\bin")
     Add-Path $scoped_dir\vendor\bin
@@ -194,13 +197,16 @@ Function Add-Composertool() {
     [string]
     $scope
   )
-  if($tool -match "prestissimo|composer-prefetcher" -and $composer_version.split('.')[0] -ne "1") {
-    Write-Output "::warning:: Skipping $tool, as it does not support Composer $composer_version. Specify composer:v1 in tools to use $tool"
-    Add-Log $cross $tool "Skipped"
-    Return
+  if($composer_version.split('.')[0] -ne "1") {
+    $composer_args = "--ignore-platform-req=ext-*"
+    if($tool -match "prestissimo|composer-prefetcher") {
+      Write-Output "::warning:: Skipping $tool, as it does not support Composer $composer_version. Specify composer:v1 in tools to use $tool"
+      Add-Log $cross $tool "Skipped"
+      Return
+    }
   }
-  Enable-PhpExtension -Extension mbstring, openssl -Path $php_dir
-  $log = Add-ComposertoolHelper -tool $tool -release $release -prefix $prefix -scope $scope
+  Enable-PhpExtension -Extension curl, mbstring, openssl -Path $php_dir
+  $log = Add-ComposertoolHelper $tool $release $prefix $scope $composer_args
   if(Test-Path $composer_bin\composer) {
     Copy-Item -Path "$bin_dir\composer" -Destination "$composer_bin\composer" -Force
   }

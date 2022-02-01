@@ -52,7 +52,9 @@ configure_composer() {
 # Helper function to configure tools.
 add_tools_helper() {
   tool=$1
+  extensions=()
   if [ "$tool" = "codeception" ]; then
+    extensions+=(json mbstring)
     sudo ln -s "$scoped_dir"/vendor/bin/codecept "$scoped_dir"/vendor/bin/codeception
   elif [ "$tool" = "composer" ]; then
     configure_composer "$tool_path"
@@ -60,25 +62,38 @@ add_tools_helper() {
     sudo sed -i 's/\r$//; s/exit(9)/exit(0)/' "$tool_path" 2>/dev/null ||
     sudo sed -i '' 's/\r$//; s/exit(9)/exit(0)/' "$tool_path"
   elif [ "$tool" = "phan" ]; then
-    add_extension fileinfo extension >/dev/null 2>&1
-    add_extension ast extension >/dev/null 2>&1
+    extensions+=(fileinfo ast)
+  elif [ "$tool" = "phinx" ]; then
+    extensions+=(mbstring)
   elif [ "$tool" = "phive" ]; then
-    add_extension curl extension >/dev/null 2>&1
-    add_extension mbstring extension >/dev/null 2>&1
-    add_extension xml extension >/dev/null 2>&1
+    extensions+=(curl mbstring xml)
+  elif [[ "$tool" =~ phpc(bf|s) ]]; then
+    extensions+=(tokenizer simplexml xmlwriter)
+  elif [[ "$tool" =~ phpc(bf|s) ]]; then
+    extensions+=(tokenizer xmlwriter simplexml)
+  elif [ "$tool" = "php-cs-fixer" ]; then
+    extensions+=(json tokenizer)
   elif [ "$tool" = "phpDocumentor" ]; then
-    add_extension fileinfo extension >/dev/null 2>&1
+    extensions+=(ctype hash json fileinfo iconv mbstring simplexml xml)
     sudo ln -s "$tool_path" "$tool_path_dir"/phpdocumentor 2>/dev/null || true
     sudo ln -s "$tool_path" "$tool_path_dir"/phpdoc
+  elif [ "$tool" = "phpunit" ]; then
+    extensions+=(dom json libxml mbstring xml xmlwriter)
+  elif [ "$tool" = "phpunit-bridge" ]; then
+    extensions+=(dom pdo tokenizer xmlwriter xmlreader)
   elif [[ "$tool" =~ phpunit(-polyfills)?$ ]]; then
     if [ -e "$tool_path_dir"/phpunit ] && [ -d "$composer_bin" ]; then
       sudo cp "$tool_path_dir"/phpunit "$composer_bin"
     fi
-  elif [[ "$tool" =~ vapor-cli ]]; then
+  elif [ "$tool" = "vapor-cli" ]; then
+    extensions+=(fileinfo json mbstring zip simplexml)
     sudo ln -s "$scoped_dir"/vendor/bin/vapor "$scoped_dir"/vendor/bin/vapor-cli
   elif [ "$tool" = wp-cli ]; then
     sudo ln -s "$tool_path" "$tool_path_dir"/"${tool%-*}"
   fi
+  for extension in "${extensions[@]}"; do
+    add_extension "$extension" extension >/dev/null 2>&1
+  done
 }
 
 # Function to setup a remote tool.
@@ -118,8 +133,7 @@ add_composertool_helper() {
   prefix=$3
   scope=$4
   composer_args=$5
-  enable_extension mbstring extension >/dev/null 2>&1
-  enable_extension openssl extension >/dev/null 2>&1
+  enable_extensions curl mbstring openssl
   if [ "$scope" = "global" ]; then
     sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
     composer global require "$prefix$release" "$composer_args" >/dev/null 2>&1

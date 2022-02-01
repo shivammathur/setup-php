@@ -59,24 +59,40 @@ Function Add-ToolsHelper() {
     [ValidateNotNull()]
     $tool
   )
+  $extensions = @();
   if($tool -eq "codeception") {
+    $extensions += @('json', 'mbstring')
     Copy-Item $env:codeception_bin\codecept.bat -Destination $env:codeception_bin\codeception.bat
   } elseif($tool -eq "composer") {
     Edit-ComposerConfig $bin_dir\$tool
   } elseif($tool -eq "cs2pr") {
     (Get-Content $bin_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $bin_dir/cs2pr
   } elseif($tool -eq "phan") {
-    Add-Extension fileinfo >$null 2>&1
-    Add-Extension ast >$null 2>&1
+    $extensions += @('fileinfo', 'ast')
+  } elseif($tool -eq "phinx") {
+    $extensions += @('mbstring')
   } elseif($tool -eq "phive") {
-    Add-Extension xml >$null 2>&1
+    $extensions += @('curl', 'mbstring', 'xml')
+  } elseif($tool -match "phpc(df|s)") {
+    $extensions += @('tokenizer', 'xmlwriter', 'simplexml')
+  } elseif($tool -match "php-cs-fixer") {
+    $extensions += @('json', 'tokenizer')
   } elseif($tool -eq "phpDocumentor") {
+    $extensions+=('ctype', 'hash', 'json', 'fileinfo', 'iconv', 'mbstring', 'simplexml', 'xml')
     Add-Extension fileinfo >$null 2>&1
     Copy-Item $bin_dir\phpDocumentor.bat -Destination $bin_dir\phpdoc.bat
-  } elseif($tool -match "vapor-cli") {
+  } elseif($tool -eq "phpunit") {
+    $extensions += @('dom', 'json', 'libxml', 'mbstring', 'xml', 'xmlwriter')
+  } elseif($tool -eq "phpunit-bridge") {
+    $extensions += @('dom', 'pdo', 'tokenizer', 'xmlwriter')
+  } elseif($tool -eq "vapor-cli") {
+    $extensions += @('fileinfo', 'json', 'mbstring', 'zip', 'simplexml')
     Copy-Item $env:vapor_cli_bin\vapor.bat -Destination $env:vapor_cli_bin\vapor-cli.bat
   } elseif($tool -eq "wp-cli") {
     Copy-Item $bin_dir\wp-cli.bat -Destination $bin_dir\wp.bat
+  }
+  foreach($extension in $extensions) {
+    Add-Extension $extension >$null 2>&1
   }
 }
 

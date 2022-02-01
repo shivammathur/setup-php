@@ -47,6 +47,17 @@ enable_extension() {
   fi
 }
 
+# Function to enable array of extensions
+enable_extensions() {
+  local extensions=("$@")
+  to_wait=()
+  for ext in "${extensions[@]}"; do
+    enable_extension "$ext" extension >/dev/null 2>&1 &
+    to_wait+=($!)
+  done
+  wait "${to_wait[@]}"
+}
+
 # Function to get a map of extensions and their dependent shared extensions.
 get_extension_map() {
   php -d'error_reporting=0' "${src:?}"/scripts/extensions/extension_map.php /tmp/map"$version".orig

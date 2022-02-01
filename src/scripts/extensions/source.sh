@@ -1,6 +1,6 @@
 # Function to parse extension environment variables
 parse_args() {
-  extension=$1
+  local extension=$1
   suffix=$(echo "$2" | tr '[:lower:]' '[:upper:]')
   up_ext_name=$(echo "$extension" | tr '[:lower:]' '[:upper:]')
   var="${extension}_${suffix}"
@@ -12,7 +12,7 @@ parse_args() {
 
 # Function to log if a library is installed
 add_lib_log() {
-  lib=$1
+  local lib=$1
   if check_lib "$lib"; then
     add_log "${tick:?}" "$lib" "Installed"
   else
@@ -22,7 +22,7 @@ add_lib_log() {
 
 # Function to check if a library is installed
 check_lib() {
-  lib=$1
+  local lib=$1
   if [ "$(uname -s)" = "Linux" ]; then
     [ "x$(dpkg -s "$lib" 2>/dev/null | grep Status)" != "x" ]
   else
@@ -32,7 +32,7 @@ check_lib() {
 
 # Function to add a library on linux
 add_linux_libs() {
-  lib=$1
+  local lib=$1
   if ! check_lib "$lib"; then
     install_packages "$lib" >/dev/null 2>&1 || true
   fi
@@ -41,7 +41,7 @@ add_linux_libs() {
 
 # Function to add a library on macOS
 add_darwin_libs() {
-  lib=$1
+  local lib=$1
   if ! check_lib "$lib"; then
     brew install "$lib" >/dev/null 2>&1 || true
     if [[ "$lib" = *@* ]]; then
@@ -53,7 +53,7 @@ add_darwin_libs() {
 
 # Function to add required libraries
 add_libs() {
-  all_libs=("$@")
+  local all_libs=("$@")
   for lib in "${all_libs[@]}"; do
     if [ "$(uname -s)" = "Linux" ]; then
       add_linux_libs "$lib"
@@ -65,8 +65,8 @@ add_libs() {
 
 # Function to run command in a group
 run_group() {
-  command=$1
-  log=$2
+  local command=$1
+  local log=$2
   echo "$command" | sudo tee ./run_group.sh >/dev/null 2>&1
   echo "$GROUP$log"
   . ./run_group.sh
@@ -75,7 +75,7 @@ run_group() {
 }
 
 patch_extension() {
-  extension=$1
+  local extension=$1
   if [ -e "${scripts:?}"/extensions/patches/"$extension".sh ]; then
     # shellcheck source=.
     . "${scripts:?}"/extensions/patches/"$extension".sh
@@ -84,7 +84,8 @@ patch_extension() {
 }
 
 fetch_extension() {
-  fetch=$1
+  local extension=$1
+  local fetch=$2
   if [ "$fetch" = "clone" ]; then
     run_group "git clone -nv $url/$org/$repo /tmp/$repo-$release" "git clone"
     cd /tmp/"$repo-$release" || exit 1
@@ -109,13 +110,13 @@ fetch_extension() {
 
 # Function to install extension from a git repository
 add_extension_from_source() {
-  extension="${1/pecl_/}"
-  url=$2
-  org=$3
-  repo=$4
-  release=$5
-  prefix=$6
-  fetch=${7:-clone}
+  local extension="${1/pecl_/}"
+  local url=$2
+  local org=$3
+  local repo=$4
+  local release=$5
+  local prefix=$6
+  local fetch=${7:-clone}
   slug="$extension-$release"
   source="$url/$org/$repo"
   libraries="$(parse_args "$extension" LIBS) $(parse_args "$extension" "$(uname -s)"_LIBS)"
@@ -127,7 +128,7 @@ add_extension_from_source() {
   (
     add_devtools phpize >/dev/null 2>&1
     disable_extension_helper "$extension"
-    fetch_extension "$fetch"
+    fetch_extension "$extension" "$fetch"
     if ! [ "$(find . -maxdepth 1 -name '*.m4' -exec grep -H 'PHP_NEW_EXTENSION' {} \; | wc -l)" != "0" ]; then
       add_log "${cross:?}" "$source" "$source does not have a PHP extension"
     else

@@ -55,7 +55,7 @@ get_extension_map() {
 # Function to enable extension dependencies which are also extensions.
 enable_extension_dependencies() {
   local extension=$1
-  prefix=$2
+  local prefix=$2
   [ -e /tmp/extdisabled/"$version"/"$extension" ] || return;
   get_extension_map
   for dependency in $(grep "$extension:" /tmp/map"$version".orig | cut -d ':' -f 2 | tr '\n' ' '); do
@@ -115,7 +115,7 @@ configure_pecl() {
 # Function to add an extension.
 add_extension() {
   local extension=$1
-  prefix=$2
+  local prefix=$2
   enable_extension "$extension" "$prefix"
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
@@ -147,8 +147,8 @@ pecl_install() {
 # Function to install a specific version of PECL extension.
 add_pecl_extension() {
   local extension=$1
-  pecl_version=$2
-  prefix=$3
+  local pecl_version=$2
+  local prefix=$3
   enable_extension "$extension" "$prefix"
   if [[ $pecl_version =~ .*(alpha|beta|rc|snapshot|preview).* ]]; then
     pecl_version=$(get_pecl_version "$extension" "$pecl_version")
@@ -166,8 +166,8 @@ add_pecl_extension() {
 # Function to setup pre-release extensions using PECL.
 add_unstable_extension() {
   local extension=$1
-  stability=$2
-  prefix=$3
+  local stability=$2
+  local prefix=$3
   pecl_version=$(get_pecl_version "$extension" "$stability")
   add_pecl_extension "$extension" "$pecl_version" "$prefix"
 }

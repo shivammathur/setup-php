@@ -77,7 +77,7 @@ Function Install-PSPackage() {
   Add-ToProfile $current_profile "$package-search" "Import-Module $module_path"
 
   if($null -eq (Get-Command $cmdlet -ErrorAction SilentlyContinue)) {
-    Install-Module -Name $cmdlet -Force
+    Install-Module -Name $package -Force
   }
 }
 
@@ -303,7 +303,7 @@ if (Test-Path -LiteralPath $php_dir -PathType Container) {
 }
 $status = "Installed"
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
-  if ($version -lt '7.0' -and (Get-InstalledModule).Name -notcontains 'VcRedist') {
+  if ($version -lt '7.0' -and ($null -eq (Get-Module -ListAvailable -Name VcRedist))) {
     Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" Get-VcList >$null 2>&1
   }
   try {

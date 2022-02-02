@@ -28,7 +28,6 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 - [Usage](#memo-usage)
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
-  - [Nightly Build Setup](#nightly-build-setup)
   - [Thread Safe Setup](#thread-safe-setup)  
   - [Cache Dependencies](#cache-dependencies)
   - [Composer GitHub OAuth](#composer-github-oauth)  
@@ -42,28 +41,26 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 ## :tada: PHP Support
 
-|PHP Version|Stability|Release Support|
-|--- |--- |--- |
-|5.6|`Stable`|`End of life`|
-|7.0|`Stable`|`End of life`|
-|7.1|`Stable`|`End of life`|
-|7.2|`Stable`|`Security fixes only`|
-|7.3|`Stable`|`Active`|
-|7.4|`Stable`|`Active`|
-|8.0|`Nightly`|`In development`|
-
-**Note:** Specifying `8.0` in `php-version` input installs a nightly build of `PHP 8.0.0-dev` with `PHP JIT`, `Union Types v2` and other [new features](https://wiki.php.net/rfc#php_80 "New features implemented in PHP 8"). See [nightly build setup](#nightly-build-setup) for more information.
+| PHP Version | Stability | Release Support       |
+|-------------|-----------|-----------------------|
+| 5.6         | `Stable`  | `End of life`         |
+| 7.0         | `Stable`  | `End of life`         |
+| 7.1         | `Stable`  | `End of life`         |
+| 7.2         | `Stable`  | `End of life`         |
+| 7.3         | `Stable`  | `End of life`         |
+| 7.4         | `Stable`  | `Security fixes only` |
+| 8.0         | `Stable`  | `Active`              |
 
 ## :cloud: GitHub-Hosted Runner Support
 
-|Virtual environment|YAML workflow label|Pre-installed PHP|
-|--- |--- |--- |
-|Ubuntu 18.04|`ubuntu-18.04`|`PHP 7.1` to `PHP 8.0`|
-|Ubuntu 20.04|`ubuntu-latest` or `ubuntu-20.04`|`PHP 7.4` to `PHP 8.0`|
-|Windows Server 2019|`windows-latest` or `windows-2019`|`PHP 8.0`|
-|Windows Server 2022|`windows-2022`|`PHP 8.0`|
-|macOS 10.15 Catalina|`macos-latest` or `macos-10.15`|`PHP 8.0`|
-|macOS 11.x Big Sur|`macos-11`|`PHP 8.0`|
+| Virtual environment  | YAML workflow label                | Pre-installed PHP      |
+|----------------------|------------------------------------|------------------------|
+| Ubuntu 20.04         | `ubuntu-latest` or `ubuntu-20.04`  | `PHP 7.4` to `PHP 8.1` |
+| Ubuntu 18.04         | `ubuntu-18.04`                     | `PHP 7.1` to `PHP 8.1` |
+| Windows Server 2022  | `windows-latest` or `windows-2022` | `PHP 8.1`              |
+| Windows Server 2019  | `windows-2019`                     | `PHP 8.1`              |
+| macOS 11.x Big Sur   | `macos-11`                         | `PHP 8.1`              |
+| macOS 10.15 Catalina | `macos-latest` or `macos-10.15`    | `PHP 8.1`              |
 
 ## :heavy_plus_sign: PHP Extension Support
 - On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl` in the tools input.
@@ -214,29 +211,6 @@ jobs:
         tools: php-cs-fixer, phpunit #optional, setup tools globally
 ```
 
-### Nightly Build Setup
-
-> Setup a nightly build of `PHP 8.0.0-dev` from the [master branch](https://github.com/php/php-src/tree/master "Master branch on PHP source repository") of PHP.
-
-- Some extensions might not support this version currently.
-- Refer to this [RFC](https://wiki.php.net/rfc/jit "PHP JIT RFC configuration") for configuring `PHP JIT` on this version.
-- Refer to this [list of RFCs](https://wiki.php.net/rfc#php_80 "List of RFCs implemented in PHP8") implemented in this version.
-
-```yaml
-steps:
-- name: Checkout
-  uses: actions/checkout@v2
-
-- name: Setup PHP
-  uses: shivammathur/setup-php@v1
-  with:
-    php-version: '8.0'
-    extensions: mbstring #optional, setup extensions
-    ini-values: opcache.jit_buffer_size=256M, opcache.jit=1235, pcre.jit=1 #optional, setup php.ini configuration
-    coverage: pcov #optional, setup PCOV, Xdebug does not support this version yet.
-    tools: php-cs-fixer, phpunit #optional, setup tools globally    
-```
-
 ### Thread Safe Setup
 
 - `NTS` versions are setup by default.
@@ -380,29 +354,29 @@ For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-p
 
 Examples for setting up this GitHub Action with different PHP Frameworks/Packages.
 
-|Framework/Package|Runs on|Workflow|
-|--- |--- |--- |
-|CakePHP with `MySQL` and `Redis`|`ubuntu`|[cakephp-mysql.yml](./examples/cakephp-mysql.yml "GitHub Action for CakePHP with MySQL and Redis")|
-|CakePHP with `PostgreSQL` and `Redis`|`ubuntu`|[cakephp-postgres.yml](./examples/cakephp-postgres.yml "GitHub Action for CakePHP with Postgres and Redis")|
-|CakePHP without services|`macOS`, `ubuntu` and `windows`|[cakephp.yml](./examples/cakephp.yml "GitHub Action for CakePHP without services")|
-|CodeIgniter|`macOS`, `ubuntu` and `windows`|[codeigniter.yml](./examples/codeigniter.yml "GitHub Action for CodeIgniter")|
-|Laravel with `MySQL` and `Redis`|`ubuntu`|[laravel-mysql.yml](./examples/laravel-mysql.yml "GitHub Action for Laravel with MySQL and Redis")|
-|Laravel with `PostgreSQL` and `Redis`|`ubuntu`|[laravel-postgres.yml](./examples/laravel-postgres.yml "GitHub Action for Laravel with PostgreSQL and Redis")|
-|Laravel without services|`macOS`, `ubuntu` and `windows`|[laravel.yml](./examples/laravel.yml "GitHub Action for Laravel without services")|
-|Lumen with `MySQL` and `Redis`|`ubuntu`|[lumen-mysql.yml](./examples/lumen-mysql.yml "GitHub Action for Lumen with MySQL and Redis")|
-|Lumen with `PostgreSQL` and `Redis`|`ubuntu`|[lumen-postgres.yml](./examples/lumen-postgres.yml "GitHub Action for Lumen with PostgreSQL and Redis")|
-|Lumen without services|`macOS`, `ubuntu` and `windows`|[lumen.yml](./examples/lumen.yml "GitHub Action for Lumen without services")|
-|Phalcon with `MySQL`|`ubuntu`|[phalcon-mysql.yml](./examples/phalcon-mysql.yml "GitHub Action for Phalcon with MySQL")|
-|Phalcon with `PostgreSQL`|`ubuntu`|[phalcon-postgres.yml](./examples/phalcon-postgres.yml "GitHub Action for Phalcon with PostgreSQL")|
-|Roots/bedrock|`ubuntu`|[bedrock.yml](./examples/bedrock.yml "GitHub Action for Wordpress Development using @roots/bedrock")|
-|Roots/sage|`ubuntu`|[sage.yml](./examples/sage.yml "GitHub Action for Wordpress Development using @roots/sage")|
-|Slim Framework|`macOS`, `ubuntu` and `windows`|[slim-framework.yml](./examples/slim-framework.yml "GitHub Action for Slim Framework")|
-|Symfony with `MySQL`|`ubuntu`|[symfony-mysql.yml](./examples/symfony-mysql.yml "GitHub Action for Symfony with MySQL")|
-|Symfony with `PostgreSQL`|`ubuntu`|[symfony-postgres.yml](./examples/symfony-postgres.yml "GitHub Action for Symfony with PostgreSQL")|
-|Symfony without services|`macOS`, `ubuntu` and `windows`|[symfony.yml](./examples/symfony.yml "GitHub Action for Symfony without services")|
-|Yii2 Starter Kit with `MySQL`|`ubuntu`|[yii2-mysql.yml](./examples/yii2-mysql.yml "GitHub Action for Yii2 Starter Kit with MySQL")|
-|Yii2 Starter Kit with `PostgreSQL`|`ubuntu`|[yii2-postgres.yml](./examples/yii2-postgres.yml "GitHub Action for Yii2 Starter Kit with PostgreSQL")|
-|Zend Framework|`macOS`, `ubuntu` and `windows`|[zend-framework.yml](./examples/zend-framework.yml "GitHub Action for Zend Framework")|
+| Framework/Package                     | Runs on                         | Workflow                                                                                                      |
+|---------------------------------------|---------------------------------|---------------------------------------------------------------------------------------------------------------|
+| CakePHP with `MySQL` and `Redis`      | `ubuntu`                        | [cakephp-mysql.yml](./examples/cakephp-mysql.yml "GitHub Action for CakePHP with MySQL and Redis")            |
+| CakePHP with `PostgreSQL` and `Redis` | `ubuntu`                        | [cakephp-postgres.yml](./examples/cakephp-postgres.yml "GitHub Action for CakePHP with Postgres and Redis")   |
+| CakePHP without services              | `macOS`, `ubuntu` and `windows` | [cakephp.yml](./examples/cakephp.yml "GitHub Action for CakePHP without services")                            |
+| CodeIgniter                           | `macOS`, `ubuntu` and `windows` | [codeigniter.yml](./examples/codeigniter.yml "GitHub Action for CodeIgniter")                                 |
+| Laravel with `MySQL` and `Redis`      | `ubuntu`                        | [laravel-mysql.yml](./examples/laravel-mysql.yml "GitHub Action for Laravel with MySQL and Redis")            |
+| Laravel with `PostgreSQL` and `Redis` | `ubuntu`                        | [laravel-postgres.yml](./examples/laravel-postgres.yml "GitHub Action for Laravel with PostgreSQL and Redis") |
+| Laravel without services              | `macOS`, `ubuntu` and `windows` | [laravel.yml](./examples/laravel.yml "GitHub Action for Laravel without services")                            |
+| Lumen with `MySQL` and `Redis`        | `ubuntu`                        | [lumen-mysql.yml](./examples/lumen-mysql.yml "GitHub Action for Lumen with MySQL and Redis")                  |
+| Lumen with `PostgreSQL` and `Redis`   | `ubuntu`                        | [lumen-postgres.yml](./examples/lumen-postgres.yml "GitHub Action for Lumen with PostgreSQL and Redis")       |
+| Lumen without services                | `macOS`, `ubuntu` and `windows` | [lumen.yml](./examples/lumen.yml "GitHub Action for Lumen without services")                                  |
+| Phalcon with `MySQL`                  | `ubuntu`                        | [phalcon-mysql.yml](./examples/phalcon-mysql.yml "GitHub Action for Phalcon with MySQL")                      |
+| Phalcon with `PostgreSQL`             | `ubuntu`                        | [phalcon-postgres.yml](./examples/phalcon-postgres.yml "GitHub Action for Phalcon with PostgreSQL")           |
+| Roots/bedrock                         | `ubuntu`                        | [bedrock.yml](./examples/bedrock.yml "GitHub Action for Wordpress Development using @roots/bedrock")          |
+| Roots/sage                            | `ubuntu`                        | [sage.yml](./examples/sage.yml "GitHub Action for Wordpress Development using @roots/sage")                   |
+| Slim Framework                        | `macOS`, `ubuntu` and `windows` | [slim-framework.yml](./examples/slim-framework.yml "GitHub Action for Slim Framework")                        |
+| Symfony with `MySQL`                  | `ubuntu`                        | [symfony-mysql.yml](./examples/symfony-mysql.yml "GitHub Action for Symfony with MySQL")                      |
+| Symfony with `PostgreSQL`             | `ubuntu`                        | [symfony-postgres.yml](./examples/symfony-postgres.yml "GitHub Action for Symfony with PostgreSQL")           |
+| Symfony without services              | `macOS`, `ubuntu` and `windows` | [symfony.yml](./examples/symfony.yml "GitHub Action for Symfony without services")                            |
+| Yii2 Starter Kit with `MySQL`         | `ubuntu`                        | [yii2-mysql.yml](./examples/yii2-mysql.yml "GitHub Action for Yii2 Starter Kit with MySQL")                   |
+| Yii2 Starter Kit with `PostgreSQL`    | `ubuntu`                        | [yii2-postgres.yml](./examples/yii2-postgres.yml "GitHub Action for Yii2 Starter Kit with PostgreSQL")        |
+| Zend Framework                        | `macOS`, `ubuntu` and `windows` | [zend-framework.yml](./examples/zend-framework.yml "GitHub Action for Zend Framework")                        |
 
 ## :scroll: License
 
@@ -414,25 +388,32 @@ Examples for setting up this GitHub Action with different PHP Frameworks/Package
 
 Contributions are welcome! See [Contributor's Guide](.github/CONTRIBUTING.md "shivammathur/setup-php contribution guide"). If you face any issues while using this or want to suggest a feature/improvement, create an issue [here](https://github.com/shivammathur/setup-php/issues "Issues reported").
 
+
 ## :sparkling_heart: Support This Project
 
-Please sponsor setup-php using [GitHub sponsors](https://github.com/sponsors/shivammathur).
+- Please star the project and share it. If you blog, please share your experience of using `setup-php`.
+- Please [reach out](mailto:contact@setup-php.com) if you have any questions about sponsoring setup-php.
 
-[![Sponsor shivammathur](https://img.shields.io/badge/-Sponsor-fafbfc?logo=GitHub%20Sponsors)](https://github.com/sponsors/shivammathur)
+Many users and organisations support setup-php via [GitHub Sponsors](https://github.com/sponsors/shivammathur).
 
-### Corporate Sponsors
+<a href="https://github.com/sponsors/shivammathur"><img src="https://setup-php.com/sponsors.svg?" alt="Sponsor shivammathur"></a>
 
-<p align="center">
-  <a href="https://setup-php.com/sponsors-corp/?">
-    <img src="https://setup-php.com/sponsors-corp/?" alt="Corporate sponsors of setup-php and related projects" width="100%">
+These companies generously provide setup-php their products and services to aid in the development of this project.
+
+<p>
+  <a href="https://www.jetbrains.com/?from=setup-php">
+    <img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="106" height="60">
   </a>
-</p>
-
-### Individual Sponsors
-
-<p align="center">
-  <a href="https://setup-php.com/sponsors/?">
-    <img src="https://setup-php.com/sponsors/?" alt="Individual sponsors of setup-php and related projects" width="100%">
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://www.macstadium.com/opensource/members#gh-light-mode-only">
+    <img src="https://setup-php.com/sponsors/macstadium.png" alt="Mac Stadium" width="148" height="60">
+  </a>
+  <a href="https://www.macstadium.com/opensource/members#gh-dark-mode-only">
+    <img src="https://setup-php.com/sponsors/macstadium-white.png" alt="Mac Stadium" width="148" height="60">
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://tidelift.com/subscription/pkg/npm-setup-php">
+    <img src="https://setup-php.com/sponsors/tidelift.png" alt="Tidelift" width="70" height="60">
   </a>
 </p>
 

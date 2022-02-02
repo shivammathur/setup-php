@@ -9,7 +9,7 @@ jest.mock('@actions/core', () => ({
 }));
 
 jest.spyOn(utils, 'fetch').mockImplementation(async (url): Promise<string> => {
-  return `{ "latest": "8.0", "5.x": "5.6", "url": "${url}" }`;
+  return `{ "latest": "8.1", "5.x": "5.6", "url": "${url}" }`;
 });
 
 async function cleanup(path: string): Promise<void> {
@@ -42,12 +42,12 @@ describe('Utils tests', () => {
 
   it('checking fetch', async () => {
     expect(await utils.fetch('test_url')).toBe(
-      '{ "latest": "8.0", "5.x": "5.6", "url": "test_url" }'
+      '{ "latest": "8.1", "5.x": "5.6", "url": "test_url" }'
     );
   });
 
   it('checking parseVersion', async () => {
-    expect(await utils.parseVersion('latest')).toBe('8.0');
+    expect(await utils.parseVersion('latest')).toBe('8.1');
     expect(await utils.parseVersion('7')).toBe('7.0');
     expect(await utils.parseVersion('7.4')).toBe('7.4');
     expect(await utils.parseVersion('5.x')).toBe('5.6');

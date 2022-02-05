@@ -52,6 +52,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.4.7",
     "jest-circus": "^27.4.6",
+    "nock": "^13.2.4",
     "prettier": "^2.5.1",
     "simple-git-hooks": "^2.7.0",
     "ts-jest": "^27.1.3",

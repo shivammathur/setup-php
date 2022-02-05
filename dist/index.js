@@ -407,6 +407,76 @@ exports.addExtension = addExtension;
 
 /***/ }),
 
+/***/ 387:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.fetch = void 0;
+const https = __importStar(__nccwpck_require__(687));
+const url = __importStar(__nccwpck_require__(310));
+async function fetch(input_url, auth_token, redirect_count = 5) {
+    const fetch_promise = new Promise(resolve => {
+        const url_object = new url.URL(input_url);
+        const headers = {
+            'User-Agent': `Mozilla/5.0 (${process.platform} ${process.arch}) setup-php`
+        };
+        if (auth_token) {
+            headers.authorization = 'Bearer ' + auth_token;
+        }
+        const options = {
+            hostname: url_object.hostname,
+            path: url_object.pathname,
+            headers: headers
+        };
+        const req = https.get(options, (res) => {
+            if (res.statusCode === 200) {
+                let body = '';
+                res.setEncoding('utf8');
+                res.on('data', chunk => (body += chunk));
+                res.on('end', () => resolve({ data: `${body}` }));
+            }
+            else if ([301, 302, 303, 307, 308].includes(res.statusCode)) {
+                if (redirect_count > 0 && res.headers.location) {
+                    fetch(res.headers.location, auth_token, redirect_count--).then(resolve);
+                }
+                else {
+                    resolve({ error: `${res.statusCode}: Redirect error` });
+                }
+            }
+            else {
+                resolve({ error: `${res.statusCode}: ${res.statusMessage}` });
+            }
+        });
+        req.end();
+    });
+    return await fetch_promise;
+}
+exports.fetch = fetch;
+//# sourceMappingURL=fetch.js.map
+
+/***/ }),
+
 /***/ 39:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -519,15 +589,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.addTools = exports.functionRecord = exports.getData = exports.addWPCLI = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.getRelease = exports.getVersion = exports.getLatestVersion = exports.getSemverVersion = void 0;
-const utils = __importStar(__nccwpck_require__(918));
 const path_1 = __importDefault(__nccwpck_require__(17));
 const fs_1 = __importDefault(__nccwpck_require__(147));
+const fetch = __importStar(__nccwpck_require__(387));
+const utils = __importStar(__nccwpck_require__(918));
 async function getSemverVersion(data) {
     var _a;
     const search = data['version_prefix'] + data['version'];
     const url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${search}.`;
     const token = await utils.readEnv('COMPOSER_TOKEN');
-    const response = await utils.fetch(url, token);
+    const response = await fetch.fetch(url, token);
     if (response.error || response.data === '[]') {
         data['error'] = (_a = response.error) !== null && _a !== void 0 ? _a : `No version found with prefix ${search}.`;
         return data['version'];
@@ -544,7 +615,7 @@ async function getLatestVersion(data) {
     if (!data['version'] && data['fetch_latest'] === 'false') {
         return 'latest';
     }
-    const resp = await utils.fetch(`${data['github']}/${data['repository']}/releases.atom`);
+    const resp = await fetch.fetch(`${data['github']}/${data['repository']}/releases.atom`);
     if (resp['data']) {
         const releases = [
             ...resp['data'].matchAll(/releases\/tag\/([a-zA-Z]*)?(\d+.\d+.\d+)"/g)
@@ -889,11 +960,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseIniFile = exports.parseVersion = exports.getManifestURL = exports.fetch = exports.getInput = exports.readEnv = void 0;
-const https = __importStar(__nccwpck_require__(687));
+exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseIniFile = exports.parseVersion = exports.getManifestURL = exports.getInput = exports.readEnv = void 0;
 const path = __importStar(__nccwpck_require__(17));
-const url = __importStar(__nccwpck_require__(310));
 const core = __importStar(__nccwpck_require__(186));
+const fetch = __importStar(__nccwpck_require__(387));
 async function readEnv(property) {
     const property_lc = property.toLowerCase();
     const property_uc = property.toUpperCase();
@@ -920,36 +990,6 @@ async function getInput(name, mandatory) {
     }
 }
 exports.getInput = getInput;
-async function fetch(input_url, auth_token) {
-    const fetch_promise = new Promise(resolve => {
-        const url_object = new url.URL(input_url);
-        const headers = {
-            'User-Agent': `Mozilla/5.0 (${process.platform} ${process.arch}) setup-php`
-        };
-        if (auth_token) {
-            headers.authorization = 'Bearer ' + auth_token;
-        }
-        const options = {
-            hostname: url_object.hostname,
-            path: url_object.pathname,
-            headers: headers
-        };
-        const req = https.get(options, (res) => {
-            if (res.statusCode != 200) {
-                resolve({ error: `${res.statusCode}: ${res.statusMessage}` });
-            }
-            else {
-                let body = '';
-                res.setEncoding('utf8');
-                res.on('data', chunk => (body += chunk));
-                res.on('end', () => resolve({ data: `${body}` }));
-            }
-        });
-        req.end();
-    });
-    return await fetch_promise;
-}
-exports.fetch = fetch;
 async function getManifestURL() {
     return 'https://raw.githubusercontent.com/shivammathur/setup-php/develop/src/configs/php-versions.json';
 }
@@ -958,7 +998,7 @@ async function parseVersion(version) {
     const manifest = await getManifestURL();
     switch (true) {
         case /^(latest|nightly|\d+\.x)$/.test(version):
-            return JSON.parse((await fetch(manifest))['data'])[version];
+            return JSON.parse((await fetch.fetch(manifest))['data'])[version];
         default:
             switch (true) {
                 case version.length > 1:

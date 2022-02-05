@@ -1,5 +1,4 @@
 import * as tools from '../src/tools';
-import * as utils from '../src/utils';
 
 interface IData {
   tool: string;
@@ -38,29 +37,34 @@ function getData(data: IData): Record<string, string> {
   };
 }
 
-jest
-  .spyOn(utils, 'fetch')
-  .mockImplementation(
-    async (url: string, token?: string): Promise<Record<string, string>> => {
-      if (url.includes('atom') && !url.includes('no-')) {
-        return {
-          data: '"releases/tag/1.2.3", "releases/tag/3.2.1", "releases/tag/2.3.1"'
-        };
-      } else if (url.includes('no-data')) {
-        return {};
-      } else if (url.includes('no-release')) {
-        return {data: 'no-release'};
-      } else if (!token || token === 'valid_token') {
-        return {data: `[{"ref": "refs/tags/1.2.3", "url": "${url}"}]`};
-      } else if (token === 'beta_token') {
-        return {data: `[{"ref": "refs/tags/1.2.3-beta1", "url": "${url}"}]`};
-      } else if (token === 'no_data') {
-        return {data: '[]'};
-      } else {
-        return {error: 'Invalid token'};
+/**
+ * Mock fetch.ts
+ */
+jest.mock('../src/fetch', () => ({
+  fetch: jest
+    .fn()
+    .mockImplementation(
+      async (url: string, token?: string): Promise<Record<string, string>> => {
+        if (url.includes('atom') && !url.includes('no-')) {
+          return {
+            data: '"releases/tag/1.2.3", "releases/tag/3.2.1", "releases/tag/2.3.1"'
+          };
+        } else if (url.includes('no-data')) {
+          return {};
+        } else if (url.includes('no-release')) {
+          return {data: 'no-release'};
+        } else if (!token || token === 'valid_token') {
+          return {data: `[{"ref": "refs/tags/1.2.3", "url": "${url}"}]`};
+        } else if (token === 'beta_token') {
+          return {data: `[{"ref": "refs/tags/1.2.3-beta1", "url": "${url}"}]`};
+        } else if (token === 'no_data') {
+          return {data: '[]'};
+        } else {
+          return {error: 'Invalid token'};
+        }
       }
-    }
-  );
+    )
+}));
 
 describe('Tools tests', () => {
   it.each`

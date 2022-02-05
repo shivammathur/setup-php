@@ -1,6 +1,7 @@
-import * as utils from './utils';
 import path from 'path';
 import fs from 'fs';
+import * as fetch from './fetch';
+import * as utils from './utils';
 
 type RS = Record<string, string>;
 type RSRS = Record<string, RS>;
@@ -21,7 +22,7 @@ export async function getSemverVersion(data: RS): Promise<string> {
   const search: string = data['version_prefix'] + data['version'];
   const url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${search}.`;
   const token: string = await utils.readEnv('COMPOSER_TOKEN');
-  const response: RS = await utils.fetch(url, token);
+  const response: RS = await fetch.fetch(url, token);
   if (response.error || response.data === '[]') {
     data['error'] = response.error ?? `No version found with prefix ${search}.`;
     return data['version'];
@@ -42,7 +43,7 @@ export async function getLatestVersion(data: RS): Promise<string> {
   if (!data['version'] && data['fetch_latest'] === 'false') {
     return 'latest';
   }
-  const resp: Record<string, string> = await utils.fetch(
+  const resp: Record<string, string> = await fetch.fetch(
     `${data['github']}/${data['repository']}/releases.atom`
   );
   if (resp['data']) {

@@ -33,6 +33,15 @@ jest.mock('../src/install', () => ({
   })
 }));
 
+/**
+ * Mock fetch.ts
+ */
+jest.mock('../src/fetch', () => ({
+  fetch: jest.fn().mockImplementation(() => {
+    return {data: '{ "latest": "8.1", "5.x": "5.6" }'};
+  })
+}));
+
 describe('Install', () => {
   it.each`
     version     | os          | extension_csv | ini_file         | ini_values_csv | coverage_driver | tools        | output

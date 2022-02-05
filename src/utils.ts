@@ -1,8 +1,6 @@
-import {IncomingMessage, OutgoingHttpHeaders} from 'http';
-import * as https from 'https';
 import * as path from 'path';
-import * as url from 'url';
 import * as core from '@actions/core';
+import * as fetch from './fetch';
 
 /**
  * Function to read environment variable and return a string value.
@@ -46,46 +44,6 @@ export async function getInput(
   }
 }
 
-/**
- * Function to fetch an URL
- *
- * @param input_url
- * @param auth_token
- */
-export async function fetch(
-  input_url: string,
-  auth_token?: string
-): Promise<Record<string, string>> {
-  const fetch_promise: Promise<Record<string, string>> = new Promise(
-    resolve => {
-      const url_object: url.UrlObject = new url.URL(input_url);
-      const headers: OutgoingHttpHeaders = {
-        'User-Agent': `Mozilla/5.0 (${process.platform} ${process.arch}) setup-php`
-      };
-      if (auth_token) {
-        headers.authorization = 'Bearer ' + auth_token;
-      }
-      const options: https.RequestOptions = {
-        hostname: url_object.hostname,
-        path: url_object.pathname,
-        headers: headers
-      };
-      const req = https.get(options, (res: IncomingMessage) => {
-        if (res.statusCode != 200) {
-          resolve({error: `${res.statusCode}: ${res.statusMessage}`});
-        } else {
-          let body = '';
-          res.setEncoding('utf8');
-          res.on('data', chunk => (body += chunk));
-          res.on('end', () => resolve({data: `${body}`}));
-        }
-      });
-      req.end();
-    }
-  );
-  return await fetch_promise;
-}
-
 /** Function to get manifest URL
  *
  */
@@ -102,7 +60,7 @@ export async function parseVersion(version: string): Promise<string> {
   const manifest = await getManifestURL();
   switch (true) {
     case /^(latest|nightly|\d+\.x)$/.test(version):
-      return JSON.parse((await fetch(manifest))['data'])[version];
+      return JSON.parse((await fetch.fetch(manifest))['data'])[version];
     default:
       switch (true) {
         case version.length > 1:

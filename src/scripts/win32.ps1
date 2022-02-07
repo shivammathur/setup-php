@@ -166,10 +166,10 @@ Function Install-PSPackage() {
     Expand-Archive -Path $zip_file -DestinationPath $bin_dir -Force
   }
   Import-Module $module_path
-  Add-ToProfile $current_profile "$package-search" "Import-Module $module_path"
-
   if($null -eq (Get-Command $cmdlet -ErrorAction SilentlyContinue)) {
     Install-Module -Name $package -Force
+  } else {
+    Add-ToProfile $current_profile "$package-search" "Import-Module $module_path"
   }
 }
 

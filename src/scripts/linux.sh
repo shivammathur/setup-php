@@ -132,6 +132,7 @@ add_packaged_php() {
     add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
     IFS=' ' read -r -a packages <<<"$(sed "s/[^ ]*/php$version-&/g" "$src"/configs/php_packages | tr '\n' ' ')"
     install_packages "${packages[@]}"
+    add_pecl
   else
     run_script "php-ubuntu" "$version"
   fi

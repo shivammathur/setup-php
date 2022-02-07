@@ -101,7 +101,7 @@ Function Add-Tool() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     [ValidateNotNull()]
-    $url,
+    $urls,
     [Parameter(Position = 1, Mandatory = $true)]
     [ValidateNotNull()]
     $tool,
@@ -112,23 +112,26 @@ Function Add-Tool() {
   if (Test-Path $bin_dir\$tool) {
     Copy-Item $bin_dir\$tool -Destination $bin_dir\$tool.old -Force
   }
-  if($url.Count -gt 1) {
-    $url = $url[0]
-  }
   $tool_path = "$bin_dir\$tool"
-  if (($url | Split-Path -Extension) -eq ".exe") {
-    $tool_path = "$tool_path.exe"
-  }
-  try {
-    Invoke-WebRequest -Uri $url -OutFile $tool_path
-  } catch {
-    if($url -match '.*github.com.*releases.*latest.*') {
-      try {
-        $url = $url.replace("releases/latest/download", "releases/download/" + ([regex]::match((Invoke-WebRequest -Uri ($url.split('/release')[0] + "/releases")).Content, "([0-9]+\.[0-9]+\.[0-9]+)/" + ($url.Substring($url.LastIndexOf("/") + 1))).Groups[0].Value).split('/')[0])
-        Invoke-WebRequest -Uri $url -OutFile $tool_path
-      } catch { }
+  foreach ($url in $urls){
+    if (($url | Split-Path -Extension) -eq ".exe") {
+      $tool_path = "$tool_path.exe"
+    }
+    try {
+      $status_code = (Invoke-WebRequest -Passthru -Uri $url -OutFile $tool_path).StatusCode
+    } catch {
+      if($url -match '.*github.com.*releases.*latest.*') {
+        try {
+          $url = $url.replace("releases/latest/download", "releases/download/" + ([regex]::match((Invoke-WebRequest -Uri ($url.split('/release')[0] + "/releases")).Content, "([0-9]+\.[0-9]+\.[0-9]+)/" + ($url.Substring($url.LastIndexOf("/") + 1))).Groups[0].Value).split('/')[0])
+          $status_code = (Invoke-WebRequest -Passthru -Uri $url -OutFile $tool_path).StatusCode
+        } catch { }
+      }
+    }
+    if($status_code -eq 200 -and (Test-Path $tool_path)) {
+      break
     }
   }
+
   if (((Get-ChildItem -Path $bin_dir/* | Where-Object Name -Match "^$tool(.exe|.phar)*$").Count -gt 0)) {
     $bat_content = @()
     $bat_content += "@ECHO off"

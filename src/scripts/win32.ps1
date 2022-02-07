@@ -259,7 +259,11 @@ if ( $env:GITHUB_ACTIONS -eq 'true') {
   $env:END_GROUP = ''
 }
 
-if($env:RUNNER -eq 'self-hosted' -or (-not($env:ImageOS) -and -not($env:ImageVersion))) {
+if(-not($env:ImageOS) -and -not($env:ImageVersion)) {
+  if($env:RUNNER -eq 'github') {
+    Add-Log $cross "Runner" "Runner set as github in self-hosted environment"
+    exit 1
+  }
   $bin_dir = 'C:\tools\bin'
   $php_dir = "$php_dir$version"
   $ext_dir = "$php_dir\ext"

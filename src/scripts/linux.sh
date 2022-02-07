@@ -255,7 +255,7 @@ debconf_fix="DEBIAN_FRONTEND=noninteractive"
 apt_install="sudo $debconf_fix apt-fast install -y --no-install-recommends"
 scripts="$src"/scripts
 
-add_sudo
+add_sudo >/dev/null 2>&1
 
 . /etc/os-release
 # shellcheck source=.

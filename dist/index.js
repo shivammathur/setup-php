@@ -869,7 +869,7 @@ async function fetch(url) {
 }
 exports.fetch = fetch;
 async function parseVersion(version) {
-    const manifest = 'https://raw.githubusercontent.com/shivammathur/setup-php/develop/src/configs/php-versions.json';
+    const manifest = 'https://raw.githubusercontent.com/shivammathur/setup-php/releases/v1/src/configs/php-versions.json';
     switch (true) {
         case /^(latest|\d+\.x)$/.test(version):
             return JSON.parse(await fetch(manifest))[version];

@@ -155,7 +155,7 @@ add_composertool() {
   release=$2
   prefix=$3
   scope=$4
-  composer_major_version=$(cat /tmp/composer_version | cut -d'.' -f 1)
+  composer_major_version=$(cut -d'.' -f 1 /tmp/composer_version)
   if [ "$composer_major_version" != "1" ]; then
     composer_args="--ignore-platform-req=ext-*"
     if [[ "$tool" =~ prestissimo|composer-prefetcher ]]; then

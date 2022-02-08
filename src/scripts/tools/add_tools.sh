@@ -43,6 +43,7 @@ configure_composer() {
     chmod 644 "$composer_json"
   fi
   add_env_path "${src:?}"/configs/composer.env
+  add_path "$composer_bin"
   if [ -n "$COMPOSER_TOKEN" ]; then
     add_env COMPOSER_AUTH '{"github-oauth": {"github.com": "'"$COMPOSER_TOKEN"'"}}'
   fi
@@ -137,7 +138,6 @@ add_composertool_helper() {
     sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
     composer global require "$prefix$release" "$composer_args" >/dev/null 2>&1
     composer global show "$prefix$tool" 2>&1 | grep -E ^versions | sudo tee /tmp/composer.log >/dev/null 2>&1
-    add_path "$composer_bin"
   else
     scoped_dir="$composer_bin/_tools/$tool-$(echo -n "$release" | shasum -a 256 | cut -d ' ' -f 1)"
     if ! [ -d "$scoped_dir" ]; then

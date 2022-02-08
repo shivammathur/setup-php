@@ -99,7 +99,7 @@ get_shell_profile() {
 # Function to add a path to the PATH variable.
 add_path() {
   path_to_add=$1
-  { [ ! -d "$path_to_add" ] || [[ ":$PATH:" == *":$path_to_add:"* ]]; } && return
+  [[ ":$PATH:" == *":$path_to_add:"* ]] && return
   if [[ -n "$GITHUB_PATH" ]]; then
     echo "$path_to_add" | tee -a "$GITHUB_PATH" >/dev/null 2>&1
   else

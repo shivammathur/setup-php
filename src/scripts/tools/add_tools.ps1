@@ -23,6 +23,7 @@ Function Edit-ComposerConfig() {
     Set-Content -Path $composer_json -Value "{}"
   }
   Add-EnvPATH $src\configs\composer.env
+  Add-Path $composer_bin
   if (Test-Path env:COMPOSER_TOKEN) {
     Add-Env COMPOSER_AUTH ('{"github-oauth": {"github.com": "' + $env:COMPOSER_TOKEN + '"}}')
   }
@@ -175,7 +176,6 @@ Function Add-ComposertoolHelper() {
       Remove-Item -Path $composer_lock -Force
     }
     composer global require $prefix$release $composer_args >$null 2>&1
-    Add-Path $composer_bin
     return composer global show $prefix$tool 2>&1 | findstr '^versions'
   } else {
     $release_stream = [System.IO.MemoryStream]::New([System.Text.Encoding]::ASCII.GetBytes($release))

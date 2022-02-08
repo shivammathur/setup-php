@@ -83,7 +83,7 @@ Function Add-Path {
   param(
     [string]$PathItem
   )
-  if(-not(Test-Path $PathItem) -or "$env:PATH;".contains("$PathItem;")) {
+  if("$env:PATH;".contains("$PathItem;")) {
     return
   }
   if ($env:GITHUB_PATH) {

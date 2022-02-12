@@ -106,6 +106,7 @@ Function Add-Env {
     Add-Content "$EnvName=$EnvValue" -Path $env:GITHUB_ENV -Encoding utf8
   } else {
     Set-ItemProperty -Path 'hkcu:\Environment' -Name $EnvName -Value $EnvValue
+    Add-ToProfile $current_profile $EnvName "`$env:$EnvName=`"$EnvValue`""
   }
 }
 

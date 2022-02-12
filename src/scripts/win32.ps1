@@ -184,6 +184,17 @@ Function Add-PhpCAInfo {
   }
 }
 
+# Function to set OpenSSL config.
+Function Add-OpenSSLConf {
+  try {
+    Set-OpenSSLConf -Target User
+  } catch {
+    New-Item $php_dir\extras\openssl.cnf -Type File -Force > $null 2>&1
+    Set-OpenSSLConf -Path $php_dir\extras\openssl.cnf -Target User
+  }
+  Add-Env -EnvName OPENSSL_CONF -EnvValue $env:OPENSSL_CONF
+}
+
 # Function to set PHP config.
 Function Add-PhpConfig {
   $current = Get-Content -Path $php_dir\php.ini-current -ErrorAction SilentlyContinue
@@ -348,6 +359,7 @@ if($version -lt "5.5") {
 }
 Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
 Add-PhpCAInfo
+Add-OpenSSLConf
 Copy-Item -Path $src\configs\pm\*.json -Destination $env:RUNNER_TOOL_CACHE
 Set-Output php-version $($installed.FullVersion)
 Add-Log $tick "PHP" "$status PHP $($installed.FullVersion)$extra_version"

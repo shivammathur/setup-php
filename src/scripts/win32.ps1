@@ -118,11 +118,13 @@ Function Add-EnvPATH {
   if(-not(Test-Path $EnvPATH)) {
     return
   }
-  $env_file = $current_profile
-  if ($env:GITHUB_ENV) {
-    $env_file = $env:GITHUB_ENV
+  $env_file = $env:GITHUB_ENV
+  $env_data = Get-Content -Path $EnvPATH
+  if (-not($env:GITHUB_ENV)) {
+    $env_file = $current_profile
+    $env_data = $env_data | ForEach-Object { '$env:' + $_ }
   }
-  Get-Content -Path $EnvPATH | Add-Content -Path $env_file -Encoding utf8
+  $env_data | Add-Content -Path $env_file -Encoding utf8
 }
 
 # Function to make sure printf is in PATH.

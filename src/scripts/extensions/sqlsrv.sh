@@ -1,9 +1,9 @@
 # Function to get sqlsrv and pdo_sqlsrv version.
 get_sqlsrv_version() {
-  if [[ "${version:?}" =~ 7.[0-2] ]]; then
+  if [[ "${version:?}" =~ 7.[0-3] ]]; then
     echo '5.9.0'
   else
-    echo '5.10.0beta2'
+    echo '5.10.0'
   fi
 }
 

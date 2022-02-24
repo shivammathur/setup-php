@@ -6,9 +6,13 @@ Function Add-Symfony() {
   $url = "https://github.com/symfony-cli/symfony-cli/releases/latest/download/symfony-cli_windows_${arch_name}.zip"
   Invoke-WebRequest -Uri $url -OutFile $bin_dir\symfony.zip >$null 2>&1
   Expand-Archive -Path $bin_dir\symfony.zip -DestinationPath $bin_dir -Force >$null 2>&1
-  Copy-Item -Path $bin_dir\symfony.exe -Destination $bin_dir\symfony-cli.exe >$null 2>&1
-  Add-ToProfile $current_profile 'symfony' "New-Alias symfony $bin_dir\symfony.exe"
-  Add-ToProfile $current_profile 'symfony_cli' "New-Alias symfony-cli $bin_dir\symfony-cli.exe"
-  $tool_version = Get-ToolVersion symfony "-V"
-  Add-Log $tick "symfony-cli" "Added symfony-cli $tool_version"
+  if(Test-Path $bin_dir\symfony.exe) {
+    Copy-Item -Path $bin_dir\symfony.exe -Destination $bin_dir\symfony-cli.exe > $null 2>&1
+    Add-ToProfile $current_profile 'symfony' "New-Alias symfony $bin_dir\symfony.exe"
+    Add-ToProfile $current_profile 'symfony_cli' "New-Alias symfony-cli $bin_dir\symfony-cli.exe"
+    $tool_version = Get-ToolVersion symfony "-V"
+    Add-Log $tick "symfony-cli" "Added symfony-cli $tool_version"
+  } else {
+    Add-Log $cross "symfony-cli" "Could not setup symfony-cli"
+  }
 }

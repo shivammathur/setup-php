@@ -7,7 +7,12 @@ add_symfony() {
     add_brew_tap symfony-cli/homebrew-tap
     brew install symfony-cli/tap/symfony-cli >/dev/null 2>&1
   fi
-  sudo ln -s "$(command -v symfony)" "${tool_path_dir:?}"/symfony-cli
-  tool_version=$(get_tool_version "symfony" "-V")
-  add_log "${tick:?}" "symfony-cli" "Added symfony-cli $tool_version"
+  symfony_path="$(command -v symfony)"
+  if [[ -n "$symfony_path" ]]; then
+    sudo ln -s "$symfony_path" "${tool_path_dir:?}"/symfony-cli
+    tool_version=$(get_tool_version "symfony" "-V")
+    add_log "${tick:?}" "symfony-cli" "Added symfony-cli $tool_version"
+  else
+    add_log "${cross:?}" "symfony-cli" "Could not setup symfony-cli"
+  fi
 }

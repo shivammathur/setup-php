@@ -313,6 +313,12 @@ export async function addPECL(data: RS): Promise<string> {
 export async function addPhing(data: RS): Promise<string> {
   data['url'] =
     data['domain'] + '/get/phing-' + data['version'] + data['extension'];
+  if (data['version'] != 'latest') {
+    [data['prefix'], data['verb']] = ['releases', 'download'];
+    data['domain'] = data['github'];
+    data['extension'] = '-' + data['version'] + data['extension'];
+    data['url'] += ',' + (await getUrl(data));
+  }
   return await addArchive(data);
 }
 

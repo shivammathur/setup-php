@@ -412,7 +412,7 @@ describe('Tools tests', () => {
         'add_tool https://github.com/infection/infection/releases/latest/download/infection.phar infection "-V"',
         'add_tool https://github.com/phan/phan/releases/latest/download/phan.phar phan "-v"',
         'add_tool https://github.com/phan/phan/releases/download/1.2.3/phan.phar phan "-v"',
-        'add_tool https://www.phing.info/get/phing-1.2.3.phar phing "-v"',
+        'add_tool https://www.phing.info/get/phing-1.2.3.phar,https://github.com/phingofficial/phing/releases/download/1.2.3/phing-1.2.3.phar phing "-v"',
         'add_composertool phinx phinx robmorgan/ scoped',
         'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive',
         'add_devtools php-config',

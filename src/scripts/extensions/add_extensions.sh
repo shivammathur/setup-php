@@ -8,10 +8,14 @@ add_extension_log() {
 # Function to test if extension is loaded.
 check_extension() {
   local extension=$1
+  local extension_list=/tmp/php${version:?}_extensions
+  if [ ! -e "$extension_list" ]; then
+    php -m > "$extension_list"
+  fi
   if [ "$extension" != "mysql" ]; then
-    php -m | grep -i -q -w "$extension"
+    grep -i -q -w "$extension" "$extension_list" || php -m | grep -i -q -w "$extension"
   else
-    php -m | grep -i -q "$extension"
+    grep -i -q "$extension" "$extension_list" || php -m | grep -i -q "$extension"
   fi
 }
 
@@ -38,11 +42,11 @@ enable_cache_extension_dependencies() {
 
 # Function to enable existing extensions.
 enable_extension() {
-  modules_dir="/var/lib/php/modules/${version:?}"
-  [ -d "$modules_dir" ] && sudo find "$modules_dir" -path "*disabled*$1" -delete
-  enable_extension_dependencies "$1" "$2"
-  enable_cache_extension_dependencies "$1" "$2"
   if ! check_extension "$1" && shared_extension "$1"; then
+    modules_dir="/var/lib/php/modules/${version:?}"
+    [ -d "$modules_dir" ] && sudo find "$modules_dir" -path "*disabled*$1" -delete
+    enable_extension_dependencies "$1" "$2"
+    enable_cache_extension_dependencies "$1" "$2"
     echo "$2=${ext_dir:?}/$1.so" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null
   fi
 }
@@ -108,6 +112,7 @@ disable_all_shared() {
   sudo sed -i.orig -E -e "/^(zend_)?extension\s*=/d" "${ini_file[@]}" "$pecl_file" 2>/dev/null || true
   sudo find "${ini_dir:-$scan_dir}"/.. -name "*.ini" -not -path "*php.ini" -not -path "*phar.ini" -not -path "*pecl.ini" -not -path "*mods-available*" -delete >/dev/null 2>&1 || true
   mkdir -p /tmp/extdisabled/"$version"
+  sudo rm -f /tmp/php"$version"_extensions
   sudo find "$ext_dir" -name '*.so' -print0 | xargs -0 -n 1 basename -s .so | xargs -n 1 -I{} touch /tmp/extdisabled/"$version"/{}
   add_log "${tick:?}" "none" "Disabled all shared extensions"
 }

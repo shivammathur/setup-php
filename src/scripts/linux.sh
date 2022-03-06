@@ -31,6 +31,7 @@ disable_extension_helper() {
   fi
   sudo sed -Ei "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file[@]}" "$pecl_file"
   sudo find "$ini_dir"/.. -name "*$extension.ini" -not -path "*phar.ini" -not -path "*pecl.ini" -not -path "*mods-available*" -delete >/dev/null 2>&1 || true
+  sudo rm -f /tmp/php"$version"_extensions
   mkdir -p /tmp/extdisabled/"$version"
   echo '' | sudo tee /tmp/extdisabled/"$version"/"$extension" >/dev/null 2>&1
 }

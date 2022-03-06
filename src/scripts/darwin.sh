@@ -28,7 +28,7 @@ disable_extension_helper() {
     disable_extension_dependents "$extension"
   fi
   sudo sed -Ei '' "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file:?}"
-  sudo rm -rf "$scan_dir"/*"$extension"*
+  sudo rm -rf "$scan_dir"/*"$extension"* /tmp/php"$version"_extensions
   mkdir -p /tmp/extdisabled/"$version"
   echo '' | sudo tee /tmp/extdisabled/"$version"/"$extension" >/dev/null 2>&1
 }

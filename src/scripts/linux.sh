@@ -175,7 +175,10 @@ link_pecl_file() {
   echo '' | sudo tee "$pecl_file" >/dev/null 2>&1
   for file in "${ini_file[@]}"; do
     sapi_scan_dir="$(realpath -m "$(dirname "$file")")/conf.d"
-    [ "$sapi_scan_dir" != "$scan_dir" ] && ! [ -h "$sapi_scan_dir" ] && sudo ln -sf "$pecl_file" "$sapi_scan_dir/99-pecl.ini"
+    if [ "$sapi_scan_dir" != "$scan_dir" ] && ! [ -h "$sapi_scan_dir" ]; then
+      sudo mkdir -p "$sapi_scan_dir"
+      sudo ln -sf "$pecl_file" "$sapi_scan_dir/99-pecl.ini"
+    fi
   done
 }
 

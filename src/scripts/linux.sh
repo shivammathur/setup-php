@@ -212,7 +212,7 @@ setup_php() {
   sudo mkdir -m 777 -p /var/run /run/php
   php_config="$(command -v php-config)"
   if [[ -z "$php_config" ]] || [ "$(php_semver | cut -c 1-3)" != "$version" ]; then
-    if [ ! -e "/usr/bin/php$version" ]; then
+    if [ ! -e "/usr/bin/php$version" ] || [ ! -e "/usr/bin/php-config$version" ]; then
       add_php >/dev/null 2>&1
     else
       if ! [[ "$version" =~ ${old_versions:?} ]]; then

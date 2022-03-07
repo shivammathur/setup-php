@@ -165,6 +165,7 @@ add_php() {
     setup_old_versions
   else
     add_packaged_php
+    switch_version >/dev/null 2>&1
   fi
   status="Installed"
 }

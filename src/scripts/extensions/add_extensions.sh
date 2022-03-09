@@ -165,6 +165,7 @@ add_pecl_extension() {
   local extension=$1
   local pecl_version=$2
   local prefix=$3
+  local message="Installed and enabled"
   enable_extension "$extension" "$prefix"
   if [[ $pecl_version =~ .*(alpha|beta|rc|snapshot|preview).* ]]; then
     pecl_version=$(get_pecl_version "$extension" "$pecl_version")
@@ -173,9 +174,14 @@ add_pecl_extension() {
   if [ "${ext_version/-/}" = "$pecl_version" ]; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
+    IFS=' ' read -r -a libraries <<<"$(parse_args "$extension" LIBS) $(parse_args "$extension" "$(uname -s)"_LIBS)"
+    if (( ${#libraries[@]} )); then
+      add_libs "${libraries[@]}" >/dev/null 2>&1
+      message="$message with libraries ${libraries[*]}"
+    fi
     disable_extension_helper "$extension" >/dev/null 2>&1
     pecl_install "$extension-$pecl_version"
-    add_extension_log "$extension-$pecl_version" "Installed and enabled"
+    add_extension_log "$extension-$pecl_version" "$message"
   fi
 }
 

@@ -157,7 +157,10 @@ get_pecl_version() {
 pecl_install() {
   local extension=$1
   add_pecl >/dev/null 2>&1
-  yes '' 2>/dev/null | sudo pecl install -f "$extension" >/dev/null 2>&1
+  ncpu="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo '1')"
+  prefix_opts="$(parse_args "$extension" CONFIGURE_PREFIX_OPTS) MAKEFLAGS='-j $ncpu'"
+  suffix_opts="$(parse_args "$extension" CONFIGURE_OPTS) $(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"
+  yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f -D "$(parse_pecl_configure_options "$suffix_opts")" "$extension" >/dev/null 2>&1
 }
 
 # Function to install a specific version of PECL extension.

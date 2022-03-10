@@ -1,6 +1,6 @@
 # Function to parse extension environment variables
 parse_args() {
-  local extension=$1
+  local extension=${1%-*}
   suffix=$(echo "$2" | tr '[:lower:]' '[:upper:]')
   up_ext_name=$(echo "$extension" | tr '[:lower:]' '[:upper:]')
   var="${extension}_${suffix}"
@@ -8,6 +8,19 @@ parse_args() {
   ! [[ "$suffix" =~ .*PREFIX|LIBS|PATH.* ]] && hyp='-'
   output=$(echo "${!var} ${!up_var}" | sed "s/, *$hyp/ $hyp/g" | sed -E "s/^,|,$//g")
   echo "$output" | xargs -n 1 | sort | uniq | xargs
+}
+
+# Function to parse configure options for pecl
+# Make sure we have all options in name="value" form i.e XML properties.
+parse_pecl_configure_options() {
+  configure_opts=$(echo "$1" | sed -r -e "s#['\"]|--##g")
+  IFS=' ' read -r -a opts_array <<< "$configure_opts"
+  output_opts=()
+  for opt in "${opts_array[@]}"; do
+    [ "${opt##*=}" != "${opt%=*}" ] && value="${opt##*=}" || value=yes
+    output_opts+=("${opt%=*}=\"$value\"")
+  done
+  echo "${output_opts[@]}"
 }
 
 # Function to log if a library is installed

@@ -11,10 +11,11 @@ get_http_version() {
 
 # Function to enable http extension.
 enable_http() {
+  enable_extension iconv extension
   enable_extension propro extension
   enable_extension raphf extension
-  if (! [[ ${version:?} =~ ${jit_versions:?} ]] && check_extension propro && check_extension raphf) ||
-     ( [[ ${version:?} =~ ${jit_versions:?} ]] && check_extension raphf); then
+  if (! [[ ${version:?} =~ ${jit_versions:?} ]] && check_extension iconv && check_extension propro && check_extension raphf) ||
+     ( [[ ${version:?} =~ ${jit_versions:?} ]] && check_extension iconv && check_extension raphf); then
     enable_extension http extension
   fi
 }
@@ -25,10 +26,12 @@ add_http_dependencies() {
     add_pecl_extension raphf 1.1.2 extension
     add_pecl_extension propro 1.0.2 extension
   elif [[ ${version:?} =~ 5.6|7.[0-4] ]]; then
-    add_extension_helper propro
-    add_extension_helper raphf
+    add_extension iconv extension
+    add_extension propro extension
+    add_extension raphf extension
   else
-    add_extension_helper raphf
+    add_extension iconv extension
+    add_extension raphf extension
   fi
 }
 

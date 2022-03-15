@@ -40,6 +40,7 @@ Function Repair-ICU() {
 }
 
 Function Add-Http() {
+  Add-Extension iconv >$null 2>&1
   Add-Extension raphf >$null 2>&1
   if($version -lt '8.0') {
     Add-Extension propro >$null 2>&1

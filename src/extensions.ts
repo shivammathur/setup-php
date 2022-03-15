@@ -128,13 +128,13 @@ export async function addExtensionWindows(
       case /^none$/.test(ext_name):
         add_script += '\nDisable-AllShared';
         break;
-      // match 5.3blackfire...8.0blackfire
-      // match 5.3blackfire-(semver)...8.0blackfire-(semver)
+      // match 5.3blackfire...8.1blackfire
+      // match 5.3blackfire-(semver)...8.1blackfire-(semver)
       // match pdo_oci and oci8
       // match 5.3ioncube...7.4ioncube
       // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
       // match 7.1pecl_http...8.1pecl_http and 7.1http...8.1http
-      case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(
+      case /^(5\.[3-6]|7\.[0-4]|8\.1)blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
       case /^pdo_oci$|^oci8$|^pdo_firebird$/.test(extension):

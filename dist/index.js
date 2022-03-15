@@ -278,7 +278,7 @@ async function addExtensionWindows(extension_csv, version) {
             case /^none$/.test(ext_name):
                 add_script += '\nDisable-AllShared';
                 break;
-            case /^(5\.[3-6]|7\.[0-4]|8\.0)blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
+            case /^(5\.[3-6]|7\.[0-4]|8\.1)blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^pdo_oci$|^oci8$|^pdo_firebird$/.test(extension):
             case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):

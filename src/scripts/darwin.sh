@@ -60,12 +60,32 @@ add_brew_tap() {
   fi
 }
 
+# Function to get extension name from brew formula.
+get_extension_from_formula() {
+  local formula=$1
+  local extension
+  extension=$(grep "$formula=" "$src"/configs/brew_extensions | cut -d '=' -f 2)
+  [[ -z "$extension" ]] && extension="$(echo "$formula" | sed -E "s/pecl_|[0-9]//g")"
+  echo "$extension"
+}
+
+# Function to copy extension binaries to the extension directory.
+copy_brew_extensions() {
+  local formula=$1
+  formula_file="$tap_dir/$ext_tap/Formula/$formula@$version.rb"
+  deps="$(grep -Eo 'depends_on "shivammathur[^"]+' "$formula_file" | cut -d '/' -f 3 | tr '\n' ' ')"
+  IFS=' ' read -r -a deps <<< "$formula@$version $deps"
+  for dependency in "${deps[@]}"; do
+    extension_file="$brew_prefix/opt/$dependency/$(get_extension_from_formula "${dependency%@*}").so"
+    [ -e "$extension_file" ] && sudo cp "$extension_file" "$ext_dir"
+  done
+}
+
 # Function to install a php extension from shivammathur/extensions tap.
 add_brew_extension() {
   formula=$1
   prefix=$2
-  extension=$(grep "$formula=" "$src"/configs/brew_extensions | cut -d '=' -f 2)
-  [[ -z "$extension" ]] && extension="$(echo "$formula" | sed -E "s/pecl_|[0-9]//g")"
+  extension="$(get_extension_from_formula "$formula")"
   enable_extension "$extension" "$prefix"
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
@@ -76,7 +96,7 @@ add_brew_extension() {
     update_dependencies >/dev/null 2>&1
     disable_dependency_extensions "$extension" >/dev/null 2>&1
     brew install -f "$formula@$version" >/dev/null 2>&1
-    sudo cp "$brew_prefix/opt/$formula@$version/$extension.so" "$ext_dir"
+    copy_brew_extensions "$formula"
     add_extension_log "$extension" "Installed and enabled"
   fi
 }

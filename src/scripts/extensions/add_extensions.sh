@@ -64,7 +64,7 @@ enable_extensions() {
 
 # Function to get a map of extensions and their dependent shared extensions.
 get_extension_map() {
-  php -d'error_reporting=0' "${src:?}"/scripts/extensions/extension_map.php /tmp/map"$version".orig
+  php -d'error_reporting=0' "${src:?}"/scripts/extensions/extension_map.php /tmp/map"$version".orig >/dev/null 2>&1
 }
 
 # Function to enable extension dependencies which are also extensions.

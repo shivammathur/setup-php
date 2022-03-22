@@ -516,7 +516,7 @@ const extensions = __importStar(__nccwpck_require__(390));
 const tools = __importStar(__nccwpck_require__(740));
 const utils = __importStar(__nccwpck_require__(918));
 async function getScript(os) {
-    const url = 'https://setup-php.com/sponsor';
+    const url = 'https://setup-php.com/support-ukraine';
     const filename = os + (await utils.scriptExtension(os));
     const script_path = path_1.default.join(__dirname, '../src/scripts', filename);
     const run_path = script_path.replace(os, 'run');
@@ -538,8 +538,8 @@ async function getScript(os) {
     if (ini_values_csv) {
         script += await config.addINIValues(ini_values_csv, os);
     }
-    script += '\n' + (await utils.stepLog(`Sponsor setup-php`, os));
-    script += '\n' + (await utils.addLog('$tick', 'setup-php', url, os));
+    script += '\n' + (await utils.stepLog(`#StandWithUkraine`, os));
+    script += '\n' + (await utils.addLog('$tick', 'read-more', url, os));
     fs_1.default.writeFileSync(run_path, script, { mode: 0o755 });
     return run_path;
 }

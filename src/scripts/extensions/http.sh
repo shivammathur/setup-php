@@ -91,6 +91,7 @@ add_http_version() {
   ext=$1
   enable_http
   if [ "x$(php -r "echo phpversion('http');")" != "x${ext##*-}" ]; then
+    add_http_dependencies
     disable_extension_helper http >/dev/null
     add_http_helper pecl_http-"${ext##*-}" "$os"
     status="Installed and enabled"

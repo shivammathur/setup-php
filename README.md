@@ -165,6 +165,8 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
     extensions: xdebug-beta
 ```
 
+- On `Ubuntu` and `macOS` to compile and install an extension from PECL with libraries or custom configuration follow this [guide](https://github.com/shivammathur/setup-php/wiki/Add-extension-from-PECL-with-libraries-and-custom-configuration "Guide to compile and install PHP extensions using PECL with libraries and custom configuration in setup-php").
+
 - Shared extensions can be disabled by prefixing them with a `:`. All extensions depending on the specified extension will also be disabled.
 
 ```yaml

@@ -1,6 +1,6 @@
 Function Get-ProtobufTag() {
   if("$protobuf_tag" -eq "latest") {
-    $protobuf_tag = (Invoke-RestMethod https://api.github.com/repos/protocolbuffers/protobuf/tags).Name | Where-Object { $_ -match "v\d+.\d+.\d+$" } | Select-Object -First 1
+    $protobuf_tag = (Invoke-RestMethod https://api.github.com/repos/protocolbuffers/protobuf/releases).tag_name | Where-Object { $_ -match "v\d+.\d+.\d+$" } | Select-Object -First 1
   } else {
     try {
       [net.httpWebRequest] $request = [net.webRequest]::create("https://github.com/protocolbuffers/protobuf/releases/tag/v$protobuf_tag")
@@ -9,7 +9,7 @@ Function Get-ProtobufTag() {
       $response.Close()
       $protobuf_tag = "v$protobuf_tag"
     } catch {
-      $protobuf_tag = (Invoke-RestMethod https://api.github.com/repos/protocolbuffers/protobuf/tags).Name | Where-Object { $_ -match "v\d+.\d+.\d+$" } | Select-Object -First 1
+      $protobuf_tag = (Invoke-RestMethod https://api.github.com/repos/protocolbuffers/protobuf/releases).tag_name | Where-Object { $_ -match "v\d+.\d+.\d+$" } | Select-Object -First 1
     }
   }
   return $protobuf_tag

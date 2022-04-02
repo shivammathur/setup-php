@@ -17,6 +17,8 @@ jobs:
       CODECEPTION_URL: 127.0.0.1
       CODECEPTION_PORT: 8888
       DB_CONNECTION: pgsql
+
+    # Docs: https://docs.github.com/en/actions/using-containerized-services
     services:
       postgres:
         image: postgres:latest
@@ -45,6 +47,11 @@ jobs:
           # Use phalcon3 for the phalcon 3.x
           extensions: mbstring, dom, zip, phalcon4, pgsql
           coverage: xdebug
+
+      # Local PostgreSQL service in GitHub hosted environments is disabled by default.
+      # If you are using it instead of service containers, make sure you start it.
+      # - name: Start postgresql service
+      #   run: sudo systemctl start postgresql.service
 
       - name: Get composer cache directory
         id: composer-cache

@@ -5,6 +5,8 @@ jobs:
   symfony:
     name: Symfony (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
+
+    # Docs: https://docs.github.com/en/actions/using-containerized-services
     services:
       postgres:
         image: postgres:latest
@@ -31,6 +33,11 @@ jobs:
           tools: phpunit-bridge
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pgsql
           coverage: xdebug
+
+      # Local PostgreSQL service in GitHub hosted environments is disabled by default.
+      # If you are using it instead of service containers, make sure you start it.
+      # - name: Start postgresql service
+      #   run: sudo systemctl start postgresql.service
 
       - name: Get composer cache directory
         id: composer-cache

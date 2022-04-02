@@ -5,6 +5,8 @@ jobs:
   symfony:
     name: Symfony (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
+
+    # Docs: https://docs.github.com/en/actions/using-containerized-services
     services:
       mysql:
         image: mysql:latest
@@ -32,8 +34,10 @@ jobs:
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql
           coverage: xdebug
 
-      - name: Start mysql service
-        run: sudo systemctl start mysql
+      # Local MySQL service in GitHub hosted environments is disabled by default.
+      # If you are using it instead of service containers, make sure you start it.
+      # - name: Start mysql service
+      #   run: sudo systemctl start mysql.service
 
       - name: Get composer cache directory
         id: composer-cache

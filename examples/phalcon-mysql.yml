@@ -16,6 +16,8 @@ jobs:
       DB_PASSWORD: password
       CODECEPTION_URL: 127.0.0.1
       CODECEPTION_PORT: 8888
+
+    # Docs: https://docs.github.com/en/actions/using-containerized-services
     services:
       mysql:
         image: mysql:latest
@@ -45,8 +47,10 @@ jobs:
           extensions: mbstring, dom, zip, phalcon4, mysql
           coverage: xdebug
 
-      - name: Start mysql service
-        run: sudo systemctl start mysql
+      # Local MySQL service in GitHub hosted environments is disabled by default.
+      # If you are using it instead of service containers, make sure you start it.
+      # - name: Start mysql service
+      #   run: sudo systemctl start mysql.service
 
       - name: Get composer cache directory
         id: composer-cache

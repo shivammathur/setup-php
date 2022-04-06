@@ -7,6 +7,7 @@ igbinary=igbinary
 imagick=imagick
 imap=imap
 mailparse=mailparse
+mcrypt=mcrypt
 memcache=memcache
 memcached=memcached
 mongodb=mongodb

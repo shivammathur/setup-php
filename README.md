@@ -68,14 +68,15 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 ### GitHub-Hosted Runners
 
-| Virtual environment   | YAML workflow label                | Pre-installed PHP      |
-|-----------------------|------------------------------------|------------------------|
-| Ubuntu 20.04          | `ubuntu-latest` or `ubuntu-20.04`  | `PHP 7.4` to `PHP 8.1` |
-| Ubuntu 18.04          | `ubuntu-18.04`                     | `PHP 7.1` to `PHP 8.1` |
-| Windows Server 2022   | `windows-latest` or `windows-2022` | `PHP 8.1`              |
-| Windows Server 2019   | `windows-2019`                     | `PHP 8.1`              |
-| macOS Big Sur 11.x    | `macos-11`                         | `PHP 8.1`              |
-| macOS Catalina 10.15  | `macos-latest` or `macos-10.15`    | `PHP 8.1`              |
+| Virtual environment  | YAML workflow label                | Pre-installed PHP      |
+|----------------------|------------------------------------|------------------------|
+| Ubuntu 20.04         | `ubuntu-latest` or `ubuntu-20.04`  | `PHP 7.4` to `PHP 8.1` |
+| Ubuntu 18.04         | `ubuntu-18.04`                     | `PHP 7.2` to `PHP 8.1` |
+| Windows Server 2022  | `windows-latest` or `windows-2022` | `PHP 8.1`              |
+| Windows Server 2019  | `windows-2019`                     | `PHP 8.1`              |
+| macOS Monterey 12.x  | `macos-12`                         | `PHP 8.1`              |
+| macOS Big Sur 11.x   | `macos-latest` or `macos-11`       | `PHP 8.1`              |
+| macOS Catalina 10.15 | `macos-10.15`                      | `PHP 8.1`              |
 
 ### Self-Hosted Runners
 

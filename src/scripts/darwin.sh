@@ -157,9 +157,9 @@ update_dependencies_helper() {
 
 # Function to update dependencies.
 update_dependencies() {
+  patch_brew
   if ! [ -e /tmp/update_dependencies ]; then
     if [ "${runner:?}" != "self-hosted" ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
-      patch_brew
       while read -r dependency; do
         update_dependencies_helper "$dependency" &
         to_wait+=($!)

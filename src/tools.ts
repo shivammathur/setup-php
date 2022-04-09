@@ -245,8 +245,11 @@ export async function addComposer(tools_list: string[]): Promise<string[]> {
  *
  * @param version
  */
-export async function getComposerUrl(version: string): Promise<string> {
-  let cache_url = `https://github.com/shivammathur/composer-cache/releases/latest/download/composer-${version.replace(
+export async function getComposerUrl(
+  version: string,
+  php_version: string
+): Promise<string> {
+  let cache_url = `https://github.com/shivammathur/composer-cache/releases/latest/download/composer-${php_version}-${version.replace(
     'latest',
     'stable'
   )}.phar`;
@@ -415,7 +418,7 @@ export async function addTools(
         script += await addArchive(tool, url, os_version);
         break;
       case 'composer':
-        url = await getComposerUrl(version);
+        url = await getComposerUrl(version, php_version);
         script += await addArchive('composer', url, os_version);
         break;
       case 'codeception':

@@ -675,8 +675,8 @@ async function addComposer(tools_list) {
     return tools_list;
 }
 exports.addComposer = addComposer;
-async function getComposerUrl(version) {
-    let cache_url = `https://github.com/shivammathur/composer-cache/releases/latest/download/composer-${version.replace('latest', 'stable')}.phar`;
+async function getComposerUrl(version, php_version) {
+    let cache_url = `https://github.com/shivammathur/composer-cache/releases/latest/download/composer-${php_version}-${version.replace('latest', 'stable')}.phar`;
     switch (true) {
         case /^snapshot$/.test(version):
             return `${cache_url},https://getcomposer.org/composer.phar`;
@@ -770,7 +770,7 @@ async function addTools(tools_csv, php_version, os_version) {
                 script += await addArchive(tool, url, os_version);
                 break;
             case 'composer':
-                url = await getComposerUrl(version);
+                url = await getComposerUrl(version, php_version);
                 script += await addArchive('composer', url, os_version);
                 break;
             case 'codeception':

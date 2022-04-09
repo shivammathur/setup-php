@@ -242,7 +242,6 @@ link_libraries() {
   formula_prefix="$(brew --prefix "$formula")"
   sudo mkdir -p "$formula_prefix"/lib
   for lib in "$formula_prefix"/lib/*.dylib; do
-    [ -f "$lib" ] || break
     lib_name=$(basename "$lib")
     sudo cp -a "$lib" "$brew_prefix/lib/$lib_name" 2>/dev/null || true
   done
@@ -256,18 +255,25 @@ patch_brew() {
   trap "sudo sed -Ei '' 's/$code.*/$code, overwrite: overwrite?\)/' $formula_installer" exit
 }
 
+# Helper function to update the dependencies.
+update_dependencies_helper() {
+  dependency=$1
+  curl -o "$tap_dir/homebrew/homebrew-core/Formula/$formula.rb" "${curl_opts[@]}" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb"
+  link_libraries "$dependency"
+}
+
 # Function to update dependencies
 update_dependencies() {
-  if [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
-    patch_brew
-    while read -r formula; do
-      (
-        curl -o "$tap_dir/homebrew/homebrew-core/Formula/$formula.rb" "${curl_opts[@]}" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$formula.rb"
-        link_libraries "$formula"
-      ) &
-      to_wait+=( $! )
-    done < "$tap_dir/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
-    wait "${to_wait[@]}"
+  if ! [ -e /tmp/update_dependencies ]; then
+    if [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
+      patch_brew
+      while read -r dependency; do
+        update_dependencies_helper "$dependency" &
+        to_wait+=($!)
+      done <"$tap_dir/shivammathur/homebrew-php/.github/deps/${ImageOS:?}_${ImageVersion:?}"
+      wait "${to_wait[@]}"
+    fi
+    echo '' | sudo tee /tmp/update_dependencies >/dev/null 2>&1
   fi
 }
 

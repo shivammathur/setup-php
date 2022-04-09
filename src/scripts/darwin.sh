@@ -249,9 +249,11 @@ link_libraries() {
 }
 
 patch_brew() {
-  sudo sed -i '' "s/ keg.link(verbose: verbose?)/ keg.link(verbose: verbose?, overwrite: true)/" "$brew_repo"/Library/Homebrew/formula_installer.rb
+  formula_installer="$brew_repo"/Library/Homebrew/formula_installer.rb
+  code=" keg.link\(verbose: verbose\?"
+  sudo sed -Ei '' "s/$code.*/$code, overwrite: true\)/" "$formula_installer"
   # shellcheck disable=SC2064
-  trap "git -C $brew_repo stash >/dev/null 2>&1" exit
+  trap "sudo sed -Ei '' 's/$code.*/$code, overwrite: overwrite?\)/' $formula_installer" exit
 }
 
 # Function to update dependencies

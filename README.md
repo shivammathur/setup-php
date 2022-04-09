@@ -56,11 +56,12 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 | Virtual environment  | YAML workflow label                | Pre-installed PHP      |
 |----------------------|------------------------------------|------------------------|
 | Ubuntu 20.04         | `ubuntu-latest` or `ubuntu-20.04`  | `PHP 7.4` to `PHP 8.1` |
-| Ubuntu 18.04         | `ubuntu-18.04`                     | `PHP 7.1` to `PHP 8.1` |
+| Ubuntu 18.04         | `ubuntu-18.04`                     | `PHP 7.2` to `PHP 8.1` |
 | Windows Server 2022  | `windows-latest` or `windows-2022` | `PHP 8.1`              |
 | Windows Server 2019  | `windows-2019`                     | `PHP 8.1`              |
-| macOS 11.x Big Sur   | `macos-11`                         | `PHP 8.1`              |
-| macOS 10.15 Catalina | `macos-latest` or `macos-10.15`    | `PHP 8.1`              |
+| macOS Monterey 12.x  | `macos-12`                         | `PHP 8.1`              |
+| macOS Big Sur 11.x   | `macos-latest` or `macos-11`       | `PHP 8.1`              |
+| macOS Catalina 10.15 | `macos-10.15`                      | `PHP 8.1`              |
 
 ## :heavy_plus_sign: PHP Extension Support
 - On `ubuntu` by default extensions which are available as a package can be installed. If the extension is not available as a package but it is on `PECL`, it can be installed by specifying `pecl` in the tools input.
@@ -414,6 +415,13 @@ These companies generously provide setup-php their products and services to aid 
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://tidelift.com/subscription/pkg/npm-setup-php">
     <img src="https://setup-php.com/sponsors/tidelift.png" alt="Tidelift" width="70" height="60">
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://www.scaleway.com/en/about-us/open-source-program#gh-light-mode-only">
+    <img src="https://setup-php.com/sponsors/scaleway.png" alt="Scaleway" width="174" height="60">
+  </a>
+  <a href="https://www.scaleway.com/en/about-us/open-source-program#gh-dark-mode-only">
+    <img src="https://setup-php.com/sponsors/scaleway-white.png" alt="Scaleway" width="174" height="60">
   </a>
 </p>
 

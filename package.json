@@ -36,8 +36,7 @@
   "dependencies": {
     "@actions/core": "^1.6.0",
     "@actions/exec": "^1.1.1",
-    "@actions/io": "^1.1.2",
-    "fs": "0.0.1-security"
+    "@actions/io": "^1.1.2"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",

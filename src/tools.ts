@@ -230,24 +230,34 @@ export async function addBlackfirePlayer(data: RS): Promise<string> {
  * @param data
  */
 export async function addComposer(data: RS): Promise<string> {
+  const channel = data['version'].replace('latest', 'stable');
   const github = data['github'];
   const getcomposer = data['domain'];
-  let cache_url = `${github}/shivammathur/composer-cache/releases/latest/download/composer-${
-    data['php_version']
-  }-${data['version'].replace('latest', 'stable')}.phar`;
+  const cds = 'https://dl.cloudsmith.io';
+  const filename = `composer-${data['php_version']}-${channel}.phar`;
+  const releases_url = `${github}/shivammathur/composer-cache/releases/latest/download/${filename}`;
+  const cds_url = `${cds}/public/shivammathur/composer-cache/raw/files/${filename}`;
+  const lts_url = `${getcomposer}/download/latest-2.2.x/composer.phar`;
+  const is_lts = /^5\.[3-6]$|^7\.[0-1]$/.test(data['php_version']);
+  const version_source_url = `${getcomposer}/composer-${channel}.phar`;
+  let cache_url = `${releases_url},${cds_url}`;
   let source_url = `${getcomposer}/composer.phar`;
   switch (true) {
-    case /^snapshot$/.test(data['version']):
+    case /^snapshot$/.test(channel):
+      source_url = is_lts ? lts_url : source_url;
       break;
-    case /^preview$|^[1-2]$/.test(data['version']):
-      source_url = `${getcomposer}/composer-${data['version']}.phar`;
+    case /^preview$|^2$/.test(channel):
+      source_url = is_lts ? lts_url : version_source_url;
+      break;
+    case /^1$/.test(channel):
+      source_url = version_source_url;
       break;
     case /^\d+\.\d+\.\d+[\w-]*$/.test(data['version']):
       cache_url = `${github}/${data['repository']}/releases/download/${data['version']}/composer.phar`;
-      source_url = `${getcomposer}/composer-${data['version']}.phar`;
+      source_url = version_source_url;
       break;
     default:
-      source_url = `${getcomposer}/composer-stable.phar`;
+      source_url = is_lts ? lts_url : version_source_url;
   }
   const use_cache: boolean = (await utils.readEnv('NO_TOOLS_CACHE')) !== 'true';
   data['url'] = use_cache ? `${cache_url},${source_url}` : source_url;

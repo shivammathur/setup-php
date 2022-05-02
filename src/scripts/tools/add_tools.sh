@@ -142,6 +142,7 @@ add_composertool_helper() {
     scoped_dir="$composer_bin/_tools/$tool-$(echo -n "$release" | shasum -a 256 | cut -d ' ' -f 1)"
     if ! [ -d "$scoped_dir" ]; then
       mkdir -p "$scoped_dir"
+      echo '{}' | tee "$scoped_dir/composer.json" >/dev/null
       composer require "$prefix$release" -d "$scoped_dir" "$composer_args" >/dev/null 2>&1
       composer show "$prefix$tool" -d "$scoped_dir" 2>&1 | grep -E ^versions | sudo tee /tmp/composer.log >/dev/null 2>&1
     fi

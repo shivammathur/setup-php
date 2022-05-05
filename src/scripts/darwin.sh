@@ -95,7 +95,7 @@ add_brew_extension() {
     sudo mv "$tap_dir"/"$ext_tap"/.github/deps/"$formula"/* "$core_repo/Formula/" 2>/dev/null || true
     update_dependencies >/dev/null 2>&1
     disable_dependency_extensions "$extension" >/dev/null 2>&1
-    brew install -f "$formula@$version" >/dev/null 2>&1
+    brew install -f "$ext_tap/$formula@$version" >/dev/null 2>&1
     copy_brew_extensions "$formula"
     add_extension_log "$extension" "Installed and enabled"
   fi

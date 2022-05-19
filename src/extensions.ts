@@ -39,7 +39,7 @@ export async function addExtensionDarwin(
       case /^(5\.[3-6]|7\.[0-4]|8\.[0-1])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
-      case /^couchbase$|^geos$|^pdo_oci$|^oci8$|^(pecl_)?http|^pdo_firebird$/.test(
+      case /^couchbase|^geos$|^pdo_oci$|^oci8$|^(pecl_)?http|^pdo_firebird$/.test(
         extension
       ):
       case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
@@ -262,7 +262,7 @@ export async function addExtensionLinux(
       case /^((5\.[3-6])|(7\.[0-2]))pdo_cubrid$|^((5\.[3-6])|(7\.[0-4]))cubrid$/.test(
         version_extension
       ):
-      case /^couchbase$|^gearman$|^geos$|^pdo_oci$|^oci8$|^(pecl_)?http|^pdo_firebird$/.test(
+      case /^couchbase|^gearman$|^geos$|^pdo_oci$|^oci8$|^(pecl_)?http|^pdo_firebird$/.test(
         extension
       ):
       case /(?<!5\.[3-5])intl-[\d]+\.[\d]+$/.test(version_extension):

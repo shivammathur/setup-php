@@ -1,8 +1,9 @@
 # Function to install libraries required by couchbase
 add_couchbase_clibs() {
+  ext=$1
   if [ "$(uname -s)" = "Linux" ]; then
     trunk="https://github.com/couchbase/libcouchbase/releases"
-    if [[ ${version:?} =~ 5.[3-6]|7.[0-1] ]]; then
+    if [[ "$ext" =~ couchbase-2.+ ]]; then
       release="2.10.9"
     else
       release="$(curl -sL $trunk/latest | grep -Eo "libcouchbase-[0-9]+\.[0-9]+\.[0-9]+" | head -n 1 | cut -d'-' -f 2)"
@@ -15,7 +16,7 @@ add_couchbase_clibs() {
     install_packages libev4 libevent-dev
     sudo dpkg -i /tmp/libcouchbase-*/*.deb
   else
-    if [[ ${version:?} =~ 5.[3-6]|7.[0-1] ]]; then
+    if [[ "$ext" =~ couchbase-2.+ ]]; then
       brew install libcouchbase@2
       brew link --overwrite --force libcouchbase@2
     else
@@ -64,9 +65,12 @@ get_couchbase_version() {
 
 # Function to add couchbase.
 add_couchbase() {
-  couchbase_version=$(get_couchbase_version)
-  if [ "$couchbase_version" != 'couchbase' ]; then
-    add_couchbase_clibs >/dev/null 2>&1
+  ext=$1
+  if [ "$ext" = "couchbase" ]; then
+    ext=$(get_couchbase_version)
+  fi
+  if [[ "$ext" =~ couchbase-[2-3].+ ]]; then
+    add_couchbase_clibs "$ext" >/dev/null 2>&1
   else
     add_couchbase_cxxlibs >/dev/null 2>&1
   fi
@@ -74,7 +78,7 @@ add_couchbase() {
   if check_extension "couchbase"; then
     add_log "${tick:?}" "couchbase" "Enabled"
   else
-    pecl_install "${couchbase_version}" >/dev/null 2>&1
+    pecl_install "${ext}" >/dev/null 2>&1
     add_extension_log "couchbase" "Installed and enabled"
   fi
 }

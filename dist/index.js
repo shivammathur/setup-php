@@ -243,7 +243,7 @@ async function addExtensionDarwin(extension_csv, version) {
                 add_script += await utils.parseExtensionSource(extension, ext_prefix);
                 return;
             case /^(5\.[3-6]|7\.[0-4]|8\.[0-1])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
-            case /^couchbase$|^geos$|^pdo_oci$|^oci8$|^(pecl_)?http|^pdo_firebird$/.test(extension):
+            case /^couchbase|^geos$|^pdo_oci$|^oci8$|^(pecl_)?http|^pdo_firebird$/.test(extension):
             case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
             case /(5\.6|7\.[0-3])phalcon3|7\.[2-4]phalcon4/.test(version_extension):
             case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
@@ -357,7 +357,7 @@ async function addExtensionLinux(extension_csv, version) {
                 return;
             case /^(5\.[3-6]|7\.[0-4]|8\.[0-1])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^((5\.[3-6])|(7\.[0-2]))pdo_cubrid$|^((5\.[3-6])|(7\.[0-4]))cubrid$/.test(version_extension):
-            case /^couchbase$|^gearman$|^geos$|^pdo_oci$|^oci8$|^(pecl_)?http|^pdo_firebird$/.test(extension):
+            case /^couchbase|^gearman$|^geos$|^pdo_oci$|^oci8$|^(pecl_)?http|^pdo_firebird$/.test(extension):
             case /(?<!5\.[3-5])intl-[\d]+\.[\d]+$/.test(version_extension):
             case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):

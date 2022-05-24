@@ -1,5 +1,6 @@
 amqp=amqp
 apcu=apcu
+couchbase=couchbase
 expect=expect
 gnupg=gnupg
 grpc=grpc

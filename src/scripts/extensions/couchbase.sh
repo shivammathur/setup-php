@@ -69,9 +69,7 @@ add_couchbase() {
     fi
   else
     if [ -e "${ext_dir:?}"/libcouchbase_php_core.dylib ]; then
-      couchbase_prefix="${brew_prefix:?}"/opt/couchbase@"$version"
-      sudo mkdir -p "$couchbase_prefix"
-      sudo cp "${ext_dir:?}"/libcouchbase_php_core.dylib "$couchbase_prefix"
+      sudo cp "${ext_dir:?}"/libcouchbase_php_core.dylib ${brew_prefix:?}/lib
     fi
     add_brew_extension couchbase extension
   fi

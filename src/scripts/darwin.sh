@@ -79,6 +79,7 @@ copy_brew_extensions() {
     extension_file="$brew_prefix/opt/$dependency/$(get_extension_from_formula "${dependency%@*}").so"
     [ -e "$extension_file" ] && sudo cp "$extension_file" "$ext_dir"
   done
+  sudo find -- "$brew_prefix"/Cellar/"$formula"@"$version" -name "*.dylib" -exec cp {} "$ext_dir" \;
 }
 
 # Function to install a php extension from shivammathur/extensions tap.

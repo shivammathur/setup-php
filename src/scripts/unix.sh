@@ -159,10 +159,10 @@ self_hosted_setup() {
 configure_php() {
   add_php_config
   ini_config_dir="${src:?}"/configs/ini
-  ini_files=("$ini_config_dir"/php.ini)
-  [[ "$version" =~ $jit_versions ]] && ini_files+=("$ini_config_dir"/jit.ini)
-  [[ "$version" =~ $xdebug3_versions ]] && ini_files+=("$ini_config_dir"/xdebug.ini)
-  cat "${ini_files[@]}" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null 2>&1
+  ini_config_files=("$ini_config_dir"/php.ini)
+  [[ "$version" =~ $jit_versions ]] && ini_config_files+=("$ini_config_dir"/jit.ini)
+  [[ "$version" =~ $xdebug3_versions ]] && ini_config_files+=("$ini_config_dir"/xdebug.ini)
+  cat "${ini_config_files[@]}" | sudo tee -a "${ini_file[@]:?}" >/dev/null 2>&1
 }
 
 # Function to get PHP version in semver format.

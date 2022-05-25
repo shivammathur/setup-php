@@ -30,7 +30,8 @@ enable_cache_extension_dependencies() {
     cache_dir=$(find /tmp/extcache -maxdepth 1 -type d -regex ".*$1[0-9]*")
     if [[ -n "$cache_dir" ]]; then
       IFS=" " read -r -a deps <<<"$(find "$cache_dir" -maxdepth 1 -type f -name "*" -exec basename {} \; | tr '\n' ' ')"
-      if [[ -n "${deps[*]}" ]] && php "${deps[@]/#/-d ${2}=}" -d "${2}=$1" -m 2>/dev/null | grep -i -q "$1"; then
+      IFS="#" read -r -a deps_enable <<<"$(printf -- "-d ${2}=%s.so#" "${deps[@]}")"
+      if [[ -n "${deps[*]}" ]] && php "${deps_enable[@]}" -d "${2}=$1.so" -m 2>/dev/null | grep -i -q "$1"; then
         for ext in "${deps[@]}"; do
           sudo rm -rf /tmp/extcache/"$ext"
           enable_extension "$ext" "$2"

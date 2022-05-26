@@ -54,7 +54,7 @@ jobs:
         run: npm audit
 
       - name: Send Coverage
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage/lcov.info

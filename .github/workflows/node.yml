@@ -16,6 +16,9 @@ on:
     paths-ignore:
       - '**.md'
       - 'examples/**'
+permissions:
+  contents: read
+
 jobs:
   run:
     name: Run

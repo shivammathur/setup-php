@@ -3,8 +3,13 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 15 * * 6'
+permissions:
+  contents: read
+
 jobs:
   create:
+    permissions:
+      contents: none
     name: Create
     runs-on: ${{ matrix.operating-system }}
     strategy:
@@ -45,6 +50,8 @@ jobs:
           name: lists
           path: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
   update:
+    permissions:
+      contents: write  # for Git to git push
     name: Update
     needs: create
     runs-on: ubuntu-latest

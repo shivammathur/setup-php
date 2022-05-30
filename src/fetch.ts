@@ -3,10 +3,11 @@ import * as https from 'https';
 import * as url from 'url';
 
 /**
- * Function to fetch an URL
+ * Function to fetch a URL
  *
  * @param input_url
  * @param auth_token
+ * @param redirect_count
  */
 export async function fetch(
   input_url: string,

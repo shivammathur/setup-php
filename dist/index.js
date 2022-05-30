@@ -618,13 +618,12 @@ const fs_1 = __importDefault(__nccwpck_require__(147));
 const fetch = __importStar(__nccwpck_require__(387));
 const utils = __importStar(__nccwpck_require__(918));
 async function getSemverVersion(data) {
-    var _a;
     const search = data['version_prefix'] + data['version'];
     const url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${search}.`;
     const token = await utils.readEnv('COMPOSER_TOKEN');
     const response = await fetch.fetch(url, token);
     if (response.error || response.data === '[]') {
-        data['error'] = (_a = response.error) !== null && _a !== void 0 ? _a : `No version found with prefix ${search}.`;
+        data['error'] = response.error ?? `No version found with prefix ${search}.`;
         return data['version'];
     }
     else {
@@ -874,7 +873,6 @@ async function addWPCLI(data) {
 }
 exports.addWPCLI = addWPCLI;
 async function getData(release, php_version, os) {
-    var _a, _b, _c, _d, _e;
     const json_file_path = path_1.default.join(__dirname, '../src/configs/tools.json');
     const json_file = fs_1.default.readFileSync(json_file_path, 'utf8');
     const json_objects = JSON.parse(json_file);
@@ -905,16 +903,16 @@ async function getData(release, php_version, os) {
         }
     }
     data['github'] = 'https://github.com';
-    (_a = data['domain']) !== null && _a !== void 0 ? _a : (data['domain'] = data['github']);
-    (_b = data['extension']) !== null && _b !== void 0 ? _b : (data['extension'] = '.phar');
+    data['domain'] ??= data['github'];
+    data['extension'] ??= '.phar';
     data['os'] = os;
     data['php_version'] = php_version;
     data['prefix'] = data['github'] === data['domain'] ? 'releases' : '';
     data['verb'] = data['github'] === data['domain'] ? 'download' : '';
-    (_c = data['fetch_latest']) !== null && _c !== void 0 ? _c : (data['fetch_latest'] = 'false');
-    (_d = data['scope']) !== null && _d !== void 0 ? _d : (data['scope'] = 'global');
+    data['fetch_latest'] ??= 'false';
+    data['scope'] ??= 'global';
     data['version_parameter'] = JSON.stringify(data['version_parameter']) || '';
-    (_e = data['version_prefix']) !== null && _e !== void 0 ? _e : (data['version_prefix'] = '');
+    data['version_prefix'] ??= '';
     data['release'] = await getRelease(release, data);
     data['version'] = version
         ? await getVersion(version, data)

@@ -799,8 +799,17 @@ async function addDeployer(data) {
         data['url'] = data['domain'] + '/deployer.phar';
     }
     else {
-        data['url'] =
-            data['domain'] + '/releases/v' + data['version'] + '/deployer.phar';
+        const manifest = await fetch.fetch('https://deployer.org/manifest.json');
+        const version_data = JSON.parse(manifest.data);
+        const version_key = Object.keys(version_data).find((key) => {
+            return version_data[key]['version'] === data['version'];
+        });
+        if (version_key) {
+            data['url'] = version_data[version_key]['url'];
+        }
+        else {
+            return await utils.addLog('$cross', 'deployer', 'Version missing in deployer manifest', data['os']);
+        }
     }
     return await addArchive(data);
 }

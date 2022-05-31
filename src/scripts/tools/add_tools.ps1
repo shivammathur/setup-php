@@ -37,7 +37,7 @@ Function Get-ToolVersion() {
     [Parameter(Position = 1, Mandatory = $true)]
     $param
   )
-  $alp = "[a-zA-Z0-9]"
+  $alp = "[a-zA-Z0-9\.]"
   $version_regex = "[0-9]+((\.{1}$alp+)+)(\.{0})(-$alp+){0,1}"
   if($tool -eq 'composer') {
     $composer_branch_alias = Select-String -Pattern "const\sBRANCH_ALIAS_VERSION" -Path $bin_dir\composer -Raw | Select-String -Pattern $version_regex | ForEach-Object { $_.matches.Value }
@@ -67,6 +67,13 @@ Function Add-ToolsHelper() {
     Edit-ComposerConfig $bin_dir\$tool
   } elseif($tool -eq "cs2pr") {
     (Get-Content $bin_dir/cs2pr).replace('exit(9)', 'exit(0)') | Set-Content $bin_dir/cs2pr
+  } elseif($tool -eq "deployer") {
+    if(Test-Path $composer_bin\deployer.phar.bat) {
+      Copy-Item $composer_bin\deployer.phar.bat -Destination $composer_bin\dep.bat
+    }
+    if(Test-Path $composer_bin\dep.bat) {
+      Copy-Item $composer_bin\dep.bat -Destination $composer_bin\deployer.bat
+    }
   } elseif($tool -eq "phan") {
     $extensions += @('fileinfo', 'ast')
   } elseif($tool -eq "phinx") {

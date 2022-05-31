@@ -45,7 +45,11 @@ jest.mock('../src/fetch', () => ({
     .fn()
     .mockImplementation(
       async (url: string, token?: string): Promise<Record<string, string>> => {
-        if (url.includes('atom') && !url.includes('no-')) {
+        if (url.includes('deployer')) {
+          return {
+            data: '[{"version": "1.2.3", "url": "https://deployer.org/releases/v1.2.3/deployer.phar"}]'
+          };
+        } else if (url.includes('atom') && !url.includes('no-')) {
           return {
             data: '"releases/tag/1.2.3", "releases/tag/3.2.1", "releases/tag/2.3.1"'
           };
@@ -283,6 +287,7 @@ describe('Tools tests', () => {
     version     | url
     ${'latest'} | ${'https://deployer.org/deployer.phar'}
     ${'1.2.3'}  | ${'https://deployer.org/releases/v1.2.3/deployer.phar'}
+    ${'3.2.1'}  | ${'Version missing in deployer manifest'}
   `('checking addDeployer: $version', async ({version, url}) => {
     const data = getData({
       tool: 'deployer',

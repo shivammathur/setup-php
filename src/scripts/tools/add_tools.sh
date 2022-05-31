@@ -9,7 +9,7 @@ export composer_lock="$composer_home/composer.lock"
 get_tool_version() {
   tool=$1
   param=$2
-  alp="[a-zA-Z0-9]"
+  alp="[a-zA-Z0-9\.]"
   version_regex="[0-9]+((\.{1}$alp+)+)(\.{0})(-$alp+){0,1}"
   if [ "$tool" = "composer" ]; then
     composer_alias_version="$(grep -Ea "const\sBRANCH_ALIAS_VERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")"
@@ -61,6 +61,13 @@ add_tools_helper() {
   elif [ "$tool" = "cs2pr" ]; then
     sudo sed -i 's/\r$//; s/exit(9)/exit(0)/' "$tool_path" 2>/dev/null ||
     sudo sed -i '' 's/\r$//; s/exit(9)/exit(0)/' "$tool_path"
+  elif [ "$tool" = "deployer" ]; then
+    if [ -e "$composer_bin"/deployer.phar ]; then
+      sudo ln -s "$composer_bin"/deployer.phar "$composer_bin"/dep
+    fi
+    if [ -e "$composer_bin"/dep ]; then
+      sudo ln -s "$composer_bin"/dep "$composer_bin"/deployer
+    fi
   elif [ "$tool" = "phan" ]; then
     extensions+=(fileinfo ast)
   elif [ "$tool" = "phinx" ]; then

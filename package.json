@@ -1,6 +1,6 @@
 {
   "name": "setup-php",
-  "version": "2.19.0",
+  "version": "2.19.1",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
   "main": "lib/install.js",
@@ -39,23 +39,23 @@
     "@actions/io": "^1.1.2"
   },
   "devDependencies": {
-    "@types/jest": "^27.5.1",
-    "@types/node": "^17.0.36",
-    "@typescript-eslint/eslint-plugin": "^5.26.0",
-    "@typescript-eslint/parser": "^5.26.0",
+    "@types/jest": "^28.1.1",
+    "@types/node": "^17.0.40",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
     "@vercel/ncc": "^0.34.0",
-    "eslint": "^8.16.0",
+    "eslint": "^8.17.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jest": "^26.4.5",
+    "eslint-plugin-jest": "^26.5.3",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^28.1.0",
     "jest-circus": "^28.1.0",
-    "nock": "^13.2.4",
+    "nock": "^13.2.6",
     "prettier": "^2.6.2",
     "simple-git-hooks": "^2.8.0",
-    "ts-jest": "^28.0.3",
-    "typescript": "^4.7.2"
+    "ts-jest": "^28.0.4",
+    "typescript": "^4.7.3"
   },
   "bugs": {
     "url": "https://github.com/shivammathur/setup-php/issues"

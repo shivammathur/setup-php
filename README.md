@@ -685,7 +685,7 @@ act -P ubuntu-18.04=shivammathur/node:1804
 - To enable JIT, enable `opcache` in cli mode by setting `opcache.enable_cli=1`.
 - JIT conflicts with `Xdebug`, `PCOV`, and other extensions which override `zend_execute_ex` function, so set `coverage: none` and disable any such extension if added.
 - By default, `opcache.jit=1235` and `opcache.jit_buffer_size=256M` are set which can be changed using `ini-values` input.
-- For detailed information about JIT related directives refer to the [official documentation](https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.jit "opcache.jit documentation").
+- For detailed information about JIT related directives refer to the [`official PHP documentation`](https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.jit "opcache.jit documentation").
 
 For example to enable JIT in `tracing` mode with buffer size of `64 MB`. 
 

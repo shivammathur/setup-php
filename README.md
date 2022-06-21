@@ -264,7 +264,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
     COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-- The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying the major version `v1` or `v2`, or the version in `major.minor` or `semver` format, Additionally for composer `snapshot` and `preview` can also be specified to set up the respective releases.
+- The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying the major version `v1` or `v2`, or the version in `major.minor` or `semver` format. Additionally for composer `snapshot` and `preview` can also be specified to set up the respective releases.
 
 ```yaml
 - name: Setup PHP with composer v2
@@ -425,7 +425,7 @@ Disable coverage for these reasons:
 
 - Specify the tools you want to set up.
 - Accepts a `string` in csv-format. For example: `phpunit, phpcs`
-- See [tools Support](#wrench-tools-support) for tools supported.
+- See [tools support](#wrench-tools-support) for tools supported.
 
 ### Outputs
 
@@ -680,12 +680,12 @@ act -P ubuntu-18.04=shivammathur/node:1804
 
 ### JIT Configuration
 
-> Enable Just-in-time(JIT) on PHP 8.0 and above.
+> Enable Just-in-time (JIT) on PHP 8.0 and above.
 
 - To enable JIT, enable `opcache` in cli mode by setting `opcache.enable_cli=1`.
 - JIT conflicts with `Xdebug`, `PCOV`, and other extensions which override `zend_execute_ex` function, so set `coverage: none` and disable any such extension if added.
 - By default, `opcache.jit=1235` and `opcache.jit_buffer_size=256M` are set which can be changed using `ini-values` input.
-- For detailed information about JIT related directives refer to the [`official PHP documentation`](https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.jit "opcache.jit documentation").
+- For detailed information about JIT related directives refer to the [official documentation](https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.jit "opcache.jit documentation").
 
 For example to enable JIT in `tracing` mode with buffer size of `64 MB`. 
 
@@ -841,7 +841,7 @@ For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-p
 
 ### Examples
 
-Examples of using `setup-php` with various PHP Frameworks and Packages.
+Examples of using `setup-php` with various PHP frameworks and packages.
 
 | Framework/Package                      | Runs on                         | Workflow                                                                                                      |
 |----------------------------------------|---------------------------------|---------------------------------------------------------------------------------------------------------------|

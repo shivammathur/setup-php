@@ -88,6 +88,7 @@ Function Add-Path {
   }
   if ($env:GITHUB_PATH) {
     Add-Content $PathItem -Path $env:GITHUB_PATH -Encoding utf8
+    $env:PATH += "$PathItem;"
   } else {
     $newPath = (Get-ItemProperty -Path 'hkcu:\Environment' -Name PATH).Path.replace("$PathItem;", '')
     $newPath = $PathItem + ';' + $newPath

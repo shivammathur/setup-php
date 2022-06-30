@@ -4,6 +4,8 @@ describe('Config tests', () => {
   it.each`
     driver       | php      | os          | output
     ${'PCOV'}    | ${'7.4'} | ${'win32'}  | ${'Add-Extension pcov,Disable-Extension xdebug false'}
+    ${'pcov'}    | ${'7.4'} | ${'win32'}  | ${'$pcov_version = php -r "echo phpversion(\'pcov\');"'}
+    ${'pcov'}    | ${'7.4'} | ${'win32'}  | ${'PCOV $pcov_version enabled as coverage driver'}
     ${'pcov'}    | ${'7.0'} | ${'win32'}  | ${'PHP 7.1 or newer is required'}
     ${'pcov'}    | ${'5.6'} | ${'win32'}  | ${'PHP 7.1 or newer is required'}
     ${'pcov'}    | ${'7.4'} | ${'win32'}  | ${'Add-Extension pcov,Disable-Extension xdebug false'}
@@ -15,6 +17,8 @@ describe('Config tests', () => {
     ${'xdebug'}  | ${'8.0'} | ${'linux'}  | ${'add_extension xdebug'}
     ${'xdebug3'} | ${'8.0'} | ${'linux'}  | ${'add_extension xdebug'}
     ${'xdebug2'} | ${'7.4'} | ${'linux'}  | ${'add_pecl_extension xdebug 2.9.8 zend_extension'}
+    ${'xdebug'}  | ${'7.4'} | ${'linux'}  | ${'xdebug_version="$(php -r "echo phpversion(\'xdebug\');")"'}
+    ${'xdebug'}  | ${'7.4'} | ${'linux'}  | ${'Xdebug $xdebug_version enabled as coverage driver'}
     ${'xdebug'}  | ${'7.4'} | ${'darwin'} | ${'add_brew_extension xdebug'}
     ${'xdebug3'} | ${'7.1'} | ${'darwin'} | ${'xdebug3 is not supported on PHP 7.1'}
     ${'xdebug2'} | ${'7.4'} | ${'darwin'} | ${'add_brew_extension xdebug2'}

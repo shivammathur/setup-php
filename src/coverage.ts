@@ -38,7 +38,12 @@ export async function addCoverageXdebug(
     extension = extension == 'xdebug3' ? 'xdebug' : extension;
     script +=
       (await extensions.addExtension(extension, version, os, true)) + pipe;
-    message = 'Xdebug enabled as coverage driver';
+    script += await utils.setVariable(
+      'xdebug_version',
+      'php -r "echo phpversion(\'xdebug\');"',
+      os
+    );
+    message = 'Xdebug $xdebug_version enabled as coverage driver';
     status = '$tick';
   }
   script += await utils.addLog(status, extension, message, os);
@@ -66,12 +71,16 @@ export async function addCoveragePCOV(
       script +=
         (await extensions.addExtension('pcov', version, os, true)) + pipe;
       script += (await config.addINIValues('pcov.enabled=1', os, true)) + '\n';
-
+      script += await utils.setVariable(
+        'pcov_version',
+        'php -r "echo phpversion(\'pcov\');"',
+        os
+      );
       // success
       script += await utils.addLog(
         '$tick',
         'coverage: pcov',
-        'PCOV enabled as coverage driver',
+        'PCOV $pcov_version enabled as coverage driver',
         os
       );
       // version is not supported

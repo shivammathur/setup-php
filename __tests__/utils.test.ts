@@ -256,4 +256,13 @@ describe('Utils tests', () => {
       '\nadd_extension_from_source ext https://sub.domain.XN--tld org repo release extension'
     );
   });
+
+  it('checking setVariable', async () => {
+    let script: string = await utils.setVariable('var', 'command', 'linux');
+    expect(script).toEqual('\nvar="$(command)"\n');
+    script = await utils.setVariable('var', 'command', 'darwin');
+    expect(script).toEqual('\nvar="$(command)"\n');
+    script = await utils.setVariable('var', 'command', 'win32');
+    expect(script).toEqual('\n$var = command\n');
+  });
 });

@@ -413,3 +413,26 @@ export async function parseExtensionSource(
     prefix
   );
 }
+
+/**
+ * Log to console
+ *
+ * @param variable
+ * @param command
+ * @param os
+ */
+export async function setVariable(
+  variable: string,
+  command: string,
+  os: string
+): Promise<string> {
+  switch (os) {
+    case 'win32':
+      return '\n$' + variable + ' = ' + command + '\n';
+
+    case 'linux':
+    case 'darwin':
+    default:
+      return '\n' + variable + '="$(' + command + ')"\n';
+  }
+}

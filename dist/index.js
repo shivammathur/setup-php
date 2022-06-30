@@ -135,7 +135,8 @@ async function addCoverageXdebug(extension, version, os, pipe) {
         extension = extension == 'xdebug3' ? 'xdebug' : extension;
         script +=
             (await extensions.addExtension(extension, version, os, true)) + pipe;
-        message = 'Xdebug enabled as coverage driver';
+        script += await utils.setVariable('xdebug_version', 'php -r "echo phpversion(\'xdebug\');"', os);
+        message = 'Xdebug $xdebug_version enabled as coverage driver';
         status = '$tick';
     }
     script += await utils.addLog(status, extension, message, os);
@@ -152,7 +153,8 @@ async function addCoveragePCOV(version, os, pipe) {
             script +=
                 (await extensions.addExtension('pcov', version, os, true)) + pipe;
             script += (await config.addINIValues('pcov.enabled=1', os, true)) + '\n';
-            script += await utils.addLog('$tick', 'coverage: pcov', 'PCOV enabled as coverage driver', os);
+            script += await utils.setVariable('pcov_version', 'php -r "echo phpversion(\'pcov\');"', os);
+            script += await utils.addLog('$tick', 'coverage: pcov', 'PCOV $pcov_version enabled as coverage driver', os);
             break;
         case /5\.[3-6]|7\.0/.test(version):
             script += await utils.addLog('$cross', 'pcov', 'PHP 7.1 or newer is required', os);
@@ -1013,7 +1015,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseIniFile = exports.parseVersion = exports.getManifestURL = exports.getInput = exports.readEnv = void 0;
+exports.setVariable = exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseIniFile = exports.parseVersion = exports.getManifestURL = exports.getInput = exports.readEnv = void 0;
 const path = __importStar(__nccwpck_require__(17));
 const core = __importStar(__nccwpck_require__(186));
 const fetch = __importStar(__nccwpck_require__(387));
@@ -1253,6 +1255,17 @@ async function parseExtensionSource(extension, prefix) {
     return await joins('\nadd_extension_from_source', ...matches.splice(1, matches.length), prefix);
 }
 exports.parseExtensionSource = parseExtensionSource;
+async function setVariable(variable, command, os) {
+    switch (os) {
+        case 'win32':
+            return '\n$' + variable + ' = ' + command + '\n';
+        case 'linux':
+        case 'darwin':
+        default:
+            return '\n' + variable + '="$(' + command + ')"\n';
+    }
+}
+exports.setVariable = setVariable;
 //# sourceMappingURL=utils.js.map
 
 /***/ }),

@@ -182,28 +182,27 @@ Function Add-ComposertoolHelper() {
     if(Test-Path $composer_lock) {
       Remove-Item -Path $composer_lock -Force
     }
-    composer global require $prefix$release $composer_args >$null 2>&1
-    composer global show $prefix$tool 2>&1 | Out-File -FilePath $env:TEMP\composer.log
-    if(findstr '^type *: *composer-plugin' $env:TEMP\composer.log) {
-      composer global config --no-plugins allow-plugins."$prefix$release" true >$null 2>&1
+    if(composer global show $prefix$tool -a 2>&1 | findstr '^type *: *composer-plugin') {
+      composer global config --no-plugins allow-plugins."$prefix$tool" true >$null 2>&1
     }
+    composer global require $prefix$release $composer_args >$null 2>&1
+    return composer global show $prefix$tool 2>&1 | findstr '^versions'
   } else {
     $release_stream = [System.IO.MemoryStream]::New([System.Text.Encoding]::ASCII.GetBytes($release))
     $scoped_dir_suffix = (Get-FileHash -InputStream $release_stream -Algorithm sha256).Hash
     $scoped_dir = "$composer_bin\_tools\$tool-$scoped_dir_suffix"
     $unix_scoped_dir = $scoped_dir.replace('\', '/')
+    if(composer show $prefix$tool -d $unix_scoped_dir -a 2>&1 | findstr '^type *: *composer-plugin') {
+      composer config -d $unix_scoped_dir --no-plugins allow-plugins."$prefix$release" true >$null 2>&1
+    }
     if(-not(Test-Path $scoped_dir)) {
       New-Item -ItemType Directory -Force -Path $scoped_dir > $null 2>&1
       composer require $prefix$release -d $unix_scoped_dir $composer_args >$null 2>&1
     }
     [System.Environment]::SetEnvironmentVariable(($tool.replace('-', '_') + '_bin'), "$scoped_dir\vendor\bin")
     Add-Path $scoped_dir\vendor\bin
-    composer show $prefix$tool -d $unix_scoped_dir 2>&1 | Out-File -FilePath $env:TEMP\composer.log
-    if(findstr '^type *: *composer-plugin' $env:TEMP\composer.log) {
-      composer config -d $unix_scoped_dir --no-plugins allow-plugins."$prefix$release" true >$null 2>&1
-    }
+    return composer show $prefix$tool -d $unix_scoped_dir 2>&1 | findstr '^versions'
   }
-  return findstr '^versions' $env:TEMP\composer.log
 }
 
 # Function to setup a tool using composer.

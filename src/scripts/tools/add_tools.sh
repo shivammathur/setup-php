@@ -143,23 +143,21 @@ add_composertool_helper() {
   enable_extensions curl mbstring openssl
   if [ "$scope" = "global" ]; then
     sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
-    composer global require "$prefix$release" "$composer_args" >/dev/null 2>&1
-    composer global show "$prefix$tool" 2>&1 | sudo tee /tmp/composer_show.log >/dev/null 2>&1
-    grep -E ^versions /tmp/composer_show.log | sudo tee /tmp/composer.log >/dev/null 2>&1
-    if grep -qE '^type *: *composer-plugin' /tmp/composer_show.log; then
-      composer global config --no-plugins allow-plugins."$prefix$release" true >/dev/null 2>&1
+    if composer global show "$prefix$tool" -a 2>&1 | grep -qE '^type *: *composer-plugin'; then
+      composer global config --no-plugins allow-plugins."$prefix$tool" true >/dev/null 2>&1
     fi
+    composer global require "$prefix$release" "$composer_args" >/dev/null 2>&1
+    composer global show "$prefix$tool" 2>&1 | grep -E ^versions | sudo tee /tmp/composer_show.log >/dev/null 2>&1
   else
     scoped_dir="$composer_bin/_tools/$tool-$(echo -n "$release" | shasum -a 256 | cut -d ' ' -f 1)"
     if ! [ -d "$scoped_dir" ]; then
       mkdir -p "$scoped_dir"
       echo '{}' | tee "$scoped_dir/composer.json" >/dev/null
-      composer require "$prefix$release" -d "$scoped_dir" "$composer_args" >/dev/null 2>&1
-      composer show "$prefix$tool" -d "$scoped_dir" 2>&1 | sudo tee /tmp/composer_show.log >/dev/null 2>&1
-      grep -E ^versions /tmp/composer_show.log | sudo tee /tmp/composer.log >/dev/null 2>&1
-      if grep -qE '^type *: *composer-plugin' /tmp/composer_show.log; then
-        composer config -d "$scoped_dir" --no-plugins allow-plugins."$prefix$release" true >/dev/null 2>&1
+      if composer show "$prefix$tool" -d "$scoped_dir" -a 2>&1 | grep -qE '^type *: *composer-plugin'; then
+        composer config -d "$scoped_dir" --no-plugins allow-plugins."$prefix$tool" true >/dev/null 2>&1
       fi
+      composer require "$prefix$release" -d "$scoped_dir" "$composer_args" >/dev/null 2>&1
+      composer show "$prefix$tool" -d "$scoped_dir" 2>&1 | grep -E ^versions | sudo tee /tmp/composer.log >/dev/null 2>&1
     fi
     add_path "$scoped_dir"/vendor/bin
   fi

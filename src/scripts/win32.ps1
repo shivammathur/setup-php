@@ -296,6 +296,7 @@ if(-not($env:ImageOS) -and -not($env:ImageVersion)) {
   New-Item $php_dir -Type Directory -Force > $null 2>&1
   Add-Path -PathItem $php_dir
   setx PHPROOT $php_dir >$null 2>&1
+  Add-Env -EnvName RUNNER_TOOL_CACHE -EnvValue $env:TEMP
 } else {
   $current_profile = "$PSHOME\Profile.ps1"
   if(-not(Test-Path -LiteralPath $current_profile)) {

@@ -151,6 +151,7 @@ self_hosted_setup() {
       exit 1
     else
       self_hosted_helper >/dev/null 2>&1
+      add_env RUNNER_TOOL_CACHE /tmp
     fi
   fi
 }

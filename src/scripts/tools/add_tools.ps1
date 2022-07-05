@@ -183,7 +183,10 @@ Function Add-ComposertoolHelper() {
       Remove-Item -Path $composer_lock -Force
     }
     composer global require $prefix$release $composer_args >$null 2>&1
-    return composer global show $prefix$tool 2>&1 | findstr '^versions'
+    composer global show $prefix$tool 2>&1 | Out-File -FilePath $env:TEMP\composer.log
+    if(findstr '^type *: *composer-plugin' $env:TEMP\composer.log) {
+      composer global config --no-plugins allow-plugins."$prefix$release" true >$null 2>&1
+    }
   } else {
     $release_stream = [System.IO.MemoryStream]::New([System.Text.Encoding]::ASCII.GetBytes($release))
     $scoped_dir_suffix = (Get-FileHash -InputStream $release_stream -Algorithm sha256).Hash
@@ -195,8 +198,12 @@ Function Add-ComposertoolHelper() {
     }
     [System.Environment]::SetEnvironmentVariable(($tool.replace('-', '_') + '_bin'), "$scoped_dir\vendor\bin")
     Add-Path $scoped_dir\vendor\bin
-    return composer show $prefix$tool -d $unix_scoped_dir 2>&1 | findstr '^versions'
+    composer show $prefix$tool -d $unix_scoped_dir 2>&1 | Out-File -FilePath $env:TEMP\composer.log
+    if(findstr '^type *: *composer-plugin' $env:TEMP\composer.log) {
+      composer config -d $unix_scoped_dir --no-plugins allow-plugins."$prefix$release" true >$null 2>&1
+    }
   }
+  return findstr '^versions' $env:TEMP\composer.log
 }
 
 # Function to setup a tool using composer.

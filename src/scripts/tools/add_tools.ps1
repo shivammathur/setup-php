@@ -1,7 +1,8 @@
 # Variables
-$composer_bin = "$env:APPDATA\Composer\vendor\bin"
-$composer_json = "$env:APPDATA\Composer\composer.json"
-$composer_lock = "$env:APPDATA\Composer\composer.lock"
+$composer_home = "$env:APPDATA\Composer"
+$composer_bin = "$composer_home\vendor\bin"
+$composer_json = "$composer_home\composer.json"
+$composer_lock = "$composer_home\composer.lock"
 
 # Function to configure composer.
 Function Edit-ComposerConfig() {
@@ -24,8 +25,30 @@ Function Edit-ComposerConfig() {
   }
   Add-EnvPATH $src\configs\composer.env
   Add-Path $composer_bin
-  if (Test-Path env:COMPOSER_TOKEN) {
-    Add-Env COMPOSER_AUTH ('{"github-oauth": {"github.com": "' + $env:COMPOSER_TOKEN + '"}}')
+  Set-ComposerAuth
+}
+
+# Function to setup authentication in composer.
+Function Set-ComposerAuth() {
+  if(Test-Path env:COMPOSER_AUTH_JSON) {
+    if(Test-Json -JSON $env:COMPOSER_AUTH_JSON) {
+      Set-Content -Path $composer_home\auth.json -Value $env:COMPOSER_AUTH_JSON
+    } else {
+      Add-Log "$cross" "composer" "Could not parse COMPOSER_AUTH_JSON as valid JSON"
+    }
+  }
+  $composer_auth = @()
+  if(Test-Path env:PACKAGIST_TOKEN) {
+    $composer_auth += '"http-basic": {"repo.packagist.com": { "username": "token", "password": "' + $env:PACKAGIST_TOKEN + '"}}'
+  }
+  if(-not(Test-Path env:GITHUB_TOKEN) -and (Test-Path env:COMPOSER_TOKEN)) {
+    $env:GITHUB_TOKEN = $env:COMPOSER_TOKEN
+  }
+  if (Test-Path env:GITHUB_TOKEN) {
+    $composer_auth += '"github-oauth": {"github.com": "' + $env:GITHUB_TOKEN + '"}'
+  }
+  if($composer_auth.length) {
+    Add-Env COMPOSER_AUTH ('{' + ($composer_auth -join ',') + '}')
   }
 }
 

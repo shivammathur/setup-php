@@ -51,7 +51,9 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [JIT Configuration](#jit-configuration)
   - [Cache Extensions](#cache-extensions)
   - [Cache Composer Dependencies](#cache-composer-dependencies)
-  - [Composer GitHub OAuth](#composer-github-oauth)
+  - [GitHub Composer Authentication](#github-composer-authentication)
+  - [Private Packagist Authentication](#private-packagist-authentication)
+  - [Manual Composer Authentication](#manual-composer-authentication)
   - [Inline PHP Scripts](#inline-php-scripts)
   - [Problem Matchers](#problem-matchers)
   - [Examples](#examples)
@@ -252,7 +254,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
   
   When you specify just the major version or the version in `major.minor` format, the latest patch version matching the input will be setup. 
 
-  Except for major versions of `composer`, For other tools when you specify only the `major` version or the version in `major.minor` format for any tool you can get rate limited by GitHub's API. To avoid this, it is recommended to provide a [`GitHub` OAuth token](https://github.com/shivammathur/setup-php#composer-github-oauth "Composer GitHub OAuth"). You can do that by setting `COMPOSER_TOKEN` environment variable.
+  Except for major versions of `composer`, For other tools when you specify only the `major` version or the version in `major.minor` format for any tool you can get rate limited by GitHub's API. To avoid this, it is recommended to provide a [`GitHub` OAuth token](https://github.com/shivammathur/setup-php#composer-github-oauth "Composer GitHub OAuth"). You can do that by setting `GITHUB_TOKEN` environment variable. The `COMPOSER_TOKEN` environment variable has been deprecated in favor of `GITHUB_TOKEN` and will be removed in a future release.
 
 ```yaml
 - name: Setup PHP with tools
@@ -261,7 +263,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
     php-version: '8.1'
     tools: php-cs-fixer:3.5, phpunit:9.5
   env:
-    COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 - The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying the major version `v1` or `v2`, or the version in `major.minor` or `semver` format. Additionally for composer `snapshot` and `preview` can also be specified to set up the respective releases.
@@ -736,9 +738,10 @@ key: ${{ runner.os }}-composer-${{ matrix.prefer }}-${{ hashFiles('**/composer.l
 restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-
 ```
 
-### Composer GitHub OAuth
+### GitHub Composer Authentication
 
-If you have a number of workflows which set up multiple tools or have many composer dependencies, you might hit the GitHub's rate limit for composer. Also, if you specify only the major version or the version in `major.minor` format, you can hit the rate limit. To avoid this you can specify an `OAuth` token by setting `COMPOSER_TOKEN` environment variable. You can use [`GITHUB_TOKEN`](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token "GITHUB_TOKEN documentation") secret for this purpose.
+If you have a number of workflows which set up multiple tools or have many composer dependencies, you might hit the GitHub's rate limit for composer. Also, if you specify only the major version or the version in `major.minor` format, you can hit the rate limit. To avoid this you can specify an `OAuth` token by setting `GITHUB_TOKEN` environment variable. You can use [`GITHUB_TOKEN`](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token "GITHUB_TOKEN documentation") secret for this purpose.
+The `COMPOSER_TOKEN` key has been deprecated in favor of `GITHUB_TOKEN` and will be removed in the next major version.
 
 ```yaml
 - name: Setup PHP
@@ -746,7 +749,42 @@ If you have a number of workflows which set up multiple tools or have many compo
   with:
     php-version: '8.1'
   env:
-    COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### Private Packagist Authentication
+
+If you use Private Packagist for your private composer dependencies, you can set the `PACKAGIST_TOKEN` environment variable to authenticate.
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '8.1'
+  env:
+    PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+```
+
+### Manual Composer Authentication
+
+In addition to GitHub or Private Packagist, if you want to authenticate private repositories hosted elsewhere, you can set the `COMPOSER_AUTH_JSON` environment variable with the authentication methods and the credentials in json format.
+Please refer to the authentication section in [`composer documentation`](https://getcomposer.org/doc/articles/authentication-for-private-packages.md "composer documentation") for more details.
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '8.1'
+  env:
+    COMPOSER_AUTH_JSON: |
+      {
+        "http-basic": {
+          "example.org": {
+            "username": "${{ secrets.EXAMPLE_ORG_USERNAME }}",
+            "password": "${{ secrets.EXAMPLE_ORG_PASSWORD }}"
+          }
+        }
+      }
 ```
 
 ### Inline PHP Scripts

@@ -44,8 +44,27 @@ configure_composer() {
   fi
   add_env_path "${src:?}"/configs/composer.env
   add_path "$composer_bin"
-  if [ -n "$COMPOSER_TOKEN" ]; then
-    add_env COMPOSER_AUTH '{"github-oauth": {"github.com": "'"$COMPOSER_TOKEN"'"}}'
+  set_composer_auth
+}
+
+# Function to setup authentication in composer.
+set_composer_auth() {
+  if [ -n "$COMPOSER_AUTH_JSON" ]; then
+    if php -r "json_decode('$COMPOSER_AUTH_JSON'); if(json_last_error() !== JSON_ERROR_NONE) { throw new Exception('invalid json'); }"; then
+      echo "$COMPOSER_AUTH_JSON" | tee "$composer_home/auth.json" >/dev/null
+    else
+      add_log "${cross:?}" "composer" "Could not parse COMPOSER_AUTH_JSON as valid JSON"
+    fi
+  fi
+  composer_auth=()
+  if [ -n "$PACKAGIST_TOKEN" ]; then
+    composer_auth+=( '"http-basic": {"repo.packagist.com": { "username": "token", "password": "'"$PACKAGIST_TOKEN"'"}}' )
+  fi
+  if [ -n "${GITHUB_TOKEN:-$COMPOSER_TOKEN}" ]; then
+    composer_auth+=( '"github-oauth": {"github.com": "'"${GITHUB_TOKEN:-$COMPOSER_TOKEN}"'"}' )
+  fi
+  if ((${#composer_auth[@]})); then
+    add_env COMPOSER_AUTH "{$(IFS=$','; echo "${composer_auth[*]}")}"
   fi
 }
 

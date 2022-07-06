@@ -21,8 +21,12 @@ interface IRef {
 export async function getSemverVersion(data: RS): Promise<string> {
   const search: string = data['version_prefix'] + data['version'];
   const url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${search}.`;
-  const token: string = await utils.readEnv('COMPOSER_TOKEN');
-  const response: RS = await fetch.fetch(url, token);
+  let github_token: string = await utils.readEnv('GITHUB_TOKEN');
+  const composer_token: string = await utils.readEnv('COMPOSER_TOKEN');
+  if (composer_token && !github_token) {
+    github_token = composer_token;
+  }
+  const response: RS = await fetch.fetch(url, github_token);
   if (response.error || response.data === '[]') {
     data['error'] = response.error ?? `No version found with prefix ${search}.`;
     return data['version'];

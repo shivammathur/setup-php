@@ -162,17 +162,17 @@ add_composertool_helper() {
   enable_extensions curl mbstring openssl
   if [ "$scope" = "global" ]; then
     sudo rm -f "$composer_lock" >/dev/null 2>&1 || true
-    if composer global show "$prefix$tool" -a 2>&1 | grep -qE '^type *: *composer-plugin'; then
+    if composer global show "$prefix$tool" -a 2>&1 | grep -qE '^type *: *composer-plugin' && [ -n "$composer_args" ]; then
       composer global config --no-plugins allow-plugins."$prefix$tool" true >/dev/null 2>&1
     fi
     composer global require "$prefix$release" "$composer_args" >/dev/null 2>&1
-    composer global show "$prefix$tool" 2>&1 | grep -E ^versions | sudo tee /tmp/composer_show.log >/dev/null 2>&1
+    composer global show "$prefix$tool" 2>&1 | grep -E ^versions | sudo tee /tmp/composer.log >/dev/null 2>&1
   else
     scoped_dir="$composer_bin/_tools/$tool-$(echo -n "$release" | shasum -a 256 | cut -d ' ' -f 1)"
     if ! [ -d "$scoped_dir" ]; then
       mkdir -p "$scoped_dir"
       echo '{}' | tee "$scoped_dir/composer.json" >/dev/null
-      if composer show "$prefix$tool" -d "$scoped_dir" -a 2>&1 | grep -qE '^type *: *composer-plugin'; then
+      if composer show "$prefix$tool" -d "$scoped_dir" -a 2>&1 | grep -qE '^type *: *composer-plugin' && [ -n "$composer_args" ]; then
         composer config -d "$scoped_dir" --no-plugins allow-plugins."$prefix$tool" true >/dev/null 2>&1
       fi
       composer require "$prefix$release" -d "$scoped_dir" "$composer_args" >/dev/null 2>&1
@@ -188,6 +188,7 @@ add_composertool() {
   release=$2
   prefix=$3
   scope=$4
+  composer_args=
   composer_major_version=$(cut -d'.' -f 1 /tmp/composer_version)
   if [ "$composer_major_version" != "1" ]; then
     composer_args="--ignore-platform-req=ext-*"

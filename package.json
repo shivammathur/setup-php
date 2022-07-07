@@ -1,6 +1,6 @@
 {
   "name": "setup-php",
-  "version": "2.20.0",
+  "version": "2.20.1",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
   "main": "lib/install.js",
@@ -17,7 +17,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint **/src/*.ts **/__tests__/*.ts --cache --fix",
-    "format": "prettier --write **/src/*.ts **/__tests__/*.ts && git add -f src/",
+    "format": "prettier --write **/src/*.ts **/__tests__/*.ts && git add -f __tests__/ ",
     "format-check": "prettier --check **/src/*.ts **/__tests__/*.ts",
     "release": "ncc build -o dist && git add -f dist/",
     "test": "jest"
@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@types/jest": "^28.1.4",
-    "@types/node": "^18.0.1",
+    "@types/node": "^18.0.3",
     "@typescript-eslint/eslint-plugin": "^5.30.5",
     "@typescript-eslint/parser": "^5.30.5",
     "@vercel/ncc": "^0.34.0",

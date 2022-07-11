@@ -105,6 +105,14 @@
     "version_prefix": "",
     "version_parameter": "-V"
   },
+  "pint": {
+    "type": "phar",
+    "repository": "laravel/pint",
+    "extension": ".phar",
+    "domain": "https://github.com",
+    "version_prefix": "Pint ",
+    "version_parameter": "-V"
+  },
   "psalm": {
     "type": "phar",
     "repository": "vimeo/psalm",

@@ -372,7 +372,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'blackfire, blackfire-player, churn, cs2pr, flex, grpc_php_plugin, parallel-lint, php-cs-fixer, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, phpunit-polyfills, php-config, phpize, protoc, symfony, vapor, wp',
+      'blackfire, blackfire-player, churn, cs2pr, flex, grpc_php_plugin, parallel-lint, php-cs-fixer, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, phpunit-polyfills, pint, php-config, phpize, protoc, symfony, vapor, wp',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_blackfire',
@@ -394,6 +394,7 @@ describe('Tools tests', () => {
         'add_tool https://github.com/phar-io/phive/releases/download/3.2.1/phive-3.2.1.phar phive "status"',
         'add_composertool phpunit-bridge phpunit-bridge symfony/ global',
         'add_composertool phpunit-polyfills phpunit-polyfills yoast/ global',
+        'add_tool https://github.com/laravel/pint/releases/latest/download/pint.phar pint "-V"',
         'add_devtools php-config',
         'add_devtools phpize',
         'add_protoc latest',

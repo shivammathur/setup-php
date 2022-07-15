@@ -70,6 +70,7 @@ jobs:
       - name: Testing Extensions
         run: |
           php -m
+          php -r "if(! extension_loaded('gd')) {throw new Exception('gd not found');}"
           php -r "if(! extension_loaded('xml')) {throw new Exception('xml not found');}"
           php -r "if(! extension_loaded('Xdebug')) {throw new Exception('Xdebug not found');}"
           php -r "if(phpversion()>=7.1 && ! extension_loaded('pcov')) {throw new Exception('PCOV not found');}"

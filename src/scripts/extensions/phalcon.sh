@@ -4,10 +4,24 @@ get_phalcon_version() {
     semver="$(get_pecl_version phalcon stable 5)"
     ([ -n "$semver" ] && echo "$semver") || get_pecl_version phalcon rc 5
   elif [ "$extension" = "phalcon4" ]; then
-    echo '4.1.2'
+    echo '4.1.3'
   elif [ "$extension" = "phalcon3" ]; then
     echo '3.4.5'
   fi
+}
+
+# Function to add phalcon from repo.
+add_phalcon_from_repo(){
+  version=${version:?}
+  if [ "$extension" = "phalcon5" ]; then
+    PHALCON_PATH=build/phalcon
+  else
+    PHALCON_PATH=build/php"${version%.*}"/64bits
+  fi
+  PHALCON_CONFIGURE_OPTS="--enable-phalcon --with-php-config=$(command -v php-config)"
+  export PHALCON_PATH
+  export PHALCON_CONFIGURE_OPTS
+  add_extension_from_source phalcon https://github.com phalcon cphalcon v"$(get_phalcon_version)" extension
 }
 
 # Helper function to add phalcon.
@@ -16,10 +30,10 @@ add_phalcon_helper() {
   if [ "$(uname -s)" = "Darwin" ]; then
     add_brew_extension "$extension" extension
   else
-    packages=("php${version:?}-$extension")
-    [ "$extension" = "phalcon4" ] && packages+=("php${version:?}-psr")
+    package="php${version:?}-$extension"
     add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
-    (check_package "${packages[0]}" && install_packages "${packages[@]}") || pecl_install "phalcon-$(get_phalcon_version)"
+    [ "$extension" = "phalcon4" ] && (install_packages "php${version:?}-psr" || pecl_install psr || pecl_install psr-1.1.0)
+    (check_package "$package" && install_packages "$package") || add_phalcon_from_repo
   fi
 }
 

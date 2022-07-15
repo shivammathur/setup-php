@@ -117,7 +117,7 @@ describe('Extension tests', () => {
       )
         ? `add_${extension}`
         : `add_brew_extension ${formula} ${prefix}`;
-      return [formula, '7.3', output];
+      return [formula, formula === 'phalcon3' ? '7.3' : '7.4', output];
     });
 
   it.each(data)(

@@ -18,6 +18,7 @@ pcov=pcov
 pecl_http=http
 phalcon3=phalcon
 phalcon4=phalcon
+phalcon5=phalcon
 propro=propro
 protobuf=protobuf
 psr=psr

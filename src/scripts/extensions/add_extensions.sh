@@ -145,11 +145,12 @@ add_extension() {
 get_pecl_version() {
   local extension=$1
   stability="$(echo "$2" | grep -m 1 -Eio "(stable|alpha|beta|rc|snapshot|preview)")"
+  major_version=${3:-'[0-9]+'}
   pecl_rest='https://pecl.php.net/rest/r/'
   response=$(get -s -n "" "$pecl_rest$extension"/allreleases.xml)
-  pecl_version=$(echo "$response" | grep -m 1 -Eio "([0-9]+\.[0-9]+\.[0-9]+${stability}[0-9]+)")
+  pecl_version=$(echo "$response" | grep -m 1 -Eio "($major_version\.[0-9]+\.[0-9]+${stability}[0-9]+<)" | cut -d '<' -f 1)
   if [ ! "$pecl_version" ]; then
-    pecl_version=$(echo "$response" | grep -m 1 -Eo "([0-9]+\.[0-9]+\.[0-9]+)")
+    pecl_version=$(echo "$response" | grep -m 1 -Eo "($major_version\.[0-9]+\.[0-9]+)<" | cut -d '<' -f 1)
   fi
   echo "$pecl_version"
 }

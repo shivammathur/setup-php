@@ -35,7 +35,7 @@ export async function addExtensionDarwin(
       // match 5.3blackfire-(semver)...8.1blackfire-(semver)
       // match couchbase, event, geos, pdo_oci, oci8, http, pecl_http
       // match 5.3ioncube...7.4ioncube
-      // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+      // match 7.0phalcon3...7.3phalcon3, 7.2phalcon4...7.4phalcon4, and 7.4phalcon5...8.2phalcon5
       case /^(5\.[3-6]|7\.[0-4]|8\.[0-1])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
@@ -43,7 +43,9 @@ export async function addExtensionDarwin(
         extension
       ):
       case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
-      case /(5\.6|7\.[0-3])phalcon3|7\.[2-4]phalcon4/.test(version_extension):
+      case /(5\.6|7\.[0-3])phalcon3|7\.[2-4]phalcon4|(7\.4|8\.[0-2])phalcon5/.test(
+        version_extension
+      ):
       case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
         add_script += await utils.customPackage(
           ext_name,
@@ -255,7 +257,7 @@ export async function addExtensionLinux(
       // match 5.3pdo_cubrid...7.2php_cubrid, 5.3cubrid...7.4cubrid
       // match couchbase, geos, pdo_oci, oci8, http, pecl_http
       // match 5.3ioncube...7.4ioncube
-      // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+      // match 7.0phalcon3...7.3phalcon3, 7.2phalcon4...7.4phalcon4, 7.4phalcon5...8.2phalcon5
       case /^(5\.[3-6]|7\.[0-4]|8\.[0-1])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
@@ -267,7 +269,9 @@ export async function addExtensionLinux(
       ):
       case /(?<!5\.[3-5])intl-[\d]+\.[\d]+$/.test(version_extension):
       case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
-      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$|^(7\.4|8\.[0-2])phalcon5$/.test(
+        version_extension
+      ):
       case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
         add_script += await utils.customPackage(
           ext_name,

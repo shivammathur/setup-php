@@ -52,6 +52,7 @@ jobs:
 
       - name: Run npm audit
         run: npm audit
+        continue-on-error: true
 
       - name: Send Coverage
         uses: codecov/codecov-action@v3

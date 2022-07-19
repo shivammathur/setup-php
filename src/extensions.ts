@@ -134,14 +134,16 @@ export async function addExtensionWindows(
       // match 5.3blackfire-(semver)...8.1blackfire-(semver)
       // match pdo_oci and oci8
       // match 5.3ioncube...7.4ioncube
-      // match 7.0phalcon3...7.3phalcon3 and 7.2phalcon4...7.4phalcon4
+      // match 7.0phalcon3...7.3phalcon3, 7.2phalcon4...7.4phalcon4, and 7.4phalcon5...8.2phalcon5
       // match 7.1pecl_http...8.1pecl_http and 7.1http...8.1http
       case /^(5\.[3-6]|7\.[0-4]|8\.1)blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
       case /^pdo_oci$|^oci8$|^pdo_firebird$/.test(extension):
       case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
-      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$/.test(version_extension):
+      case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$|^(7\.4|8\.[0-2])phalcon5$/.test(
+        version_extension
+      ):
       case /^(7\.[1-4]|8\.1)(pecl_)?http/.test(version_extension):
         add_script += await utils.customPackage(
           ext_name,

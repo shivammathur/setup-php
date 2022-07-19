@@ -207,7 +207,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 - These extensions have custom support:
   - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`.
   - `geos` and `event` on `Ubuntu` and `macOS`.
-  - `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_firebird`, `pdo_oci`, `pecl_http`, `phalcon3` and `phalcon4` on all supported OS.
+  - `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_firebird`, `pdo_oci`, `pecl_http`, `phalcon3`, `phalcon4` and `phalcon5` on all supported OS.
 
 - By default, extensions which cannot be added or disabled gracefully leave an error message in the logs, the execution is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.
 
@@ -254,7 +254,8 @@ These tools can be set up globally using the `tools` input. It accepts a string 
   
   When you specify just the major version or the version in `major.minor` format, the latest patch version matching the input will be setup. 
 
-  Except for major versions of `composer`, For other tools when you specify only the `major` version or the version in `major.minor` format for any tool you can get rate limited by GitHub's API. To avoid this, it is recommended to provide a [`GitHub` OAuth token](https://github.com/shivammathur/setup-php#composer-github-oauth "Composer GitHub OAuth"). You can do that by setting `GITHUB_TOKEN` environment variable. The `COMPOSER_TOKEN` environment variable has been deprecated in favor of `GITHUB_TOKEN` and will be removed in a future release.
+  Except for major versions of `composer`, For other tools when you specify only the `major` version or the version in `major.minor` format for any tool you can get rate limited by GitHub's API. To avoid this, it is recommended to provide a [`GitHub` OAuth token](https://github.com/shivammathur/setup-php#composer-github-oauth "Composer GitHub OAuth").
+  You can do that by setting `GITHUB_TOKEN` environment variable. The `COMPOSER_TOKEN` environment variable has been deprecated in favor of `GITHUB_TOKEN` and will be removed in the next major version.
 
 ```yaml
 - name: Setup PHP with tools
@@ -741,7 +742,8 @@ restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-
 ### GitHub Composer Authentication
 
 If you have a number of workflows which set up multiple tools or have many composer dependencies, you might hit the GitHub's rate limit for composer. Also, if you specify only the major version or the version in `major.minor` format, you can hit the rate limit. To avoid this you can specify an `OAuth` token by setting `GITHUB_TOKEN` environment variable. You can use [`GITHUB_TOKEN`](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token "GITHUB_TOKEN documentation") secret for this purpose.
-The `COMPOSER_TOKEN` key has been deprecated in favor of `GITHUB_TOKEN` and will be removed in the next major version.
+
+The `COMPOSER_TOKEN` environment variable has been deprecated in favor of `GITHUB_TOKEN` and will be removed in the next major version.
 
 ```yaml
 - name: Setup PHP

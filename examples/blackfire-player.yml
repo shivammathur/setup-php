@@ -22,12 +22,12 @@ jobs:
         uses: actions/checkout@v3
 
       # Docs: https://github.com/shivammathur/setup-php
-      - name: Setup PHP
+      - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: blackfire
-          # Setup Blackfire CLI and player
+          # Set up Blackfire CLI and player
           tools: blackfire, blackfire-player
           coverage: none
 

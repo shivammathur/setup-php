@@ -1,7 +1,7 @@
 # Function to setup environment for self-hosted runners.
 self_hosted_helper() {
   if ! command -v brew >/dev/null; then
-    step_log "Setup Brew"
+    step_log "Set up Brew"
     get -q -e "/tmp/install.sh" "https://raw.githubusercontent.com/Homebrew/install/master/install.sh" && /tmp/install.sh >/dev/null 2>&1
     add_log "${tick:?}" "Brew" "Installed Homebrew"
   fi
@@ -237,9 +237,9 @@ get_scan_dir() {
   fi
 }
 
-# Function to Setup PHP.
+# Function to set up PHP.
 setup_php() {
-  step_log "Setup PHP"
+  step_log "Set up PHP"
   php_config="$(command -v php-config 2>/dev/null)"
   existing_version=$(get_brewed_php)
   if [[ "$version" =~ ${old_versions:?} ]]; then

@@ -2,7 +2,7 @@
   "name": "setup-php",
   "version": "2.21.0",
   "private": false,
-  "description": "Setup PHP for use with GitHub Actions",
+  "description": "Set up PHP for use with GitHub Actions",
   "main": "lib/install.js",
   "types": "lib/install.d.ts",
   "directories": {

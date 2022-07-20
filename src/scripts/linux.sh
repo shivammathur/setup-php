@@ -210,9 +210,9 @@ add_php_config() {
   echo "$ini" | sudo tee "$current_ini" >/dev/null 2>&1
 }
 
-# Function to Setup PHP
+# Function to set up PHP
 setup_php() {
-  step_log "Setup PHP"
+  step_log "Set up PHP"
   sudo mkdir -m 777 -p /var/run /run/php
   php_config="$(command -v php-config)"
   if [[ -z "$php_config" ]] || [ "$(php_semver | cut -c 1-3)" != "$version" ]; then

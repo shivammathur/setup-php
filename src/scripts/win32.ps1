@@ -309,11 +309,11 @@ $src = Join-Path -Path $PSScriptRoot -ChildPath \..
 . $src\scripts\extensions\add_extensions.ps1
 
 Add-Printf >$null 2>&1
-Step-Log "Setup PhpManager"
+Step-Log "Set up PhpManager"
 Install-PSPackage PhpManager PhpManager\PhpManager "$github/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip" Get-Php >$null 2>&1
 Add-Log $tick "PhpManager" "Installed"
 
-Step-Log "Setup PHP"
+Step-Log "Set up PHP"
 $installed = $null
 if (Test-Path -LiteralPath $php_dir -PathType Container) {
   try {

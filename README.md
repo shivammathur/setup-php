@@ -1,10 +1,10 @@
 <p align="center">
   <a href="https://github.com/marketplace/actions/setup-php-action" target="_blank">
-    <img src="https://repository-images.githubusercontent.com/206578964/e0a18480-dc65-11e9-8dd3-b9ffbf5575fe" alt="Setup PHP in GitHub Actions" width="400">
+    <img src="https://repository-images.githubusercontent.com/206578964/e0a18480-dc65-11e9-8dd3-b9ffbf5575fe" alt="Set up PHP in GitHub Actions" width="400">
   </a>
 </p>
 
-<h1 align="center">Setup PHP in GitHub Actions</h1>
+<h1 align="center">Set up PHP in GitHub Actions</h1>
 
 <p align="center">
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
@@ -21,7 +21,7 @@
   <a href="https://setup-php.com/support-ukraine" title="#StandWithUkraine"><img alt="#StandWithUkraine" src="https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg"></a>
 </p>
 
-Setup PHP with required extensions, php.ini configuration, code-coverage support and various tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross-platform interface to set up the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
+Set up PHP with required extensions, php.ini configuration, code-coverage support and various tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross-platform interface to set up the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
 
 ## Contents
 
@@ -133,7 +133,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 - On `Ubuntu`, extensions which are available as a package, available on `PECL` or a git repository can be set up.
 
 ```yaml
-- name: Setup PHP with PECL extension
+- name: Set up PHP with PECL extension
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -151,7 +151,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 - Specific versions of extensions available on `PECL` can be set up by suffixing the extension's name with the version. This is useful for installing old versions of extensions which support end of life PHP versions.
 
 ```yaml
-- name: Setup PHP with specific version of PECL extension
+- name: Set up PHP with specific version of PECL extension
   uses: shivammathur/setup-php@v2
   with:
     php-version: '5.4'
@@ -161,7 +161,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 - Extensions with pre-release versions available on `PECL` can be set up by suffixing the extension's name with its state i.e `alpha`, `beta`, `devel` or `snapshot`.
 
 ```yaml
-- name: Setup PHP with pre-release PECL extension
+- name: Set up PHP with pre-release PECL extension
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -173,7 +173,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 - Shared extensions can be disabled by prefixing them with a `:`. All extensions depending on the specified extension will also be disabled.
 
 ```yaml
-- name: Setup PHP and disable opcache
+- name: Set up PHP and disable opcache
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -185,7 +185,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 **Note:** This disables all core and third-party shared extensions and thus, can break some tools which need them. Required extensions are enabled again when the tools are set up on a best-effort basis. So it is recommended to add the extensions required for your tools after `none` in the `extensions` input to avoid any issues.
 
 ```yaml
-- name: Setup PHP without any shared extensions except mbstring
+- name: Set up PHP without any shared extensions except mbstring
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -195,7 +195,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 - Extension `intl` can be set up with specific `ICU` version for `PHP 5.6` and above in `Ubuntu` workflows by suffixing `intl` with the `ICU` version. `ICU 50.2` and newer versions are supported. Refer to [`ICU builds`](https://github.com/shivammathur/icu-intl#icu4c-builds) for the specific versions supported.
 
 ```yaml
-- name: Setup PHP with intl
+- name: Set up PHP with intl
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -212,7 +212,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 - By default, extensions which cannot be added or disabled gracefully leave an error message in the logs, the execution is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.
 
 ```yaml
-- name: Setup PHP with fail-fast
+- name: Set up PHP with fail-fast
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -228,7 +228,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 [`behat`], [`blackfire`], [`blackfire-player`], [`churn`], [`codeception`], [`composer`], [`composer-normalize`], [`composer-prefetcher`], [`composer-require-checker`], [`composer-unused`], [`cs2pr`], [`deployer`], [`flex`], [`grpc_php_plugin`], [`infection`], [`parallel-lint`], [`pecl`], [`phan`], [`phing`], [`phinx`], [`phive`], [`php-config`], [`php-cs-fixer`], [`phpcbf`], [`phpcpd`], [`phpcs`], [`phpdoc`] or [`phpDocumentor`], [`phpize`], [`phplint`], [`phpmd`], [`phpspec`], [`phpstan`], [`phpunit`], [`phpunit-bridge`], [`phpunit-polyfills`], [`pint`], [`prestissimo`], [`protoc`], [`psalm`], [`symfony`] or [`symfony-cli`], [`vapor`] or [`vapor-cli`], [`wp`] or [`wp-cli`]
 
 ```yaml
-- name: Setup PHP with tools
+- name: Set up PHP with tools
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -238,7 +238,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - In addition to above tools any composer tool or package can also be set up globally by specifying it as `vendor/package` matching the listing on Packagist. This format accepts the same [version constraints](https://getcomposer.org/doc/articles/versions.md#writing-version-constraints "Composer version constraints") as `composer`.
 
 ```yaml
-- name: Setup PHP with tools
+- name: Set up PHP with tools
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -258,7 +258,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
   You can do that by setting `GITHUB_TOKEN` environment variable. The `COMPOSER_TOKEN` environment variable has been deprecated in favor of `GITHUB_TOKEN` and will be removed in the next major version.
 
 ```yaml
-- name: Setup PHP with tools
+- name: Set up PHP with tools
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -270,7 +270,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying the major version `v1` or `v2`, or the version in `major.minor` or `semver` format. Additionally for composer `snapshot` and `preview` can also be specified to set up the respective releases.
 
 ```yaml
-- name: Setup PHP with composer v2
+- name: Set up PHP with composer v2
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -280,7 +280,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - If you do not use composer in your workflow, you can specify `tools: none` to skip it.
 
 ```yaml
-- name: Setup PHP without composer
+- name: Set up PHP without composer
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -296,7 +296,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - By default, expect `composer` tools which cannot be set up gracefully leave an error message in the logs, the execution is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.
 
 ```yaml
-- name: Setup PHP with fail-fast
+- name: Set up PHP with fail-fast
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -318,7 +318,7 @@ Specify `coverage: xdebug` to use `Xdebug` and disable `PCOV`.
 Runs on all [PHP versions supported](#tada-php-support "List of PHP versions supported on this GitHub Action").
 
 ```yaml
-- name: Setup PHP with Xdebug
+- name: Set up PHP with Xdebug
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -329,7 +329,7 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
 - If you need Xdebug 2.x on PHP 7.2, 7.3 or 7.4, you can specify `coverage: xdebug2`.
 
 ```yaml
-- name: Setup PHP with Xdebug 2.x
+- name: Set up PHP with Xdebug 2.x
   uses: shivammathur/setup-php@v2
   with:
     php-version: '7.4'
@@ -346,7 +346,7 @@ Runs on PHP 7.1 and newer PHP versions.
 - If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.  
 
 ```yaml
-- name: Setup PHP with PCOV
+- name: Set up PHP with PCOV
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -358,7 +358,7 @@ Runs on PHP 7.1 and newer PHP versions.
 - If you are using PHPUnit 5.x, 6.x or 7.x, you need to set up `pcov/clobber` before executing your tests.
 
 ```yaml
-- name: Setup PCOV
+- name: Set up PCOV
   run: |
     composer require pcov/clobber
     vendor/bin/pcov clobber
@@ -376,7 +376,7 @@ Disable coverage for these reasons:
 - You are using PHP in JIT mode. Please refer to [JIT configuration](#jit-configuration) section for more details.
 
 ```yaml
-- name: Setup PHP with no coverage driver
+- name: Set up PHP with no coverage driver
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -439,7 +439,7 @@ On GitHub Actions you can assign the `setup-php` step an `id`, you can use the s
 - Provides the PHP version in semver format.
 
 ```yaml
-- name: Setup PHP
+- name: Set up PHP
   id: setup-php
   uses: shivammathur/setup-php@v2
   with:
@@ -482,7 +482,7 @@ See below for more info.
 
 ```yaml
 steps:
-- name: Setup PHP
+- name: Set up PHP
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.1'
@@ -510,7 +510,7 @@ jobs:
           php-versions: '7.2'
           phpunit-versions: '8.5.21'
     steps:
-    - name: Setup PHP
+    - name: Set up PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
@@ -529,7 +529,7 @@ jobs:
 
 ```yaml
 steps:
-- name: Setup nightly PHP
+- name: Set up nightly PHP
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.2'
@@ -551,9 +551,9 @@ steps:
 jobs:
   run:
     runs-on: windows-latest
-    name: Setup PHP TS on Windows
+    name: Set up PHP TS on Windows
     steps:
-    - name: Setup PHP
+    - name: Set up PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.1'

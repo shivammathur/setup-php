@@ -36,7 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup cache environment
+      - name: Set up cache environment
         id: cache-env
         uses: shivammathur/cache-extensions@develop
         with:
@@ -51,7 +51,7 @@ jobs:
           key: ${{ steps.cache-env.outputs.key }}
           restore-keys: ${{ steps.cache-env.outputs.key }}
 
-      - name: Setup PHP with extensions and custom config
+      - name: Set up PHP with extensions and custom config
         run: node dist/index.js
         env:
           php-version: ${{ matrix.php-versions }}

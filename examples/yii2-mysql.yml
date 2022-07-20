@@ -37,7 +37,7 @@ jobs:
           node-version: 10.x
 
       # Docs: https://github.com/shivammathur/setup-php
-      - name: Setup PHP
+      - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}

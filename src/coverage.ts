@@ -134,7 +134,7 @@ export async function addCoverage(
   os: string
 ): Promise<string> {
   coverage_driver = coverage_driver.toLowerCase();
-  const script: string = '\n' + (await utils.stepLog('Setup Coverage', os));
+  const script: string = '\n' + (await utils.stepLog('Set up Coverage', os));
   const pipe: string = (await utils.suppressOutput(os)) + '\n';
   switch (coverage_driver) {
     case 'pcov':

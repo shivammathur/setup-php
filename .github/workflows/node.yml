@@ -33,7 +33,7 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Setup Node.js 16.x
+      - name: Set up Node.js 16.x
         uses: actions/setup-node@v3
         with:
           node-version: 16.x

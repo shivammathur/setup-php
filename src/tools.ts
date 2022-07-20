@@ -484,7 +484,7 @@ export const functionRecord: Record<string, (data: RS) => Promise<string>> = {
 };
 
 /**
- * Setup tools
+ * Set up tools
  *
  * @param tools_csv
  * @param php_version
@@ -499,7 +499,7 @@ export async function addTools(
   if (tools_csv === 'none') {
     return '';
   } else {
-    script += await utils.stepLog('Setup Tools', os);
+    script += await utils.stepLog('Set up Tools', os);
   }
   const tools_list = await filterList(await utils.CSVArray(tools_csv));
   await utils.asyncForEach(tools_list, async function (release: string) {

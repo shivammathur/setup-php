@@ -1,4 +1,4 @@
-name: 'Setup PHP Action'
+name: 'Set up PHP Action'
 author: shivammathur
 description: 'GitHub Action for PHP'
 branding:
@@ -6,11 +6,11 @@ branding:
   icon: 'play-circle'
 inputs:
   php-version:
-    description: 'Setup PHP version.'
+    description: 'Set up PHP version.'
     default: '8.1'
     required: true
   extensions:
-    description: 'Setup PHP extensions.'
+    description: 'Set up PHP extensions.'
     required: false
   ini-file:
     description: 'Set base ini file.'
@@ -19,11 +19,11 @@ inputs:
   ini-values:
     description: 'Add values to php.ini.'
     required: false
-  coverage: 
-    description: 'Setup code coverage driver.'
+  coverage:
+    description: 'Set up code coverage driver.'
     required: false
   tools:
-    description: 'Setup popular tools globally.'
+    description: 'Set up popular tools globally.'
     required: false
 outputs:
   php-version:

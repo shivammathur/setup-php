@@ -14,13 +14,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-versions }}
 
       # Docs: https://github.com/shivammathur/setup-php
-      - name: Setup PHP
+      - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}

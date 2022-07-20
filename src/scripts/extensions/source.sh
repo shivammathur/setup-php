@@ -137,7 +137,7 @@ add_extension_from_source() {
   prefix_opts="$(parse_args "$extension" CONFIGURE_PREFIX_OPTS)"
   suffix_opts="$(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"
   sub_dir="$(parse_args "$extension" PATH)"
-  step_log "Setup $slug"
+  step_log "Set up $slug"
   (
     add_devtools phpize >/dev/null 2>&1
     disable_extension_helper "$extension"

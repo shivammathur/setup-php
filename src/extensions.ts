@@ -344,7 +344,7 @@ export async function addExtension(
   os: string,
   no_step = false
 ): Promise<string> {
-  const log: string = await utils.stepLog('Setup Extensions', os);
+  const log: string = await utils.stepLog('Set up Extensions', os);
   let script = '\n';
   switch (no_step) {
     case true:

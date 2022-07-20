@@ -201,11 +201,15 @@ Function Add-ComposertoolHelper() {
     [string]
     $composer_args
   )
+  $tool_version = $release.split(':')[1]
+  if($NULL -eq $tool_version) {
+    $tool_version = '*'
+  }
   if($scope -eq 'global') {
     if(Test-Path $composer_lock) {
       Remove-Item -Path $composer_lock -Force
     }
-    if((composer global show $prefix$tool -a 2>&1 | findstr '^type *: *composer-plugin') -and ($composer_args -ne '')) {
+    if((composer global show $prefix$tool $tool_version -a 2>&1 | findstr '^type *: *composer-plugin') -and ($composer_args -ne '')) {
       composer global config --no-plugins allow-plugins."$prefix$tool" true >$null 2>&1
     }
     composer global require $prefix$release $composer_args >$null 2>&1

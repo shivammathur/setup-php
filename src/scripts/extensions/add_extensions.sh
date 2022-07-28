@@ -190,7 +190,7 @@ add_pecl_extension() {
   else
     disable_extension_helper "$extension" >/dev/null 2>&1
     [ -n "$pecl_version" ] && pecl_version="-$pecl_version"
-    pecl_install "$extension$pecl_version" || add_extension "$extension" "$(get_extension_prefix "$extension")"
+    pecl_install "$extension$pecl_version" || add_extension "$extension" "$(get_extension_prefix "$extension")" >/dev/null 2>&1
     add_extension_log "$extension-$(php -r "echo phpversion('$extension');")" "Installed and enabled"
   fi
 }

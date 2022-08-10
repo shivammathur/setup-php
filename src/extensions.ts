@@ -85,7 +85,7 @@ export async function addExtensionDarwin(
       ):
       case /(5\.6|7\.[0-4])propro/.test(version_extension):
       case /(?<!5\.[3-6]|7\.0)pcov/.test(version_extension):
-      case /(?<!5\.[3-6])(vips|xlswriter)/.test(version_extension):
+      case /(?<!5\.[3-6])(ast|vips|xlswriter)/.test(version_extension):
         add_script += await utils.joins(
           '\nadd_brew_extension',
           ext_name,

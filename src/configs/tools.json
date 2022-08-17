@@ -184,6 +184,11 @@
     "repository": "laravel/vapor-cli",
     "scope": "scoped"
   },
+  "rector": {
+    "type": "composer",
+    "repository": "rector/rector",
+    "scope": "scoped"
+  },
   "blackfire": {
     "type": "custom-package",
     "alias": "blackfire-agent"

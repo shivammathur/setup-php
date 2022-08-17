@@ -225,7 +225,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 
 These tools can be set up globally using the `tools` input. It accepts a string in csv-format.
 
-[`behat`], [`blackfire`], [`blackfire-player`], [`churn`], [`codeception`], [`composer`], [`composer-normalize`], [`composer-prefetcher`], [`composer-require-checker`], [`composer-unused`], [`cs2pr`], [`deployer`], [`flex`], [`grpc_php_plugin`], [`infection`], [`parallel-lint`], [`pecl`], [`phan`], [`phing`], [`phinx`], [`phive`], [`php-config`], [`php-cs-fixer`], [`phpcbf`], [`phpcpd`], [`phpcs`], [`phpdoc`] or [`phpDocumentor`], [`phpize`], [`phplint`], [`phpmd`], [`phpspec`], [`phpstan`], [`phpunit`], [`phpunit-bridge`], [`phpunit-polyfills`], [`pint`], [`prestissimo`], [`protoc`], [`psalm`], [`symfony`] or [`symfony-cli`], [`vapor`] or [`vapor-cli`], [`wp`] or [`wp-cli`]
+[`behat`], [`blackfire`], [`blackfire-player`], [`churn`], [`codeception`], [`composer`], [`composer-normalize`], [`composer-prefetcher`], [`composer-require-checker`], [`composer-unused`], [`cs2pr`], [`deployer`], [`flex`], [`grpc_php_plugin`], [`infection`], [`parallel-lint`], [`pecl`], [`phan`], [`phing`], [`phinx`], [`phive`], [`php-config`], [`php-cs-fixer`], [`phpcbf`], [`phpcpd`], [`phpcs`], [`phpdoc`] or [`phpDocumentor`], [`phpize`], [`phplint`], [`phpmd`], [`phpspec`], [`phpstan`], [`phpunit`], [`phpunit-bridge`], [`phpunit-polyfills`], [`pint`], [`prestissimo`], [`protoc`], [`psalm`], [`rector`], [`symfony`] or [`symfony-cli`], [`vapor`] or [`vapor-cli`], [`wp`] or [`wp-cli`]
 
 ```yaml
 - name: Setup PHP with tools
@@ -1039,6 +1039,7 @@ These companies generously provide setup-php their products and services to aid 
 [`prestissimo`]:              https://github.com/hirak/prestissimo
 [`protoc`]:                   https://developers.google.com/protocol-buffers/
 [`psalm`]:                    https://psalm.dev/
+[`rector`]:                   https://getrector.org/
 [`symfony`]:                  https://symfony.com/download
 [`symfony-cli`]:              https://symfony.com/download
 [`vapor`]:                    https://docs.vapor.build/

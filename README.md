@@ -309,6 +309,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - Input `tools` is useful to set up tools which are only used in CI workflows, thus keeping your `composer.json` tidy.
 - If you do not want to use all your dev-dependencies in workflow, you can run composer with `--no-dev` and install required tools using `tools` input to speed up your workflow.
 - By default, `COMPOSER_NO_INTERACTION` is set to `1` and `COMPOSER_PROCESS_TIMEOUT` is set to `0`. In effect, this means that Composer commands in your scripts do not need to specify `--no-interaction`.
+- Also, `COMPOSER_NO_AUDIT` is set to `1`. So if you want to audit your dependencies for security vulnerabilities, it is recommended to add a `composer audit` step before you install them.
 
 ## :signal_strength: Coverage Support
 

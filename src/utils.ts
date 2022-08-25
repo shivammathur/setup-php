@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as core from '@actions/core';
 import * as fetch from './fetch';
+import fs = require('fs');
 
 /**
  * Function to read environment variable and return a string value.
@@ -42,6 +43,43 @@ export async function getInput(
     default:
       return '';
   }
+}
+
+export async function resolveVersionInput(): Promise<string> {
+  let version = core.getInput('php-version');
+  const version_file = core.getInput('php-version-file');
+
+  if (version && version_file) {
+    core.info(
+      'Both php-version and php-version-file inputs are specified, only php-version will be used'
+    );
+  }
+
+  if (version) {
+    return version;
+  }
+
+  if (version_file) {
+    const version_file_path = path.join(
+      process.env.GITHUB_WORKSPACE!,
+      version_file
+    );
+    if (!fs.existsSync(version_file_path)) {
+      throw new Error(
+        `The specified php version file at: ${version_file_path} does not exist`
+      );
+    }
+    version = parsePhpVersionFile(fs.readFileSync(version_file_path, 'utf8'));
+  }
+
+  return version;
+}
+
+export function parsePhpVersionFile(contents: string): string {
+  const json = JSON.parse(contents);
+  const version = json.config?.platform?.php ?? json.require?.php;
+  const match = version.match(/(\d+(\.\d+))/);
+  return match ? match[1] : '';
 }
 
 /** Function to get manifest URL

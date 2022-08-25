@@ -547,7 +547,7 @@ async function getScript(os) {
     const ini_values_csv = await utils.getInput('ini-values', false);
     const coverage_driver = await utils.getInput('coverage', false);
     const tools_csv = await utils.getInput('tools', false);
-    const version = await utils.parseVersion(await utils.getInput('php-version', true));
+    const version = await utils.resolveVersionInput();
     const ini_file = await utils.parseIniFile(await utils.getInput('ini-file', false));
     let script = await utils.joins('.', script_path, version, ini_file);
     if (extension_csv) {
@@ -1019,10 +1019,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.setVariable = exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseIniFile = exports.parseVersion = exports.getManifestURL = exports.getInput = exports.readEnv = void 0;
+exports.setVariable = exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseIniFile = exports.parseVersion = exports.getManifestURL = exports.parsePhpVersionFile = exports.resolveVersionInput = exports.getInput = exports.readEnv = void 0;
 const path = __importStar(__nccwpck_require__(17));
 const core = __importStar(__nccwpck_require__(186));
 const fetch = __importStar(__nccwpck_require__(387));
+const fs = __nccwpck_require__(147);
 async function readEnv(property) {
     const property_lc = property.toLowerCase();
     const property_uc = property.toUpperCase();
@@ -1049,6 +1050,32 @@ async function getInput(name, mandatory) {
     }
 }
 exports.getInput = getInput;
+async function resolveVersionInput() {
+    let version = core.getInput('php-version');
+    const version_file = core.getInput('php-version-file');
+    if (version && version_file) {
+        core.info('Both php-version and php-version-file inputs are specified, only php-version will be used');
+    }
+    if (version) {
+        return version;
+    }
+    if (version_file) {
+        const version_file_path = path.join(process.env.GITHUB_WORKSPACE, version_file);
+        if (!fs.existsSync(version_file_path)) {
+            throw new Error(`The specified php version file at: ${version_file_path} does not exist`);
+        }
+        version = parsePhpVersionFile(fs.readFileSync(version_file_path, 'utf8'));
+    }
+    return version;
+}
+exports.resolveVersionInput = resolveVersionInput;
+function parsePhpVersionFile(contents) {
+    const json = JSON.parse(contents);
+    const version = json.config?.platform?.php ?? json.require?.php;
+    const match = version.match(/(\d+(\.\d+))/);
+    return match ? match[1] : '';
+}
+exports.parsePhpVersionFile = parsePhpVersionFile;
 async function getManifestURL() {
     return 'https://raw.githubusercontent.com/shivammathur/setup-php/develop/src/configs/php-versions.json';
 }

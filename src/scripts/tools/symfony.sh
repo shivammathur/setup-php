@@ -1,12 +1,16 @@
-add_symfony() {
-  if [ "$(uname -s)" = "Linux" ]; then
-    echo 'deb [trusted=yes] https://repo.symfony.com/apt/ /' | sudo tee /etc/apt/sources.list.d/symfony-cli.list >/dev/null 2>&1
-    update_lists symfony repo.symfony.com
-    install_packages symfony-cli
-  elif [ "$(uname -s)" = "Darwin" ]; then
+add_symfony_helper() {
+  if command -v brew >/dev/null; then
     add_brew_tap symfony-cli/homebrew-tap
-    brew install symfony-cli/tap/symfony-cli >/dev/null 2>&1
+    brew install symfony-cli/tap/symfony-cli
+  else
+    arch=$(dpkg --print-architecture)
+    get -s -n "" "https://github.com/symfony-cli/symfony-cli/releases/latest/download/symfony-cli_linux_$arch.tar.gz" | sudo tar -xz -C "${tool_path_dir:?}"
+    sudo chmod a+x /usr/local/bin/symfony
   fi
+}
+
+add_symfony() {
+  add_symfony_helper >/dev/null 2>&1
   symfony_path="$(command -v symfony)"
   if [[ -n "$symfony_path" ]]; then
     sudo ln -s "$symfony_path" "${tool_path_dir:?}"/symfony-cli

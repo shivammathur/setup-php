@@ -1,5 +1,6 @@
 amqp=amqp
 apcu=apcu
+ast=ast
 couchbase=couchbase
 event=event
 expect=expect

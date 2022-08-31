@@ -1070,10 +1070,8 @@ async function resolveVersionInput() {
 }
 exports.resolveVersionInput = resolveVersionInput;
 function parsePhpVersionFile(contents) {
-    const json = JSON.parse(contents);
-    const version = json.config?.platform?.php ?? json.require?.php;
-    const match = version.match(/(\d+(\.\d+))/);
-    return match ? match[1] : '';
+    const match = contents.match(/("php:")?.*?(\d+(\.\d+))/);
+    return match ? match[2] : '';
 }
 exports.parsePhpVersionFile = parsePhpVersionFile;
 async function getManifestURL() {

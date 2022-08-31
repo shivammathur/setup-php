@@ -76,10 +76,8 @@ export async function resolveVersionInput(): Promise<string> {
 }
 
 export function parsePhpVersionFile(contents: string): string {
-  const json = JSON.parse(contents);
-  const version = json.config?.platform?.php ?? json.require?.php;
-  const match = version.match(/(\d+(\.\d+))/);
-  return match ? match[1] : '';
+  const match = contents.match(/("php:")?.*?(\d+(\.\d+))/);
+  return match ? match[2] : '';
 }
 
 /** Function to get manifest URL

@@ -1,0 +1,71 @@
+# Function to configure brew constants.
+configure_brew() {
+  brew_path="$(command -v brew)"
+  brew_path_dir="$(dirname "$brew_path")"
+  brew_prefix="$brew_path_dir"/..
+  brew_repo="$brew_path_dir/$(dirname "$(readlink "$brew_path")")"/..
+  tap_dir="$brew_repo"/Library/Taps
+  core_repo="$tap_dir"/homebrew/homebrew-core
+
+  export HOMEBREW_CHANGE_ARCH_TO_ARM=1
+  export HOMEBREW_DEVELOPER=1
+  export HOMEBREW_NO_AUTO_UPDATE=1
+  export HOMEBREW_NO_ENV_HINTS=1
+  export HOMEBREW_NO_INSTALL_CLEANUP=1
+  export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+  export brew_path
+  export brew_path_dir
+  export brew_prefix
+  export brew_repo
+  export tap_dir
+  export core_repo
+}
+
+# Function to fetch a brew tap.
+fetch_brew_tap() {
+  tap=$1
+  tap_user=$(dirname "$tap")
+  tap_name=$(basename "$tap")
+  mkdir -p "$tap_dir/$tap_user"
+  branch="$(get -s -n "" "https://api.github.com/repos/$tap" | grep default_branch | cut -d: -f 2 | grep -Eo '[^\", ]+' | tr -d '\n')"
+  get -s -n "" "https://github.com/$tap/archive/$branch.tar.gz" | sudo tar -xzf - -C "$tap_dir/$tap_user"
+  sudo mv "$tap_dir/$tap_user/$tap_name-$branch" "$tap_dir/$tap_user/$tap_name"
+}
+
+# Function to add a brew tap.
+add_brew_tap() {
+  tap=$1
+  if ! [ -d "$tap_dir/$tap" ]; then
+    if [ "${runner:?}" = "self-hosted" ]; then
+      brew tap "$tap" >/dev/null 2>&1
+    else
+      fetch_brew_tap "$tap" >/dev/null 2>&1
+      if ! [ -d "$tap_dir/$tap" ]; then
+        brew tap "$tap" >/dev/null 2>&1
+      fi
+    fi
+  fi
+}
+
+# Function to configure brew constants.
+configure_brew() {
+  brew_path="$(command -v brew)"
+  brew_path_dir="$(dirname "$brew_path")"
+  brew_prefix="$brew_path_dir"/..
+  brew_repo="$brew_path_dir/$(dirname "$(readlink "$brew_path")")"/..
+  tap_dir="$brew_repo"/Library/Taps
+  core_repo="$tap_dir"/homebrew/homebrew-core
+
+  export HOMEBREW_CHANGE_ARCH_TO_ARM=1
+  export HOMEBREW_DEVELOPER=1
+  export HOMEBREW_NO_AUTO_UPDATE=1
+  export HOMEBREW_NO_ENV_HINTS=1
+  export HOMEBREW_NO_INSTALL_CLEANUP=1
+  export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+  export brew_path
+  export brew_path_dir
+  export brew_prefix
+  export brew_repo
+  export tap_dir
+  export core_repo
+}

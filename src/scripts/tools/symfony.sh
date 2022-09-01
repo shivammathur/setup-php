@@ -1,11 +1,11 @@
 add_symfony_helper() {
-  if command -v brew >/dev/null; then
-    add_brew_tap symfony-cli/homebrew-tap
-    brew install symfony-cli/tap/symfony-cli
-  else
+  if [ "$(uname -s)" = "Linux" ]; then
     arch=$(dpkg --print-architecture)
     get -s -n "" "https://github.com/symfony-cli/symfony-cli/releases/latest/download/symfony-cli_linux_$arch.tar.gz" | sudo tar -xz -C "${tool_path_dir:?}"
     sudo chmod a+x /usr/local/bin/symfony
+  elif [ "$(uname -s)" = "Darwin" ]; then
+    add_brew_tap symfony-cli/homebrew-tap
+    brew install symfony-cli/tap/symfony-cli
   fi
 }
 

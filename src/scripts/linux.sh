@@ -88,8 +88,8 @@ add_devtools() {
   if ! command -v "$tool$version" >/dev/null; then
     install_packages "php$version-dev"
   fi
-  add_extension xml extension >/dev/null 2>&1
   switch_version "phpize" "php-config"
+  add_extension xml extension >/dev/null 2>&1
   add_log "${tick:?}" "$tool" "Added $tool $semver"
 }
 
@@ -139,7 +139,6 @@ add_packaged_php() {
     add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
     IFS=' ' read -r -a packages <<<"$(sed "s/[^ ]*/php$version-&/g" "$src"/configs/php_packages | tr '\n' ' ')"
     install_packages "${packages[@]}"
-    add_pecl
   else
     run_script "php-ubuntu" "$version"
   fi
@@ -166,6 +165,7 @@ add_php() {
   else
     add_packaged_php
     switch_version >/dev/null 2>&1
+    add_pecl
   fi
   status="Installed"
 }

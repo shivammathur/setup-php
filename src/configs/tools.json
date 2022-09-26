@@ -110,7 +110,7 @@
     "repository": "laravel/pint",
     "extension": ".phar",
     "domain": "https://github.com",
-    "version_prefix": "Pint ",
+    "version_prefix": "v",
     "version_parameter": "-V"
   },
   "psalm": {

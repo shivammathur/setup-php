@@ -1,0 +1,11 @@
+cgi
+cli
+curl
+fpm
+intl
+mbstring
+mysql
+opcache
+pgsql
+xml
+zip

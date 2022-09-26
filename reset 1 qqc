@@ -1,0 +1,482 @@
+[33mcommit 1b72706303c2bc0acd71a6237aa86b9f71d40363[m[33m ([m[1;36mHEAD -> [m[1;32mdevelop[m[33m)[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Mon Sep 26 09:18:48 2022 +0530
+
+    Add support for debug builds
+
+[33mcommit 7aff4d7a22a77f9733ffda9a5c414fa6043da9d1[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Sun Sep 11 09:19:35 2022 +0530
+
+    Run switch_version before check_extensions on Linux
+
+[33mcommit 633321754dc495edcf49930e2ede35655f8667fa[m
+Merge: 40a4cb06 45410ae8
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Fri Sep 2 02:30:57 2022 +0530
+
+    Merge pull request #641 from lmichelin/master
+    
+    🐞 Bug Fix: make symfony-cli installation faster on Linux
+
+[33mcommit 40a4cb064f4e441a1f95a23c9d8fc9c22d7611e1[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Fri Sep 2 00:40:31 2022 +0530
+
+    Improve fetching brew taps
+
+[33mcommit 45410ae8f096eae3649512ad8f4580b3d0e7f4bb[m
+Author: Louis-Marie Michelin <lmichelin@outlook.fr>
+Date:   Thu Sep 1 18:20:00 2022 +0200
+
+    fix: make symfony-cli installation faster on linux
+
+[33mcommit 56ad5977ba24fe8adeb23eb47afe3a79569d7e6f[m
+Merge: e04e1d97 6353d20d
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Mon Aug 22 09:54:07 2022 +0530
+
+    Merge pull request #636 from shivammathur/composer-no-audit
+    
+    Set COMPOSER_NO_AUDIT environment variable by default
+
+[33mcommit 6353d20df21d10706fd0c5610665331cb93f9a54[m[33m ([m[1;31morigin/composer-no-audit[m[33m)[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Mon Aug 22 09:46:12 2022 +0530
+
+    Set COMPOSER_NO_AUDIT environment variable by default
+
+[33mcommit e04e1d97f0c0481c6e1ba40f8a538454fe5d7709[m[33m ([m[1;33mtag: v2[m[33m, [m[1;31morigin/releases/v2[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mreleases/v2[m[33m, [m[1;32mmaster[m[33m)[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed Aug 17 17:05:01 2022 +0530
+
+    Bump Node.js dependencies
+
+[33mcommit 52685a348b97cddf23ea2654cb8bbdf9d7919675[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed Aug 17 16:48:27 2022 +0530
+
+    Add support to install rector in tools input
+
+[33mcommit 44d81f983056c06a11e04e43aa61bf7726912278[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed Aug 17 14:41:01 2022 +0530
+
+    Fix symfony support
+
+[33mcommit 401bdecb7158e38ae39879869d0b57dc493635d9[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed Aug 10 13:19:47 2022 +0530
+
+    Add support for ast from shivammathur/extensions on macOS
+
+[33mcommit aa82ffc68fde87adb5c5938f5a7caf33112ef59c[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Fri Jul 29 02:57:11 2022 +0530
+
+    Fix logs in add_pecl_extension
+
+[33mcommit 7e03c76ef2aa9cc1deb5b9c2395e7f0be6bd3160[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Fri Jul 29 02:39:20 2022 +0530
+
+    Fix extension setup using PECL on Linux and macOS
+
+[33mcommit 16011a795d747d5f45038f96371c3b98aec5669d[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Thu Jul 28 03:39:51 2022 +0530
+
+    Upgrade Node.js dependencies
+
+[33mcommit 66f24470dcf2decb70ec50b2c0e25cbdb06997ab[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed Jul 20 19:24:19 2022 +0530
+
+    Fix reading composer package type for older versions
+
+[33mcommit e57ea715eb7d9234ceaec1e7df12b539480fa876[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed Jul 20 19:20:56 2022 +0530
+
+    Fix scoped tool setup on Windows
+
+[33mcommit e8ba27f3d2a48330b50e78a30a1584f7fb91ce66[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed Jul 20 04:47:55 2022 +0530
+
+    Fail on npm audit again
+
+[33mcommit 945c34c1751f6d2c8106ec0feba5662fcbc1c943[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Tue Jul 19 15:44:51 2022 +0530
+
+    Update README
+
+[33mcommit c8c64c6cf9eda17f1067883d2058f03eb896a08f[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Tue Jul 19 15:24:35 2022 +0530
+
+    Bump version to 2.21.0
+    
+    Continue on npm audit failure
+
+[33mcommit 0d3f92f1272ec4fad8aff55629b631d3a7113d6f[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Tue Jul 19 14:26:08 2022 +0530
+
+    Add support for phalcon5 on Windows
+
+[33mcommit 4979d5b484bdbe0aa42b6bc1a6625c1ea2ac6404[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Sat Jul 16 01:59:27 2022 +0530
+
+    Add workaround for missing phalcon packages on Ubuntu 22.04
+
+[33mcommit 0d9a1ba5ae14203fcaa289234e84725c92292eda[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Sat Jul 16 00:46:28 2022 +0530
+
+    Add support for phalcon5 on Linux and macOS
+    
+    Fix get_pecl_version
+
+[33mcommit 3ede7656cb9c97f4f91f230ffcefc187d033e6d3[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Fri Jul 15 23:22:56 2022 +0530
+
+    Add check for gd in php.yml
+
+[33mcommit f3cdc074cee6bfe04bd6723059619a7195999a5c[m
+Merge: 3ccc00ee 109db648
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed Jul 13 19:17:22 2022 +0530
+
+    Merge pull request #617 from ChristophWurst/demo/php82-gd
+    
+    Demo PHP8.2+gd failure
+
+[33mcommit 109db648f13c5f88fcded61ce6252a822a706860[m
+Author: Christoph Wurst <christoph@winzerhof-wurst.at>
+Date:   Wed Jul 13 15:07:46 2022 +0200
+
+    Demo PHP8.2+gd failure
+    
+    Signed-off-by: Christoph Wurst <christoph@winzerhof-wurst.at>
+
+[33mcommit 3ccc00eeced098a9046fbad7eb9f2db8f000567a[m
+Merge: 3312ea61 0f688a10
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Mon Jul 11 15:57:41 2022 +0530
+
+    Merge pull request #614 from d8vjork/master
+    
+    Add support for tool Laravel Pint
+
+[33mcommit 0f688a10cb258f69d9465f5c863fa67a583b44fa[m
+Author: Ruben Robles <d8vjork@users.noreply.github.com>
+Date:   Mon Jul 11 11:29:13 2022 +0200
+
+    Add support for tool Laravel Pint
+
+[33mcommit 3312ea6101295aeda1e702b5d3b641e9717de6d6[m[33m ([m[1;33mtag: 2.20.1[m[33m)[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Fri Jul 8 04:14:03 2022 +0530
+
+    Bump version to 2.20.1
+    
+    Fix format script in package.json
+
+[33mcommit ce49f82dd822a20d970610323f774495636dea67[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed Jul 6 16:51:44 2022 +0530
+
+    Do not add composer plugins to allow list for composer v1
+
+[33mcommit cf5cd90b4c0c92560f92a2587cf7fccc5757d4dc[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed Jul 6 12:19:55 2022 +0530
+
+    Improve support for composer authenticating private respositories
+
+[33mcommit cdb037c2a47e89a90eb317c7376c32a4cf92ddcc[m[33m ([m[1;33mtag: 2.20.0[m[33m)[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Tue Jul 5 23:55:52 2022 +0530
+
+    Bump version to 2.20.0
+
+[33mcommit 261f13a7c5c262f7411ed1e6f8dd8ae3622369f8[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed Jul 6 00:42:42 2022 +0530
+
+    Add composer plugins to allow list before installing
+
+[33mcommit 9eaa66d89b10469ae936a571d3cb96b2821dace8[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Tue Jul 5 16:22:07 2022 +0530
+
+    Add support for event extension on unix
+
+[33mcommit da9dfe4a7163376c5b3b8ed8408532d7fae76938[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Tue Jul 5 12:03:30 2022 +0530
+
+    Set RUNNER_TOOL_CACHE on self-hosted environments
+
+[33mcommit a863ab6d3dbef5503066eed8194745717e35cdd3[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Tue Jul 5 06:25:04 2022 +0530
+
+    Add support to allow composer plugins
+
+[33mcommit 050cb8061ba059cc26c52e2195ed2541f6b80d91[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Thu Jun 30 17:36:40 2022 +0530
+
+    Add coverage driver version in logs
+
+[33mcommit 3fda17f3fa0a5b22b8796c944c77fd10a3641ff5[m
+Merge: 4969814b 1a2cb4f8
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Mon Jun 27 17:24:50 2022 +0530
+
+    Merge pull request #609 from dino182/develop
+    
+    Fix Add-Path for self-hosted Windows
+
+[33mcommit 1a2cb4f8725637734d73f54ddd402d23308a4959[m
+Author: Dino Infantino <infantino.dino@virginmedia.com>
+Date:   Thu Jun 23 10:51:33 2022 +0100
+
+    Fix Add-Path for self-hosted Windows
+
+[33mcommit 4969814b6978d2966d0bee3ff03434c950e9e56a[m
+Merge: 3eda5834 07f2ea7d
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Tue Jun 21 13:38:26 2022 +0530
+
+    Merge pull request #607 from markseuffert/patch-1
+    
+    Updated documentation
+
+[33mcommit 07f2ea7d022fd8ae82fa9ef5cc9fe2b4c030523d[m
+Author: Mark <2429165+markseuffert@users.noreply.github.com>
+Date:   Tue Jun 21 10:04:28 2022 +0200
+
+    Updated documentation, review
+
+[33mcommit a1c17b4b18483915acc7f1d8aa192f12b74fee34[m
+Author: Mark <2429165+markseuffert@users.noreply.github.com>
+Date:   Tue Jun 21 09:39:42 2022 +0200
+
+    Updated documentation
+
+[33mcommit 3eda58347216592f618bb1dff277810b6698e4ca[m[33m ([m[1;33mtag: 2.19.1[m[33m)[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Mon Jun 6 08:22:16 2022 +0530
+
+    Bump version to 2.19.1
+    
+    Update Node.js dependencies
+
+[33mcommit 74d43be8a37b5562a232e4b97ce460f8e0a4bd04[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Tue May 31 10:12:38 2022 +0530
+
+    Fix support for deployer
+
+[33mcommit aa1fe473f9c687b6fb896056d771232c0bc41161[m[33m ([m[1;33mtag: 2.19.0[m[33m)[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Mon May 30 07:34:27 2022 +0530
+
+    Bump version to 2.19.0
+
+[33mcommit a92acf13e4c730cbe2a24202de70675c986bcf2f[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Mon May 30 07:52:17 2022 +0530
+
+    Remove years from LICENSE
+
+[33mcommit 0533892eb47f9230306ab68fb9aed014ba654cf4[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Mon May 30 07:36:27 2022 +0530
+
+    Fix jsdoc in fetch.ts
+
+[33mcommit 43fb4ad30e7664b47a2a498a4efe65ee41f82b45[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Mon May 30 07:27:29 2022 +0530
+
+    Bump ES version to 2021
+
+[33mcommit b88a8c89d13e139fea22a493733ce3d130a24f96[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Thu May 26 10:21:36 2022 +0530
+
+    Fix protoc support
+
+[33mcommit 36d7f6c7c52deb23dca696f3d282a620a60e4a2f[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Thu May 26 09:47:27 2022 +0530
+
+    Set target-branch to develop in dependabot.yml
+
+[33mcommit a1a52db9f3aad362c534f0023c92514352bfc992[m
+Merge: 88e54b10 99af3233
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Thu May 26 09:45:58 2022 +0530
+
+    Merge pull request #598 from shivammathur/dependabot/github_actions/codecov/codecov-action-3
+    
+    Bump codecov/codecov-action from 2 to 3
+
+[33mcommit 88e54b10ca76af7d86e96d32d4748b9ed137a3f5[m
+Merge: 203099e0 68ba5ba9
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Thu May 26 09:45:50 2022 +0530
+
+    Merge pull request #599 from shivammathur/dependabot/github_actions/github/codeql-action-2
+    
+    Bump github/codeql-action from 1 to 2
+
+[33mcommit 203099e007641bd25416178bf97215dd3cc112bc[m
+Merge: 810a92a9 4e9ea33f
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Thu May 26 09:45:41 2022 +0530
+
+    Merge pull request #600 from shivammathur/dependabot/github_actions/actions/setup-node-3
+    
+    Bump actions/setup-node from 1 to 3
+
+[33mcommit 4e9ea33f8d5767e9c33cc6542d529c9371a0d655[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu May 26 04:11:48 2022 +0000
+
+    Bump actions/setup-node from 1 to 3
+    
+    Bumps [actions/setup-node](https://github.com/actions/setup-node) from 1 to 3.
+    - [Release notes](https://github.com/actions/setup-node/releases)
+    - [Commits](https://github.com/actions/setup-node/compare/v1...v3)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: actions/setup-node
+      dependency-type: direct:production
+      update-type: version-update:semver-major
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit 68ba5ba9475531133f5959acf3b27b972171a35f[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu May 26 04:11:43 2022 +0000
+
+    Bump github/codeql-action from 1 to 2
+    
+    Bumps [github/codeql-action](https://github.com/github/codeql-action) from 1 to 2.
+    - [Release notes](https://github.com/github/codeql-action/releases)
+    - [Changelog](https://github.com/github/codeql-action/blob/main/CHANGELOG.md)
+    - [Commits](https://github.com/github/codeql-action/compare/v1...v2)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: github/codeql-action
+      dependency-type: direct:production
+      update-type: version-update:semver-major
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit 99af32331c923b622cc61a2e8d8c75d2ffa6e284[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu May 26 04:11:36 2022 +0000
+
+    Bump codecov/codecov-action from 2 to 3
+    
+    Bumps [codecov/codecov-action](https://github.com/codecov/codecov-action) from 2 to 3.
+    - [Release notes](https://github.com/codecov/codecov-action/releases)
+    - [Changelog](https://github.com/codecov/codecov-action/blob/master/CHANGELOG.md)
+    - [Commits](https://github.com/codecov/codecov-action/compare/v2...v3)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: codecov/codecov-action
+      dependency-type: direct:production
+      update-type: version-update:semver-major
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit 810a92a9b00b725a57fb54b02507c57a0100b27a[m
+Merge: dea233d7 9c760dd6
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Thu May 26 09:40:26 2022 +0530
+
+    Merge pull request #597 from turrisxyz/Dependabot-GitHub-Actions
+    
+    chore: Included githubactions in the dependabot config
+
+[33mcommit 9c760dd6e2ca1fde1ea4fe308408c20465b7837b[m
+Author: naveen <172697+naveensrinivasan@users.noreply.github.com>
+Date:   Thu May 26 02:48:43 2022 +0000
+
+    chore: Included githubactions in the dependabot config
+    
+    This should help with keeping the GitHub actions updated on new releases. This will also help with keeping it secure.
+    
+    Dependabot helps in keeping the supply chain secure https://docs.github.com/en/code-security/dependabot
+    
+    GitHub actions up to date https://docs.github.com/en/code-security/dependabot/working-with-dependabot/keeping-your-actions-up-to-date-with-dependabot
+    
+    https://github.com/ossf/scorecard/blob/main/docs/checks.md#dependency-update-tool
+    Signed-off-by: naveen <172697+naveensrinivasan@users.noreply.github.com>
+
+[33mcommit dea233d702313e0c9e9fccb0590a05f044ae0f0c[m
+Merge: ee065c59 787285e0
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Thu May 26 06:59:24 2022 +0530
+
+    Merge pull request #596 from turrisxyz/Pinned-Dependencies-GitHub
+    
+    chore: Set permissions for GitHub actions
+
+[33mcommit 787285e08a93574525ba088913dcd57392be0f1c[m
+Author: nathannaveen <42319948+nathannaveen@users.noreply.github.com>
+Date:   Thu May 26 00:50:23 2022 +0000
+
+    chore: Set permissions for GitHub actions
+    
+     Restrict the GitHub token permissions only to the required ones; this way, even if the attackers will succeed in compromising your workflow, they won’t be able to do much.
+    
+    - Included permissions for the action. https://github.com/ossf/scorecard/blob/main/docs/checks.md#token-permissions
+    
+    https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+    
+    https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
+    
+    [Keeping your GitHub Actions and workflows secure Part 1: Preventing pwn requests](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/)
+    
+    Signed-off-by: nathannaveen <42319948+nathannaveen@users.noreply.github.com>
+
+[33mcommit ee065c5938a80517a721131ec68cb2e2ba5dc26b[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed May 25 20:43:46 2022 +0530
+
+    Append custom ini files to php.ini files
+
+[33mcommit dbc8ba084414fade955a8b09a13b69ee59248817[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed May 25 19:44:02 2022 +0530
+
+    Fix enabling cached dependent extensions on lower PHP versions
+
+[33mcommit fe9e23a16a3dffab179cbfbddfb9af62baeb03b4[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Wed May 25 10:16:23 2022 +0530
+
+    Add unixodbc if missing in sqlsrv setup
+
+[33mcommit 16de39288afa5abd8c26f9df0facf1ac42ddaed7[m
+Author: Shivam Mathur <shivam_jpr@hotmail.com>
+Date:   Tue May 24 18:59:36 2022 +0530
+
+    Fix couchbase cache on macOS

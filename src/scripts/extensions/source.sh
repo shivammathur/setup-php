@@ -146,6 +146,7 @@ add_extension_from_source() {
       add_log "${cross:?}" "$source" "$source does not have a PHP extension"
     else
       [[ -n "${libraries// }" ]] && run_group "add_libs $libraries" "add libraries"
+      [ "${debug:?}" = "debug" ] && suffix_opts="$suffix_opts --enable-debug"
       patch_extension "$extension" >/dev/null 2>&1
       run_group "phpize" "phpize"
       run_group "sudo $prefix_opts ./configure $suffix_opts $opts" "configure"

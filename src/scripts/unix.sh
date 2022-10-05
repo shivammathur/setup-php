@@ -50,7 +50,9 @@ set_output() {
 # Function to read env inputs.
 read_env() {
   update="${update:-${UPDATE:-false}}"
-  [ "${debug:-${DEBUG:-false}}" = "true" ] && debug=debug && update=true || debug=release
+  build=release
+  [ "${debug:-${DEBUG:-false}}" = "true" ] && build=debug && update=true
+  [ "${phpts:-${PHPTS:-nts}}" = "ts" ] && build="thread-safe" && update=true
   fail_fast="${fail_fast:-${FAIL_FAST:-false}}"
   [[ -z "${ImageOS}" && -z "${ImageVersion}" ]] && _runner=self-hosted || _runner=github
   runner="${runner:-${RUNNER:-$_runner}}"

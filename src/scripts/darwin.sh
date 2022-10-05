@@ -173,7 +173,7 @@ add_php() {
   existing_version=$2
   add_brew_tap "$php_tap"
   update_dependencies
-  [ "${debug:?}" = "debug" ] && php_formula="$php_formula-debug"
+  [ "${build:?}" = "debug" ] && php_formula="$php_formula-debug"
   if [ "$existing_version" != "false" ]; then
     ([ "$action" = "upgrade" ] && brew upgrade -f "$php_formula") || brew unlink "$php_formula"
   else

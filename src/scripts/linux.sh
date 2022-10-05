@@ -76,7 +76,7 @@ check_package() {
 add_extension_helper() {
   local extension=$1
   packages=(php"$version"-"$extension")
-  [ "${debug:?}" = "debug" ] && check_package php"$version"-"$extension"-dbgsym && packages+=(php"$version"-"$extension"-dbgsym)
+  [ "${build:?}" = "debug" ] && check_package php"$version"-"$extension"-dbgsym && packages+=(php"$version"-"$extension"-dbgsym)
   add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
   (check_package "${packages[0]}" && install_packages "${packages[@]}") || pecl_install "$extension"
   add_extension_log "$extension" "Installed and enabled"
@@ -96,7 +96,7 @@ add_devtools() {
 
 # Function to setup the nightly build from shivammathur/php-builder
 setup_nightly() {
-  run_script "php-builder" "${runner:?}" "$version" "${debug:?}"
+  run_script "php-builder" "${runner:?}" "$version" "${build:?}"
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
@@ -137,7 +137,7 @@ switch_version() {
 # Function to get packages to install
 get_php_packages() {
   sed "s/[^ ]*/php$version-&/g" "$src"/configs/php_packages | tr '\n' ' '
-  if [ "${debug:?}" = "debug" ]; then
+  if [ "${build:?}" = "debug" ]; then
     sed "s/[^ ]*/php$version-&-dbgsym/g" "$src"/configs/php_debug_packages | tr '\n' ' '
   fi
 }
@@ -149,7 +149,7 @@ add_packaged_php() {
     IFS=' ' read -r -a packages <<<"$(get_php_packages)"
     install_packages "${packages[@]}"
   else
-    run_script "php-ubuntu" "$version" "${debug:?}"
+    run_script "php-ubuntu" "$version" "${build:?}"
   fi
 }
 
@@ -167,7 +167,7 @@ update_php() {
 
 # Function to install PHP.
 add_php() {
-  if [[ "$version" =~ ${nightly_versions:?} ]]; then
+  if [[ "$version" =~ ${nightly_versions:?} ]] || [[ "${build:?}" = "thread-safe" ]]; then
     setup_nightly
   elif [[ "$version" =~ ${old_versions:?} ]]; then
     setup_old_versions

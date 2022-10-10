@@ -1,12 +1,3 @@
-# Function to setup environment for self-hosted runners.
-self_hosted_helper() {
-  if ! command -v brew >/dev/null; then
-    step_log "Setup Brew"
-    get -q -e "/tmp/install.sh" "https://raw.githubusercontent.com/Homebrew/install/master/install.sh" && /tmp/install.sh >/dev/null 2>&1
-    add_log "${tick:?}" "Brew" "Installed Homebrew"
-  fi
-}
-
 # Disable dependency extensions
 disable_dependency_extensions() {
   local extension=$1

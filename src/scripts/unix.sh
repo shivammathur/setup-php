@@ -51,9 +51,15 @@ set_output() {
 read_env() {
   update="${update:-${UPDATE:-false}}"
   [ "${debug:-${DEBUG:-false}}" = "true" ] && debug=debug && update=true || debug=release
+  [ "${phpts:-${PHPTS:-nts}}" = "ts" ] && ts=zts && update=true || ts=nts
   fail_fast="${fail_fast:-${FAIL_FAST:-false}}"
   [[ -z "${ImageOS}" && -z "${ImageVersion}" ]] && _runner=self-hosted || _runner=github
   runner="${runner:-${RUNNER:-$_runner}}"
+
+  export fail_fast
+  export runner
+  export update
+  export ts
 
   if [[ "$runner" = "github" && $_runner = "self-hosted" ]]; then
     fail_fast=true

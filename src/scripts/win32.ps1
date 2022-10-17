@@ -229,6 +229,20 @@ Function Set-PhpCache {
   } catch { }
 }
 
+# Function to add debug symbols to PHP.
+Function Add-DebugSymbols {
+  $release = Invoke-RestMethod https://api.github.com/repos/shivammathur/php-builder-windows/releases/tags/php$version
+  $dev = if ($version -match $nightly_versions) { '-dev' } else { '' }
+  $asset = $release.assets | ForEach-Object {
+    if($_.name -match "php-debug-pack-$version.[0-9]+$dev$env:PHPTS-Win32-.*-$arch.zip") {
+      return $_.name
+    }
+  }
+  Invoke-WebRequest -UseBasicParsing -Uri $php_builder/releases/download/php$version/$asset -OutFile $php_dir\$asset
+  Expand-Archive -Path $php_dir\$asset -DestinationPath $php_dir -Force
+  Get-ChildItem -Path $php_dir -Filter php_*.pdb | Move-Item -Destination $ext_dir
+}
+
 # Function to install nightly version of PHP
 Function Install-PhpNightly {
   Invoke-WebRequest -UseBasicParsing -Uri $php_builder/releases/latest/download/Get-PhpNightly.ps1 -OutFile $php_dir\Get-PhpNightly.ps1 > $null 2>&1
@@ -349,6 +363,10 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
     $status = "Found"
   }
   Add-PhpConfig
+}
+
+if($env:DEBUG -eq 'true') {
+  Add-DebugSymbols
 }
 
 $installed = Get-Php -Path $php_dir

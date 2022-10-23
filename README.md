@@ -42,6 +42,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
   - [Nightly Build Setup](#nightly-build-setup)
+  - [Debug Build Setup](#debug-build-setup)
   - [Thread Safe Setup](#thread-safe-setup)
   - [Force Update Setup](#force-update-setup)
   - [Verbose Setup](#verbose-setup)
@@ -538,6 +539,23 @@ steps:
     ini-values: post_max_size=256M, max_execution_time=180
     coverage: xdebug
     tools: php-cs-fixer, phpunit
+```
+
+### Debug Build Setup
+
+> Set up a PHP build with debugging symbols.
+
+- Production release builds of PHP without debugging symbols are set up by default.
+- You can use the `debug` environment variable to set up a build with debugging symbols for PHP 5.6 and above.
+
+```yaml
+steps:
+- name: Setup PHP with debugging symbols
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '8.1'
+  env:
+    debug: true # specify true or false
 ```
 
 ### Thread Safe Setup

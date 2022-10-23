@@ -25,10 +25,9 @@ Function Add-PhalconFromGitHub() {
 }
 # Function to install phalcon
 Function Add-PhalconHelper() {
-  if ($extension_version -eq '5') {
-    Add-PhalconFromGitHub -Semver (Get-PeclPackageVersion phalcon 5 snapshot stable | Select-Object -First 1)
-  } elseif ($extension_version -eq '4') {
-    Install-Phpextension -Extension phalcon -MinimumStability stable -Path $php_dir
+  if (($extension_version -eq '4') -or ($extension_version -eq '5')) {
+    $extension_semver=Get-PeclPackageVersion phalcon $extension_version stable stable | Select-Object -First 1
+    Add-Extension -Extension phalcon -Stability stable -Extension_version $extension_semver
   } elseif ($extension_version -eq '3') {
     Add-PhalconFromGitHub -Semver 3.4.5
   }

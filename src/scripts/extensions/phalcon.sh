@@ -1,8 +1,7 @@
 # Helper function to get phalcon version
 get_phalcon_version() {
   if [ "$extension" = "phalcon5" ]; then
-    semver="$(get_pecl_version phalcon stable 5)"
-    ([ -n "$semver" ] && echo "$semver") || get_pecl_version phalcon rc 5
+    get_pecl_version phalcon stable 5
   elif [ "$extension" = "phalcon4" ]; then
     echo '4.1.3'
   elif [ "$extension" = "phalcon3" ]; then

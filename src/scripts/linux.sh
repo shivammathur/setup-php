@@ -76,8 +76,8 @@ check_package() {
 add_extension_helper() {
   local extension=$1
   packages=(php"$version"-"$extension")
-  [ "${debug:?}" = "debug" ] && check_package php"$version"-"$extension"-dbgsym && packages+=(php"$version"-"$extension"-dbgsym)
   add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
+  [ "${debug:?}" = "debug" ] && check_package php"$version"-"$extension"-dbgsym && packages+=(php"$version"-"$extension"-dbgsym)
   (check_package "${packages[0]}" && install_packages "${packages[@]}") || pecl_install "$extension"
   add_extension_log "$extension" "Installed and enabled"
   sudo chmod 777 "${ini_file[@]}"

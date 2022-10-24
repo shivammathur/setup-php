@@ -6,16 +6,16 @@ Function Add-PhalconFromGitHub() {
     [string]
     $Semver
   )
-  $domain = 'https://github.com'
+  $domain = 'https://api.github.com/repos'
   $nts = if (!$installed.ThreadSafe) { "_nts" } else { "" }
-  $match = Invoke-WebRequest -Uri "$domain/phalcon/cphalcon/releases/v$Semver" | Select-String -Pattern "href=`"(.*phalcon_x64_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)`""
+  $match = $match = (Invoke-RestMethod -Uri "$domain/phalcon/cphalcon/releases/tags/v$Semver").assets | Select-String -Pattern "browser_download_url=(.*phalcon_${arch}_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)"
   if($NULL -eq $match) {
     $nts = if (!$installed.ThreadSafe) { "-nts" } else { "-ts" }
-    $match = Invoke-WebRequest -Uri "$domain/phalcon/cphalcon/releases/v$Semver" | Select-String -Pattern "href=`"(.*phalcon-php${version}${nts}-windows.*-x64.zip)`""
+    $match = (Invoke-RestMethod -Uri "$domain/phalcon/cphalcon/releases/tags/v$Semver").assets | Select-String -Pattern "browser_download_url=(.*phalcon-php${version}${nts}-windows.*-x64.zip)"
   }
   if($NULL -ne $match) {
-    $zip_file = $match.Matches[0].Groups[1].Value
-    Invoke-WebRequest -Uri $domain/$zip_file -OutFile $ENV:RUNNER_TOOL_CACHE\phalcon.zip > $null 2>&1
+    $zip_url = $match.Matches[0].Groups[1].Value
+    Invoke-WebRequest -Uri $zip_url -OutFile $ENV:RUNNER_TOOL_CACHE\phalcon.zip > $null 2>&1
     Expand-Archive -Path $ENV:RUNNER_TOOL_CACHE\phalcon.zip -DestinationPath $ENV:RUNNER_TOOL_CACHE\phalcon -Force > $null 2>&1
     Copy-Item -Path "$ENV:RUNNER_TOOL_CACHE\phalcon\php_phalcon.dll" -Destination "$ext_dir\php_phalcon.dll"
     Enable-PhpExtension -Extension phalcon -Path $php_dir
@@ -23,16 +23,28 @@ Function Add-PhalconFromGitHub() {
     throw "Unable to get Phalcon release from the GitHub release"
   }
 }
+
+# Function to get phalcon semver.
+Function Get-PhalconSemver() {
+  if($extension_version -eq '3') {
+    return '3.4.5'
+  } elseif (($extension_version -eq '4') -and ($version -eq '7.2')) {
+    return '4.1.0'
+  }
+  return Get-PeclPackageVersion phalcon $extension_version stable stable | Select-Object -First 1
+}
+
 # Function to install phalcon
 Function Add-PhalconHelper() {
-  if (($extension_version -eq '4') -or ($extension_version -eq '5')) {
-    $extension_semver=Get-PeclPackageVersion phalcon $extension_version stable stable | Select-Object -First 1
-    Add-Extension -Extension phalcon -Stability stable -Extension_version $extension_semver
-  } elseif ($extension_version -eq '3') {
-    Add-PhalconFromGitHub -Semver 3.4.5
+  $semver = Get-PhalconSemver
+  if (($extension_version -eq '3') -or ($extension_version -eq '5')) {
+    Add-PhalconFromGitHub $semver
+  } elseif ($extension_version -eq '4') {
+    Add-Extension -Extension phalcon -Stability stable -Extension_version $semver
   }
 }
 
+# Function to add phalcon
 Function Add-Phalcon() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]

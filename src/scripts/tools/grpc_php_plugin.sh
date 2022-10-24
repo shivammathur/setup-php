@@ -22,6 +22,8 @@ get_grpc_tag() {
 }
 
 add_grpc_php_plugin_brew() {
+  . "${0%/*}"/tools/brew.sh
+  configure_brew
   brew install grpc
   brew link --force --overwrite grpc >/dev/null 2>&1
   grpc_tag="v$(brew info grpc | grep "grpc:" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+")"

@@ -120,6 +120,7 @@ disable_all_shared() {
 
 # Function to configure PECL.
 configure_pecl() {
+  [ -z "${pecl_file:-${ini_file[@]}}" ] && return
   if ! [ -e /tmp/pecl_config ]; then
     for script in pear pecl; do
       sudo "$script" config-set php_ini "${pecl_file:-${ini_file[@]}}"

@@ -1,6 +1,7 @@
 add_firebird_client_darwin() {
   firebird_tag='R3_0_7'
-  pkg_name=$(get -s -n "" https://github.com/FirebirdSQL/firebird/releases/tag/"$firebird_tag" | grep -Eo "Firebird-.*.pkg" | head -n 1)
+  pkg_name=$(get -s -n "" https://api.github.com/repos/FirebirdSQL/firebird/releases/tags/"$firebird_tag" | grep -Eo "Firebird-.*.pkg" | head -n 1)
+  [ -z "$pkg_name" ] && pkg_name=$(get -s -n "" https://github.com/FirebirdSQL/firebird/releases/expanded_assets/"$firebird_tag" | grep -Eo "Firebird-.*.pkg" | head -n 1)
   get -q -e "/tmp/firebird.pkg" https://github.com/FirebirdSQL/firebird/releases/download/"$firebird_tag"/"$pkg_name"
   sudo installer -pkg /tmp/firebird.pkg -target /
   sudo mkdir -p /opt/firebird/include /opt/firebird/lib

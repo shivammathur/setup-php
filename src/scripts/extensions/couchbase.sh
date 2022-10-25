@@ -5,7 +5,7 @@ add_couchbase_clibs() {
   if [[ "$ext" =~ couchbase-2.+ ]]; then
     release="2.10.9"
   else
-    release="$(curl -sL $trunk/latest | grep -Eo "libcouchbase-[0-9]+\.[0-9]+\.[0-9]+" | head -n 1 | cut -d'-' -f 2)"
+    release=$(get -s -n "" "$trunk"/latest | grep -Eo -m 1 "[0-9]+\.[0-9]+\.[0-9]+" | head -n 1)
   fi
   [ "$VERSION_ID" = "22.04" ] && vid=20.04 || vid="$VERSION_ID"
   [ "$VERSION_CODENAME" = "jammy" ] && vcn=focal || vcn="$VERSION_CODENAME"
@@ -69,7 +69,7 @@ add_couchbase() {
     fi
   else
     if [ -e "${ext_dir:?}"/libcouchbase_php_core.dylib ]; then
-      sudo cp "${ext_dir:?}"/libcouchbase_php_core.dylib ${brew_prefix:?}/lib
+      sudo cp "${ext_dir:?}"/libcouchbase_php_core.dylib "${brew_prefix:?}"/lib
     fi
     add_brew_extension couchbase extension
   fi

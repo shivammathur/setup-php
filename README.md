@@ -713,7 +713,7 @@ If your project uses composer, you can persist the composer's internal cache dir
 ```yaml
 - name: Get composer cache directory
   id: composer-cache
-  run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+  run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
 - name: Cache dependencies
   uses: actions/cache@v2

@@ -585,6 +585,7 @@ jobs:
 > Update to the latest patch of PHP versions.
 
 - Pre-installed PHP versions are not updated to their latest patch release by default.
+- If `ppa:ondrej/php` is missing on the Ubuntu GitHub environment, the PHP version is updated to the latest patch release.
 - You can specify the `update` environment variable to `true` for updating to the latest release.
 
 ```yaml

@@ -140,6 +140,20 @@ add_list() {
   return 0;
 }
 
+# Function to check if a PPA exists
+check_ppa() {
+  ppa=$1
+  ppa_url=${2:-"$lp_ppa/$ppa/ubuntu"}
+  package_dist=${3:-"$VERSION_CODENAME"}
+  branches=${4:-main}
+  ppa_search="deb .*$ppa_url $package_dist .*$branches"
+  if check_lists "$ppa" "$ppa_search"; then
+    return 0;
+  else
+    return 1;
+  fi
+}
+
 # Function to remove a PPA.
 remove_list() {
   ppa=${1-ondrej/php}

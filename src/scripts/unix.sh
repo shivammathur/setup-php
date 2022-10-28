@@ -56,15 +56,20 @@ read_env() {
   [[ -z "${ImageOS}" && -z "${ImageVersion}" ]] && _runner=self-hosted || _runner=github
   runner="${runner:-${RUNNER:-$_runner}}"
 
-  export fail_fast
-  export runner
-  export update
-  export ts
-
   if [[ "$runner" = "github" && $_runner = "self-hosted" ]]; then
     fail_fast=true
     add_log "$cross" "Runner" "Runner set as github in self-hosted environment"
   fi
+
+  # Set Update to true if the ubuntu github image does not have PHP PPA.
+  if [[ "$runner" = "github" && "${ImageOS}" =~ ubuntu.* ]]; then
+    check_ppa ondrej/php || update=true
+  fi
+
+  export fail_fast
+  export runner
+  export update
+  export ts
 }
 
 # Function to download a file using cURL.

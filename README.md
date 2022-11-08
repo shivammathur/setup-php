@@ -1031,7 +1031,7 @@ These companies generously provide setup-php their products and services to aid 
 [`composer-unused`]:          https://github.com/composer-unused/composer-unused
 [`cs2pr`]:                    https://github.com/staabm/annotate-pull-request-from-checkstyle
 [`deployer`]:                 https://deployer.org/
-[`flex`]:                     https://flex.symfony.com/
+[`flex`]:                     https://symfony.com/doc/current/setup/flex.html
 [`grpc_php_plugin`]:          https://grpc.io/
 [`infection`]:                https://infection.github.io/
 [`parallel-lint`]:            https://github.com/php-parallel-lint/PHP-Parallel-Lint

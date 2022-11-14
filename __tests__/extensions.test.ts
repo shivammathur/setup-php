@@ -93,7 +93,6 @@ describe('Extension tests', () => {
     ${'pdo_oci'}                                 | ${'7.3'} | ${'add_oci pdo_oci'}
     ${'pecl_http'}                               | ${'7.3'} | ${'add_http'}
     ${'sqlite'}                                  | ${'7.2'} | ${'add_extension sqlite3'}
-    ${'sqlsrv'}                                  | ${'7.3'} | ${'add_sqlsrv sqlsrv'}
   `(
     'checking addExtensionOnDarwin for extension $extension on version $version',
     async ({extension, version, output}) => {
@@ -112,10 +111,11 @@ describe('Extension tests', () => {
       const [formula, extension]: string[] = line.split('=');
       const prefix: string =
         extension == 'xdebug' ? 'zend_extension' : 'extension';
+      const ext_name = extension.replace(/\d+|(pdo|pecl)[_-]/, '');
       const output: string = fs.existsSync(
-        `src/scripts/extensions/${extension}.sh`
+        `src/scripts/extensions/${ext_name}.sh`
       )
-        ? `add_${extension}`
+        ? `add_${ext_name}`
         : `add_brew_extension ${formula} ${prefix}`;
       return [formula, formula === 'phalcon3' ? '7.3' : '7.4', output];
     });

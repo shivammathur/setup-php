@@ -206,8 +206,8 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 - Extensions loaded by default after `setup-php` runs can be found on the [wiki](https://github.com/shivammathur/setup-php/wiki).
 
 - These extensions have custom support:
-  - `cubrid`, `pdo_cubrid` and `gearman` on `Ubuntu`.
-  - `geos` and `event` on `Ubuntu` and `macOS`.
+  - `cubrid` and `pdo_cubrid` on `Ubuntu`.
+  - `gearman`, `geos` and `event` on `Ubuntu` and `macOS`.
   - `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_firebird`, `pdo_oci`, `pecl_http`, `phalcon3`, `phalcon4` and `phalcon5` on all supported OS.
 
 - By default, extensions which cannot be added or disabled gracefully leave an error message in the logs, the execution is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.

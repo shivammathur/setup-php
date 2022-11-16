@@ -28,7 +28,7 @@ disable_extension_helper() {
 get_extension_from_formula() {
   local formula=$1
   local extension
-  extension=$(grep "$formula=" "$src"/configs/brew_extensions | cut -d '=' -f 2)
+  extension=$(grep -E "^$formula=" "$src"/configs/brew_extensions | cut -d '=' -f 2)
   [[ -z "$extension" ]] && extension="$(echo "$formula" | sed -E "s/pecl_|[0-9]//g")"
   echo "$extension"
 }

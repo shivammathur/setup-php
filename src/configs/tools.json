@@ -7,6 +7,14 @@
     "version_prefix": "",
     "version_parameter": "-V"
   },
+  "composer-unused": {
+    "type": "phar",
+    "repository": "composer-unused/composer-unused",
+    "extension": ".phar",
+    "domain": "https://github.com",
+    "version_prefix": "",
+    "version_parameter": "-V"
+  },
   "composer-normalize": {
     "type": "phar",
     "repository": "ergebnis/composer-normalize",
@@ -140,11 +148,6 @@
   "composer-require-checker": {
     "type": "composer",
     "repository": "maglnet/composer-require-checker",
-    "scope": "scoped"
-  },
-  "composer-unused": {
-    "type": "composer",
-    "repository": "icanhazstring/composer-unused",
     "scope": "scoped"
   },
   "flex": {

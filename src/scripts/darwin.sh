@@ -241,7 +241,7 @@ setup_php() {
 }
 
 # Variables
-version=${1:-'8.1'}
+version=${1:-'8.2'}
 ini=${2:-'production'}
 src=${0%/*}/..
 php_formula=shivammathur/php/php@"$version"

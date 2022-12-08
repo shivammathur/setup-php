@@ -10,7 +10,7 @@
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
   <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://img.shields.io/codecov/c/github/shivammathur/setup-php?logo=codecov"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg?logo=open%20source%20initiative&logoColor=white&labelColor=555555"></a>
-  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.2-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>
+  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.3-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>
 </p>
 <p align="center">
   <a href="https://reddit.com/r/setup_php" title="setup-php reddit"><img alt="setup-php reddit" src="https://img.shields.io/badge/reddit-join-FF5700?logo=reddit&logoColor=FF5700&labelColor=555555"></a>
@@ -71,16 +71,15 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 ### GitHub-Hosted Runners
 
-| Virtual environment  | YAML workflow label                | Pre-installed PHP      |
-|----------------------|------------------------------------|------------------------|
-| Ubuntu 22.04         | `ubuntu-22.04`                     | `PHP 8.1`              |
-| Ubuntu 20.04         | `ubuntu-latest` or `ubuntu-20.04`  | `PHP 7.4` to `PHP 8.1` |
-| Ubuntu 18.04         | `ubuntu-18.04`                     | `PHP 7.2` to `PHP 8.1` |
-| Windows Server 2022  | `windows-latest` or `windows-2022` | `PHP 8.1`              |
-| Windows Server 2019  | `windows-2019`                     | `PHP 8.1`              |
-| macOS Monterey 12.x  | `macos-12`                         | `PHP 8.1`              |
-| macOS Big Sur 11.x   | `macos-latest` or `macos-11`       | `PHP 8.1`              |
-| macOS Catalina 10.15 | `macos-10.15`                      | `PHP 8.1`              |
+| Virtual environment | YAML workflow label                | Pre-installed PHP      |
+|---------------------|------------------------------------|------------------------|
+| Ubuntu 22.04        | `ubuntu-22.04`                     | `PHP 8.1`              |
+| Ubuntu 20.04        | `ubuntu-latest` or `ubuntu-20.04`  | `PHP 7.4` to `PHP 8.1` |
+| Ubuntu 18.04        | `ubuntu-18.04`                     | `PHP 7.2` to `PHP 8.1` |
+| Windows Server 2022 | `windows-latest` or `windows-2022` | `PHP 8.1`              |
+| Windows Server 2019 | `windows-2019`                     | `PHP 8.1`              |
+| macOS Monterey 12.x | `macos-12`                         | `PHP 8.1`              |
+| macOS Big Sur 11.x  | `macos-latest` or `macos-11`       | `PHP 8.1`              |
 
 ### Self-Hosted Runners
 
@@ -93,9 +92,9 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | Debian 10                        | `self-hosted` or `Linux`   |
 | Windows 7 and newer              | `self-hosted` or `Windows` |
 | Windows Server 2012 R2 and newer | `self-hosted` or `Windows` |
+| macOS Ventura 13.x x86_64/arm64  | `self-hosted` or `macOS`   |
 | macOS Monterey 12.x x86_64/arm64 | `self-hosted` or `macOS`   |
 | macOS Big Sur 11.x x86_64/arm64  | `self-hosted` or `macOS`   |
-| macOS Catalina 10.15             | `self-hosted` or `macOS`   |
 
 - Refer to the [self-hosted setup](#self-hosted-setup) to use the action on self-hosted runners.
 - Operating systems based on the above Ubuntu and Debian versions are also supported on best effort basis.
@@ -105,8 +104,8 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 On all supported OS/Platforms the following PHP versions are supported as per the runner.
 
-- PHP 5.3 to PHP 8.2 on GitHub-hosted runners.
-- PHP 5.6 to PHP 8.2 on self-hosted runners.
+- PHP 5.3 to PHP 8.3 on GitHub-hosted runners.
+- PHP 5.6 to PHP 8.3 on self-hosted runners.
 
 | PHP Version | Stability | Release Support       | Runner Support                 |
 |-------------|-----------|-----------------------|--------------------------------|

@@ -118,13 +118,14 @@ On all supported OS/Platforms the following PHP versions are supported as per th
 | `7.1`       | `Stable`  | `End of life`         | `GitHub-hosted`, `self-hosted` |
 | `7.2`       | `Stable`  | `End of life`         | `GitHub-hosted`, `self-hosted` |
 | `7.3`       | `Stable`  | `End of life`         | `GitHub-hosted`, `self-hosted` |
-| `7.4`       | `Stable`  | `Security fixes only` | `GitHub-hosted`, `self-hosted` |
-| `8.0`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
+| `7.4`       | `Stable`  | `End of life`         | `GitHub-hosted`, `self-hosted` |
+| `8.0`       | `Stable`  | `Security fixes only` | `GitHub-hosted`, `self-hosted` |
 | `8.1`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
-| `8.2`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
+| `8.2`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
+| `8.3`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
 
 **Notes:**
-- Specifying `8.2` in `php-version` input installs a nightly build of `PHP 8.2.0-dev`. See [nightly build setup](#nightly-build-setup) for more information.
+- Specifying `8.3` in `php-version` input installs a nightly build of `PHP 8.3.0-dev`. See [nightly build setup](#nightly-build-setup) for more information.
 - To use JIT on `PHP 8.0` and above, refer to the [JIT configuration](#jit-configuration) section.
 
 ## :heavy_plus_sign: PHP Extension Support

@@ -73,13 +73,13 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 | Virtual environment | YAML workflow label                | Pre-installed PHP      |
 |---------------------|------------------------------------|------------------------|
-| Ubuntu 22.04        | `ubuntu-22.04`                     | `PHP 8.1`              |
-| Ubuntu 20.04        | `ubuntu-latest` or `ubuntu-20.04`  | `PHP 7.4` to `PHP 8.1` |
+| Ubuntu 22.04        | `ubuntu-latest` or `ubuntu-22.04`  | `PHP 8.1`              |
+| Ubuntu 20.04        | `ubuntu-20.04`                     | `PHP 7.4` to `PHP 8.2` |
 | Ubuntu 18.04        | `ubuntu-18.04`                     | `PHP 7.2` to `PHP 8.1` |
-| Windows Server 2022 | `windows-latest` or `windows-2022` | `PHP 8.1`              |
-| Windows Server 2019 | `windows-2019`                     | `PHP 8.1`              |
-| macOS Monterey 12.x | `macos-12`                         | `PHP 8.1`              |
-| macOS Big Sur 11.x  | `macos-latest` or `macos-11`       | `PHP 8.1`              |
+| Windows Server 2022 | `windows-latest` or `windows-2022` | `PHP 8.2`              |
+| Windows Server 2019 | `windows-2019`                     | `PHP 8.2`              |
+| macOS Monterey 12.x | `macos-12`                         | `PHP 8.2`              |
+| macOS Big Sur 11.x  | `macos-latest` or `macos-11`       | `PHP 8.2`              |
 
 ### Self-Hosted Runners
 
@@ -102,7 +102,7 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 ## :tada: PHP Support
 
-On all supported OS/Platforms the following PHP versions are supported as per the runner.
+On all supported OS/Platforms the following PHP versions can be set up as per the runner.
 
 - PHP 5.3 to PHP 8.3 on GitHub-hosted runners.
 - PHP 5.6 to PHP 8.3 on self-hosted runners.
@@ -268,7 +268,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-- The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying the major version `v1` or `v2`, or the version in `major.minor` or `semver` format. Additionally for composer `snapshot` and `preview` can also be specified to set up the respective releases.
+- The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying the major version `v1` or `v2`, or the version in `major.minor` or `semver` format. Additionally, for composer `snapshot` and `preview` can also be specified to set up the respective releases.
 
 ```yaml
 - name: Setup PHP with composer v2
@@ -884,7 +884,7 @@ Psalm supports error reporting in GitHub Actions with an output format `github`.
 #### Tools with checkstyle support
 
 For tools that support `checkstyle` reporting like `phpstan`, `psalm`, `php-cs-fixer` and `phpcs` you can use `cs2pr` to annotate your code.  
-For examples refer to [cs2pr documentation](https://github.com/staabm/annotate-pull-request-from-checkstyle).   
+For examples refer to the [cs2pr documentation](https://github.com/staabm/annotate-pull-request-from-checkstyle).
 
 > Here is an example with `phpcs`.
 

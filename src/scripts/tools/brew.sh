@@ -4,7 +4,7 @@ fetch_brew_tap() {
   tap_user=$(dirname "$tap")
   tap_name=$(basename "$tap")
   mkdir -p "$tap_dir/$tap_user"
-  branch="$(get -s -n "" "https://api.github.com/repos/$tap" | grep default_branch | cut -d: -f 2 | grep -Eo '[^\", ]+' | tr -d '\n')"
+  branch="$(git ls-remote --symref "https://github.com/$tap" HEAD | grep -Eo 'refs/heads/.*' | tr '\t' '\n' | head -1 | cut -d '/' -f 3)"
   get -s -n "" "https://github.com/$tap/archive/$branch.tar.gz" | sudo tar -xzf - -C "$tap_dir/$tap_user"
   sudo mv "$tap_dir/$tap_user/$tap_name-$branch" "$tap_dir/$tap_user/$tap_name"
 }

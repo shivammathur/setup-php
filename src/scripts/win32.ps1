@@ -218,10 +218,22 @@ Function Add-PhpConfig {
 # Function to get PHP from GitHub releases cache
 Function Set-PhpCache {
   try {
-    $release = Invoke-RestMethod https://api.github.com/repos/shivammathur/php-builder-windows/releases/tags/php$version
-    $asset = $release.assets | ForEach-Object {
-      if($_.name -match "php-$version.[0-9]+$env:PHPTS-Win32-.*-$arch.zip") {
-        return $_.name
+    try {
+      $release = Invoke-RestMethod https://api.github.com/repos/shivammathur/php-builder-windows/releases/tags/php$version
+      $asset = $release.assets | ForEach-Object {
+        if($_.name -match "php-$version.[0-9]+$env:PHPTS-Win32-.*-$arch.zip") {
+          return $_.name
+        }
+      }
+      if($null -eq $asset) {
+        throw "Asset not found"
+      }
+    } catch {
+      $release = Invoke-WebRequest $php_builder/releases/expanded_assets/php$version
+      $asset = $release.links.href | ForEach-Object {
+        if($_ -match "php-$version.[0-9]+$env:PHPTS-Win32-.*-$arch.zip") {
+          return $_.split('/')[-1]
+        }
       }
     }
     Invoke-WebRequest -UseBasicParsing -Uri $php_builder/releases/download/php$version/$asset -OutFile $php_dir\$asset

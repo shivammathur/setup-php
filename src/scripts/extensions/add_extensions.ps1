@@ -6,8 +6,9 @@ Function Set-ExtensionPrerequisites
     [ValidateNotNull()]
     [ValidateLength(1, [int]::MaxValue)]
     [string]
-    $deps_dir
+    $extension
   )
+  $deps_dir = "$ext_dir\$extension-vc$($installed.VCVersion)-$arch"
   $deps = Get-ChildItem -Recurse -Path $deps_dir
   if ($deps.Count -ne 0) {
     # Symlink dependencies instead of adding the directory to PATH ...
@@ -17,6 +18,41 @@ Function Set-ExtensionPrerequisites
     }
   } else {
     Remove-Item $deps_dir -Recurse -Force
+  }
+}
+
+# Function to enable extension.
+Function Enable-Extension() {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $extension
+  )
+  Enable-ExtensionDependencies $extension
+  Enable-PhpExtension -Extension $extension -Path $php_dir
+  Set-ExtensionPrerequisites $extension
+  Add-Log $tick $extension "Enabled"
+}
+
+# Function to add custom built PHP extension for nightly builds.
+Function Add-NightlyExtension {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [ValidateLength(1, [int]::MaxValue)]
+    [string]
+    $extension
+  )
+  if($ts) { $ts_part = 'ts' } else { $ts_part = 'nts' }
+  $repo = "$github/shivammathur/php-extensions-windows"
+  $url = "$repo/releases/download/builds/php$version`_$ts_part`_$arch`_$extension.dll"
+  Invoke-WebRequest -UseBasicParsing -Uri $url  -OutFile "$ext_dir\php_$extension.dll"
+  if(Test-Path "$ext_dir\php_$extension.dll") {
+    Enable-Extension $extension > $null
+  } else {
+    throw "Failed to download the $extension"
   }
 }
 
@@ -52,31 +88,33 @@ Function Add-Extension {
           Add-Log $tick $extension "Enabled"
         }
         default {
-          Enable-ExtensionDependencies $extension
-          Enable-PhpExtension -Extension $extension_info.Handle -Path $php_dir
-          Set-ExtensionPrerequisites $deps_dir
-          Add-Log $tick $extension "Enabled"
+          Enable-Extension $extension_info.Handle
         }
       }
     }
     else {
-      # Patch till PHP 8.2 DLLs are released as stable.
-      $minimumStability = $stability
-      if($version -eq '8.2' -and $stability -eq 'stable') {
-        $minimumStability = 'snapshot'
-      }
+      if(($version -match $nightly_versions) -and (Select-String -Path $src\configs\windows_extensions -Pattern $extension -SimpleMatch -Quiet)) {
+        Add-NightlyExtension $extension
+      } else {
+        # Patch till PHP 8.2 DLLs are released as stable.
+        $minimumStability = $stability
+        if ($version -eq '8.2' -and $stability -eq 'stable')
+        {
+          $minimumStability = 'snapshot'
+        }
 
-      $params = @{ Extension = $extension; MinimumStability = $minimumStability; MaximumStability = $stability; Path = $php_dir; AdditionalFilesPath = $deps_dir; NoDependencies = $true }
-      if($extension_version -ne '') {
-        $params["Version"] = $extension_version
+        $params = @{ Extension = $extension; MinimumStability = $minimumStability; MaximumStability = $stability; Path = $php_dir; AdditionalFilesPath = $deps_dir; NoDependencies = $true }
+        if ($extension_version -ne '')
+        {
+          $params["Version"] = $extension_version
+        }
+        Install-PhpExtension @params
+        Set-ExtensionPrerequisites $extension
       }
-      Install-PhpExtension @params
-      Set-ExtensionPrerequisites $deps_dir
       Add-Log $tick $extension "Installed and enabled"
     }
-  }
-  catch {
-    Add-Log $cross $extension "Could not install $extension on PHP $($installed.FullVersion)"
+  } catch {
+    Add-Log $cross $extension "Could not install $extension on PHP $( $installed.FullVersion )"
   }
 }
 

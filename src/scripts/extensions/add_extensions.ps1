@@ -96,10 +96,9 @@ Function Add-Extension {
       if(($version -match $nightly_versions) -and (Select-String -Path $src\configs\windows_extensions -Pattern $extension -SimpleMatch -Quiet)) {
         Add-NightlyExtension $extension
       } else {
-        # Patch till PHP 8.2 DLLs are released as stable.
+        # Patch till DLLs for PHP 8.1 and 8.2 are released as stable.
         $minimumStability = $stability
-        if ($version -eq '8.2' -and $stability -eq 'stable')
-        {
+        if ($version -match '8.[1-2]' -and $stability -eq 'stable') {
           $minimumStability = 'snapshot'
         }
 

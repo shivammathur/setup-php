@@ -1,3 +1,31 @@
+# Function to get the url of the phalcon release asset.
+Function Get-PhalconReleaseAssetUrl() {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [string]
+    $Semver
+  )
+  $domain = 'https://api.github.com/repos'
+  $releases = 'phalcon/cphalcon/releases'
+  $nts = if (!$installed.ThreadSafe) { "_nts" } else { "" }
+  $match = $match = (Invoke-RestMethod -Uri "$domain/$releases/tags/v$Semver").assets | Select-String -Pattern "browser_download_url=.*(phalcon_${arch}_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)"
+  if($NULL -eq $match) {
+    $match = (Invoke-WebRequest -Uri "$github/$releases/expanded_assets/v$Semver").Links.href | Select-String -Pattern "(phalcon_${arch}_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)"
+  }
+  if($NULL -eq $match) {
+    $nts = if (!$installed.ThreadSafe) { "-nts" } else { "-ts" }
+    $match = (Invoke-RestMethod -Uri "$domain/$releases/tags/v$Semver").assets | Select-String -Pattern "browser_download_url=.*(phalcon-php${version}${nts}-windows.*-x64.zip)"
+  }
+  if($NULL -eq $match) {
+    $match = (Invoke-WebRequest -Uri "$github/$releases/expanded_assets/v$Semver").Links.href | Select-String -Pattern "(phalcon-php${version}${nts}-windows.*-x64.zip)"
+  }
+  if($NULL -ne $match) {
+    return "$github/$releases/download/v$Semver/$($match.Matches[0].Groups[1].Value)"
+  }
+  return false;
+}
+
 # Function to add phalcon using GitHub releases.
 Function Add-PhalconFromGitHub() {
   Param (
@@ -6,15 +34,8 @@ Function Add-PhalconFromGitHub() {
     [string]
     $Semver
   )
-  $domain = 'https://api.github.com/repos'
-  $nts = if (!$installed.ThreadSafe) { "_nts" } else { "" }
-  $match = $match = (Invoke-RestMethod -Uri "$domain/phalcon/cphalcon/releases/tags/v$Semver").assets | Select-String -Pattern "browser_download_url=(.*phalcon_${arch}_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)"
-  if($NULL -eq $match) {
-    $nts = if (!$installed.ThreadSafe) { "-nts" } else { "-ts" }
-    $match = (Invoke-RestMethod -Uri "$domain/phalcon/cphalcon/releases/tags/v$Semver").assets | Select-String -Pattern "browser_download_url=(.*phalcon-php${version}${nts}-windows.*-x64.zip)"
-  }
-  if($NULL -ne $match) {
-    $zip_url = $match.Matches[0].Groups[1].Value
+  $zip_url = Get-PhalconReleaseAssetUrl $Semver
+  if($zip_url) {
     Invoke-WebRequest -Uri $zip_url -OutFile $ENV:RUNNER_TOOL_CACHE\phalcon.zip > $null 2>&1
     Expand-Archive -Path $ENV:RUNNER_TOOL_CACHE\phalcon.zip -DestinationPath $ENV:RUNNER_TOOL_CACHE\phalcon -Force > $null 2>&1
     Copy-Item -Path "$ENV:RUNNER_TOOL_CACHE\phalcon\php_phalcon.dll" -Destination "$ext_dir\php_phalcon.dll"

@@ -75,7 +75,7 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 |---------------------|------------------------------------|------------------------|
 | Ubuntu 22.04        | `ubuntu-latest` or `ubuntu-22.04`  | `PHP 8.1`              |
 | Ubuntu 20.04        | `ubuntu-20.04`                     | `PHP 7.4` to `PHP 8.2` |
-| Ubuntu 18.04        | `ubuntu-18.04`                     | `PHP 7.2` to `PHP 8.1` |
+| Ubuntu 18.04        | `ubuntu-18.04`                     | `PHP 7.2` to `PHP 8.2` |
 | Windows Server 2022 | `windows-latest` or `windows-2022` | `PHP 8.2`              |
 | Windows Server 2019 | `windows-2019`                     | `PHP 8.2`              |
 | macOS Monterey 12.x | `macos-12`                         | `PHP 8.2`              |
@@ -464,7 +464,7 @@ On GitHub Actions you can assign the `setup-php` step an `id`, you can use the s
 
 #### `phpts` (optional)
 
-- Specify to set up thread-safe version of PHP on Windows.
+- Specify to set up a thread-safe build of PHP on Linux and Windows.
 - Accepts `ts` and `nts`.
 - By default, it is set to `nts`.
 - See [thread safe setup](#thread-safe-setup) for more info.
@@ -560,17 +560,17 @@ steps:
 
 ### Thread Safe Setup
 
-> Set up `TS` or `NTS` PHP on `Windows`.
+> Set up `TS` or `NTS` PHP on `Linux` and `Windows`.
 
 - `NTS` versions are set up by default.
-- On `Ubuntu` and `macOS` only `NTS` versions are supported.
-- On `Windows` both `TS` and `NTS` versions are supported.
+- On `macOS` only `NTS` versions are supported currently.
+- On `Linux` and `Windows` both `TS` and `NTS` versions are supported.
 
 ```yaml
 jobs:
   run:
-    runs-on: windows-latest
-    name: Setup PHP TS on Windows
+    runs-on: [ubuntu-latest, windows-latest]
+    name: Setup PHP TS
     steps:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2

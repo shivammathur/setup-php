@@ -8,17 +8,20 @@ Function Get-PhalconReleaseAssetUrl() {
   )
   $domain = 'https://api.github.com/repos'
   $releases = 'phalcon/cphalcon/releases'
-  $nts = if (!$installed.ThreadSafe) { "_nts" } else { "" }
-  $match = $match = (Invoke-RestMethod -Uri "$domain/$releases/tags/v$Semver").assets | Select-String -Pattern "browser_download_url=.*(phalcon_${arch}_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)"
-  if($NULL -eq $match) {
-    $match = (Invoke-WebRequest -Uri "$github/$releases/expanded_assets/v$Semver").Links.href | Select-String -Pattern "(phalcon_${arch}_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)"
-  }
-  if($NULL -eq $match) {
+  if($extension_version -match '[3-4]') {
+    $nts = if (!$installed.ThreadSafe) { "_nts" } else { "" }
+    try {
+      $match = (Invoke-RestMethod -Uri "$domain/$releases/tags/v$Semver").assets | Select-String -Pattern "browser_download_url=.*(phalcon_${arch}_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)"
+    } catch {
+      $match = (Invoke-WebRequest -Uri "$github/$releases/expanded_assets/v$Semver").Links.href | Select-String -Pattern "(phalcon_${arch}_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)"
+    }
+  } else {
     $nts = if (!$installed.ThreadSafe) { "-nts" } else { "-ts" }
-    $match = (Invoke-RestMethod -Uri "$domain/$releases/tags/v$Semver").assets | Select-String -Pattern "browser_download_url=.*(phalcon-php${version}${nts}-windows.*-x64.zip)"
-  }
-  if($NULL -eq $match) {
-    $match = (Invoke-WebRequest -Uri "$github/$releases/expanded_assets/v$Semver").Links.href | Select-String -Pattern "(phalcon-php${version}${nts}-windows.*-x64.zip)"
+    try {
+      $match = (Invoke-RestMethod -Uri "$domain/$releases/tags/v$Semver").assets | Select-String -Pattern "browser_download_url=.*(phalcon-php${version}${nts}-windows.*-x64.zip)"
+    } catch {
+      $match = (Invoke-WebRequest -Uri "$github/$releases/expanded_assets/v$Semver").Links.href | Select-String -Pattern "(phalcon-php${version}${nts}-windows.*-x64.zip)"
+    }
   }
   if($NULL -ne $match) {
     return "$github/$releases/download/v$Semver/$($match.Matches[0].Groups[1].Value)"

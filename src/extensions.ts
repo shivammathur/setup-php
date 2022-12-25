@@ -134,7 +134,7 @@ export async function addExtensionWindows(
       // match 5.3ioncube...7.4ioncube
       // match 7.0phalcon3...7.3phalcon3, 7.2phalcon4...7.4phalcon4, and 7.4phalcon5...8.2phalcon5
       // match 7.1pecl_http...8.1pecl_http and 7.1http...8.1http
-      case /^(5\.[3-6]|7\.[0-4]|8\.2)blackfire(-\d+\.\d+\.\d+)?$/.test(
+      case /^(5\.[3-6]|7\.[0-4]|8\.[0-2])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
       case /^pdo_oci$|^oci8$|^pdo_firebird$/.test(extension):

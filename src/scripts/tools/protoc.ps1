@@ -20,7 +20,7 @@ Function Get-ProtobufTag() {
 Function Add-Protoc() {
   param(
     [Parameter(Mandatory = $true, Position = 0, HelpMessage = 'The PHP version to be installed')]
-    [ValidatePattern('^latest$|^(v?)\d+\.\d+\.\d+$')]
+    [ValidatePattern('^latest$|^(v?)\d+\.\d+(\.\d+)?$')]
     [string] $protobuf_tag
   )
   $protobuf_tag = Get-ProtobufTag

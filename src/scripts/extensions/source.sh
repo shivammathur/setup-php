@@ -13,7 +13,7 @@ parse_args() {
 # Function to parse configure options for pecl
 # Make sure we have all options in name="value" form i.e XML properties.
 parse_pecl_configure_options() {
-  configure_opts=$(echo "$1" | sed -r -e "s#['\"]|--##g")
+  configure_opts=$(echo "$1" | sed -E -e "s#['\"]|--##g")
   IFS=' ' read -r -a opts_array <<< "$configure_opts"
   output_opts=()
   for opt in "${opts_array[@]}"; do

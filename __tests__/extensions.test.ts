@@ -59,6 +59,8 @@ describe('Extension tests', () => {
     ${'pdo_sqlsrv'}                              | ${'7.4'} | ${'add_sqlsrv pdo_sqlsrv'}
     ${'pecl_http'}                               | ${'7.3'} | ${'add_http'}
     ${'phalcon3'}                                | ${'7.3'} | ${'add_phalcon phalcon3'}
+    ${'relay'}                                   | ${'7.4'} | ${'add_relay relay'}
+    ${'relay-v1.2.3'}                            | ${'7.4'} | ${'add_relay relay-v1.2.3'}
     ${'sqlite'}                                  | ${'7.4'} | ${'add_extension sqlite3'}
     ${'sqlsrv-1.2.3-beta1'}                      | ${'7.4'} | ${'add_pecl_extension sqlsrv 1.2.3beta1 extension'}
     ${'Xdebug'}                                  | ${'7.4'} | ${'add_extension xdebug'}
@@ -92,6 +94,7 @@ describe('Extension tests', () => {
     ${'pcov'}                                    | ${'5.6'} | ${'add_log "$cross" "pcov" "pcov is not supported on PHP 5.6"'}
     ${'pdo_oci'}                                 | ${'7.3'} | ${'add_oci pdo_oci'}
     ${'pecl_http'}                               | ${'7.3'} | ${'add_http'}
+    ${'relay-1.2.3'}                             | ${'7.4'} | ${'add_relay relay-1.2.3'}
     ${'sqlite'}                                  | ${'7.2'} | ${'add_extension sqlite3'}
   `(
     'checking addExtensionOnDarwin for extension $extension on version $version',

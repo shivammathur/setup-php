@@ -218,11 +218,12 @@ export async function addPackage(data: RS): Promise<string> {
  * @param data
  */
 export async function addBlackfirePlayer(data: RS): Promise<string> {
-  if (
-    /5\.[5-6]|7\.0/.test(data['php_version']) &&
-    data['version'] == 'latest'
-  ) {
-    data['version'] = '1.9.3';
+  if (data['version'] == 'latest') {
+    if (/5\.[5-6]|7\.0/.test(data['php_version'])) {
+      data['version'] = '1.9.3';
+    } else if (/7\.[1-4]|8\.0/.test(data['php_version'])) {
+      data['version'] = '1.22.0';
+    }
   }
   data['url'] = await getPharUrl(data);
   return addArchive(data);

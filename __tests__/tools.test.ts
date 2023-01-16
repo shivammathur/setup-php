@@ -265,8 +265,9 @@ describe('Tools tests', () => {
 
   it.each`
     version     | php_version | url
-    ${'latest'} | ${'7.4'}    | ${'https://get.blackfire.io/blackfire-player.phar'}
+    ${'latest'} | ${'8.1'}    | ${'https://get.blackfire.io/blackfire-player.phar'}
     ${'1.2.3'}  | ${'7.4'}    | ${'https://get.blackfire.io/blackfire-player-v1.2.3.phar'}
+    ${'latest'} | ${'7.4'}    | ${'https://get.blackfire.io/blackfire-player-v1.22.0.phar'}
     ${'latest'} | ${'5.5'}    | ${'https://get.blackfire.io/blackfire-player-v1.9.3.phar'}
     ${'latest'} | ${'7.0'}    | ${'https://get.blackfire.io/blackfire-player-v1.9.3.phar'}
   `(
@@ -376,7 +377,7 @@ describe('Tools tests', () => {
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_blackfire',
-        'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player "-V"',
+        'add_tool https://get.blackfire.io/blackfire-player-v1.22.0.phar blackfire-player "-V"',
         'add_tool https://github.com/bmitch/churn-php/releases/latest/download/churn.phar churn "-V"',
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"',
         'add_composertool flex flex symfony/ global',
@@ -417,7 +418,7 @@ describe('Tools tests', () => {
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_composertool behat behat behat/ scoped',
         'add_blackfire',
-        'add_tool https://get.blackfire.io/blackfire-player.phar blackfire-player "-V"',
+        'add_tool https://get.blackfire.io/blackfire-player-v1.22.0.phar blackfire-player "-V"',
         'add_tool https://github.com/bmitch/churn-php/releases/latest/download/churn.phar churn "-V"',
         'add_tool https://github.com/ergebnis/composer-normalize/releases/latest/download/composer-normalize.phar composer-normalize "-V"',
         'add_composertool composer-require-checker composer-require-checker maglnet/ scoped',

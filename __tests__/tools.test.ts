@@ -222,11 +222,11 @@ describe('Tools tests', () => {
   });
 
   it.each`
-    os           | script                                             | scope
-    ${'linux'}   | ${'add_composertool tool tool:1.2.3 user/ global'} | ${'global'}
-    ${'darwin'}  | ${'add_composertool tool tool:1.2.3 user/ scoped'} | ${'scoped'}
-    ${'win32'}   | ${'Add-Composertool tool tool:1.2.3 user/ scoped'} | ${'scoped'}
-    ${'openbsd'} | ${'Platform openbsd is not supported'}             | ${'global'}
+    os           | script                                              | scope
+    ${'linux'}   | ${'add_composer_tool tool tool:1.2.3 user/ global'} | ${'global'}
+    ${'darwin'}  | ${'add_composer_tool tool tool:1.2.3 user/ scoped'} | ${'scoped'}
+    ${'win32'}   | ${'Add-ComposerTool tool tool:1.2.3 user/ scoped'}  | ${'scoped'}
+    ${'openbsd'} | ${'Platform openbsd is not supported'}              | ${'global'}
   `('checking addPackage: $os, $scope', async ({os, script, scope}) => {
     const data = getData({
       tool: 'tool',
@@ -380,27 +380,27 @@ describe('Tools tests', () => {
         'add_tool https://get.blackfire.io/blackfire-player-v1.22.0.phar blackfire-player "-V"',
         'add_tool https://github.com/bmitch/churn-php/releases/latest/download/churn.phar churn "-V"',
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"',
-        'add_composertool flex flex symfony/ global',
+        'add_composer_tool flex flex symfony/ global',
         'add_grpc_php_plugin latest',
         'add_tool https://github.com/php-parallel-lint/PHP-Parallel-Lint/releases/latest/download/parallel-lint.phar parallel-lint "--version"',
         'add_tool https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v3.2.1/php-cs-fixer.phar php-cs-fixer "-V"',
         'add_tool https://github.com/phpDocumentor/phpDocumentor/releases/latest/download/phpDocumentor.phar phpDocumentor "--version"',
-        'add_composertool phplint phplint overtrue/',
+        'add_composer_tool phplint phplint overtrue/',
         'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar phpstan "-V"',
         'add_tool https://phar.phpunit.de/phpunit.phar phpunit "--version"',
         'add_pecl',
         'add_tool https://www.phing.info/get/phing-latest.phar phing "-v"',
-        'add_composertool phinx phinx robmorgan/ scoped',
-        'add_composertool phinx phinx:1.2.3 robmorgan/ scoped',
+        'add_composer_tool phinx phinx robmorgan/ scoped',
+        'add_composer_tool phinx phinx:1.2.3 robmorgan/ scoped',
         'add_tool https://github.com/phar-io/phive/releases/download/3.2.1/phive-3.2.1.phar phive "status"',
-        'add_composertool phpunit-bridge phpunit-bridge symfony/ global',
-        'add_composertool phpunit-polyfills phpunit-polyfills yoast/ global',
+        'add_composer_tool phpunit-bridge phpunit-bridge symfony/ global',
+        'add_composer_tool phpunit-polyfills phpunit-polyfills yoast/ global',
         'add_tool https://github.com/laravel/pint/releases/latest/download/pint.phar pint "-V"',
         'add_devtools php-config',
         'add_devtools phpize',
         'add_protoc latest',
         'add_symfony latest',
-        'add_composertool vapor-cli vapor-cli laravel/ scoped',
+        'add_composer_tool vapor-cli vapor-cli laravel/ scoped',
         'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"'
       ]
     ]
@@ -416,21 +416,21 @@ describe('Tools tests', () => {
       'behat, blackfire, blackfire-player, churn, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, flex, grpc_php_plugin:1.2.3, infection, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, rector, symfony-cli, vapor-cli, wp-cli',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
-        'add_composertool behat behat behat/ scoped',
+        'add_composer_tool behat behat behat/ scoped',
         'add_blackfire',
         'add_tool https://get.blackfire.io/blackfire-player-v1.22.0.phar blackfire-player "-V"',
         'add_tool https://github.com/bmitch/churn-php/releases/latest/download/churn.phar churn "-V"',
         'add_tool https://github.com/ergebnis/composer-normalize/releases/latest/download/composer-normalize.phar composer-normalize "-V"',
-        'add_composertool composer-require-checker composer-require-checker maglnet/ scoped',
+        'add_composer_tool composer-require-checker composer-require-checker maglnet/ scoped',
         'add_tool https://github.com/composer-unused/composer-unused/releases/latest/download/composer-unused.phar composer-unused "-V"',
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr "-V"',
-        'add_composertool flex flex symfony/ global',
+        'add_composer_tool flex flex symfony/ global',
         'add_grpc_php_plugin 1.2.3',
         'add_tool https://github.com/infection/infection/releases/latest/download/infection.phar infection "-V"',
         'add_tool https://github.com/phan/phan/releases/latest/download/phan.phar phan "-v"',
         'add_tool https://github.com/phan/phan/releases/download/1.2.3/phan.phar phan "-v"',
         'add_tool https://www.phing.info/get/phing-1.2.3.phar,https://github.com/phingofficial/phing/releases/download/1.2.3/phing-1.2.3.phar phing "-v"',
-        'add_composertool phinx phinx robmorgan/ scoped',
+        'add_composer_tool phinx phinx robmorgan/ scoped',
         'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive',
         'add_devtools php-config',
         'add_tool https://github.com/squizlabs/PHP_CodeSniffer/releases/latest/download/phpcbf.phar phpcbf "--version"',
@@ -440,13 +440,13 @@ describe('Tools tests', () => {
         'add_devtools phpize',
         'add_tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"',
         'add_tool https://github.com/phpspec/phpspec/releases/latest/download/phpspec.phar phpspec "-V"',
-        'add_composertool phpunit-bridge phpunit-bridge:5.6.* symfony/ global',
-        'add_composertool phpunit-polyfills phpunit-polyfills:1.0.1 yoast/ global',
+        'add_composer_tool phpunit-bridge phpunit-bridge:5.6.* symfony/ global',
+        'add_composer_tool phpunit-polyfills phpunit-polyfills:1.0.1 yoast/ global',
         'add_protoc 1.2.3',
         'add_tool https://github.com/vimeo/psalm/releases/latest/download/psalm.phar psalm "-v"',
-        'add_composertool rector rector rector/ scoped',
+        'add_composer_tool rector rector rector/ scoped',
         'add_symfony latest',
-        'add_composertool vapor-cli vapor-cli laravel/ scoped',
+        'add_composer_tool vapor-cli vapor-cli laravel/ scoped',
         'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"'
       ]
     ]
@@ -468,13 +468,13 @@ describe('Tools tests', () => {
         'Add-Tool https://github.com/bmitch/churn-php/releases/latest/download/churn.phar churn "-V"',
         'Add-Tool https://deployer.org/deployer.phar deployer "-V"',
         'Tool does_not_exist is not supported',
-        'Add-Composertool flex flex symfony/ global',
-        'Add-Composertool phinx phinx robmorgan/ scoped',
+        'Add-ComposerTool flex flex symfony/ global',
+        'Add-ComposerTool phinx phinx robmorgan/ scoped',
         'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.2/phive-0.13.2.phar phive "status"',
         'php-config is not a windows tool',
         'phpize is not a windows tool',
         'Add-Tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"',
-        'Add-Composertool phpunit-bridge phpunit-bridge symfony/ global',
+        'Add-ComposerTool phpunit-bridge phpunit-bridge symfony/ global',
         'Add-Symfony',
         'Add-Tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"'
       ]
@@ -491,13 +491,13 @@ describe('Tools tests', () => {
       'composer:v1, codeception/codeception, prestissimo, hirak/prestissimo, composer-prefetcher, narrowspark/automatic-composer-prefetcher, phinx: 1.2, robmorgan/phinx: ^1.2, user/tool:1.2.3, user/tool:~1.2',
       [
         'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-1.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-1.phar,https://getcomposer.org/composer-1.phar composer',
-        'Add-Composertool codeception codeception codeception/ global',
-        'Add-Composertool prestissimo prestissimo hirak/ global',
-        'Add-Composertool automatic-composer-prefetcher automatic-composer-prefetcher narrowspark/ global',
-        'Add-Composertool phinx phinx:1.2.* robmorgan/ scoped',
-        'Add-Composertool phinx phinx:^1.2 robmorgan/ global',
-        'Add-Composertool tool tool:1.2.3 user/ global',
-        'Add-Composertool tool tool:~1.2 user/ global'
+        'Add-ComposerTool codeception codeception codeception/ global',
+        'Add-ComposerTool prestissimo prestissimo hirak/ global',
+        'Add-ComposerTool automatic-composer-prefetcher automatic-composer-prefetcher narrowspark/ global',
+        'Add-ComposerTool phinx phinx:1.2.* robmorgan/ scoped',
+        'Add-ComposerTool phinx phinx:^1.2 robmorgan/ global',
+        'Add-ComposerTool tool tool:1.2.3 user/ global',
+        'Add-ComposerTool tool tool:~1.2 user/ global'
       ]
     ]
   ])(

@@ -201,7 +201,7 @@ export async function addArchive(data: RS): Promise<string> {
  * @param data
  */
 export async function addPackage(data: RS): Promise<string> {
-  const command = await utils.getCommand(data['os'], 'composertool');
+  const command = await utils.getCommand(data['os'], 'composer_tool');
   const parts: string[] = data['repository'].split('/');
   const args: string = await utils.joins(
     parts[1],

@@ -47,10 +47,5 @@ Function Add-Http() {
   }
   Add-Extension pecl_http >$null 2>&1
   Repair-ICU
-  try {
-    php --ri "http" 2> $null | Out-Null
-    Add-Log $tick "http" "Installed and enabled"
-  } catch {
-    Add-Log $cross "http" "Could not install http on PHP $( $installed.FullVersion )"
-  }
+  Add-ExtensionLog http "Installed and enabled"
 }

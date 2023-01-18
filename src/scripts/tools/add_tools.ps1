@@ -183,7 +183,7 @@ Function Add-Tool() {
   }
 }
 
-Function Add-ComposertoolHelper() {
+Function Add-ComposerToolHelper() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     [string]
@@ -234,7 +234,7 @@ Function Add-ComposertoolHelper() {
 }
 
 # Function to setup a tool using composer.
-Function Add-Composertool() {
+Function Add-ComposerTool() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     [ValidateNotNull()]
@@ -267,7 +267,7 @@ Function Add-Composertool() {
     }
   }
   Enable-PhpExtension -Extension curl, mbstring, openssl -Path $php_dir
-  $log = Add-ComposertoolHelper $tool $release $prefix $scope $composer_args
+  $log = Add-ComposerToolHelper $tool $release $prefix $scope $composer_args
   if(Test-Path $composer_bin\composer) {
     Copy-Item -Path "$bin_dir\composer" -Destination "$composer_bin\composer" -Force
   }

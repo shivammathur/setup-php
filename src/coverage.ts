@@ -16,7 +16,7 @@ export async function checkXdebugError(
 }
 
 /**
- * Function to setup Xdebug
+ * Function to set up Xdebug
  *
  * @param extension
  * @param version
@@ -30,9 +30,8 @@ export async function addCoverageXdebug(
   pipe: string
 ): Promise<string> {
   let script = '\n';
-  let message: string = await checkXdebugError(extension, version);
-  let status = '$cross';
-  if (!message) {
+  const error: string = await checkXdebugError(extension, version);
+  if (!error) {
     script +=
       (await extensions.addExtension(':pcov:false', version, os, true)) + pipe;
     extension = extension == 'xdebug3' ? 'xdebug' : extension;
@@ -43,15 +42,17 @@ export async function addCoverageXdebug(
       'php -r "echo phpversion(\'xdebug\');"',
       os
     );
-    message = 'Xdebug $xdebug_version enabled as coverage driver';
-    status = '$tick';
+    script +=
+      (await utils.getCommand(os, 'extension_log')) +
+      'xdebug "Xdebug $xdebug_version enabled as coverage driver"';
+  } else {
+    script += await utils.addLog('$cross', extension, error, os);
   }
-  script += await utils.addLog(status, extension, message, os);
   return script;
 }
 
 /**
- * Function to setup PCOV
+ * Function to set up PCOV
  *
  * @param version
  * @param os
@@ -76,14 +77,9 @@ export async function addCoveragePCOV(
         'php -r "echo phpversion(\'pcov\');"',
         os
       );
-      // success
-      script += await utils.addLog(
-        '$tick',
-        'coverage: pcov',
-        'PCOV $pcov_version enabled as coverage driver',
-        os
-      );
-      // version is not supported
+      script +=
+        (await utils.getCommand(os, 'extension_log')) +
+        'pcov "PCOV $pcov_version enabled as coverage driver"';
       break;
 
     case /5\.[3-6]|7\.0/.test(version):

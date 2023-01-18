@@ -320,7 +320,14 @@ export async function getCommand(os: string, suffix: string): Promise<string> {
     case 'darwin':
       return 'add_' + suffix + ' ';
     case 'win32':
-      return 'Add-' + suffix.charAt(0).toUpperCase() + suffix.slice(1) + ' ';
+      return (
+        'Add-' +
+        suffix
+          .split('_')
+          .map((part: string) => part.charAt(0).toUpperCase() + part.slice(1))
+          .join('') +
+        ' '
+      );
     default:
       return await log('Platform ' + os + ' is not supported', os, 'error');
   }

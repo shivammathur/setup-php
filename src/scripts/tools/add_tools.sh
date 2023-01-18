@@ -153,7 +153,7 @@ add_tool() {
 }
 
 # Function to setup a tool using composer in a different scope.
-add_composertool_helper() {
+add_composer_tool_helper() {
   tool=$1
   release=$2
   prefix=$3
@@ -184,7 +184,7 @@ add_composertool_helper() {
 }
 
 # Function to setup a tool using composer.
-add_composertool() {
+add_composer_tool() {
   tool=$1
   release=$2
   prefix=$3
@@ -199,7 +199,7 @@ add_composertool() {
       return
     fi
   fi
-  add_composertool_helper "$tool" "$release" "$prefix" "$scope" "$composer_args"
+  add_composer_tool_helper "$tool" "$release" "$prefix" "$scope" "$composer_args"
   tool_version=$(get_tool_version cat /tmp/composer.log)
   ([ -s /tmp/composer.log ] && add_log "$tick" "$tool" "Added $tool $tool_version"
   ) || add_log "$cross" "$tool" "Could not setup $tool"

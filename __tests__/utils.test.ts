@@ -193,6 +193,7 @@ describe('Utils tests', () => {
     expect(await utils.getCommand('linux', 'tool')).toBe('add_tool ');
     expect(await utils.getCommand('darwin', 'tool')).toBe('add_tool ');
     expect(await utils.getCommand('win32', 'tool')).toBe('Add-Tool ');
+    expect(await utils.getCommand('win32', 'tool_name')).toBe('Add-ToolName ');
     expect(await utils.getCommand('openbsd', 'tool')).toContain(
       'Platform openbsd is not supported'
     );

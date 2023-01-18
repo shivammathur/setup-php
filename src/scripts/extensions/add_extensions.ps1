@@ -1,3 +1,20 @@
+Function Add-ExtensionLog() {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    $extension,
+    [Parameter(Position = 1, Mandatory = $true)]
+    [ValidateNotNull()]
+    $message
+  )
+  $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
+  if ($null -ne $extension_info -and ($extension_info.State -eq 'Enabled' -or $extension_info.State -eq 'Builtin')) {
+    Add-Log $tick $extension $message
+  } else {
+    Add-Log $cross $extension "Could not install $extension on PHP $( $installed.FullVersion )"
+  }
+}
+
 # Function to link dependencies to PHP directory.
 Function Set-ExtensionPrerequisites
 {

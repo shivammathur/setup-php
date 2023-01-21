@@ -254,6 +254,7 @@ async function addExtensionDarwin(extension_csv, version) {
             case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
             case /(5\.6|7\.[0-3])phalcon3|7\.[2-4]phalcon4|(7\.4|8\.[0-2])phalcon5/.test(version_extension):
             case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
+            case /^(7\.[0-4]|8\.[0-2])zephir_parser(-v?\d+\.\d+\.\d+)?$/.test(version_extension):
                 add_script += await utils.customPackage(ext_name, 'extensions', extension, 'darwin');
                 return;
             case /.+-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(extension):
@@ -303,6 +304,7 @@ async function addExtensionWindows(extension_csv, version) {
             case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$|^(7\.4|8\.[0-2])phalcon5$/.test(version_extension):
             case /^(7\.[1-4]|8\.1)(pecl_)?http/.test(version_extension):
+            case /^(7\.[0-4]|8\.[0-2])zephir_parser(-v?\d+\.\d+\.\d+)?$/.test(version_extension):
                 add_script += await utils.customPackage(ext_name, 'extensions', extension, 'win32');
                 return;
             case /.+-(stable|beta|alpha|devel|snapshot)/.test(extension):
@@ -371,6 +373,7 @@ async function addExtensionLinux(extension_csv, version) {
             case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
             case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$|^(7\.4|8\.[0-2])phalcon5$/.test(version_extension):
             case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
+            case /^(7\.[0-4]|8\.[0-2])zephir_parser(-v?\d+\.\d+\.\d+)?$/.test(version_extension):
                 add_script += await utils.customPackage(ext_name, 'extensions', extension, 'linux');
                 return;
             case /.+-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(extension):

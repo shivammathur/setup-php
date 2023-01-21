@@ -37,6 +37,7 @@ export async function addExtensionDarwin(
       // match couchbase, event, geos, pdo_oci, oci8, http, pecl_http
       // match 5.3ioncube...7.4ioncube
       // match 7.0phalcon3...7.3phalcon3, 7.2phalcon4...7.4phalcon4, and 7.4phalcon5...8.2phalcon5
+      // match 7.0zephir_parser...8.2zephir_parser
       case /^(7\.4|8\.[0-2])relay(-v?\d+\.\d+\.\d+)?$/.test(version_extension):
       case /^(5\.[3-6]|7\.[0-4]|8\.[0-2])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
@@ -49,6 +50,9 @@ export async function addExtensionDarwin(
         version_extension
       ):
       case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
+      case /^(7\.[0-4]|8\.[0-2])zephir_parser(-v?\d+\.\d+\.\d+)?$/.test(
+        version_extension
+      ):
         add_script += await utils.customPackage(
           ext_name,
           'extensions',
@@ -136,6 +140,7 @@ export async function addExtensionWindows(
       // match 5.3ioncube...7.4ioncube
       // match 7.0phalcon3...7.3phalcon3, 7.2phalcon4...7.4phalcon4, and 7.4phalcon5...8.2phalcon5
       // match 7.1pecl_http...8.1pecl_http and 7.1http...8.1http
+      // match 7.0zephir_parser...8.2zephir_parser
       case /^(5\.[3-6]|7\.[0-4]|8\.[0-2])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
@@ -145,6 +150,9 @@ export async function addExtensionWindows(
         version_extension
       ):
       case /^(7\.[1-4]|8\.1)(pecl_)?http/.test(version_extension):
+      case /^(7\.[0-4]|8\.[0-2])zephir_parser(-v?\d+\.\d+\.\d+)?$/.test(
+        version_extension
+      ):
         add_script += await utils.customPackage(
           ext_name,
           'extensions',
@@ -261,6 +269,7 @@ export async function addExtensionLinux(
       // match couchbase, geos, pdo_oci, oci8, http, pecl_http
       // match 5.3ioncube...7.4ioncube
       // match 7.0phalcon3...7.3phalcon3, 7.2phalcon4...7.4phalcon4, 7.4phalcon5...8.2phalcon5
+      // match 7.0zephir_parser...8.2zephir_parser
       case /^(7\.4|8\.[0-2])relay(-v?\d+\.\d+\.\d+)?$/.test(version_extension):
       case /^(5\.[3-6]|7\.[0-4]|8\.[0-2])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
@@ -277,6 +286,9 @@ export async function addExtensionLinux(
         version_extension
       ):
       case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
+      case /^(7\.[0-4]|8\.[0-2])zephir_parser(-v?\d+\.\d+\.\d+)?$/.test(
+        version_extension
+      ):
         add_script += await utils.customPackage(
           ext_name,
           'extensions',

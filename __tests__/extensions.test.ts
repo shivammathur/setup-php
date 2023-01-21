@@ -25,6 +25,7 @@ describe('Extension tests', () => {
     ${'sqlsrv-1.2.3preview1'}                    | ${'7.4'} | ${'Add-Extension sqlsrv devel 1.2.3'}
     ${'Xdebug'}                                  | ${'7.4'} | ${'Add-Extension xdebug'}
     ${'xdebug2'}                                 | ${'7.2'} | ${'Add-Extension xdebug stable 2.9.8'}
+    ${'zephir_parser'}                           | ${'7.2'} | ${'Add-ZephirParser zephir_parser'}
   `(
     'checking addExtensionOnWindows for extension $extension on version $version',
     async ({extension, version, output}) => {
@@ -66,6 +67,7 @@ describe('Extension tests', () => {
     ${'Xdebug'}                                  | ${'7.4'} | ${'add_extension xdebug'}
     ${'xdebug-alpha'}                            | ${'7.4'} | ${'add_unstable_extension xdebug alpha zend_extension'}
     ${'xdebug2'}                                 | ${'7.2'} | ${'add_pecl_extension xdebug 2.9.8 zend_extension'}
+    ${'zephir_parser-1.2.3'}                     | ${'7.2'} | ${'add_zephir_parser zephir_parser-1.2.3'}
   `(
     'checking addExtensionOnLinux for extension $extension on version $version',
     async ({extension, version, output}) => {
@@ -96,6 +98,7 @@ describe('Extension tests', () => {
     ${'pecl_http'}                               | ${'7.3'} | ${'add_http'}
     ${'relay-1.2.3'}                             | ${'7.4'} | ${'add_relay relay-1.2.3'}
     ${'sqlite'}                                  | ${'7.2'} | ${'add_extension sqlite3'}
+    ${'zephir_parser-v1.2.3'}                    | ${'7.2'} | ${'add_zephir_parser zephir_parser-v1.2.3'}
   `(
     'checking addExtensionOnDarwin for extension $extension on version $version',
     async ({extension, version, output}) => {

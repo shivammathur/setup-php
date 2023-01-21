@@ -2,7 +2,7 @@
 add_sudo() {
   if ! command -v sudo >/dev/null; then
     check_package sudo || apt-get update
-    apt-get install -y sudo
+    apt-get install -y sudo || (apt-get update && apt-get install -y sudo)
   fi
 }
 

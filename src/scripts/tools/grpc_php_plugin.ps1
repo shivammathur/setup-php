@@ -7,7 +7,7 @@ Function Add-Msys2() {
   return $msys_location
 }
 
-Function Add-Grpc_php_plugin() {
+Function Add-GrpcPhpPlugin() {
   $msys_location = Add-Msys2
   $logs = . $msys_location\usr\bin\bash -l -c "pacman -S --noconfirm mingw-w64-x86_64-grpc" >$null 2>&1
   $grpc_version = Get-ToolVersion 'Write-Output' "$logs"

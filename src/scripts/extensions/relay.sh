@@ -81,10 +81,10 @@ enable_relay() {
   if [ -e "$relay_ini" ]; then
     init_relay_ini "$relay_ini"
     if [ "$os" = "Linux" ]; then
-      sudo mv "$relay_ini" "${ini_dir:?}"/../mods-available/relay.ini
+      sudo cp "$relay_ini" "${ini_dir:?}"/../mods-available/relay.ini
       sudo phpenmod -v "${version:?}" relay
     else
-      sudo mv "${relay_ini}" "${scan_dir:?}"/60-relay.ini
+      sudo cp "${relay_ini}" "${scan_dir:?}"/60-relay.ini
     fi
   fi
 }

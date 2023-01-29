@@ -29,6 +29,10 @@ jobs:
       matrix:
         operating-system: [ubuntu-22.04, ubuntu-20.04, ubuntu-18.04, windows-2019, macos-latest]
         php-versions: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3']
+        include:
+          - operating-system: ubuntu-22.04
+            php-versions: ''
+            php-version-file: 'php-version-file'
     env:
       extensions: xml, opcache, xdebug, pcov, gd
       key: cache-v5
@@ -40,7 +44,7 @@ jobs:
         id: cache-env
         uses: shivammathur/cache-extensions@develop
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: ${{ matrix.php-versions || 8.2 }}
           extensions: ${{ env.extensions }}
           key: ${{ env.key }}
 
@@ -51,17 +55,23 @@ jobs:
           key: ${{ steps.cache-env.outputs.key }}
           restore-keys: ${{ steps.cache-env.outputs.key }}
 
+      - name: Stage php-version-file
+        if: ${{ matrix.php-version-file == 'php-version-file' }}
+        run: |
+          echo 8.2 > php-version-file
+
       - name: Setup PHP with extensions and custom config
         run: node dist/index.js
         env:
           php-version: ${{ matrix.php-versions }}
+          php-version-file: ${{ matrix.php-version-file }}
           extensions: ${{ env.extensions }}
           ini-values: post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata
 
       - name: Testing PHP version
         run: |
           php -v
-          php -r "if(strpos(phpversion(), '${{ matrix.php-versions }}') === false) {throw new Exception('Wrong PHP version Installed');}"
+          php -r "if(strpos(phpversion(), '${{ matrix.php-versions || 8.2 }}') === false) {throw new Exception('Wrong PHP version Installed');}"
 
       - name: Testing Composer version
         run: |

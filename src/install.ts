@@ -24,7 +24,7 @@ export async function getScript(os: string): Promise<string> {
   const coverage_driver: string = await utils.getInput('coverage', false);
   const tools_csv: string = await utils.getInput('tools', false);
   const version: string = await utils.parseVersion(
-    await utils.getInput('php-version', true)
+    await utils.resolveVersion()
   );
   const ini_file: string = await utils.parseIniFile(
     await utils.getInput('ini-file', false)

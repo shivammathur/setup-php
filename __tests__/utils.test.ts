@@ -1,3 +1,4 @@
+import fs from 'fs';
 import * as path from 'path';
 import * as utils from '../src/utils';
 
@@ -7,7 +8,8 @@ import * as utils from '../src/utils';
 jest.mock('@actions/core', () => ({
   getInput: jest.fn().mockImplementation(key => {
     return ['setup-php'].indexOf(key) !== -1 ? key : '';
-  })
+  }),
+  info: jest.fn()
 }));
 
 /**
@@ -259,6 +261,31 @@ describe('Utils tests', () => {
     ).toContain(
       '\nadd_extension_from_source ext https://sub.domain.XN--tld org repo release extension'
     );
+  });
+
+  it('checking resolveVersion', async () => {
+    await expect(utils.resolveVersion()).rejects.toThrow(
+      "Neither 'php-version' nor 'php-version-file' inputs were supplied, and could not find '.php-version' file."
+    );
+
+    process.env['php-version-file'] = '.phpenv-version';
+    await expect(utils.resolveVersion()).rejects.toThrow(
+      "Could not find '.phpenv-version' file."
+    );
+
+    const existsSync = jest.spyOn(fs, 'existsSync').mockImplementation();
+    const readFileSync = jest.spyOn(fs, 'readFileSync').mockImplementation();
+
+    existsSync.mockReturnValue(true);
+    readFileSync.mockReturnValue('8.1');
+
+    expect(await utils.resolveVersion()).toBe('8.1');
+
+    process.env['php-version'] = '8.2';
+    expect(await utils.resolveVersion()).toBe('8.2');
+
+    existsSync.mockClear();
+    readFileSync.mockClear();
   });
 
   it('checking setVariable', async () => {

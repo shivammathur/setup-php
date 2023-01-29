@@ -10,7 +10,7 @@ jest.mock('../src/install', () => ({
     .mockImplementation(async (os: string): Promise<string> => {
       const filename = os + (await utils.scriptExtension(os));
       const version: string = await utils.parseVersion(
-        await utils.getInput('php-version', true)
+        await utils.resolveVersion()
       );
       const ini_file: string = await utils.parseIniFile(
         await utils.getInput('ini-file', false)

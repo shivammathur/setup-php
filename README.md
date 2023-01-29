@@ -391,7 +391,7 @@ Disable coverage for these reasons:
 
 > Specify using `with` keyword
 
-#### `php-version` (required)
+#### `php-version` (optional)
 
 - Specify the PHP version you want to set up.
 - Accepts a `string`. For example `'8.0'`.
@@ -399,6 +399,15 @@ Disable coverage for these reasons:
 - Accepts `nightly` to set up a nightly build from the master branch of PHP.
 - Accepts the format `d.x`, where `d` is the major version. For example `5.x`, `7.x` and `8.x`.  
 - See [PHP support](#tada-php-support) for supported PHP versions.
+- By default, the PHP version is read from `php-version-file`.
+- Required if `php-version-file` does not exist.
+
+#### `php-version-file` (optional)
+
+- Specify the PHP version file you want to read when `php-version` is not provided.
+- Accepts a `string`. For example `'.phpenv-version'`.
+- See [PHP support](#tada-php-support) for supported PHP versions.
+- By default, `.php-version` file is used.
 
 #### `extensions` (optional)
 

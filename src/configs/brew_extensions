@@ -33,6 +33,7 @@ redis=redis
 sqlsrv=sqlsrv
 ssh2=ssh2
 swoole=swoole
+uuid=uuid
 v8js=v8js
 vips=vips
 xdebug=xdebug

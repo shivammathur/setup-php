@@ -1284,23 +1284,18 @@ async function parseExtensionSource(extension, prefix) {
 }
 exports.parseExtensionSource = parseExtensionSource;
 async function resolveVersion() {
-    let version = await getInput('php-version', false);
-    let versionFile = await getInput('php-version-file', false);
+    const version = await getInput('php-version', false);
     if (version) {
         return version;
     }
-    if (versionFile && !fs_1.default.existsSync(versionFile)) {
+    const versionFile = (await getInput('php-version-file', false)) || '.php-version';
+    if (fs_1.default.existsSync(versionFile)) {
+        return fs_1.default.readFileSync(versionFile, 'utf8');
+    }
+    else if (versionFile !== '.php-version') {
         throw new Error(`Could not find '${versionFile}' file.`);
     }
-    versionFile ??= '.php-version';
-    if (fs_1.default.existsSync(versionFile)) {
-        version = fs_1.default.readFileSync(versionFile, 'utf8');
-        core.info(`Resolved ${versionFile} as ${version}`);
-    }
-    if (!version) {
-        version = 'latest';
-    }
-    return version;
+    return 'latest';
 }
 exports.resolveVersion = resolveVersion;
 async function setVariable(variable, command, os) {

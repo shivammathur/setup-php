@@ -427,29 +427,18 @@ export async function parseExtensionSource(
  * Resolve php version from input or file
  */
 export async function resolveVersion(): Promise<string> {
-  let version = await getInput('php-version', false);
-  let versionFile = await getInput('php-version-file', false);
-
+  const version = await getInput('php-version', false);
   if (version) {
     return version;
   }
-
-  if (versionFile && !fs.existsSync(versionFile)) {
+  const versionFile =
+    (await getInput('php-version-file', false)) || '.php-version';
+  if (fs.existsSync(versionFile)) {
+    return fs.readFileSync(versionFile, 'utf8');
+  } else if (versionFile !== '.php-version') {
     throw new Error(`Could not find '${versionFile}' file.`);
   }
-
-  versionFile ??= '.php-version';
-
-  if (fs.existsSync(versionFile)) {
-    version = fs.readFileSync(versionFile, 'utf8');
-    core.info(`Resolved ${versionFile} as ${version}`);
-  }
-
-  if (!version) {
-    version = 'latest';
-  }
-
-  return version;
+  return 'latest';
 }
 
 /**

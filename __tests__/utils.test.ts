@@ -264,9 +264,7 @@ describe('Utils tests', () => {
   });
 
   it('checking resolveVersion', async () => {
-    await expect(utils.resolveVersion()).rejects.toThrow(
-      "Neither 'php-version' nor 'php-version-file' inputs were supplied, and could not find '.php-version' file."
-    );
+    expect(await utils.resolveVersion()).toBe('latest');
 
     process.env['php-version-file'] = '.phpenv-version';
     await expect(utils.resolveVersion()).rejects.toThrow(

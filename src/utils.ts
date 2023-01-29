@@ -446,9 +446,7 @@ export async function resolveVersion(): Promise<string> {
   }
 
   if (!version) {
-    throw new Error(
-      "Neither 'php-version' nor 'php-version-file' inputs were supplied, and could not find '.php-version' file."
-    );
+    version = 'latest';
   }
 
   return version;

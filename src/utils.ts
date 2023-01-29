@@ -1,3 +1,4 @@
+import fs from 'fs';
 import * as path from 'path';
 import * as core from '@actions/core';
 import * as fetch from './fetch';
@@ -420,6 +421,37 @@ export async function parseExtensionSource(
     ...matches.splice(1, matches.length),
     prefix
   );
+}
+
+/**
+ * Resolve php version from input or file
+ */
+export async function resolveVersion(): Promise<string> {
+  let version = await getInput('php-version', false);
+  let versionFile = await getInput('php-version-file', false);
+
+  if (version) {
+    return version;
+  }
+
+  if (versionFile && !fs.existsSync(versionFile)) {
+    throw new Error(`Could not find '${versionFile}' file.`);
+  }
+
+  versionFile ??= '.php-version';
+
+  if (fs.existsSync(versionFile)) {
+    version = fs.readFileSync(versionFile, 'utf8');
+    core.info(`Resolved ${versionFile} as ${version}`);
+  }
+
+  if (!version) {
+    throw new Error(
+      "Neither 'php-version' nor 'php-version-file' inputs were supplied, and could not find '.php-version' file."
+    );
+  }
+
+  return version;
 }
 
 /**

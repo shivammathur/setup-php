@@ -1072,10 +1072,9 @@ async function getManifestURL() {
 }
 exports.getManifestURL = getManifestURL;
 async function parseVersion(version) {
-    const manifest = await getManifestURL();
     switch (true) {
         case /^(latest|nightly|\d+\.x)$/.test(version):
-            return JSON.parse((await fetch.fetch(manifest))['data'])[version];
+            return JSON.parse((await fetch.fetch(await getManifestURL()))['data'])[version];
         default:
             switch (true) {
                 case version.length > 1:

@@ -19,7 +19,8 @@ on:
       - 'examples/**'
 permissions:
   contents: read
-
+env:
+  default-php-version: '8.2'
 jobs:
   run:
     name: Run
@@ -44,7 +45,7 @@ jobs:
         id: cache-env
         uses: shivammathur/cache-extensions@develop
         with:
-          php-version: ${{ matrix.php-versions || 8.2 }}
+          php-version: ${{ matrix.php-versions || env.default-php-version }}
           extensions: ${{ env.extensions }}
           key: ${{ env.key }}
 
@@ -58,7 +59,7 @@ jobs:
       - name: Stage php-version-file
         if: ${{ matrix.php-version-file == 'php-version-file' }}
         run: |
-          echo 8.2 > php-version-file
+          echo ${{ env.default-php-version }} > php-version-file
 
       - name: Setup PHP with extensions and custom config
         run: node dist/index.js
@@ -71,7 +72,7 @@ jobs:
       - name: Testing PHP version
         run: |
           php -v
-          php -r "if(strpos(phpversion(), '${{ matrix.php-versions || 8.2 }}') === false) {throw new Exception('Wrong PHP version Installed');}"
+          php -r "if(strpos(phpversion(), '${{ matrix.php-versions || env.default-php-version }}') === false) {throw new Exception('Wrong PHP version Installed');}"
 
       - name: Testing Composer version
         run: |

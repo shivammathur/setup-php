@@ -6,20 +6,27 @@ branding:
   icon: 'play-circle'
 inputs:
   php-version:
-    description: 'Setup PHP version. Reads from .php-version if unset. Defaults to latest.'
+    description: 'Setup PHP version.'
+    required: false
   php-version-file:
-    description: 'File containing the PHP version to use. Defaults to .php-version if unset.'
+    description: 'Setup PHP version from a file.'
+    required: false
   extensions:
     description: 'Setup PHP extensions.'
+    required: false
   ini-file:
     description: 'Set base ini file.'
+    required: false
     default: 'production'
   ini-values:
     description: 'Add values to php.ini.'
+    required: false
   coverage: 
     description: 'Setup code coverage driver.'
+    required: false
   tools:
     description: 'Setup popular tools globally.'
+    required: false
 outputs:
   php-version:
     description: 'PHP version in semver format'

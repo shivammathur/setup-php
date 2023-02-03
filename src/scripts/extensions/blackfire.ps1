@@ -21,7 +21,7 @@ Function Add-Blackfire() {
         $status="Enabled"
     } else {
         $nts = if (!$installed.ThreadSafe) { "_nts" } else { "" }
-        Invoke-WebRequest -Uri "https://packages.blackfire.io/binaries/blackfire-php/${extension_version}/blackfire-php-windows_${arch}-php-${no_dot_version}${nts}.dll" -OutFile $ext_dir\blackfire.dll > $null 2>&1
+        Get-File -Url "https://packages.blackfire.io/binaries/blackfire-php/${extension_version}/blackfire-php-windows_${arch}-php-${no_dot_version}${nts}.dll" -OutFile $ext_dir\blackfire.dll > $null 2>&1
         Enable-PhpExtension -Extension blackfire -Path $php_dir
         $status="Installed and enabled"
     }

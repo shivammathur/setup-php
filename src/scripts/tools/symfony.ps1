@@ -4,7 +4,7 @@ Function Add-Symfony() {
     $arch_name = '386'
   }
   $url = "https://github.com/symfony-cli/symfony-cli/releases/latest/download/symfony-cli_windows_${arch_name}.zip"
-  Invoke-WebRequest -Uri $url -OutFile $bin_dir\symfony.zip >$null 2>&1
+  Get-File -Url $url -OutFile $bin_dir\symfony.zip >$null 2>&1
   Expand-Archive -Path $bin_dir\symfony.zip -DestinationPath $bin_dir -Force >$null 2>&1
   if(Test-Path $bin_dir\symfony.exe) {
     Copy-Item -Path $bin_dir\symfony.exe -Destination $bin_dir\symfony-cli.exe > $null 2>&1

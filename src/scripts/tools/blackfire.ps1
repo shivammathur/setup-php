@@ -6,7 +6,7 @@ Function Add-Blackfire() {
   }
   $cli_version = (Invoke-RestMethod https://blackfire.io/api/v1/releases).cli
   $url = "https://packages.blackfire.io/binaries/blackfire/${cli_version}/blackfire-windows_${arch_name}.zip"
-  Invoke-WebRequest -Uri $url -OutFile $bin_dir\blackfire.zip >$null 2>&1
+  Get-File -Url $url -OutFile $bin_dir\blackfire.zip >$null 2>&1
   Expand-Archive -Path $bin_dir\blackfire.zip -DestinationPath $bin_dir -Force >$null 2>&1
   Add-ToProfile $current_profile 'blackfire' "New-Alias blackfire $bin_dir\blackfire.exe"
   if ((Test-Path env:BLACKFIRE_SERVER_ID) -and (Test-Path env:BLACKFIRE_SERVER_TOKEN)) {

@@ -152,7 +152,7 @@ Function Add-Tool() {
     } catch {
       if($url -match '.*github.com.*releases.*latest.*') {
         try {
-          $url = $url.replace("releases/latest/download", "releases/download/" + ([regex]::match((Invoke-WebRequest -Uri ($url.split('/release')[0] + "/releases")).Content, "([0-9]+\.[0-9]+\.[0-9]+)/" + ($url.Substring($url.LastIndexOf("/") + 1))).Groups[0].Value).split('/')[0])
+          $url = $url.replace("releases/latest/download", "releases/download/" + ([regex]::match((Get-File -Url ($url.split('/release')[0] + "/releases")).Content, "([0-9]+\.[0-9]+\.[0-9]+)/" + ($url.Substring($url.LastIndexOf("/") + 1))).Groups[0].Value).split('/')[0])
           $status_code = (Invoke-WebRequest -Passthru -Uri $url -OutFile $tool_path).StatusCode
         } catch { }
       }

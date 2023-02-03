@@ -20,7 +20,7 @@ Function Add-Ioncube() {
       if (-not($installed.ThreadSafe)) {
         $ts_part = "_nonts"
       }
-      Invoke-WebRequest -Uri "https://downloads.ioncube.com/loader_downloads/ioncube_loaders_win$ts_part`_vc$vc`_$arch_part.zip" -OutFile $ext_dir\ioncube.zip
+      Get-File -Url "https://downloads.ioncube.com/loader_downloads/ioncube_loaders_win$ts_part`_vc$vc`_$arch_part.zip" -OutFile $ext_dir\ioncube.zip
       Expand-Archive -Path $ext_dir\ioncube.zip -DestinationPath $ext_dir -Force
       Copy-Item $ext_dir\ioncube\ioncube_loader_win_$version.dll $ext_dir\php_ioncube.dll
     }

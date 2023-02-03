@@ -128,13 +128,47 @@ Function Add-EnvPATH {
   $env_data | Add-Content -Path $env_file -Encoding utf8
 }
 
+# Function to fetch a file from a URL.
+Function Get-File {
+  param (
+    [string]$Url,
+    [string]$FallbackUrl,
+    [string]$OutFile,
+    [int]$Retries = 3,
+    [int]$TimeoutSec = 0
+  )
+
+  for ($i = 0; $i -lt $Retries; $i++) {
+    try {
+      if($null -ne $OutFile) {
+        Invoke-WebRequest -Uri $Url -OutFile $OutFile -TimeoutSec $TimeoutSec
+      } else {
+        Invoke-WebRequest -Uri $Url -TimeoutSec $TimeoutSec
+      }
+      break;
+    } catch {
+      if ($i -eq ($Retries - 1) -and ($null -ne $FallbackUrl)) {
+        try {
+          if($null -ne $OutFile) {
+            Invoke-WebRequest -Uri $FallbackUrl -OutFile $OutFile -TimeoutSec $TimeoutSec
+          } else {
+            Invoke-WebRequest -Uri $FallbackUrl -TimeoutSec $TimeoutSec
+          }
+        } catch {
+          throw "Failed to download the build"
+        }
+      }
+    }
+  }
+}
+
 # Function to make sure printf is in PATH.
 Function Add-Printf {
   if (-not(Test-Path "C:\Program Files\Git\usr\bin\printf.exe")) {
     if(Test-Path "C:\msys64\usr\bin\printf.exe") {
       New-Item -Path $bin_dir\printf.exe -ItemType SymbolicLink -Value C:\msys64\usr\bin\printf.exe -Force > $null 2>&1
     } else {
-      Invoke-WebRequest -Uri "$github/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$bin_dir\printf.zip"
+      Get-File -Url "$github/shivammathur/printf/releases/latest/download/printf-x64.zip" -OutFile "$bin_dir\printf.zip"
       Expand-Archive -Path $bin_dir\printf.zip -DestinationPath $bin_dir -Force
     }
   } else {
@@ -166,7 +200,7 @@ Function Install-PSPackage() {
   $module_path = "$bin_dir\$psm1_path.psm1"
   if(-not (Test-Path $module_path -PathType Leaf)) {
     $zip_file = "$bin_dir\$package.zip"
-    Invoke-WebRequest -Uri $url -OutFile $zip_file
+    Get-File -Url $url -OutFile $zip_file
     Expand-Archive -Path $zip_file -DestinationPath $bin_dir -Force
   }
   Import-Module $module_path
@@ -229,14 +263,14 @@ Function Set-PhpCache {
         throw "Asset not found"
       }
     } catch {
-      $release = Invoke-WebRequest $php_builder/releases/expanded_assets/php$version
+      $release = Get-File -Url $php_builder/releases/expanded_assets/php$version
       $asset = $release.links.href | ForEach-Object {
         if($_ -match "php-$version.[0-9]+$env:PHPTS-Win32-.*-$arch.zip") {
           return $_.split('/')[-1]
         }
       }
     }
-    Invoke-WebRequest -UseBasicParsing -Uri $php_builder/releases/download/php$version/$asset -OutFile $php_dir\$asset
+    Get-File -Url $php_builder/releases/download/php$version/$asset -OutFile $php_dir\$asset
     Set-PhpDownloadCache -Path $php_dir CurrentUser
   } catch { }
 }
@@ -250,14 +284,14 @@ Function Add-DebugSymbols {
       return $_.name
     }
   }
-  Invoke-WebRequest -UseBasicParsing -Uri $php_builder/releases/download/php$version/$asset -OutFile $php_dir\$asset
+  Get-File -Url $php_builder/releases/download/php$version/$asset -OutFile $php_dir\$asset
   Expand-Archive -Path $php_dir\$asset -DestinationPath $php_dir -Force
   Get-ChildItem -Path $php_dir -Filter php_*.pdb | Move-Item -Destination $ext_dir
 }
 
 # Function to install nightly version of PHP
 Function Install-PhpNightly {
-  Invoke-WebRequest -UseBasicParsing -Uri $php_builder/releases/latest/download/Get-PhpNightly.ps1 -OutFile $php_dir\Get-PhpNightly.ps1 > $null 2>&1
+  Get-File -Url $php_builder/releases/latest/download/Get-PhpNightly.ps1 -FallbackUrl https://dl.cloudsmith.io/public/shivammathur/php-builder-windows/raw/files/Get-PhpNightly.ps1 -OutFile $php_dir\Get-PhpNightly.ps1 > $null 2>&1
   & $php_dir\Get-PhpNightly.ps1 -Architecture $arch -ThreadSafe $ts -Path $php_dir -Version $version > $null 2>&1
   if(Test-Path $php_dir\COMMIT) {
     return " ($( Get-Content $php_dir\COMMIT ))"
@@ -387,7 +421,7 @@ if($installed.MajorMinorVersion -ne $version) {
   exit 1
 }
 if($version -lt "5.5") {
-  ('libeay32.dll', 'ssleay32.dll') | ForEach-Object -Parallel { Invoke-WebRequest -Uri "$using:php_builder/releases/download/openssl-1.0.2u/$_" -OutFile $using:php_dir\$_ >$null 2>&1 }
+  ('libeay32.dll', 'ssleay32.dll') | ForEach-Object -Parallel { Get-File -Url "$using:php_builder/releases/download/openssl-1.0.2u/$_" -OutFile $using:php_dir\$_ >$null 2>&1 }
 } else {
   $enable_extensions += ('opcache')
 }

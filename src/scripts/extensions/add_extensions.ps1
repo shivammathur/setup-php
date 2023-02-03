@@ -65,7 +65,7 @@ Function Add-NightlyExtension {
   if($ts) { $ts_part = 'ts' } else { $ts_part = 'nts' }
   $repo = "$github/shivammathur/php-extensions-windows"
   $url = "$repo/releases/download/builds/php$version`_$ts_part`_$arch`_$extension.dll"
-  Invoke-WebRequest -UseBasicParsing -Uri $url  -OutFile "$ext_dir\php_$extension.dll"
+  Get-File -Url $url  -OutFile "$ext_dir\php_$extension.dll"
   if(Test-Path "$ext_dir\php_$extension.dll") {
     Enable-Extension $extension > $null
   } else {

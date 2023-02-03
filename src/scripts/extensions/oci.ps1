@@ -14,7 +14,7 @@ Function Add-InstantClient() {
     if ($arch -eq 'x86') {
       $suffix = 'nt'
     }
-    Invoke-WebRequest -Uri https://download.oracle.com/otn_software/nt/instantclient/instantclient-basiclite-$suffix.zip -OutFile $php_dir\instantclient.zip
+    Get-File -Url https://download.oracle.com/otn_software/nt/instantclient/instantclient-basiclite-$suffix.zip -OutFile $php_dir\instantclient.zip
     Expand-Archive -Path $php_dir\instantclient.zip -DestinationPath $php_dir -Force
     Copy-Item $php_dir\instantclient*\* $php_dir
   }
@@ -71,7 +71,7 @@ Function Add-Oci() {
           Copy-Item -Path $oci8DLL -Destination $ext_dir\php_oci8.dll
         } else {
           $status = 'Installed and enabled'
-          Invoke-WebRequest -Uri (Get-Oci8Url) -OutFile $php_dir\oci8.zip
+          Get-File -Url (Get-Oci8Url) -OutFile $php_dir\oci8.zip
           Expand-Archive -Path $php_dir\oci8.zip -DestinationPath $ext_dir -Force
         }
       }

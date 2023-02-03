@@ -294,7 +294,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 
 - Tools `prestissimo` and `composer-prefetcher` will be skipped unless `composer:v1` is also specified in tools input. It is recommended to drop `prestissimo` and use `composer v2`.
 
-- By default, expect `composer` tools which cannot be set up gracefully leave an error message in the logs, the execution is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.
+- By default, except `composer` tools which cannot be set up gracefully leave an error message in the logs, the execution is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.
 
 ```yaml
 - name: Setup PHP with fail-fast
@@ -514,12 +514,12 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-latest', 'windows-latest', 'macos-latest']
-        php-versions: ['8.0', '8.1', '8.2']
+        php-versions: ['8.1', '8.2', '8.3']
         phpunit-versions: ['latest']
         include:
-        - operating-system: 'ubuntu-latest'
-          php-versions: '7.2'
-          phpunit-versions: '8.5.21'
+          - operating-system: 'ubuntu-latest'
+            php-versions: '8.0'
+            phpunit-versions: 9
     steps:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -529,6 +529,8 @@ jobs:
         ini-values: post_max_size=256M, max_execution_time=180
         coverage: xdebug
         tools: php-cs-fixer, phpunit:${{ matrix.phpunit-versions }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Nightly Build Setup

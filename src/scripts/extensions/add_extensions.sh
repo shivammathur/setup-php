@@ -48,7 +48,13 @@ enable_extension() {
     [ -d "$modules_dir" ] && sudo find "$modules_dir" -path "*disabled*$1" -delete
     enable_extension_dependencies "$1" "$2"
     enable_cache_extension_dependencies "$1" "$2"
-    echo "$2=${ext_dir:?}/$1.so" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null
+    if command -v phpenmod >/dev/null 2>&1; then
+      mod="${ini_dir:?}"/../mods-available/"$1".ini
+      [ ! -e "$mod" ] || echo "$2=${ext_dir:?}/$1.so" | sudo tee "$mod" >/dev/null
+      sudo phpenmod -v "$version" "$1" >/dev/null 2>&1
+    else
+      echo "$2=${ext_dir:?}/$1.so" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null
+    fi
   fi
 }
 

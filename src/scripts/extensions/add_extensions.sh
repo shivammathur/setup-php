@@ -114,7 +114,7 @@ disable_all_shared() {
   sudo find "${ini_dir:-$scan_dir}"/.. -name "*.ini" -not -path "*php.ini" -not -path "*phar.ini" -not -path "*pecl.ini" -not -path "*mods-available*" -delete >/dev/null 2>&1 || true
   mkdir -p /tmp/extdisabled/"$version"
   sudo rm -f /tmp/php"$version"_extensions
-  sudo find "$ext_dir" -name '*.so' -print0 | xargs -0 -n 1 basename -s .so | xargs -n 1 -I{} touch /tmp/extdisabled/"$version"/{}
+  sudo find "$ext_dir" -name '*.so' -print0 | xargs -0 -n 1 basename -s .so | xargs -I{} touch /tmp/extdisabled/"$version"/{}
   add_log "${tick:?}" "none" "Disabled all shared extensions"
 }
 

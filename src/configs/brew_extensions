@@ -30,6 +30,7 @@ psr=psr
 raphf=raphf
 rdkafka=rdkafka
 redis=redis
+snmp=snmp
 sqlsrv=sqlsrv
 ssh2=ssh2
 swoole=swoole

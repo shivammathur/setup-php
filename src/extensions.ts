@@ -83,7 +83,7 @@ export async function addExtensionDarwin(
         add_script += await utils.getUnsupportedLog('pcov', version, 'darwin');
         return;
       // match brew extensions
-      case /(?<!5\.[3-5])(amqp|apcu|expect|gnupg|grpc|igbinary|imagick|imap|mailparse|mcrypt|memcache|memcached|mongodb|msgpack|protobuf|psr|raphf|rdkafka|redis|ssh2|swoole|uuid|xdebug|xdebug2|yaml|zmq)/.test(
+      case /(?<!5\.[3-5])(amqp|apcu|expect|gnupg|grpc|igbinary|imagick|imap|mailparse|mcrypt|memcache|memcached|mongodb|msgpack|protobuf|psr|raphf|rdkafka|redis|snmp|ssh2|swoole|uuid|xdebug|xdebug2|yaml|zmq)/.test(
         version_extension
       ):
       case /(?<!5\.[3-6])(ds|v8js)/.test(version_extension):

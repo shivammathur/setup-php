@@ -8,10 +8,11 @@ Function Get-ZephirParserReleaseAssetUrl() {
   )
   $repo = 'zephir-lang/php-zephir-parser'
   $zp_releases = "$github/$repo/releases"
+  $nts = if (!$installed.ThreadSafe) { "nts" } else { "ts" }
   try {
-    $match = (Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/tags/$extension_version").assets | Select-String -Pattern "browser_download_url=.*(zephir_parser-php-${version}.*windows.*.zip)"
+    $match = (Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/tags/$extension_version").assets | Select-String -Pattern "browser_download_url=.*(zephir_parser-php-${version}-$nts-windows.*.zip)"
   } catch {
-    $match = (Get-File -Url "$zp_releases/expanded_assets/$extension_version").Links.href | Select-String -Pattern "(zephir_parser-php-${version}.*windows.*.zip)"
+    $match = (Get-File -Url "$zp_releases/expanded_assets/$extension_version").Links.href | Select-String -Pattern "(zephir_parser-php-${version}-$nts-windows.*.zip)"
   }
   if($NULL -ne $match) {
     return "$zp_releases/download/$extension_version/$($match.Matches[0].Groups[1].Value)"

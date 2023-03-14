@@ -17,7 +17,7 @@ Function Edit-ComposerConfig() {
   php -r "try {`$p=new Phar('$tool_path.phar', 0);exit(0);} catch(Exception `$e) {exit(1);}"
   if ($? -eq $False) {
     Add-Log "$cross" "composer" "Could not download composer"
-    exit 1;
+    Write-Error "Error" -ErrorAction Stop
   }
   New-Item -ItemType Directory -Path $composer_bin -Force > $null 2>&1
   if (-not(Test-Path $composer_json)) {

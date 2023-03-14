@@ -23,7 +23,7 @@ Function Add-Log($mark, $subject, $message) {
   } else {
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $mark $subject $message
     if($env:fail_fast -eq 'true') {
-      exit 1;
+      Write-Error "Error" -ErrorAction Stop
     }
   }
 }
@@ -337,7 +337,7 @@ if ( $env:GITHUB_ACTIONS -eq 'true') {
 if(-not($env:ImageOS) -and -not($env:ImageVersion)) {
   if($env:RUNNER -eq 'github') {
     Add-Log $cross "Runner" "Runner set as github in self-hosted environment"
-    exit 1
+    Write-Error "Error" -ErrorAction Stop
   }
   $bin_dir = 'C:\tools\bin'
   $php_dir = "$php_dir$version"
@@ -348,7 +348,7 @@ if(-not($env:ImageOS) -and -not($env:ImageVersion)) {
   if($version -lt 5.6) {
     Add-Log $cross "PHP" "PHP $version is not supported on self-hosted runner"
     Start-Sleep 1
-    exit 1
+    Write-Error "Error" -ErrorAction Stop
   }
   if ($null -eq (Get-Module -ListAvailable -Name VcRedist)) {
     Install-Module -Name VcRedist -Force
@@ -418,7 +418,7 @@ if($env:DEBUG -eq 'true') {
 $installed = Get-Php -Path $php_dir
 if($installed.MajorMinorVersion -ne $version) {
   Add-Log $cross "PHP" "Could not setup PHP $version"
-  exit 1
+  Write-Error "Error" -ErrorAction Stop
 }
 if($version -lt "5.5") {
   ('libeay32.dll', 'ssleay32.dll') | ForEach-Object -Parallel { Get-File -Url "$using:php_builder/releases/download/openssl-1.0.2u/$_" -OutFile $using:php_dir\$_ >$null 2>&1 }

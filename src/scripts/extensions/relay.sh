@@ -27,7 +27,7 @@ get_os_suffix() {
 # Get openssl suffix in relay artifact URL.
 get_openssl_suffix() {
   openssl_3=$(php -r "echo strpos(OPENSSL_VERSION_TEXT, 'SSL 3') !== false;")
-  [ "$openssl_3" = "1" ] && echo '.libssl3' || echo ''
+  [ "$openssl_3" = "1" ] && echo '+libssl3' || echo ''
 }
 
 # Change library paths in relay binary.
@@ -110,11 +110,14 @@ add_relay_helper() {
   os_suffix="$(get_os_suffix)"
   openssl_suffix="$(get_openssl_suffix)"
   artifact_file_name="relay-$relay_version-php${version:?}-$os_suffix-$arch$openssl_suffix.tar.gz"
-  url="$relay_releases"/download/"$relay_version"/"$artifact_file_name"
-  fallback_url="$relay_trunk"/"$artifact_file_name"
-  get -q -n /tmp/relay.tar.gz "$url" "$fallback_url"
-  if [ "$openssl_suffix" = '.libssl3' ] && (! [ -e /tmp/relay.tar.gz ] || ! file /tmp/relay.tar.gz | grep -q 'gzip'); then
-    get -q -n /tmp/relay.tar.gz "${url/.libssl3/}" "${fallback_url/.libssl3/}"
+  url="$relay_trunk"/"$relay_version"/"$artifact_file_name"
+  get -q -n /tmp/relay.tar.gz "$url"
+  if (! [ -e /tmp/relay.tar.gz ] || ! file /tmp/relay.tar.gz | grep -q 'gzip'); then
+    if [ "$openssl_suffix" = '+libssl3' ]; then
+      get -q -n /tmp/relay.tar.gz "${url/+libssl3/}"
+    else
+      get -q -n /tmp/relay.tar.gz "${url/.tar/+libssl3.tar}"
+    fi
   fi
   if [ -e /tmp/relay.tar.gz ] && file /tmp/relay.tar.gz | grep -q 'gzip'; then
     sudo tar --strip-components=1 -xzf /tmp/relay.tar.gz -C "${ext_dir:?}"

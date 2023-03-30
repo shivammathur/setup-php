@@ -34,6 +34,9 @@ jobs:
           - operating-system: ubuntu-22.04
             php-versions: ''
             php-version-file: 'php-version-file'
+        exclude:
+          - operating-system: macos-latest
+            php-versions: '8.3'
     env:
       extensions: xml, opcache, xdebug, pcov, gd
       key: cache-v5

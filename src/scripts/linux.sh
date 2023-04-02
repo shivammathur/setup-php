@@ -96,7 +96,7 @@ add_devtools() {
 
 # Function to setup the nightly build from shivammathur/php-builder
 setup_nightly() {
-  run_script "php-builder" "${runner:?}" "$version" "${debug:?}" ${ts:?}
+  run_script "php-builder" "${runner:?}" "$version" "${debug:?}" "${ts:?}"
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.

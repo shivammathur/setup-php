@@ -50,7 +50,12 @@ enable_extension() {
     enable_cache_extension_dependencies "$1" "$2"
     if ! [[ "${version:?}" =~ ${old_versions:?} ]] && command -v phpenmod >/dev/null 2>&1; then
       mod="${ini_dir:?}"/../mods-available/"$1".ini
-      [ -e "$mod" ] || (echo "; priority=${3:'20'}"; echo "$2=${ext_dir:?}/$1.so") | sudo tee "$mod" >/dev/null
+      if ! [ -e "$mod" ]; then
+        priority="${3:-20}";
+        mod_priority_line="$(grep -E "^$1=" "${src:?}/configs/mod_priority")";
+        [ -n "$mod_priority_line" ] && priority=$(echo "$mod_priority_line" | cut -d'=' -f 2)
+        (echo "; priority=$priority"; echo "$2=${ext_dir:?}/$1.so") | sudo tee "$mod" >/dev/null
+      fi
       sudo phpenmod -v "$version" "$1" >/dev/null 2>&1
     else
       echo "$2=${ext_dir:?}/$1.so" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null

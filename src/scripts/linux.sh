@@ -15,10 +15,15 @@ self_hosted_helper() {
   install_packages apt-transport-https ca-certificates curl file make jq unzip autoconf automake gcc g++ gnupg
 }
 
+# Function to fix broken packages.
+fix_broken_packages() {
+  sudo apt --fix-broken install >/dev/null 2>&1
+}
+
 # Function to install a package
 install_packages() {
   packages=("$@")
-  $apt_install "${packages[@]}" >/dev/null 2>&1 || (update_lists && $apt_install "${packages[@]}" >/dev/null 2>&1)
+  $apt_install "${packages[@]}" >/dev/null 2>&1 || (update_lists && fix_broken_packages && $apt_install "${packages[@]}" >/dev/null 2>&1)
 }
 
 # Function to disable an extension.

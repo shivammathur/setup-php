@@ -147,15 +147,19 @@ Function Get-File {
       }
       break;
     } catch {
-      if ($i -eq ($Retries - 1) -and ($null -ne $FallbackUrl)) {
-        try {
-          if($null -ne $OutFile) {
-            Invoke-WebRequest -Uri $FallbackUrl -OutFile $OutFile -TimeoutSec $TimeoutSec
-          } else {
-            Invoke-WebRequest -Uri $FallbackUrl -TimeoutSec $TimeoutSec
+      if ($i -eq ($Retries - 1)) {
+        if($FallbackUrl) {
+          try {
+            if($null -ne $OutFile) {
+              Invoke-WebRequest -Uri $FallbackUrl -OutFile $OutFile -TimeoutSec $TimeoutSec
+            } else {
+              Invoke-WebRequest -Uri $FallbackUrl -TimeoutSec $TimeoutSec
+            }
+          } catch {
+            throw "Failed to download the assets from $Url and $FallbackUrl"
           }
-        } catch {
-          throw "Failed to download the assets from $Url and $FallbackUrl"
+        } else {
+          throw "Failed to download the assets from $Url"
         }
       }
     }

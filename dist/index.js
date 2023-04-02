@@ -557,7 +557,7 @@ async function getScript(os) {
     const ini_values_csv = await utils.getInput('ini-values', false);
     const coverage_driver = await utils.getInput('coverage', false);
     const tools_csv = await utils.getInput('tools', false);
-    const version = await utils.parseVersion(await utils.resolveVersion());
+    const version = await utils.parseVersion(await utils.readPHPVersion());
     const ini_file = await utils.parseIniFile(await utils.getInput('ini-file', false));
     let script = await utils.joins('.', script_path, version, ini_file);
     if (extension_csv) {
@@ -1036,7 +1036,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.setVariable = exports.resolveVersion = exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseIniFile = exports.parseVersion = exports.getManifestURL = exports.getInput = exports.readEnv = void 0;
+exports.setVariable = exports.readPHPVersion = exports.parseExtensionSource = exports.customPackage = exports.scriptTool = exports.scriptExtension = exports.joins = exports.getCommand = exports.getUnsupportedLog = exports.suppressOutput = exports.getExtensionPrefix = exports.CSVArray = exports.extensionArray = exports.addLog = exports.stepLog = exports.log = exports.color = exports.asyncForEach = exports.parseIniFile = exports.parseVersion = exports.getManifestURL = exports.getInput = exports.readEnv = void 0;
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
 const core = __importStar(__nccwpck_require__(2186));
@@ -1282,7 +1282,7 @@ async function parseExtensionSource(extension, prefix) {
     return await joins('\nadd_extension_from_source', ...matches.splice(1, matches.length), prefix);
 }
 exports.parseExtensionSource = parseExtensionSource;
-async function resolveVersion() {
+async function readPHPVersion() {
     const version = await getInput('php-version', false);
     if (version) {
         return version;
@@ -1296,7 +1296,7 @@ async function resolveVersion() {
     }
     return 'latest';
 }
-exports.resolveVersion = resolveVersion;
+exports.readPHPVersion = readPHPVersion;
 async function setVariable(variable, command, os) {
     switch (os) {
         case 'win32':

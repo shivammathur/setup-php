@@ -425,9 +425,9 @@ export async function parseExtensionSource(
 }
 
 /**
- * Resolve php version from input or file
+ * Read php version from input or file
  */
-export async function resolveVersion(): Promise<string> {
+export async function readPHPVersion(): Promise<string> {
   const version = await getInput('php-version', false);
   if (version) {
     return version;

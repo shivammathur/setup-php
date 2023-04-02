@@ -263,11 +263,11 @@ describe('Utils tests', () => {
     );
   });
 
-  it('checking resolveVersion', async () => {
-    expect(await utils.resolveVersion()).toBe('latest');
+  it('checking readPHPVersion', async () => {
+    expect(await utils.readPHPVersion()).toBe('latest');
 
     process.env['php-version-file'] = '.phpenv-version';
-    await expect(utils.resolveVersion()).rejects.toThrow(
+    await expect(utils.readPHPVersion()).rejects.toThrow(
       "Could not find '.phpenv-version' file."
     );
 
@@ -277,10 +277,10 @@ describe('Utils tests', () => {
     existsSync.mockReturnValue(true);
     readFileSync.mockReturnValue('8.1');
 
-    expect(await utils.resolveVersion()).toBe('8.1');
+    expect(await utils.readPHPVersion()).toBe('8.1');
 
     process.env['php-version'] = '8.2';
-    expect(await utils.resolveVersion()).toBe('8.2');
+    expect(await utils.readPHPVersion()).toBe('8.2');
 
     existsSync.mockClear();
     readFileSync.mockClear();

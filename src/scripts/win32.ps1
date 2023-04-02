@@ -155,7 +155,7 @@ Function Get-File {
             Invoke-WebRequest -Uri $FallbackUrl -TimeoutSec $TimeoutSec
           }
         } catch {
-          throw "Failed to download the build"
+          throw "Failed to download the assets from $Url and $FallbackUrl"
         }
       }
     }

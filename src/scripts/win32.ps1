@@ -258,7 +258,7 @@ Function Set-PhpCache {
         if($_.name -match "php-$version.[0-9]+$env:PHPTS-Win32-.*-$arch.zip") {
           return $_.name
         }
-      }
+      } | Select-Object -Last 1
       if($null -eq $asset) {
         throw "Asset not found"
       }
@@ -268,7 +268,7 @@ Function Set-PhpCache {
         if($_ -match "php-$version.[0-9]+$env:PHPTS-Win32-.*-$arch.zip") {
           return $_.split('/')[-1]
         }
-      }
+      } | Select-Object -Last 1
     }
     Get-File -Url $php_builder/releases/download/php$version/$asset -OutFile $php_dir\$asset
     Set-PhpDownloadCache -Path $php_dir CurrentUser
@@ -283,7 +283,7 @@ Function Add-DebugSymbols {
     if($_.name -match "php-debug-pack-$version.[0-9]+$dev$env:PHPTS-Win32-.*-$arch.zip") {
       return $_.name
     }
-  }
+  } | Select-Object -Last 1
   Get-File -Url $php_builder/releases/download/php$version/$asset -OutFile $php_dir\$asset
   Expand-Archive -Path $php_dir\$asset -DestinationPath $php_dir -Force
   Get-ChildItem -Path $php_dir -Filter php_*.pdb | Move-Item -Destination $ext_dir

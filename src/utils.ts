@@ -435,7 +435,7 @@ export async function resolveVersion(): Promise<string> {
   const versionFile =
     (await getInput('php-version-file', false)) || '.php-version';
   if (fs.existsSync(versionFile)) {
-    return fs.readFileSync(versionFile, 'utf8');
+    return fs.readFileSync(versionFile, 'utf8').replace(/[\r\n]/g, '');
   } else if (versionFile !== '.php-version') {
     throw new Error(`Could not find '${versionFile}' file.`);
   }

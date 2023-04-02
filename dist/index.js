@@ -1289,7 +1289,7 @@ async function resolveVersion() {
     }
     const versionFile = (await getInput('php-version-file', false)) || '.php-version';
     if (fs_1.default.existsSync(versionFile)) {
-        return fs_1.default.readFileSync(versionFile, 'utf8');
+        return fs_1.default.readFileSync(versionFile, 'utf8').replace(/[\r\n]/g, '');
     }
     else if (versionFile !== '.php-version') {
         throw new Error(`Could not find '${versionFile}' file.`);

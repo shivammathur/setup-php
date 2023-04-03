@@ -17,12 +17,6 @@ add_couchbase_clibs() {
 }
 
 add_couchbase_cxxlibs() {
-  if [ "$VERSION_ID" = "18.04" ]; then
-    if ! command -v gcc-8 >/dev/null || ! command -v g++-8 >/dev/null; then
-      install_packages gcc-8 g++-8 -y
-    fi
-    printf "gcc g++" | xargs -d ' ' -I {} sudo update-alternatives --install /usr/bin/{} {} /usr/bin/{}-8 8
-  fi
   if [ "${runner:?}" = "self-hosted" ]; then
     add_list cmake https://apt.kitware.com/ubuntu/ https://apt.kitware.com/keys/kitware-archive-latest.asc "$VERSION_CODENAME" main
   fi

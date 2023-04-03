@@ -75,7 +75,6 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 |---------------------|------------------------------------|------------------------|
 | Ubuntu 22.04        | `ubuntu-latest` or `ubuntu-22.04`  | `PHP 8.1`              |
 | Ubuntu 20.04        | `ubuntu-20.04`                     | `PHP 7.4` to `PHP 8.2` |
-| Ubuntu 18.04        | `ubuntu-18.04`                     | `PHP 7.2` to `PHP 8.2` |
 | Windows Server 2022 | `windows-latest` or `windows-2022` | `PHP 8.2`              |
 | Windows Server 2019 | `windows-2019`                     | `PHP 8.2`              |
 | macOS Monterey 12.x | `macos-12`                         | `PHP 8.2`              |
@@ -87,7 +86,6 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 |----------------------------------|----------------------------|
 | Ubuntu 22.04                     | `self-hosted` or `Linux`   |
 | Ubuntu 20.04                     | `self-hosted` or `Linux`   |
-| Ubuntu 18.04                     | `self-hosted` or `Linux`   |
 | Debian 11                        | `self-hosted` or `Linux`   |
 | Debian 10                        | `self-hosted` or `Linux`   |
 | Windows 7 and newer              | `self-hosted` or `Windows` |
@@ -707,9 +705,6 @@ act -P ubuntu-22.04=shivammathur/node:2204
 
 # For runs-on: ubuntu-20.04
 act -P ubuntu-20.04=shivammathur/node:2004
-
-# For runs-on: ubuntu-18.04
-act -P ubuntu-18.04=shivammathur/node:1804
 ```
 
 ### JIT Configuration

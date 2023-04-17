@@ -281,13 +281,22 @@ Function Set-PhpCache {
 
 # Function to add debug symbols to PHP.
 Function Add-DebugSymbols {
-  $release = Invoke-RestMethod https://api.github.com/repos/shivammathur/php-builder-windows/releases/tags/php$version
   $dev = if ($version -match $nightly_versions) { '-dev' } else { '' }
-  $asset = $release.assets | ForEach-Object {
-    if($_.name -match "php-debug-pack-$version.[0-9]+$dev$env:PHPTS-Win32-.*-$arch.zip") {
-      return $_.name
-    }
-  } | Select-Object -Last 1
+  try {
+    $release = Invoke-RestMethod https://api.github.com/repos/shivammathur/php-builder-windows/releases/tags/php$version
+    $asset = $release.assets | ForEach-Object {
+      if($_.name -match "php-debug-pack-$version.[0-9]+$dev$env:PHPTS-Win32-.*-$arch.zip") {
+        return $_.name
+      }
+    } | Select-Object -Last 1
+  } catch {
+    $release = Get-File -Url $php_builder/releases/expanded_assets/php$version
+    $asset = $release.links.href | ForEach-Object {
+      if($_ -match "php-debug-pack-$version.[0-9]+$dev$env:PHPTS-Win32-.*-$arch.zip") {
+        return $_.split('/')[-1]
+      }
+    } | Select-Object -Last 1
+  }
   Get-File -Url $php_builder/releases/download/php$version/$asset -OutFile $php_dir\$asset
   Expand-Archive -Path $php_dir\$asset -DestinationPath $php_dir -Force
   Get-ChildItem -Path $php_dir -Filter php_*.pdb | Move-Item -Destination $ext_dir

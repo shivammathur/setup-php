@@ -4,6 +4,7 @@ apcu-bc=25
 blackfire=30
 decimal=30
 ds=30
+event=30
 grpc=30
 http=25
 pecl_http=25

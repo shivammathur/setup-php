@@ -260,7 +260,7 @@ async function addExtensionDarwin(extension_csv, version) {
             case /.+-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(extension):
                 add_script += await utils.joins('\nadd_unstable_extension', ext_name, ext_version, ext_prefix);
                 return;
-            case /.+-\d+\.\d+\.\d+.*/.test(extension):
+            case /.+-\d+(\.\d+\.\d+.*)?/.test(extension):
                 add_script += await utils.joins('\nadd_pecl_extension', ext_name, ext_version, ext_prefix);
                 return;
             case /(5\.[3-6]|7\.0)pcov/.test(version_extension):
@@ -313,12 +313,12 @@ async function addExtensionWindows(extension_csv, version) {
             case /.+-.+\/.+@.+/.test(extension):
                 add_script += await utils.getUnsupportedLog(extension, version, 'win32');
                 break;
-            case /.+-\d+\.\d+\.\d+$/.test(extension):
-                add_script += await utils.joins('\nAdd-Extension', ext_name, 'stable', ext_version);
-                break;
             case /.+-\d+\.\d+\.\d+[a-zA-Z]+\d*/.test(extension):
                 matches = /.+-(\d+\.\d+\.\d+)([a-zA-Z]+)\d*/.exec(version_extension);
                 add_script += await utils.joins('\nAdd-Extension', ext_name, matches[2].replace('preview', 'devel'), matches[1]);
+                break;
+            case /.+-\d+(\.\d+\.\d+.*)?/.test(extension):
+                add_script += await utils.joins('\nAdd-Extension', ext_name, 'stable', ext_version);
                 break;
             case /7\.[2-4]xdebug2/.test(version_extension):
                 add_script += '\nAdd-Extension xdebug stable 2.9.8';
@@ -379,7 +379,7 @@ async function addExtensionLinux(extension_csv, version) {
             case /.+-(stable|beta|alpha|devel|snapshot|rc|preview)/.test(extension):
                 add_script += await utils.joins('\nadd_unstable_extension', ext_name, ext_version, ext_prefix);
                 return;
-            case /.+-\d+\.\d+\.\d+.*/.test(extension):
+            case /.+-\d+(\.\d+\.\d+.*)?/.test(extension):
                 add_script += await utils.joins('\nadd_pecl_extension', ext_name, ext_version, ext_prefix);
                 return;
             case /(5\.[3-6]|7\.0)pcov/.test(version_extension):

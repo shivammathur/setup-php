@@ -49,6 +49,7 @@ describe('Extension tests', () => {
     ${'http-1.2.3'}                              | ${'7.3'} | ${'add_http http-1.2.3'}
     ${'intl-65.1'}                               | ${'5.6'} | ${'add_intl intl-65.1'}
     ${'ioncube'}                                 | ${'7.3'} | ${'add_ioncube'}
+    ${'memcache-8.2'}                            | ${'8.2'} | ${'add_pecl_extension memcache 8.2 extension'}
     ${'mongodb-mongodb/mongo-php-driver@master'} | ${'7.3'} | ${'add_extension_from_source mongodb https://github.com mongodb mongo-php-driver master extension'}
     ${'oci8'}                                    | ${'7.3'} | ${'add_oci oci8'}
     ${'pcov'}                                    | ${'5.6'} | ${'add_log "$cross" "pcov" "pcov is not supported on PHP 5.6'}

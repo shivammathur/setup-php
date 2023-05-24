@@ -49,6 +49,7 @@ enable_extension() {
     enable_extension_dependencies "$1" "$2"
     enable_cache_extension_dependencies "$1" "$2"
     if ! [[ "${version:?}" =~ ${old_versions:?} ]] && command -v phpenmod >/dev/null 2>&1; then
+      sudo sed -Ei "/=(.*\/)?\"?$extension(.so)?\"?$/d" "$pecl_file"
       mod="${ini_dir:?}"/../mods-available/"$1".ini
       if ! [ -e "$mod" ]; then
         priority="${3:-20}";
@@ -134,7 +135,6 @@ configure_pecl() {
   [ -z "${pecl_file:-${ini_file[@]}}" ] && return
   if ! [ -e /tmp/pecl_config ]; then
     for script in pear pecl; do
-      sudo "$script" config-set php_ini "${pecl_file:-${ini_file[@]}}"
       sudo "$script" channel-update "$script".php.net
     done
     echo '' | sudo tee /tmp/pecl_config >/dev/null 2>&1
@@ -174,17 +174,22 @@ get_pecl_version() {
 # Function to install PECL extensions and accept default options
 pecl_install() {
   local extension=$1
+  local prefix=${2:-extension}
   add_pecl >/dev/null 2>&1
   cpu_count="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo '1')"
   prefix_opts="$(parse_args "$extension" CONFIGURE_PREFIX_OPTS) MAKEFLAGS='-j $cpu_count'"
   suffix_opts="$(parse_args "$extension" CONFIGURE_OPTS) $(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"
   IFS=' ' read -r -a libraries <<<"$(parse_args "$extension" LIBS) $(parse_args "$extension" "$(uname -s)"_LIBS)"
   (( ${#libraries[@]} )) && add_libs "${libraries[@]}" >/dev/null 2>&1
+  disable_extension_helper "${extension%-*}" >/dev/null 2>&1
   if [ "$version" = "5.3" ]; then
     yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f "$extension" >/dev/null 2>&1
   else
     yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f -D "$(parse_pecl_configure_options "$suffix_opts")" "$extension" >/dev/null 2>&1
   fi
+  local exit_code=$?
+  enable_extension "${extension%-*}" "$prefix"
+  return "$exit_code"
 }
 
 # Function to install a specific version of PECL extension.
@@ -200,7 +205,6 @@ add_pecl_extension() {
   if [ "${ext_version/-/}" = "$pecl_version" ]; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
-    disable_extension_helper "$extension" >/dev/null 2>&1
     [ -n "$pecl_version" ] && pecl_version="-$pecl_version"
     pecl_install "$extension$pecl_version" || add_extension "$extension" "$(get_extension_prefix "$extension")" >/dev/null 2>&1
     extension_version="$(php -r "echo phpversion('$extension');")"

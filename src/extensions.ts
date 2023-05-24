@@ -70,7 +70,7 @@ export async function addExtensionDarwin(
         );
         return;
       // match semver
-      case /.+-\d+\.\d+\.\d+.*/.test(extension):
+      case /.+-\d+(\.\d+\.\d+.*)?/.test(extension):
         add_script += await utils.joins(
           '\nadd_pecl_extension',
           ext_name,
@@ -176,15 +176,6 @@ export async function addExtensionWindows(
           'win32'
         );
         break;
-      // match semver without state
-      case /.+-\d+\.\d+\.\d+$/.test(extension):
-        add_script += await utils.joins(
-          '\nAdd-Extension',
-          ext_name,
-          'stable',
-          ext_version
-        );
-        break;
       // match semver with state
       case /.+-\d+\.\d+\.\d+[a-zA-Z]+\d*/.test(extension):
         matches = /.+-(\d+\.\d+\.\d+)([a-zA-Z]+)\d*/.exec(
@@ -195,6 +186,15 @@ export async function addExtensionWindows(
           ext_name,
           matches[2].replace('preview', 'devel'),
           matches[1]
+        );
+        break;
+      // match semver without state
+      case /.+-\d+(\.\d+\.\d+.*)?/.test(extension):
+        add_script += await utils.joins(
+          '\nAdd-Extension',
+          ext_name,
+          'stable',
+          ext_version
         );
         break;
       // match 7.2xdebug2 to 7.4xdebug2
@@ -306,7 +306,7 @@ export async function addExtensionLinux(
         );
         return;
       // match semver versions
-      case /.+-\d+\.\d+\.\d+.*/.test(extension):
+      case /.+-\d+(\.\d+\.\d+.*)?/.test(extension):
         add_script += await utils.joins(
           '\nadd_pecl_extension',
           ext_name,

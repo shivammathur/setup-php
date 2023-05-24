@@ -540,4 +540,22 @@ describe('Tools tests', () => {
     process.env['GITHUB_TOKEN'] = token;
     expect(await tools.addTools(tools_csv, '7.4', 'linux')).toContain(script);
   });
+
+  it.each`
+    tools_csv    | php_version | resolved
+    ${'phpunit'} | ${'8.2'}    | ${'/phpunit.phar'}
+    ${'phpunit'} | ${'8.1'}    | ${'/phpunit.phar'}
+    ${'phpunit'} | ${'8.0'}    | ${'/phpunit-9.6.8.phar'}
+    ${'phpunit'} | ${'7.3'}    | ${'/phpunit-9.6.8.phar'}
+    ${'phpunit'} | ${'7.2'}    | ${'/phpunit-8.5.33.phar'}
+    ${'phpunit'} | ${'7.1'}    | ${'/phpunit-7.5.20.phar'}
+    ${'phpunit'} | ${'7.0'}    | ${'/phpunit-6.5.14.phar'}
+  `(
+    'checking error: $tools_csv',
+    async ({tools_csv, php_version, resolved}) => {
+      expect(await tools.addTools(tools_csv, php_version, 'linux')).toContain(
+        resolved
+      );
+    }
+  );
 });

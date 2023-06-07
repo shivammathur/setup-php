@@ -188,7 +188,7 @@ pecl_install() {
     yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f -D "$(parse_pecl_configure_options "$suffix_opts")" "$extension" >/dev/null 2>&1
   fi
   local exit_code=$?
-  sudo pecl info "$extension" | grep -iq 'PECL-style zend extension' && prefix=zend_extension
+  sudo pecl info "$extension" | grep -iq 'zend extension' && prefix=zend_extension
   enable_extension "${extension%-*}" "$prefix"
   return "$exit_code"
 }

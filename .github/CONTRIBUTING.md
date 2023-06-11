@@ -71,6 +71,7 @@ npm test
 Creating a release means compiling all the TypeScript code to a single file which `setup-php` can run. Run this, before you push your changes.
 
 ```bash
+npm run build
 npm run release
 ```
 

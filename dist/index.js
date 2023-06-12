@@ -946,7 +946,7 @@ exports.addPhive = addPhive;
 async function addPHPUnitTools(data) {
     if (data['version'] === 'latest') {
         data['version'] =
-            (await packagist.search(data['repository'], data['php_version'])) ??
+            (await packagist.search(data['packagist'], data['php_version'])) ??
                 'latest';
     }
     data['url'] = await getPharUrl(data);
@@ -1000,6 +1000,7 @@ async function getData(release, php_version, os) {
     data['extension'] ??= '.phar';
     data['os'] = os;
     data['php_version'] = php_version;
+    data['packagist'] ??= data['repository'];
     data['prefix'] = data['github'] === data['domain'] ? 'releases' : '';
     data['verb'] = data['github'] === data['domain'] ? 'download' : '';
     data['fetch_latest'] ??= 'false';

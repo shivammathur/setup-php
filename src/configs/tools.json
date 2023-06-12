@@ -267,7 +267,8 @@
   },
   "phpunit": {
     "type": "custom-function",
-    "repository": "phpunit/phpunit",
+    "repository": "sebastianbergmann/phpunit",
+    "packagist": "phpunit/phpunit",
     "domain": "https://phar.phpunit.de",
     "function": "phpunit",
     "version_prefix": "",

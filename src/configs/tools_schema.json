@@ -13,6 +13,7 @@
         "fetch_latest": "true",
         "function": "function_name",
         "repository": "user/tool",
+        "packagist": "user/tool",
         "scope": "global, scoped",
         "type": "phar, composer, custom-package or custom-function",
         "version_parameter": "--version",
@@ -73,6 +74,15 @@
         "type": "string",
         "title": "The repository schema",
         "description": "GitHub repository of the tool.",
+        "examples": [
+          "user/tool"
+        ]
+      },
+      "packagist": {
+        "$id": "#/items/properties/packagist",
+        "type": "string",
+        "title": "The repository schema",
+        "description": "Packagist repository of the tool in case different from repository.",
         "examples": [
           "user/tool"
         ]

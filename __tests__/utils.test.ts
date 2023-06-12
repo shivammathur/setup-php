@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs = require('fs');
 import * as path from 'path';
 import * as utils from '../src/utils';
 

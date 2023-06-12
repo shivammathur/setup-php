@@ -1200,7 +1200,8 @@ async function CSVArray(values_csv) {
                     .trim()
                     .replace(/^["']|["']$|(?<==)["']/g, '')
                     .replace(/=(((?!E_).)*[?{}|&~![()^]+((?!E_).)+)/, "='$1'")
-                    .replace(/=(.*?)(=.*)/, "='$1$2'");
+                    .replace(/=(.*?)(=.*)/, "='$1$2'")
+                    .replace(/:\s*["'](.*?)/g, ':$1');
             })
                 .filter(Boolean);
     }

@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import * as fetch from './fetch';
+import * as packagist from './packagist';
 import * as utils from './utils';
 
 type RS = Record<string, string>;
@@ -392,16 +393,10 @@ export async function addPhive(data: RS): Promise<string> {
  * @param data
  */
 export async function addPHPUnitTools(data: RS): Promise<string> {
-  if (data['version'] == 'latest') {
-    if (/7\.3|8\.0/.test(data['php_version'])) {
-      data['version'] = '9.6.8';
-    } else if (/7\.[2-3]/.test(data['php_version'])) {
-      data['version'] = '8.5.33';
-    } else if (/7\.[1-3]/.test(data['php_version'])) {
-      data['version'] = '7.5.20';
-    } else if (/7\.[0-2]/.test(data['php_version'])) {
-      data['version'] = '6.5.14';
-    }
+  if (data['version'] === 'latest') {
+    data['version'] =
+      (await packagist.search(data['repository'], data['php_version'])) ??
+      'latest';
   }
   data['url'] = await getPharUrl(data);
   return await addArchive(data);

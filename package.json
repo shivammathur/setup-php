@@ -36,7 +36,8 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/exec": "^1.1.1",
-    "@actions/io": "^1.1.3"
+    "@actions/io": "^1.1.3",
+    "compare-versions": "^6.0.0-rc.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",

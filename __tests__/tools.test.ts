@@ -539,6 +539,7 @@ describe('Tools tests', () => {
     const data = getData({
       tool: 'castor',
       php_version: '8.1',
+      version_prefix: 'v',
       version: version,
       os: os
     });

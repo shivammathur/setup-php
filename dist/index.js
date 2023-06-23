@@ -682,7 +682,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.addTools = exports.functionRecord = exports.getData = exports.addWPCLI = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.getRelease = exports.getVersion = exports.getLatestVersion = exports.getSemverVersion = void 0;
+exports.addTools = exports.functionRecord = exports.getData = exports.addWPCLI = exports.addPHPUnitTools = exports.addPhive = exports.addPhing = exports.addPECL = exports.addDevTools = exports.addDeployer = exports.addComposer = exports.addCastor = exports.addBlackfirePlayer = exports.addPackage = exports.addArchive = exports.getPharUrl = exports.getUrl = exports.filterList = exports.getRelease = exports.getVersion = exports.getLatestVersion = exports.getSemverVersion = void 0;
 const path_1 = __importDefault(__nccwpck_require__(1017));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const fetch = __importStar(__nccwpck_require__(2387));
@@ -837,6 +837,29 @@ async function addBlackfirePlayer(data) {
     return addArchive(data);
 }
 exports.addBlackfirePlayer = addBlackfirePlayer;
+async function addCastor(data) {
+    let filename;
+    switch (data['os']) {
+        case 'linux':
+        case 'darwin':
+            filename = 'castor.' + data['os'] + '-amd64.phar';
+            break;
+        case 'win32':
+            filename = 'castor.windows-amd64.phar';
+            break;
+        default:
+            return await utils.log('Platform ' + data['os'] + ' is not supported', data['os'], 'error');
+    }
+    if (data['version'] === 'latest') {
+        data['uri'] = ['releases/latest/download', filename].join('/');
+    }
+    else {
+        data['uri'] = ['releases/download', 'v' + data['version'], filename].join('/');
+    }
+    data['url'] = [data['domain'], data['repository'], data['uri']].join('/');
+    return await addArchive(data);
+}
+exports.addCastor = addCastor;
 async function addComposer(data) {
     const channel = data['version'].replace('latest', 'stable');
     const github = data['github'];
@@ -1015,6 +1038,7 @@ async function getData(release, php_version, os) {
 }
 exports.getData = getData;
 exports.functionRecord = {
+    castor: addCastor,
     composer: addComposer,
     deployer: addDeployer,
     dev_tools: addDevTools,

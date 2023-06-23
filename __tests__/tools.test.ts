@@ -527,6 +527,25 @@ describe('Tools tests', () => {
   );
 
   it.each`
+    version     | os           | uri
+    ${'latest'} | ${'linux'}   | ${'releases/latest/download/castor.linux-amd64.phar'}
+    ${'0.5.1'}  | ${'linux'}   | ${'releases/download/v0.5.1/castor.linux-amd64.phar'}
+    ${'latest'} | ${'darwin'}  | ${'releases/latest/download/castor.darwin-amd64.phar'}
+    ${'0.5.1'}  | ${'darwin'}  | ${'releases/download/v0.5.1/castor.darwin-amd64.phar'}
+    ${'latest'} | ${'win32'}   | ${'releases/latest/download/castor.windows-amd64.phar'}
+    ${'0.5.1'}  | ${'win32'}   | ${'releases/download/v0.5.1/castor.windows-amd64.phar'}
+    ${'latest'} | ${'openbsd'} | ${'Platform openbsd is not supported'}
+  `('checking addCastor: $version, $os', async ({version, os, uri}) => {
+    const data = getData({
+      tool: 'castor',
+      php_version: '8.1',
+      version: version,
+      os: os
+    });
+    expect(await tools.addCastor(data)).toContain(uri);
+  });
+
+  it.each`
     tools_csv                                             | script
     ${'none'}                                             | ${''}
     ${'none, phpunit'}                                    | ${'\nstep_log "Setup Tools"\nadd_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer latest\n\nadd_tool https://phar.phpunit.de/phpunit-7.4.0.phar phpunit "--version"'}

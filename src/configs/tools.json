@@ -222,6 +222,12 @@
     "version_prefix": "v",
     "version_parameter": "-V"
   },
+  "castor": {
+    "type": "custom-function",
+    "domain": "https://github.com",
+    "repository": "jolicode/castor",
+    "function": "castor"
+  },
   "composer": {
     "type": "custom-function",
     "domain": "https://getcomposer.org",

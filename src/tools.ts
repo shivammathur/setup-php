@@ -231,6 +231,39 @@ export async function addBlackfirePlayer(data: RS): Promise<string> {
 }
 
 /**
+ * Function to add Castor
+ *
+ * @param data
+ */
+export async function addCastor(data: RS): Promise<string> {
+  let filename: string;
+  switch (data['os']) {
+    case 'linux':
+    case 'darwin':
+      filename = 'castor.' + data['os'] + '-amd64.phar';
+      break;
+    case 'win32':
+      filename = 'castor.windows-amd64.phar';
+      break;
+    default:
+      return await utils.log(
+        'Platform ' + data['os'] + ' is not supported',
+        data['os'],
+        'error'
+      );
+  }
+  if (data['version'] === 'latest') {
+    data['uri'] = ['releases/latest/download', filename].join('/');
+  } else {
+    data['uri'] = ['releases/download', 'v' + data['version'], filename].join(
+      '/'
+    );
+  }
+  data['url'] = [data['domain'], data['repository'], data['uri']].join('/');
+  return await addArchive(data);
+}
+
+/**
  * Function to add composer
  *
  * @param data
@@ -479,6 +512,7 @@ export async function getData(
 }
 
 export const functionRecord: Record<string, (data: RS) => Promise<string>> = {
+  castor: addCastor,
   composer: addComposer,
   deployer: addDeployer,
   dev_tools: addDevTools,

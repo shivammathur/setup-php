@@ -841,6 +841,9 @@ async function addCastor(data) {
     data['tool'] = 'castor.' + data['os'].replace('win32', 'windows') + '-amd64';
     data['url'] = await getUrl(data);
     data['tool'] = 'castor';
+    data['version_parameter'] = fs_1.default.existsSync('castor.php')
+        ? data['version_parameter']
+        : '';
     return await addArchive(data);
 }
 exports.addCastor = addCastor;

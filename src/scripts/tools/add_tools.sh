@@ -19,7 +19,7 @@ get_tool_version() {
       composer_version="$(grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")"
     fi
     echo "$composer_version" | sudo tee /tmp/composer_version
-  else
+  elif [ -n "$param" ]; then
     $tool "$param" 2>/dev/null | sed -Ee "s/[Cc]omposer(.)?$version_regex//g" | grep -Eo "$version_regex" | head -n 1
   fi
 }

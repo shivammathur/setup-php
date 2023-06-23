@@ -1,3 +1,4 @@
+import fs = require('fs');
 import * as tools from '../src/tools';
 
 interface IData {
@@ -533,7 +534,7 @@ describe('Tools tests', () => {
     ${'latest'} | ${'darwin'}  | ${'releases/latest/download/castor.darwin-amd64.phar'}
     ${'0.5.1'}  | ${'darwin'}  | ${'releases/download/v0.5.1/castor.darwin-amd64.phar'}
     ${'latest'} | ${'win32'}   | ${'releases/latest/download/castor.windows-amd64.phar'}
-    ${'0.5.1'}  | ${'win32'}   | ${'releases/download/v0.5.1/castor.windows-amd64.phar'}
+    ${'0.5.1'}  | ${'win32'}   | ${'releases/download/v0.5.1/castor.windows-amd64.phar castor -V'}
     ${'latest'} | ${'openbsd'} | ${'Platform openbsd is not supported'}
   `('checking addCastor: $version, $os', async ({version, os, uri}) => {
     const data = getData({
@@ -543,7 +544,13 @@ describe('Tools tests', () => {
       version: version,
       os: os
     });
-    expect(await tools.addCastor(data)).toContain(uri);
+    if (os === 'win32' && version === '0.5.1') {
+      fs.writeFileSync('castor.php', '');
+      expect(await tools.addCastor(data)).toContain(uri);
+      fs.unlinkSync('castor.php');
+    } else {
+      expect(await tools.addCastor(data)).toContain(uri);
+    }
   });
 
   it.each`

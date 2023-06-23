@@ -57,7 +57,7 @@ Function Get-ToolVersion() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     $tool,
-    [Parameter(Position = 1, Mandatory = $true)]
+    [Parameter(Position = 1, Mandatory = $false)]
     $param
   )
   $alp = "[a-zA-Z0-9\.]"
@@ -72,7 +72,9 @@ Function Get-ToolVersion() {
     Set-Variable -Name 'composer_version' -Value $composer_version -Scope Global
     return "$composer_version"
   }
-  return . $tool $param 2> $null | ForEach-Object { $_ -replace "composer $version_regex", '' } | Select-String -Pattern $version_regex | Select-Object -First 1 | ForEach-Object { $_.matches.Value }
+  if($null -ne $param) {
+    return . $tool $param 2> $null | ForEach-Object { $_ -replace "composer $version_regex", '' } | Select-String -Pattern $version_regex | Select-Object -First 1 | ForEach-Object { $_.matches.Value }
+  }
 }
 
 # Helper function to configure tools.
@@ -135,8 +137,7 @@ Function Add-Tool() {
     [Parameter(Position = 1, Mandatory = $true)]
     [ValidateNotNull()]
     $tool,
-    [Parameter(Position = 2, Mandatory = $true)]
-    [ValidateNotNull()]
+    [Parameter(Position = 2, Mandatory = $false)]
     $ver_param
   )
   if (Test-Path $bin_dir\$tool) {

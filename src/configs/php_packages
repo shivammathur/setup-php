@@ -2,6 +2,7 @@ cgi
 cli
 curl
 dev
+embed
 fpm
 intl
 mbstring

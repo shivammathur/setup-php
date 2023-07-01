@@ -4473,6 +4473,10 @@ function copyFile(srcFile, destFile, force) {
         if (range.includes('||')) {
             return range.split('||').some((r) => satisfies(version, r));
         }
+        else if (range.includes(' - ')) {
+            const [a, b] = range.split(' - ', 2);
+            return satisfies(version, `>=${a} <=${b}`);
+        }
         else if (range.includes(' ')) {
             return range
                 .trim()
@@ -4554,6 +4558,7 @@ function copyFile(srcFile, destFile, force) {
         '=': [0],
         '<=': [-1, 0],
         '<': [-1],
+        '!=': [-1, 1],
     };
     const allowedOperators = Object.keys(operatorResMap);
     const assertValidOperator = (op) => {

@@ -59,7 +59,7 @@ update_lists() {
   if [[ -n "$ppa" && -n "$ppa_search" ]]; then
     list="$list_dir"/"$(basename "$(grep -lr "$ppa_search" "$list_dir")")"
     status_file=/tmp/"${ppa/\//_}"
-  elif grep -Eq '^deb ' "$list_file"; then
+  elif [ -e "$list_file" ] && grep -Eq '^deb ' "$list_file"; then
     list="$list_file"
   fi
   if [ ! -e "$status_file" ]; then

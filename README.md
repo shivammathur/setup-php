@@ -50,6 +50,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Self Hosted Setup](#self-hosted-setup)
   - [Local Testing Setup](#local-testing-setup)
   - [JIT Configuration](#jit-configuration)
+  - [Dynamic Settings from Composer](#dynamic-settings-from-composer)
   - [Cache Extensions](#cache-extensions)
   - [Cache Composer Dependencies](#cache-composer-dependencies)
   - [GitHub Composer Authentication](#github-composer-authentication)
@@ -726,6 +727,55 @@ For example to enable JIT in `tracing` mode with buffer size of `64 MB`.
     coverage: none
     ini-values: opcache.enable_cli=1, opcache.jit=tracing, opcache.jit_buffer_size=64M
 ```
+
+### Dynamic Settings from Composer
+
+If you would like to automatically keep setup-php in sync with PHP versions or required extensions listed in your composer.json, you can use other actions from the Github Actions ecosystem to easily parse your composer.json file.
+
+- To set the PHP version for setup-php using [Composer's "platform" configuration setting](https://getcomposer.org/doc/06-config.md#platform), parse the version out of the composer.json using an action combination such as:
+```yaml
+- uses: actions/checkout@v3
+- name: Get required PHP version
+  uses: sergeysova/jq-action@v2
+  id: php_version
+  with:
+    cmd: |
+      jq '.config.platform.php' composer.json -r
+- name: Setup PHP runtime
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: "${{ steps.php_version.outputs.value }}"
+```
+- To set the PHP version for setup-php to the first PHP version listed in your composer.json "require" section, parse the value with an actions combination such as:
+```yaml
+- uses: actions/checkout@v3
+- name: Get required PHP version
+  uses: sergeysova/jq-action@v2
+  id: php_version
+  with:
+    cmd: |
+      jq '.require.php | gsub("\\s.*$";"") | gsub("[^0-9\\.]";"")' composer.json -r
+- name: Setup PHP runtime
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: "${{ steps.php_version.outputs.value }}"
+```
+- Similarly, you can get a list of required PHP extensions from composer.json with:
+```yaml
+- uses: actions/checkout@v3
+- name: Get required PHP extensions
+  uses: sergeysova/jq-action@v2
+  id: php_extensions
+  with:
+    cmd: |
+      jq '.require | to_entries | map(select(.key | match("ext-";"i"))) | map(.key) | @csv | gsub("ext-";"")' composer.json -r
+- name: Setup PHP runtime
+  uses: shivammathur/setup-php@v2
+  with:
+    extensions: "${{ steps.php_extensions.outputs.value }}"
+```
+- To set up multiple PHP versions in a range supported by your project, the [Composer PHP Versions in range
+  ](https://github.com/marketplace/actions/composer-php-versions-in-range) can create a matrix of supported versions which can be used by setup-php.
 
 ### Cache Extensions
 

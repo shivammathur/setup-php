@@ -104,6 +104,15 @@ link_libraries() {
   done
 }
 
+# Link opcache extension to extensions directory.
+link_opcache() {
+  opcache_ini="$brew_prefix"/etc/php/"$version"/conf.d/ext-opcache.ini
+  if [ -e "$opcache_ini" ]; then
+    opcache_ext=$(grep -Eo "zend_extension.*opcache.*\.so" "$opcache_ini" | cut -d '"' -f 2)
+    sudo ln -sf "$opcache_ext" "$ext_dir"
+  fi
+}
+
 # Patch brew to overwrite packages.
 patch_brew() {
   formula_installer="${brew_repo:?}"/Library/Homebrew/formula_installer.rb
@@ -233,6 +242,7 @@ setup_php() {
   semver="$(php_semver)"
   extra_version="$(php_extra_version)"
   configure_php
+  link_opcache
   set_output "php-version" "$semver"
   if [ "${semver%.*}" != "$version" ]; then
     add_log "${cross:?}" "PHP" "Could not setup PHP $version"

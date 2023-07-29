@@ -300,13 +300,6 @@ describe('Utils tests', () => {
     );
     expect(await utils.readPHPVersion()).toBe('7.4.33');
 
-    existsSync
-      .mockReturnValueOnce(false)
-      .mockReturnValueOnce(false)
-      .mockReturnValueOnce(true);
-    readFileSync.mockReturnValue('{ "require": { "php": "^8.2" } }');
-    expect(await utils.readPHPVersion()).toBe('^8.2');
-
     existsSync.mockClear();
     readFileSync.mockClear();
   });

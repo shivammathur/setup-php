@@ -464,12 +464,6 @@ export async function readPHPVersion(): Promise<string> {
     ) {
       return composerFileContents['config']['platform']['php'];
     }
-    if (
-      composerFileContents['require'] &&
-      composerFileContents['require']['php']
-    ) {
-      return composerFileContents['require']['php'];
-    }
   }
 
   return 'latest';

@@ -1371,6 +1371,23 @@ async function readPHPVersion() {
     else if (versionFile !== '.php-version') {
         throw new Error(`Could not find '${versionFile}' file.`);
     }
+    const composerLock = 'composer.lock';
+    if (fs_1.default.existsSync(composerLock)) {
+        const lockFileContents = JSON.parse(fs_1.default.readFileSync(composerLock, 'utf8'));
+        if (lockFileContents['platform-overrides'] &&
+            lockFileContents['platform-overrides']['php']) {
+            return lockFileContents['platform-overrides']['php'];
+        }
+    }
+    const composerJson = 'composer.json';
+    if (fs_1.default.existsSync(composerJson)) {
+        const composerFileContents = JSON.parse(fs_1.default.readFileSync(composerJson, 'utf8'));
+        if (composerFileContents['config'] &&
+            composerFileContents['config']['platform'] &&
+            composerFileContents['config']['platform']['php']) {
+            return composerFileContents['config']['platform']['php'];
+        }
+    }
     return 'latest';
 }
 exports.readPHPVersion = readPHPVersion;

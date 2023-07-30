@@ -440,6 +440,32 @@ export async function readPHPVersion(): Promise<string> {
   } else if (versionFile !== '.php-version') {
     throw new Error(`Could not find '${versionFile}' file.`);
   }
+
+  const composerLock = 'composer.lock';
+  if (fs.existsSync(composerLock)) {
+    const lockFileContents = JSON.parse(fs.readFileSync(composerLock, 'utf8'));
+    if (
+      lockFileContents['platform-overrides'] &&
+      lockFileContents['platform-overrides']['php']
+    ) {
+      return lockFileContents['platform-overrides']['php'];
+    }
+  }
+
+  const composerJson = 'composer.json';
+  if (fs.existsSync(composerJson)) {
+    const composerFileContents = JSON.parse(
+      fs.readFileSync(composerJson, 'utf8')
+    );
+    if (
+      composerFileContents['config'] &&
+      composerFileContents['config']['platform'] &&
+      composerFileContents['config']['platform']['php']
+    ) {
+      return composerFileContents['config']['platform']['php'];
+    }
+  }
+
   return 'latest';
 }
 

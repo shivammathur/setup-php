@@ -282,6 +282,24 @@ describe('Utils tests', () => {
     process.env['php-version'] = '8.2';
     expect(await utils.readPHPVersion()).toBe('8.2');
 
+    delete process.env['php-version-file'];
+    delete process.env['php-version'];
+
+    existsSync.mockReturnValueOnce(false).mockReturnValueOnce(true);
+    readFileSync.mockReturnValue(
+      '{ "platform-overrides": { "php": "7.3.25" } }'
+    );
+    expect(await utils.readPHPVersion()).toBe('7.3.25');
+
+    existsSync
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true);
+    readFileSync.mockReturnValue(
+      '{ "config": { "platform": { "php": "7.4.33" } } }'
+    );
+    expect(await utils.readPHPVersion()).toBe('7.4.33');
+
     existsSync.mockClear();
     readFileSync.mockClear();
   });

@@ -10,7 +10,7 @@
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
   <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://img.shields.io/codecov/c/github/shivammathur/setup-php?logo=codecov"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg?logo=open%20source%20initiative&logoColor=white&labelColor=555555"></a>
-  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.3-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>
+  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.4-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>
 </p>
 <p align="center">
   <a href="https://reddit.com/r/setup_php" title="setup-php reddit"><img alt="setup-php reddit" src="https://img.shields.io/badge/reddit-join-FF5700?logo=reddit&logoColor=FF5700&labelColor=555555"></a>
@@ -102,8 +102,8 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 On all supported OS/Platforms the following PHP versions can be set up as per the runner.
 
-- PHP 5.3 to PHP 8.3 on GitHub-hosted runners.
-- PHP 5.6 to PHP 8.3 on self-hosted runners.
+- PHP 5.3 to PHP 8.4 on GitHub-hosted runners.
+- PHP 5.6 to PHP 8.4 on self-hosted runners.
 
 | PHP Version | Stability | Release Support       | Runner Support                 |
 |-------------|-----------|-----------------------|--------------------------------|
@@ -120,9 +120,10 @@ On all supported OS/Platforms the following PHP versions can be set up as per th
 | `8.1`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.2`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.3`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
+| `8.4`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
 
 **Notes:**
-- Specifying `8.3` in `php-version` input installs a nightly build of `PHP 8.3.0-dev`. See [nightly build setup](#nightly-build-setup) for more information.
+- Specifying `8.3` and `8.4` in `php-version` input installs a nightly build of `PHP 8.3.0-dev` and `PHP 8.4.0-dev` respectively. See [nightly build setup](#nightly-build-setup) for more information.
 - To use JIT on `PHP 8.0` and above, refer to the [JIT configuration](#jit-configuration) section.
 
 ## :heavy_plus_sign: PHP Extension Support
@@ -533,9 +534,9 @@ jobs:
 
 ### Nightly Build Setup
 
-> Set up a nightly build of `PHP 8.3`.
+> Set up a nightly build of `PHP 8.3` or `PHP 8.4`.
 
-- This PHP version is currently in active development and might contain bugs and breaking changes.
+- These PHP versions are currently in active development and might contain bugs and breaking changes.
 - Some user space extensions might not support this version currently.
 
 ```yaml

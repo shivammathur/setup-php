@@ -31,5 +31,5 @@ outputs:
   php-version:
     description: 'PHP version in semver format'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'

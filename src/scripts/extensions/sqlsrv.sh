@@ -2,8 +2,10 @@
 get_sqlsrv_version() {
   if [[ "${version:?}" =~ 7.[0-3] ]]; then
     echo '5.9.0'
-  else
+  elif [[ "${version:?}" =~ 7.4 ]]; then
     echo '5.10.1'
+  else
+    echo '5.11.1'
   fi
 }
 

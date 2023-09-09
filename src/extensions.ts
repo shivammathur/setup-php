@@ -150,6 +150,7 @@ export async function addExtensionWindows(
         version_extension
       ):
       case /^(7\.[1-4]|8\.1)(pecl_)?http/.test(version_extension):
+      case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
       case /^(7\.[0-4]|8\.[0-2])zephir_parser(-v?\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):

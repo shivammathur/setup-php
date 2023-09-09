@@ -19,9 +19,12 @@ describe('Extension tests', () => {
     ${'pcov'}                                    | ${'5.6'} | ${'Add-Log "$cross" "pcov" "pcov is not supported on PHP 5.6"'}
     ${'pdo_oci'}                                 | ${'7.4'} | ${'Add-Oci pdo_oci'}
     ${'pecl_http'}                               | ${'7.4'} | ${'Add-Http'}
+    ${'pdo_sqlsrv'}                              | ${'7.4'} | ${'Add-Sqlsrv pdo_sqlsrv'}
     ${'phalcon3'}                                | ${'7.2'} | ${'Add-Phalcon phalcon3'}
     ${'phalcon4'}                                | ${'7.4'} | ${'Add-Phalcon phalcon4'}
     ${'sqlite'}                                  | ${'7.4'} | ${'Add-Extension sqlite3'}
+    ${'sqlsrv'}                                  | ${'5.6'} | ${'Add-Extension sqlsrv'}
+    ${'sqlsrv'}                                  | ${'7.4'} | ${'Add-Sqlsrv sqlsrv'}
     ${'sqlsrv-1.2.3preview1'}                    | ${'7.4'} | ${'Add-Extension sqlsrv devel 1.2.3'}
     ${'Xdebug'}                                  | ${'7.4'} | ${'Add-Extension xdebug'}
     ${'xdebug2'}                                 | ${'7.2'} | ${'Add-Extension xdebug stable 2.9.8'}

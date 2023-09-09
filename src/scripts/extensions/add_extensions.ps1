@@ -1,3 +1,16 @@
+# Function to check if extension is enabled.
+Function Test-Extension() {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [string]
+    $extension
+  )
+  $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
+  return $null -ne $extension_info
+}
+
+# Function to add extension log.
 Function Add-ExtensionLog() {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -7,8 +20,7 @@ Function Add-ExtensionLog() {
     [ValidateNotNull()]
     $message
   )
-  $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
-  if ($null -ne $extension_info -and ($extension_info.State -eq 'Enabled' -or $extension_info.State -eq 'Builtin')) {
+  if (Test-Extension $extension) {
     Add-Log $tick $extension $message
   } else {
     Add-Log $cross $extension "Could not install $extension on PHP $( $installed.FullVersion )"

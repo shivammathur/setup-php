@@ -19,7 +19,7 @@ jobs:
         # Blackfire supports PHP >= 5.3 on Ubuntu and macOS, and PHP >= 5.4 on Windows
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Docs: https://github.com/shivammathur/setup-php
       - name: Setup PHP

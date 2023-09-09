@@ -203,7 +203,7 @@ add_pecl_extension() {
     pecl_version=$(get_pecl_version "$extension" "$pecl_version")
   fi
   ext_version=$(php -r "echo phpversion('$extension');")
-  if [ "${ext_version/-/}" = "$pecl_version" ]; then
+  if check_extension "$extension" && [[ -z "$pecl_version" || (-n "$pecl_version" && "${ext_version/-/}" == "$pecl_version") ]]; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
     [ -n "$pecl_version" ] && pecl_version="-$pecl_version"

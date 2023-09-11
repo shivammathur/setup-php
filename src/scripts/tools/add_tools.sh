@@ -72,7 +72,9 @@ set_composer_auth() {
 add_tools_helper() {
   tool=$1
   extensions=()
-  if [ "$tool" = "codeception" ]; then
+  if [ "$tool" = "blackfire-player" ]; then
+    extensions+=(uuid)
+  elif [ "$tool" = "codeception" ]; then
     extensions+=(json mbstring)
     sudo ln -s "$scoped_dir"/vendor/bin/codecept "$scoped_dir"/vendor/bin/codeception
   elif [ "$tool" = "composer" ]; then

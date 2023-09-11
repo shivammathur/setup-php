@@ -219,15 +219,25 @@ export async function addPackage(data: RS): Promise<string> {
  * @param data
  */
 export async function addBlackfirePlayer(data: RS): Promise<string> {
-  if (data['version'] == 'latest') {
-    if (/5\.[5-6]|7\.0/.test(data['php_version'])) {
-      data['version'] = '1.9.3';
-    } else if (/7\.[1-4]|8\.0/.test(data['php_version'])) {
-      data['version'] = '1.22.0';
-    }
+  switch (data['os']) {
+    case 'win32':
+      return await utils.addLog(
+        '$cross',
+        data['tool'],
+        data['tool'] + ' is not a windows tool',
+        'win32'
+      );
+    default:
+      if (data['version'] == 'latest') {
+        if (/5\.[5-6]|7\.0/.test(data['php_version'])) {
+          data['version'] = '1.9.3';
+        } else if (/7\.[1-4]|8\.0/.test(data['php_version'])) {
+          data['version'] = '1.22.0';
+        }
+      }
+      data['url'] = await getPharUrl(data);
+      return addArchive(data);
   }
-  data['url'] = await getPharUrl(data);
-  return addArchive(data);
 }
 
 /**

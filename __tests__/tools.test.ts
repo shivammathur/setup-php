@@ -281,16 +281,18 @@ describe('Tools tests', () => {
   );
 
   it.each`
-    version     | php_version | url
-    ${'latest'} | ${'8.1'}    | ${'https://get.blackfire.io/blackfire-player.phar'}
-    ${'1.2.3'}  | ${'7.4'}    | ${'https://get.blackfire.io/blackfire-player-v1.2.3.phar'}
-    ${'latest'} | ${'7.4'}    | ${'https://get.blackfire.io/blackfire-player-v1.22.0.phar'}
-    ${'latest'} | ${'5.5'}    | ${'https://get.blackfire.io/blackfire-player-v1.9.3.phar'}
-    ${'latest'} | ${'7.0'}    | ${'https://get.blackfire.io/blackfire-player-v1.9.3.phar'}
+    os         | version     | php_version | url
+    ${'linux'} | ${'latest'} | ${'8.1'}    | ${'https://get.blackfire.io/blackfire-player.phar'}
+    ${'linux'} | ${'1.2.3'}  | ${'7.4'}    | ${'https://get.blackfire.io/blackfire-player-v1.2.3.phar'}
+    ${'linux'} | ${'latest'} | ${'7.4'}    | ${'https://get.blackfire.io/blackfire-player-v1.22.0.phar'}
+    ${'linux'} | ${'latest'} | ${'5.5'}    | ${'https://get.blackfire.io/blackfire-player-v1.9.3.phar'}
+    ${'linux'} | ${'latest'} | ${'7.0'}    | ${'https://get.blackfire.io/blackfire-player-v1.9.3.phar'}
+    ${'win32'} | ${'latest'} | ${'7.0'}    | ${'blackfire-player is not a windows tool'}
   `(
-    'checking addBlackfirePlayer: $version, $php_version',
-    async ({version, php_version, url}) => {
+    'checking addBlackfirePlayer: $os, $version, $php_version',
+    async ({os, version, php_version, url}) => {
       const data = getData({
+        os: os,
         tool: 'blackfire-player',
         domain: 'https://get.blackfire.io',
         version_prefix: 'v',
@@ -480,7 +482,7 @@ describe('Tools tests', () => {
       [
         'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'Add-Blackfire',
-        'Add-Tool https://get.blackfire.io/blackfire-player-v1.2.3.phar blackfire-player "-V"',
+        'blackfire-player is not a windows tool',
         'Add-Tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"',
         'Add-Tool https://github.com/bmitch/churn-php/releases/latest/download/churn.phar churn "-V"',
         'Add-Tool https://deployer.org/deployer.phar deployer "-V"',

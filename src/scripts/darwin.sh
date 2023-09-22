@@ -162,8 +162,11 @@ fix_dependencies() {
 
 # Function to get PHP version if it is already installed using Homebrew.
 get_brewed_php() {
-  php_cellar="$brew_prefix"/Cellar/php
-  if [ -d "$php_cellar" ] && ! [[ "$(find "$php_cellar" -maxdepth 1 -name "$version*" | wc -l 2>/dev/null)" -eq 0 ]]; then
+  cellar="$brew_prefix"/Cellar
+  php_cellar="$cellar"/php
+  if [ -d "$cellar" ] && ! [[ "$(find "$cellar" -maxdepth 1 -name "php@$version*" | wc -l 2>/dev/null)" -eq 0 ]]; then
+    php_semver | cut -c 1-3
+  elif [ -d "$php_cellar" ] && ! [[ "$(find "$php_cellar" -maxdepth 1 -name "$version*" | wc -l 2>/dev/null)" -eq 0 ]]; then
     php_semver | cut -c 1-3
   else
     echo 'false';

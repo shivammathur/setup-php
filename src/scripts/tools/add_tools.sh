@@ -130,6 +130,9 @@ add_tool() {
   tool=$2
   ver_param=$3
   tool_path="$tool_path_dir/$tool"
+  if ! [ -d "$tool_path_dir" ]; then
+    sudo mkdir -p "$tool_path_dir"
+  fi
   add_path "$tool_path_dir"
   if [ -e "$tool_path" ]; then
     sudo cp -aL "$tool_path" /tmp/"$tool"

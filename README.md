@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
   <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://img.shields.io/codecov/c/github/shivammathur/setup-php?logo=codecov"></a>
-  <a href="https://github.com/shivammathur/setup-php/blob/master/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg?logo=open%20source%20initiative&logoColor=white&labelColor=555555"></a>
+  <a href="https://github.com/shivammathur/setup-php/blob/main/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg?logo=open%20source%20initiative&logoColor=white&labelColor=555555"></a>
   <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.4-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>
 </p>
 <p align="center">
@@ -942,7 +942,7 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 - Semantic release versions can also be used. It is recommended to [use dependabot](https://docs.github.com/en/github/administering-a-repository/keeping-your-actions-up-to-date-with-github-dependabot "Setup Dependabot with GitHub Actions") with semantic versioning to keep the actions in your workflows up to date.
 - Commit SHA can also be used, but are not recommended. They have to be updated with every release manually, without which you will not get any bug fixes, security patches or new features.
 - For debugging any issues `verbose` tag can be used temporarily. It outputs all the logs and is also synced with the latest releases.
-- It is highly discouraged to use the `master` branch as version, it might break your workflow after major releases as they have breaking changes.
+- It is highly discouraged to use the `main` branch as version, it might break your workflow after major releases as they have breaking changes.
 - If you are using the `v1` tag or a `1.x.y` version, you should [switch to v2](https://github.com/shivammathur/setup-php/wiki/Switch-to-v2 "Guide for switching from setup-php v1 to v2") as `v1` only gets critical bug fixes. Maintenance support for `v1` will be dropped with the last `PHP 8.0` release.
 
 ## :scroll: License

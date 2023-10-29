@@ -26,7 +26,8 @@ export async function fetch(
       const options: https.RequestOptions = {
         hostname: url_object.hostname,
         path: url_object.pathname,
-        headers: headers
+        headers: headers,
+        agent: new https.Agent({keepAlive: false})
       };
       const req = https.get(options, (res: IncomingMessage) => {
         if (res.statusCode === 200) {

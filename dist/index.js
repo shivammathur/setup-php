@@ -476,7 +476,8 @@ async function fetch(input_url, auth_token, redirect_count = 5) {
         const options = {
             hostname: url_object.hostname,
             path: url_object.pathname,
-            headers: headers
+            headers: headers,
+            agent: new https.Agent({ keepAlive: false })
         };
         const req = https.get(options, (res) => {
             if (res.statusCode === 200) {
@@ -1969,7 +1970,7 @@ class OidcClient {
                 .catch(error => {
                 throw new Error(`Failed to get ID Token. \n 
         Error Code : ${error.statusCode}\n 
-        Error Message: ${error.result.message}`);
+        Error Message: ${error.message}`);
             });
             const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
             if (!id_token) {

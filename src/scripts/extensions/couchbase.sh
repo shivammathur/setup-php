@@ -55,6 +55,9 @@ add_couchbase() {
     else
       if [ "$ext" = "couchbase" ]; then
         ext="couchbase-$(get_pecl_version "couchbase" "stable")"
+        n_proc="$(nproc)"
+        export COUCHBASE_SUFFIX_OPTS="CMAKE_BUILD_TYPE=Release"
+        export CMAKE_BUILD_PARALLEL_LEVEL="$n_proc"
         add_extension_from_source couchbase https://pecl.php.net couchbase couchbase "${ext##*-}" extension pecl >/dev/null 2>&1
       else
         pecl_install "${ext}" >/dev/null 2>&1

@@ -31,7 +31,7 @@ set_base_version() {
   else
     set_base_version_codename
     set_base_version_id
-    printf "ID=%s\nVERSION_ID=%s\nVERSION_CODENAME=%s\n" "$ID" "$VERSION_ID" "$VERSION_CODENAME" | tee /tmp/os-release >/dev/null 2>&1
+    printf "ID=%s\nVERSION_ID=%s\nVERSION_CODENAME=%s\n" "$ID" "$VERSION_ID" "$VERSION_CODENAME" | tee /tmp/os-release 
   fi
 }
 
@@ -59,8 +59,8 @@ update_lists() {
     list="$list_file"
   fi
   if [ ! -e "$status_file" ]; then
-    update_lists_helper "$list" >/dev/null 2>&1
-    echo '' | tee "$status_file" >/dev/null 2>&1
+    update_lists_helper "$list" 
+    echo '' | tee "$status_file" 
   fi
 }
 
@@ -95,7 +95,7 @@ add_key() {
   fi
   [ ! -e "$key_source" ] && get -q -n "$key_file" "${key_urls[@]}"
   if [[ "$(file "$key_file")" =~ .*('Public-Key (old)'|'Secret-Key') ]]; then
-    sudo gpg --batch --yes --dearmor "$key_file" >/dev/null 2>&1 && sudo mv "$key_file".gpg "$key_file"
+    sudo gpg --batch --yes --dearmor "$key_file"  && sudo mv "$key_file".gpg "$key_file"
   fi
 }
 
@@ -129,7 +129,7 @@ add_list() {
     arch=$(dpkg --print-architecture)
     [ -e "$key_source" ] && key_file=$key_source || key_file="$key_dir"/"${ppa/\//-}"-keyring.gpg
     add_key "$ppa" "$ppa_url" "$package_dist" "$key_source" "$key_file"
-    echo "deb [arch=$arch signed-by=$key_file] $ppa_url $package_dist $branches" | sudo tee -a "$list_dir"/"${ppa/\//-}".list >/dev/null 2>&1
+    echo "deb [arch=$arch signed-by=$key_file] $ppa_url $package_dist $branches" | sudo tee -a "$list_dir"/"${ppa/\//-}".list 
     update_lists "$ppa" "$ppa_search"
     . /etc/os-release
   fi

@@ -59,9 +59,9 @@ Function Add-Sqlsrv() {
   if (Test-Path $ext_dir\php_$extension.dll) {
     Enable-PhpExtension -Extension $extension -Path $php_dir
   } else {
-    Add-SqlsrvFromGithub $extension >$null 2>&1
+    Add-SqlsrvFromGithub $extension 
     if (-not(Test-Extension $extension)) {
-      Add-Extension $extension >$null 2>&1
+      Add-Extension $extension 
     }
     $status = 'Installed and enabled'
   }

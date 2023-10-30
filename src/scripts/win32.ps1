@@ -355,7 +355,7 @@ if(-not($env:ImageOS) -and -not($env:ImageVersion)) {
   $bin_dir = 'C:\tools\bin'
   $php_dir = "$php_dir$version"
   $ext_dir = "$php_dir\ext"
-  Get-CleanPSProfile >$null 2>&1
+  Get-CleanPSProfile 
   New-Item $bin_dir -Type Directory -Force > $null 2>&1
   Add-Path -PathItem $bin_dir
   if($version -lt 5.6) {
@@ -368,12 +368,12 @@ if(-not($env:ImageOS) -and -not($env:ImageVersion)) {
   }
   New-Item $php_dir -Type Directory -Force > $null 2>&1
   Add-Path -PathItem $php_dir
-  setx PHPROOT $php_dir >$null 2>&1
+  setx PHPROOT $php_dir 
   Add-Env -EnvName RUNNER_TOOL_CACHE -EnvValue $env:TEMP
 } else {
   $current_profile = "$PSHOME\Profile.ps1"
   if(-not(Test-Path -LiteralPath $current_profile)) {
-    New-Item -Path $current_profile -ItemType "file" -Force >$null 2>&1
+    New-Item -Path $current_profile -ItemType "file" -Force 
   }
 }
 
@@ -381,9 +381,9 @@ $src = Join-Path -Path $PSScriptRoot -ChildPath \..
 . $src\scripts\tools\add_tools.ps1
 . $src\scripts\extensions\add_extensions.ps1
 
-Add-Printf >$null 2>&1
+Add-Printf 
 Step-Log "Setup PhpManager"
-Install-PSPackage PhpManager PhpManager\PhpManager "$github/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip" Get-Php >$null 2>&1
+Install-PSPackage PhpManager PhpManager\PhpManager "$github/mlocati/powershell-phpmanager/releases/latest/download/PhpManager.zip" Get-Php 
 Add-Log $tick "PhpManager" "Installed"
 
 Step-Log "Setup PHP"
@@ -403,7 +403,7 @@ $status = "Installed"
 $extra_version = ""
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
   if ($version -lt '7.0' -and ($null -eq (Get-Module -ListAvailable -Name VcRedist))) {
-    Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" Get-VcList >$null 2>&1
+    Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" Get-VcList 
   }
   try {
     if ($version -match $nightly_versions) {
@@ -416,7 +416,7 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
   } catch { }
 } else {
   if($env:update -eq 'true') {
-    Update-Php $php_dir >$null 2>&1
+    Update-Php $php_dir 
     $status = "Updated to"
   } else {
     $status = "Found"
@@ -434,7 +434,7 @@ if($installed.MajorMinorVersion -ne $version) {
   Write-Error "Could not setup PHP $version" -ErrorAction Stop
 }
 if($version -lt "5.5") {
-  ('libeay32.dll', 'ssleay32.dll') | ForEach-Object -Parallel { Get-File -Url "$using:php_builder/releases/download/openssl-1.0.2u/$_" -OutFile $using:php_dir\$_ >$null 2>&1 }
+  ('libeay32.dll', 'ssleay32.dll') | ForEach-Object -Parallel { Get-File -Url "$using:php_builder/releases/download/openssl-1.0.2u/$_" -OutFile $using:php_dir\$_  }
 } else {
   $enable_extensions += ('opcache')
 }

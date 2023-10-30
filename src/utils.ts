@@ -278,10 +278,10 @@ export async function getExtensionPrefix(extension: string): Promise<string> {
 export async function suppressOutput(os: string): Promise<string> {
   switch (os) {
     case 'win32':
-      return ' >$null 2>&1';
+      return ' ';
     case 'linux':
     case 'darwin':
-      return ' >/dev/null 2>&1';
+      return ' ';
     default:
       return await log('Platform ' + os + ' is not supported', os, 'error');
   }

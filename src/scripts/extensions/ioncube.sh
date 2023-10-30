@@ -15,7 +15,7 @@ add_ioncube() {
     sudo mv /tmp/ioncube/ioncube_loader_"$os_name"_"${version:?}".so "${ext_dir:?}/ioncube.so"
     sudo cp /tmp/ioncube/LICENSE.txt "$ext_dir"/IONCUBE_LICENSE.txt
   fi
-  echo "zend_extension=$ext_dir/ioncube.so" | sudo tee "${scan_dir:?}/00-ioncube.ini" >/dev/null 2>&1
+  echo "zend_extension=$ext_dir/ioncube.so" | sudo tee "${scan_dir:?}/00-ioncube.ini" 
   add_extension_log "ioncube" "$status"
   check_extension "ioncube" && add_license_log
 }

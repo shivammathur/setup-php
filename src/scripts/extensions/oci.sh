@@ -55,8 +55,8 @@ add_oci() {
   oracle_home='/opt/oracle'
   oracle_client=$oracle_home/instantclient
   os=$(uname -s)
-  add_client >/dev/null 2>&1
-  add_oci_helper >/dev/null 2>&1
+  add_client 
+  add_oci_helper 
   add_extension_log "$ext" "$status"
   check_extension "$ext" && add_license_log
 }

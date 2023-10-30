@@ -30,7 +30,7 @@ add_phalcon_helper() {
     add_brew_extension "$extension" extension
   else
     package="php${version:?}-$extension"
-    add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
+    add_ppa ondrej/php  || update_ppa ondrej/php
     [ "$extension" = "phalcon4" ] && (install_packages "php${version:?}-psr" || pecl_install psr || pecl_install psr-1.1.0)
     (check_package "$package" && install_packages "$package") || pecl_install phalcon-"$(get_phalcon_version)" || add_phalcon_from_repo
   fi
@@ -89,7 +89,7 @@ add_phalcon() {
   status='Enabled'
   extension_major_version=${extension: -1}
   if [[ "$extension_major_version" =~ [3-5] ]]; then
-    add_phalcon"$extension_major_version" >/dev/null 2>&1
+    add_phalcon"$extension_major_version" 
   fi
   add_extension_log "phalcon" "$status"
 }

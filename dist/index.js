@@ -41,7 +41,7 @@ async function addINIValuesUnix(ini_values_csv) {
     });
     return ('echo "' +
         ini_values.join('\n') +
-        '" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null 2>&1' +
+        '" | sudo tee -a "${pecl_file:-${ini_file[@]}}" ' +
         script);
 }
 exports.addINIValuesUnix = addINIValuesUnix;
@@ -1291,10 +1291,10 @@ exports.getExtensionPrefix = getExtensionPrefix;
 async function suppressOutput(os) {
     switch (os) {
         case 'win32':
-            return ' >$null 2>&1';
+            return ' ';
         case 'linux':
         case 'darwin':
-            return ' >/dev/null 2>&1';
+            return ' ';
         default:
             return await log('Platform ' + os + ' is not supported', os, 'error');
     }

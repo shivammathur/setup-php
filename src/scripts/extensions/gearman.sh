@@ -18,7 +18,7 @@ add_gearman_helper() {
 add_gearman() {
   status="Enabled"
   if [ "$(uname -s)" = 'Linux' ]; then
-    add_gearman_helper >/dev/null 2>&1
+    add_gearman_helper 
     add_extension_log "gearman" "$status"
   else
     add_brew_extension gearman extension

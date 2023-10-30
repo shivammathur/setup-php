@@ -16,7 +16,7 @@ add_intl() {
     add_log "${cross:?}" "intl" "ICU $icu is not supported"
   else
     [ "${ts:?}" = 'zts' ] && suffix='-zts'
-    install_icu "$icu" >/dev/null 2>&1
+    install_icu "$icu" 
     get -q -n "${ext_dir:?}/intl.so" "https://github.com/shivammathur/icu-intl/releases/download/intl/php${version:?}-intl-$icu$suffix.so"
     enable_extension intl extension
     add_extension_log intl "Installed and enabled with ICU $icu"

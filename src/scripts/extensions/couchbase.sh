@@ -32,6 +32,8 @@ get_couchbase_version() {
     echo couchbase-3.0.4
   elif [ "${version:?}" = '7.3' ]; then
     echo couchbase-3.2.2
+  elif [ "${version:?}" = '7.4' ]; then
+    echo couchbase-4.1.0
   else
     echo couchbase
   fi

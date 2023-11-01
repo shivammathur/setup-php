@@ -74,6 +74,8 @@ add_tools_helper() {
   extensions=()
   if [ "$tool" = "blackfire-player" ]; then
     extensions+=(uuid)
+  elif [ "$tool" = "box" ]; then
+    extensions+=(iconv mbstring phar sodium)
   elif [ "$tool" = "codeception" ]; then
     extensions+=(json mbstring)
     sudo ln -s "$scoped_dir"/vendor/bin/codecept "$scoped_dir"/vendor/bin/codeception

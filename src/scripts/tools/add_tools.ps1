@@ -85,7 +85,9 @@ Function Add-ToolsHelper() {
     $tool
   )
   $extensions = @();
-  if($tool -eq "codeception") {
+  if($tool -eq "box") {
+    $extensions += @('iconv', 'mbstring', 'phar', 'sodium')
+  } elseif($tool -eq "codeception") {
     $extensions += @('json', 'mbstring')
     Copy-Item $env:codeception_bin\codecept.bat -Destination $env:codeception_bin\codeception.bat
   } elseif($tool -eq "composer") {

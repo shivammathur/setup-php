@@ -300,5 +300,23 @@
     "extension": ".phar",
     "version_parameter": "--version",
     "version_prefix": "v"
+  },
+  "box": {
+    "type": "phar",
+    "repository": "box-project/box",
+    "packagist": "humbug/box",
+    "extension": ".phar",
+    "domain": "https://github.com",
+    "version_prefix": "",
+    "version_parameter": "--version"
+  },
+  "php-scoper": {
+    "type": "phar",
+    "repository": "humbug/php-scoper",
+    "packagist": "humbug/php-scoper",
+    "extension": ".phar",
+    "domain": "https://github.com",
+    "version_prefix": "",
+    "version_parameter": "--version"
   }
 }

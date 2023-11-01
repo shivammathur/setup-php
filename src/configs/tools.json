@@ -1,4 +1,13 @@
 {
+  "box": {
+    "type": "phar",
+    "repository": "box-project/box",
+    "packagist": "humbug/box",
+    "extension": ".phar",
+    "domain": "https://github.com",
+    "version_prefix": "",
+    "version_parameter": "--version"
+  },
   "churn": {
     "type": "phar",
     "repository": "bmitch/churn-php",
@@ -63,6 +72,15 @@
     "fetch_latest": "true",
     "version_prefix": "v",
     "version_parameter": "-V"
+  },
+  "php-scoper": {
+    "type": "phar",
+    "repository": "humbug/php-scoper",
+    "packagist": "humbug/php-scoper",
+    "extension": ".phar",
+    "domain": "https://github.com",
+    "version_prefix": "",
+    "version_parameter": "--version"
   },
   "phpcbf": {
     "type": "phar",
@@ -300,23 +318,5 @@
     "extension": ".phar",
     "version_parameter": "--version",
     "version_prefix": "v"
-  },
-  "box": {
-    "type": "phar",
-    "repository": "box-project/box",
-    "packagist": "humbug/box",
-    "extension": ".phar",
-    "domain": "https://github.com",
-    "version_prefix": "",
-    "version_parameter": "--version"
-  },
-  "php-scoper": {
-    "type": "phar",
-    "repository": "humbug/php-scoper",
-    "packagist": "humbug/php-scoper",
-    "extension": ".phar",
-    "domain": "https://github.com",
-    "version_prefix": "",
-    "version_parameter": "--version"
   }
 }

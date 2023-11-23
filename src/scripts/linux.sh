@@ -100,8 +100,17 @@ add_devtools() {
 }
 
 # Function to setup the nightly build from shivammathur/php-builder
-setup_nightly() {
+setup_zts() {
   run_script "php-builder" "${runner:?}" "$version" "${debug:?}" "${ts:?}"
+}
+
+# Function to setup the nightly build from shivammathur/php-builder
+setup_nightly() {
+  if [ "$runner" = "self-hosted" ]; then
+    run_script "php-builder" "${runner:?}" "$version" "${debug:?}" "${ts:?}"
+  else
+    run_script "php-ubuntu" "$version" "${debug:?}"
+  fi
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.

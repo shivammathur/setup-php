@@ -10,10 +10,9 @@ This security policy only applies to the latest patches of the following PHP ver
 
 | Version | Supported          |
 |---------|--------------------|
-| 7.4     | :white_check_mark: |
-| 8.0     | :white_check_mark: |
 | 8.1     | :white_check_mark: |
 | 8.2     | :white_check_mark: |
+| 8.3     | :white_check_mark: |
 
 ## Reporting a Vulnerability
 

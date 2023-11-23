@@ -272,7 +272,7 @@ setup_php() {
 }
 
 # Variables
-version=${1:-'8.2'}
+version=${1:-'8.3'}
 ini=${2:-'production'}
 src=${0%/*}/..
 debconf_fix="DEBIAN_FRONTEND=noninteractive"

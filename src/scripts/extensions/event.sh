@@ -13,7 +13,7 @@ get_event_configure_opts() {
     )
   else
     event_opts+=(
-        --with-openssl-dir="$(brew --prefix openssl@1.1)"
+        --with-openssl-dir="$(brew --prefix openssl@3)"
         --with-event-libevent-dir="$(brew --prefix libevent)"
     )
   fi

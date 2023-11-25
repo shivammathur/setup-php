@@ -99,23 +99,13 @@ add_devtools() {
   add_log "${tick:?}" "$tool" "Added $tool $semver"
 }
 
-# Function to setup the nightly build from shivammathur/php-builder
-setup_zts() {
-  run_script "php-builder" "${runner:?}" "$version" "${debug:?}" "${ts:?}"
-}
-
-# Function to setup the nightly build from shivammathur/php-builder
-setup_nightly() {
-  if [ "$runner" = "self-hosted" ]; then
-    run_script "php-builder" "${runner:?}" "$version" "${debug:?}" "${ts:?}"
-  else
-    run_script "php-ubuntu" "$version" "${debug:?}"
-  fi
-}
-
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
 setup_old_versions() {
   run_script "php5-ubuntu" "$version"
+}
+
+setup_cached_versions() {
+  run_script "php-ubuntu" "$version" "${debug:?}" "${ts:?}"
 }
 
 # Function to add PECL.
@@ -158,13 +148,9 @@ get_php_packages() {
 
 # Function to install packaged PHP
 add_packaged_php() {
-  if [ "$runner" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
-    add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
-    IFS=' ' read -r -a packages <<<"$(get_php_packages)"
-    install_packages "${packages[@]}"
-  else
-    run_script "php-ubuntu" "$version" "${debug:?}"
-  fi
+  add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
+  IFS=' ' read -r -a packages <<<"$(get_php_packages)"
+  install_packages "${packages[@]}"
 }
 
 # Function to update PHP.
@@ -181,14 +167,14 @@ update_php() {
 
 # Function to install PHP.
 add_php() {
-  if [[ "$version" =~ ${nightly_versions:?} ]] || [[ "${ts:?}" = "zts" ]]; then
-    setup_nightly
+  if [ "${runner:?}" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
+      add_packaged_php
+      switch_version >/dev/null 2>&1
+      add_pecl
   elif [[ "$version" =~ ${old_versions:?} ]]; then
     setup_old_versions
   else
-    add_packaged_php
-    switch_version >/dev/null 2>&1
-    add_pecl
+    setup_cached_versions
   fi
   status="Installed"
 }

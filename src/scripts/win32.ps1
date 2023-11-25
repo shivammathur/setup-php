@@ -332,8 +332,8 @@ if(-not([Environment]::Is64BitOperatingSystem) -or $version -lt '7.0') {
   $arch = 'x86'
 }
 
-$ts = $env:PHPTS -eq 'ts'
-if($env:PHPTS -ne 'ts') {
+$ts = ($env:PHPTS -match '^z?ts$')
+if(-not($ts)) {
   $env:PHPTS = '-nts'
 } else {
   $env:PHPTS = ''

@@ -14,7 +14,7 @@ import * as utils from './utils';
  * @param os
  */
 export async function getScript(os: string): Promise<string> {
-  const url = 'https://setup-php.com/support-ukraine';
+  const url = 'https://setup-php.com/sponsor';
   const filename = os + (await utils.scriptExtension(os));
   const script_path = path.join(__dirname, '../src/scripts', filename);
   const run_path = script_path.replace(os, 'run');
@@ -40,8 +40,8 @@ export async function getScript(os: string): Promise<string> {
   if (ini_values_csv) {
     script += await config.addINIValues(ini_values_csv, os);
   }
-  script += '\n' + (await utils.stepLog(`#StandWithUkraine`, os));
-  script += '\n' + (await utils.addLog('$tick', 'read-more', url, os));
+  script += '\n' + (await utils.stepLog(`Sponsor setup-php`, os));
+  script += '\n' + (await utils.addLog('$tick', 'setup-php', url, os));
 
   fs.writeFileSync(run_path, script, {mode: 0o755});
 

@@ -17,6 +17,8 @@ add_blackfire() {
     fi
     get -q -n "${ext_dir:?}/blackfire.so" https://packages.blackfire.io/binaries/blackfire-php/"$extension_version"/blackfire-php-"$platform"_amd64-php-"$no_dot_version".so >/dev/null 2>&1
   fi
+  disable_extension xdebug >/dev/null 2>&1
+  disable_extension pcov >/dev/null 2>&1
   enable_extension blackfire extension
   add_extension_log blackfire "$status"
 }

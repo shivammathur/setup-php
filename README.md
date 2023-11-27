@@ -470,7 +470,7 @@ On GitHub Actions you can assign the `setup-php` step an `id`, you can use the s
 #### `phpts` (optional)
 
 - Specify to set up a thread-safe build of PHP on Linux and Windows.
-- Accepts `ts` and `nts`.
+- Accepts `nts` for non-thread-safe and `zts` or `ts` for thread-safe.
 - By default, it is set to `nts`.
 - See [thread safe setup](#thread-safe-setup) for more info.
 

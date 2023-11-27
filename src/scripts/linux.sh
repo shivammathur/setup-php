@@ -99,11 +99,17 @@ add_devtools() {
   add_log "${tick:?}" "$tool" "Added $tool $semver"
 }
 
+# Function to setup the nightly build from shivammathur/php-builder
+setup_nightly() {
+  run_script "php-builder" "${runner:?}" "$version" "${debug:?}" "${ts:?}"
+}
+
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
 setup_old_versions() {
   run_script "php5-ubuntu" "$version"
 }
 
+# Function to setup PHP from the cached builds.
 setup_cached_versions() {
   run_script "php-ubuntu" "$version" "${debug:?}" "${ts:?}"
 }
@@ -168,9 +174,13 @@ update_php() {
 # Function to install PHP.
 add_php() {
   if [ "${runner:?}" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
+    if [[ "$version" =~ ${nightly_versions:?} ]]; then
+        setup_nightly
+    else
       add_packaged_php
       switch_version >/dev/null 2>&1
       add_pecl
+    fi
   elif [[ "$version" =~ ${old_versions:?} ]]; then
     setup_old_versions
   else

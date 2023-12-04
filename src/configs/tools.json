@@ -84,7 +84,7 @@
   },
   "phpcbf": {
     "type": "phar",
-    "repository": "squizlabs/PHP_CodeSniffer",
+    "repository": "PHPCSStandards/PHP_CodeSniffer",
     "extension": ".phar",
     "domain": "https://github.com",
     "version_prefix": "",
@@ -92,7 +92,7 @@
   },
   "phpcs": {
     "type": "phar",
-    "repository": "squizlabs/PHP_CodeSniffer",
+    "repository": "PHPCSStandards/PHP_CodeSniffer",
     "extension": ".phar",
     "domain": "https://github.com",
     "version_prefix": "",

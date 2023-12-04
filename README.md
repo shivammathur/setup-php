@@ -1048,9 +1048,9 @@ These companies generously provide setup-php their products and services to aid 
 [`phive`]:                    https://phar.io/
 [`php-config`]:               https://www.php.net/manual/en/install.pecl.php-config.php
 [`php-cs-fixer`]:             https://cs.symfony.com/
-[`phpcbf`]:                   https://github.com/squizlabs/php_codesniffer
+[`phpcbf`]:                   https://github.com/PHPCSStandards/php_codesniffer
 [`phpcpd`]:                   https://github.com/sebastianbergmann/phpcpd
-[`phpcs`]:                    https://github.com/squizlabs/php_codesniffer
+[`phpcs`]:                    https://github.com/PHPCSStandards/php_codesniffer
 [`phpdoc`]:                   https://phpdoc.org/
 [`phpDocumentor`]:            https://phpdoc.org/
 [`phpize`]:                   https://www.php.net/manual/en/install.pecl.phpize.php

@@ -59,7 +59,7 @@ export async function getManifestURL(): Promise<string> {
  */
 export async function parseVersion(version: string): Promise<string> {
   switch (true) {
-    case /^(latest|nightly|\d+\.x)$/.test(version):
+    case /^(latest|lowest|nightly|\d+\.x)$/.test(version):
       return JSON.parse((await fetch.fetch(await getManifestURL()))['data'])[
         version
       ];

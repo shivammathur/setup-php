@@ -392,10 +392,14 @@ Disable coverage for these reasons:
 - Specify the PHP version you want to set up.
 - Accepts a `string`. For example `'8.0'`.
 - Accepts `latest` to set up the latest stable PHP version.
+- Accepts `lowest` to set up the lowest supported PHP version.
 - Accepts `nightly` to set up a nightly build from the master branch of PHP.
 - Accepts the format `d.x`, where `d` is the major version. For example `5.x`, `7.x` and `8.x`.  
 - See [PHP support](#tada-php-support) for the supported PHP versions.
-- If not specified, it looks for `php-version-file` input.
+- If not specified, it looks for the following in order:
+  - The `php-version-file` input if it exists
+  - A `composer.lock` file and the `platform-overrides.php` value
+  - A `composer.json` file and the `config.platform.php` value
 
 #### `php-version-file` (optional)
 

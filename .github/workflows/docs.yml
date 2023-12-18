@@ -45,7 +45,7 @@ jobs:
           php -m | Out-File -FilePath "$env:file" -Append
           Write-Output "```````n" | Out-File -FilePath "$env:file" -Append
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lists
           path: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md

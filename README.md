@@ -473,7 +473,7 @@ On GitHub Actions you can assign the `setup-php` step an `id`, you can use the s
 
 #### `phpts` (optional)
 
-- Specify to set up a thread-safe build of PHP on Linux and Windows.
+- Specify to set up a thread-safe build of PHP.
 - Accepts `nts` for non-thread-safe and `zts` or `ts` for thread-safe.
 - By default, it is set to `nts`.
 - See [thread safe setup](#thread-safe-setup) for more info.
@@ -571,16 +571,14 @@ steps:
 
 ### Thread Safe Setup
 
-> Set up `TS` or `NTS` PHP on `Linux` and `Windows`.
+> Set up `TS` or `NTS` PHP.
 
 - `NTS` versions are set up by default.
-- On `macOS` only `NTS` versions are supported currently.
-- On `Linux` and `Windows` both `TS` and `NTS` versions are supported.
 
 ```yaml
 jobs:
   run:
-    runs-on: [ubuntu-latest, windows-latest]
+    runs-on: [ubuntu-latest, windows-latest, macos-latest]
     name: Setup PHP TS
     steps:
     - name: Setup PHP

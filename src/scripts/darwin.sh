@@ -57,12 +57,21 @@ add_brew_extension() {
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
+    brew_opts=(-f)
     add_brew_tap "$php_tap"
     add_brew_tap "$ext_tap"
+    if [ "${ts:?}" = "zts" ]; then
+      brew_opts=(-sf)
+      suffix="$(get_php_formula_suffix)"
+      abstract_path="$tap_dir"/"$ext_tap"/Abstract/abstract-php-extension.rb
+      if [ -f "$abstract_path" ]; then
+        grep -q zts "$abstract_path" || sed -i '' "s/php@${version}/php@${version}$suffix/" "$abstract_path"
+      fi
+    fi
     sudo mv "$tap_dir"/"$ext_tap"/.github/deps/"$formula"/* "${core_repo:?}/Formula/" 2>/dev/null || true
     update_dependencies >/dev/null 2>&1
     disable_dependency_extensions "$extension" >/dev/null 2>&1
-    (brew install -f "$ext_tap/$formula@$version" >/dev/null 2>&1 && copy_brew_extensions "$formula") || pecl_install "$extension" >/dev/null 2>&1
+    (brew install "${brew_opts[@]}" "$ext_tap/$formula@$version" >/dev/null 2>&1 && copy_brew_extensions "$formula") || pecl_install "$extension" >/dev/null 2>&1
     add_extension_log "$extension" "Installed and enabled"
   fi
 }
@@ -181,13 +190,22 @@ add_php() {
   existing_version=$2
   add_brew_tap "$php_tap"
   update_dependencies
-  [ "${debug:?}" = "debug" ] && php_formula="$php_formula-debug"
-  if [ "$existing_version" != "false" ]; then
+  suffix="$(get_php_formula_suffix)"
+  php_formula="shivammathur/php/php@$version$suffix"
+  if [[ "$existing_version" != "false" && -z "$suffix" ]]; then
     ([ "$action" = "upgrade" ] && brew upgrade -f "$php_formula") || brew unlink "$php_formula"
   else
     brew install -f "$php_formula"
   fi
   brew link --force --overwrite "$php_formula"
+}
+
+# Function to get formula suffix
+get_php_formula_suffix() {
+  local suffix
+  [ "${debug:?}" = "debug" ] && suffix="-debug"
+  [ "${ts:?}" = "zts" ] && suffix="$suffix-zts"
+  echo "$suffix"
 }
 
 # Function to get extra version.

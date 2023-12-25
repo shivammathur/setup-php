@@ -57,23 +57,39 @@ add_brew_extension() {
   if check_extension "$extension"; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
-    brew_opts=(-f)
     add_brew_tap "$php_tap"
     add_brew_tap "$ext_tap"
-    if [ "${ts:?}" = "zts" ]; then
-      brew_opts=(-sf)
-      suffix="$(get_php_formula_suffix)"
-      abstract_path="$tap_dir"/"$ext_tap"/Abstract/abstract-php-extension.rb
-      if [ -f "$abstract_path" ]; then
-        grep -q zts "$abstract_path" || sed -i '' "s/php@${version}/php@${version}$suffix/" "$abstract_path"
-      fi
-    fi
     sudo mv "$tap_dir"/"$ext_tap"/.github/deps/"$formula"/* "${core_repo:?}/Formula/" 2>/dev/null || true
     update_dependencies >/dev/null 2>&1
     disable_dependency_extensions "$extension" >/dev/null 2>&1
+    handle_dependency_extensions_for_suffix >/dev/null 2>&1
     (brew install "${brew_opts[@]}" "$ext_tap/$formula@$version" >/dev/null 2>&1 && copy_brew_extensions "$formula") || pecl_install "$extension" >/dev/null 2>&1
     add_extension_log "$extension" "Installed and enabled"
   fi
+}
+
+# Install dependency extensions if the PHP version is ZTS or Debug.
+handle_dependency_extensions_for_suffix() {
+  suffix="$(get_php_formula_suffix)"
+  if [[ -n "$suffix" ]]; then
+    brew_opts=(-sf)
+    patch_abstract_file >/dev/null 2>&1
+    dependency_extensions=()
+    while IFS= read -r dependency_extension; do
+      dependency_extensions+=("$dependency_extension")
+    done < <(grep -E "depends_on.*shivammathur/extensions" "$formula_file" | sed -E 's/.*\/([^@]+)@.*/\1/')
+    for dependency_extension in "${dependency_extensions[@]}"; do
+        brew install "${brew_opts[@]}" "$ext_tap/$dependency_extension@$version" >/dev/null 2>&1 && copy_brew_extensions "$dependency_extension"
+    done
+  fi
+}
+
+# Function to patch the abstract file in the extensions tap.
+patch_abstract_file() {
+    abstract_path="$tap_dir"/"$ext_tap"/Abstract/abstract-php-extension.rb
+    if [ -e "$abstract_path" ] && ! grep -q "$suffix" "$abstract_path"; then
+        sudo sed -i '' -e "s|php@#{\(.*\)}|php@#{\1}$suffix|g" -e "s|php_version /|\"#{php_version}$suffix\" /|g" "$abstract_path"
+    fi
 }
 
 # Helper function to add an extension.

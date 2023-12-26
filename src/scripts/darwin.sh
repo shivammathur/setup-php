@@ -1,11 +1,21 @@
-# Disable dependency extensions
-disable_dependency_extensions() {
-  local extension=$1
+# Handle dependency extensions
+handle_dependency_extensions() {
+  local formula=$1
+  local extension=$2
   formula_file="${tap_dir:?}/$ext_tap/Formula/$extension@${version:?}.rb"
+  [ -e "$formula_file" ] || formula_file="$tap_dir/$ext_tap/Formula/$formula@$version.rb"
   if [ -e "$formula_file" ]; then
     IFS=" " read -r -a dependency_extensions <<< "$(grep -Eo "shivammathur.*@" "$formula_file" | xargs -I {} -n 1 basename '{}' | cut -d '@' -f 1 | tr '\n' ' ')"
     for dependency_extension in "${dependency_extensions[@]}"; do
       sudo sed -Ei '' "/=(.*\/)?\"?$dependency_extension(.so)?$/d" "${ini_file:?}"
+    done
+  fi
+  suffix="$(get_php_formula_suffix)"
+  if [[ -n "$suffix" ]]; then
+    brew_opts=(-sf)
+    patch_abstract_file >/dev/null 2>&1
+    for dependency_extension in "${dependency_extensions[@]}"; do
+        brew install "${brew_opts[@]}" "$ext_tap/$dependency_extension@$version" >/dev/null 2>&1 && copy_brew_extensions "$dependency_extension"
     done
   fi
 }
@@ -61,33 +71,17 @@ add_brew_extension() {
     add_brew_tap "$ext_tap"
     sudo mv "$tap_dir"/"$ext_tap"/.github/deps/"$formula"/* "${core_repo:?}/Formula/" 2>/dev/null || true
     update_dependencies >/dev/null 2>&1
-    disable_dependency_extensions "$extension" >/dev/null 2>&1
-    handle_dependency_extensions_for_suffix >/dev/null 2>&1
+    handle_dependency_extensions "$formula" "$extension" >/dev/null 2>&1
     (brew install "${brew_opts[@]}" "$ext_tap/$formula@$version" >/dev/null 2>&1 && copy_brew_extensions "$formula") || pecl_install "$extension" >/dev/null 2>&1
     add_extension_log "$extension" "Installed and enabled"
-  fi
-}
-
-# Install dependency extensions if the PHP version is ZTS or Debug.
-handle_dependency_extensions_for_suffix() {
-  suffix="$(get_php_formula_suffix)"
-  if [[ -n "$suffix" ]]; then
-    brew_opts=(-sf)
-    patch_abstract_file >/dev/null 2>&1
-    dependency_extensions=()
-    while IFS= read -r dependency_extension; do
-      dependency_extensions+=("$dependency_extension")
-    done < <(grep -E "depends_on.*shivammathur/extensions" "$formula_file" | sed -E 's/.*\/([^@]+)@.*/\1/')
-    for dependency_extension in "${dependency_extensions[@]}"; do
-        brew install "${brew_opts[@]}" "$ext_tap/$dependency_extension@$version" >/dev/null 2>&1 && copy_brew_extensions "$dependency_extension"
-    done
   fi
 }
 
 # Function to patch the abstract file in the extensions tap.
 patch_abstract_file() {
     abstract_path="$tap_dir"/"$ext_tap"/Abstract/abstract-php-extension.rb
-    if [ -e "$abstract_path" ] && ! grep -q "$suffix" "$abstract_path"; then
+    if [[ -e "$abstract_path" && ! -e /tmp/abstract_patch ]]; then
+        echo '' | sudo tee /tmp/abstract_patch >/dev/null 2>&1
         sudo sed -i '' -e "s|php@#{\(.*\)}|php@#{\1}$suffix|g" -e "s|php_version /|\"#{php_version}$suffix\" /|g" "$abstract_path"
     fi
 }

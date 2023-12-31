@@ -943,7 +943,7 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 - A new major version of the action will only be tagged when there are breaking changes in the setup-php API i.e. inputs, outputs, and environment flags.
 - For debugging any issues `verbose` tag can be used temporarily. It outputs all the logs and is also synced with the latest releases.
 - It is highly discouraged to use the `main` branch as version, it might break your workflow after major releases as they have breaking changes.
-- If you are using the `v1` tag or a `1.x.y` version, you should [switch to v2](https://github.com/shivammathur/setup-php/wiki/Switch-to-v2 "Guide for switching from setup-php v1 to v2") as `v1` only gets critical bug fixes. Maintenance support for `v1` will be dropped with the last `PHP 8.0` release.
+- If you are using the `v1` tag or a `1.x.y` version, you should [switch to v2](https://github.com/shivammathur/setup-php/wiki/Switch-to-v2 "Guide for switching from setup-php v1 to v2") as `v1` is not supported anymore.
 
 ## :scroll: License
 

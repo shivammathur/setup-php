@@ -1156,7 +1156,7 @@ async function getManifestURL() {
 exports.getManifestURL = getManifestURL;
 async function parseVersion(version) {
     switch (true) {
-        case /^(latest|lowest|nightly|\d+\.x)$/.test(version):
+        case /^(latest|lowest|highest|nightly|\d+\.x)$/.test(version):
             return JSON.parse((await fetch.fetch(await getManifestURL()))['data'])[version];
         default:
             switch (true) {

@@ -1,5 +1,6 @@
 {
   "lowest": "8.1",
+  "highest": "8.3",
   "latest": "8.3",
   "nightly": "8.4",
   "5.x": "5.6",

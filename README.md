@@ -390,9 +390,9 @@ Disable coverage for these reasons:
 #### `php-version` (optional)
 
 - Specify the PHP version you want to set up.
-- Accepts a `string`. For example `'8.0'`.
-- Accepts `latest` to set up the latest stable PHP version.
+- Accepts a `string`. For example `'8.3'`.
 - Accepts `lowest` to set up the lowest supported PHP version.
+- Accepts `highest` or `latest` to set up the latest stable PHP version.
 - Accepts `nightly` to set up a nightly build from the master branch of PHP.
 - Accepts the format `d.x`, where `d` is the major version. For example `5.x`, `7.x` and `8.x`.  
 - See [PHP support](#tada-php-support) for the supported PHP versions.

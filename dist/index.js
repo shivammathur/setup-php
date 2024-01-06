@@ -252,7 +252,7 @@ async function addExtensionDarwin(extension_csv, version) {
             case /^(5\.[3-6]|7\.[0-4]|8\.[0-3])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^couchbase|^event|^gearman$|^geos$|^pdo_oci$|^oci8$|^(pecl_)?http|^pdo_firebird$/.test(extension):
             case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
-            case /(5\.6|7\.[0-3])phalcon3|7\.[2-4]phalcon4|(7\.4|8\.[0-2])phalcon5?/.test(version_extension):
+            case /(5\.6|7\.[0-3])phalcon3|7\.[2-4]phalcon4|(7\.4|8\.[0-3])phalcon5?/.test(version_extension):
             case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
             case /^(7\.[0-4]|8\.[0-2])zephir_parser(-v?\d+\.\d+\.\d+)?$/.test(version_extension):
                 add_script += await utils.customPackage(ext_name, 'extensions', extension, 'darwin');
@@ -302,7 +302,7 @@ async function addExtensionWindows(extension_csv, version) {
             case /^(5\.[3-6]|7\.[0-4]|8\.[0-3])blackfire(-\d+\.\d+\.\d+)?$/.test(version_extension):
             case /^pdo_oci$|^oci8$|^pdo_firebird$/.test(extension):
             case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
-            case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$|^(7\.4|8\.[0-2])phalcon5?$/.test(version_extension):
+            case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$|^(7\.4|8\.[0-3])phalcon5?$/.test(version_extension):
             case /^(7\.[1-4]|8\.1)(pecl_)?http/.test(version_extension):
             case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
             case /^(7\.[0-4]|8\.[0-2])zephir_parser(-v?\d+\.\d+\.\d+)?$/.test(version_extension):
@@ -372,7 +372,7 @@ async function addExtensionLinux(extension_csv, version) {
             case /^couchbase|^event|^gearman$|^geos$|^pdo_oci$|^oci8$|^(pecl_)?http|^pdo_firebird$/.test(extension):
             case /(?<!5\.[3-5])intl-\d+\.\d+$/.test(version_extension):
             case /^(5\.[3-6]|7\.[0-4])ioncube$/.test(version_extension):
-            case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$|^(7\.4|8\.[0-2])phalcon5?$/.test(version_extension):
+            case /^7\.[0-3]phalcon3$|^7\.[2-4]phalcon4$|^(7\.4|8\.[0-3])phalcon5?$/.test(version_extension):
             case /(?<!5\.[3-6])(pdo_)?sqlsrv$/.test(version_extension):
             case /^(7\.[0-4]|8\.[0-2])zephir_parser(-v?\d+\.\d+\.\d+)?$/.test(version_extension):
                 add_script += await utils.customPackage(ext_name, 'extensions', extension, 'linux');

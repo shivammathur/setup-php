@@ -176,21 +176,30 @@ pecl_install() {
   local extension=$1
   local prefix=${2:-extension}
   add_pecl >/dev/null 2>&1
-  cpu_count="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo '1')"
-  prefix_opts="$(parse_args "$extension" CONFIGURE_PREFIX_OPTS) MAKEFLAGS='-j $cpu_count'"
-  suffix_opts="$(parse_args "$extension" CONFIGURE_OPTS) $(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"
-  IFS=' ' read -r -a libraries <<<"$(parse_args "$extension" LIBS) $(parse_args "$extension" "$(uname -s)"_LIBS)"
-  (( ${#libraries[@]} )) && add_libs "${libraries[@]}" >/dev/null 2>&1
   disable_extension_helper "${extension%-*}" >/dev/null 2>&1
-  if [ "$version" = "5.3" ]; then
-    yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f "$extension" >/dev/null 2>&1
+  # Compare version with 8.3 so it runs only on 8.4 and above
+  # Install using the source interface as it allows for patching.
+  if [[ $(printf "%s\n%s" "${version:?}" "8.3" | sort -V | head -n1) != "$version" ]]; then
+    extension_version=${extension##*-};
+    [ "$extension_version" = "${extension%-*}" ] &&  extension_version=$(get_pecl_version "$extension" "stable")
+    add_extension_from_source "${extension%-*}" https://pecl.php.net "${extension%-*}" "${extension%-*}" "$extension_version" "$prefix" pecl
+    check_extension "${extension%-*}" && return 0 || return 1;
   else
-    yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f -D "$(parse_pecl_configure_options "$suffix_opts")" "$extension" >/dev/null 2>&1
+    cpu_count="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo '1')"
+    prefix_opts="$(parse_args "$extension" CONFIGURE_PREFIX_OPTS) MAKEFLAGS='-j $cpu_count'"
+    suffix_opts="$(parse_args "$extension" CONFIGURE_OPTS) $(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"
+    IFS=' ' read -r -a libraries <<<"$(parse_args "$extension" LIBS) $(parse_args "$extension" "$(uname -s)"_LIBS)"
+    (( ${#libraries[@]} )) && add_libs "${libraries[@]}" >/dev/null 2>&1
+    if [ "$version" = "5.3" ]; then
+      yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f "$extension" >/dev/null 2>&1
+    else
+      yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f -D "$(parse_pecl_configure_options "$suffix_opts")" "$extension" >/dev/null 2>&1
+    fi
+    local exit_code=$?
+    sudo pecl info "$extension" | grep -iq 'zend extension' && prefix=zend_extension
+    enable_extension "${extension%-*}" "$prefix"
+    return "$exit_code"
   fi
-  local exit_code=$?
-  sudo pecl info "$extension" | grep -iq 'zend extension' && prefix=zend_extension
-  enable_extension "${extension%-*}" "$prefix"
-  return "$exit_code"
 }
 
 # Function to install a specific version of PECL extension.

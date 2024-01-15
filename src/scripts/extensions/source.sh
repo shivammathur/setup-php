@@ -89,6 +89,8 @@ run_group() {
 
 patch_extension() {
   local extension=$1
+  # shellcheck source=.
+  . "${scripts:?}"/extensions/patches/common.sh
   if [ -e "${scripts:?}"/extensions/patches/"$extension".sh ]; then
     # shellcheck source=.
     . "${scripts:?}"/extensions/patches/"$extension".sh

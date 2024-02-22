@@ -747,7 +747,7 @@ If your project uses composer, you can persist the composer's internal cache dir
   run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
 - name: Cache dependencies
-  uses: actions/cache@v3
+  uses: actions/cache@v4
   with:
     path: ${{ steps.composer-cache.outputs.dir }}
     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}

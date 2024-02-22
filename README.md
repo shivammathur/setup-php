@@ -559,6 +559,11 @@ steps:
 - Production release builds of PHP without debugging symbols are set up by default.
 - You can use the `debug` environment variable to set up a build with debugging symbols for PHP 5.6 and above.
 
+**Notes**
+- On Linux, the debug symbols are added as [debug info files](https://sourceware.org/gdb/current/onlinedocs/gdb.html/Separate-Debug-Files.html) in the `/usr/lib/debug/.build-id` directory. These files match the `build-id` in the ELF section of the PHP binaries and debugging tools like `gdb` are able to resolve the symbols from these files.
+- On Windows, the debug symbols are added as `pdb` files in the PHP installation directory.
+- On macOS, the debug symbols are compiled into the binaries.
+
 ```yaml
 steps:
 - name: Setup PHP with debugging symbols

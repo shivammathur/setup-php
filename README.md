@@ -994,25 +994,18 @@ These companies generously provide setup-php their products and services to aid 
 
 <p>
   <a href="https://www.jetbrains.com/?from=setup-php">
-    <img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="106" height="60">
+    <img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="212" height="120">
   </a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://www.macstadium.com/opensource/members#gh-light-mode-only">
-    <img src="https://setup-php.com/sponsors/macstadium.png" alt="Mac Stadium" width="148" height="60">
+    <img src="https://setup-php.com/sponsors/macstadium.png" alt="Mac Stadium" width="296" height="120">
   </a>
   <a href="https://www.macstadium.com/opensource/members#gh-dark-mode-only">
-    <img src="https://setup-php.com/sponsors/macstadium-white.png" alt="Mac Stadium" width="148" height="60">
+    <img src="https://setup-php.com/sponsors/macstadium-white.png" alt="Mac Stadium" width="296" height="120">
   </a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://tidelift.com/subscription/pkg/npm-setup-php">
-    <img src="https://setup-php.com/sponsors/tidelift.png" alt="Tidelift" width="70" height="60">
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://www.scaleway.com/en/about-us/open-source-program#gh-light-mode-only">
-    <img src="https://setup-php.com/sponsors/scaleway.png" alt="Scaleway" width="174" height="60">
-  </a>
-  <a href="https://www.scaleway.com/en/about-us/open-source-program#gh-dark-mode-only">
-    <img src="https://setup-php.com/sponsors/scaleway-white.png" alt="Scaleway" width="174" height="60">
+    <img src="https://setup-php.com/sponsors/tidelift.png" alt="Tidelift" width="140" height="120">
   </a>
 </p>
 

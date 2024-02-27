@@ -154,18 +154,7 @@ update_dependencies_helper() {
 update_dependencies() {
   patch_brew
   if ! [ -e /tmp/update_dependencies ]; then
-    if [ "${runner:?}" != "self-hosted" ] && [ "${ImageOS:-}" != "" ] && [ "${ImageVersion:-}" != "" ]; then
-      deps_file="$tap_dir/$php_tap/.github/deps/${ImageOS:?}_${ImageVersion:?}"
-      if [ -e "$deps_file" ]; then
-        while read -r dependency; do
-          update_dependencies_helper "$dependency" &
-          to_wait+=($!)
-        done <"$deps_file"
-      fi
-      wait "${to_wait[@]}"
-    else
-      git -C "$core_repo" fetch origin master && git -C "$core_repo" reset --hard origin/master
-    fi
+    git -C "$core_repo" fetch origin master && git -C "$core_repo" reset --hard origin/master
     echo '' | sudo tee /tmp/update_dependencies >/dev/null 2>&1
   fi
 }

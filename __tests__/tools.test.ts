@@ -95,7 +95,7 @@ describe('Tools tests', () => {
     ${'beta_token'}    | ${'1.2.3-beta1'}
     ${''}              | ${'1.2.3'}
   `('checking getSemverVersion: $token', async ({token, version}) => {
-    process.env['COMPOSER_TOKEN'] = token;
+    process.env['GITHUB_TOKEN'] = token;
     expect(
       await tools.getSemverVersion(getData({tool: 'tool', version: '1.2'}))
     ).toBe(version);
@@ -574,7 +574,7 @@ describe('Tools tests', () => {
     ${'phpunit:1.2'} | ${'invalid_token'} | ${'add_log "$cross" "phpunit" "Invalid token"'}
     ${'phpunit:0.1'} | ${'no_data'}       | ${'add_log "$cross" "phpunit" "No version found with prefix 0.1."'}
   `('checking error: $tools_csv', async ({tools_csv, token, script}) => {
-    process.env['COMPOSER_TOKEN'] = token;
+    process.env['GITHUB_TOKEN'] = token;
     expect(await tools.addTools(tools_csv, '7.4', 'linux')).toContain(script);
   });
 

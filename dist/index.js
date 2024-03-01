@@ -693,11 +693,8 @@ const utils = __importStar(__nccwpck_require__(918));
 async function getSemverVersion(data) {
     const search = data['version_prefix'] + data['version'];
     const url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${search}.`;
-    let github_token = await utils.readEnv('GITHUB_TOKEN');
-    const composer_token = await utils.readEnv('COMPOSER_TOKEN');
-    if (composer_token && !github_token) {
-        github_token = composer_token;
-    }
+    const github_token = (await utils.readEnv('GITHUB_TOKEN')) ||
+        (await utils.readEnv('COMPOSER_TOKEN'));
     const response = await fetch.fetch(url, github_token);
     if (response.error || response.data === '[]') {
         data['error'] = response.error ?? `No version found with prefix ${search}.`;

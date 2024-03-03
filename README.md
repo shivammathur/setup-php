@@ -71,11 +71,12 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | Virtual environment | YAML workflow label                | Pre-installed PHP      |
 |---------------------|------------------------------------|------------------------|
 | Ubuntu 22.04        | `ubuntu-latest` or `ubuntu-22.04`  | `PHP 8.1`              |
-| Ubuntu 20.04        | `ubuntu-20.04`                     | `PHP 7.4` to `PHP 8.2` |
+| Ubuntu 20.04        | `ubuntu-20.04`                     | `PHP 7.4` to `PHP 8.3` |
 | Windows Server 2022 | `windows-latest` or `windows-2022` | `PHP 8.2`              |
 | Windows Server 2019 | `windows-2019`                     | `PHP 8.2`              |
-| macOS Ventura 13.x  | `macos-13`                         | `PHP 8.2`              |
-| macOS Monterey 12.x | `macos-latest` or `macos-12`       | `PHP 8.2`              |
+| macOS Sonoma 14.x   | `macos-14`                         | -                      |
+| macOS Ventura 13.x  | `macos-13`                         | `PHP 8.3`              |
+| macOS Monterey 12.x | `macos-latest` or `macos-12`       | `PHP 8.3`              |
 
 ### Self-Hosted Runners
 
@@ -116,7 +117,7 @@ On all supported OS/Platforms the following PHP versions can be set up as per th
 | `8.0`       | `Stable`  | `End of life`         | `GitHub-hosted`, `self-hosted` |
 | `8.1`       | `Stable`  | `Security fixes only` | `GitHub-hosted`, `self-hosted` |
 | `8.2`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
-| `8.3`       | `Stable` | `Active`              | `GitHub-hosted`, `self-hosted` |
+| `8.3`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.4`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
 
 **Notes:**

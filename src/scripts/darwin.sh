@@ -113,17 +113,6 @@ add_pecl() {
   add_log "${tick:?}" "PECL" "Found PECL $pear_version"
 }
 
-# Function to link all libraries of a formula.
-link_libraries() {
-  formula=$1
-  formula_prefix="$(brew --prefix "$formula")"
-  sudo mkdir -p "$formula_prefix"/lib
-  for lib in "$formula_prefix"/lib/*.dylib; do
-    lib_name=$(basename "$lib")
-    sudo cp -a "$lib" "$brew_prefix/lib/$lib_name" 2>/dev/null || true
-  done
-}
-
 # Link opcache extension to extensions directory.
 link_opcache() {
   opcache_ini="$brew_prefix"/etc/php/"$version"/conf.d/ext-opcache.ini
@@ -142,19 +131,11 @@ patch_brew() {
   trap "sudo sed -Ei '' 's/$code.*/$code, overwrite: overwrite?\)/' $formula_installer" exit
 }
 
-# Helper function to update the dependencies.
-update_dependencies_helper() {
-  dependency=$1
-  [[ "${dependency:0:3}" = "lib" ]] && prefix=lib || prefix="${dependency:0:1}"
-  get -q -n "$core_repo/Formula/$prefix/$dependency.rb" "https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/$prefix/$dependency.rb"
-  link_libraries "$dependency"
-}
-
 # Function to update dependencies.
 update_dependencies() {
   patch_brew
   if ! [ -e /tmp/update_dependencies ]; then
-    git -C "$core_repo" fetch origin master && git -C "$core_repo" reset --hard origin/master
+    git_retry -C "$core_repo" fetch origin master && git -C "$core_repo" reset --hard origin/master
     echo '' | sudo tee /tmp/update_dependencies >/dev/null 2>&1
   fi
 }
@@ -294,6 +275,7 @@ export HOMEBREW_NO_INSTALL_FROM_API=1
 # shellcheck source=.
 . "${scripts:?}"/unix.sh
 . "${scripts:?}"/tools/brew.sh
+. "${scripts:?}"/tools/retry.sh
 . "${scripts:?}"/tools/add_tools.sh
 . "${scripts:?}"/extensions/source.sh
 . "${scripts:?}"/extensions/add_extensions.sh

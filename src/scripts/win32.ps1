@@ -133,14 +133,14 @@ Function Get-File {
   param (
     [string]$Url,
     [string]$FallbackUrl,
-    [string]$OutFile,
+    [string]$OutFile = '',
     [int]$Retries = 3,
     [int]$TimeoutSec = 0
   )
 
   for ($i = 0; $i -lt $Retries; $i++) {
     try {
-      if($null -ne $OutFile) {
+      if($OutFile -ne '') {
         Invoke-WebRequest -Uri $Url -OutFile $OutFile -TimeoutSec $TimeoutSec
       } else {
         Invoke-WebRequest -Uri $Url -TimeoutSec $TimeoutSec
@@ -150,7 +150,7 @@ Function Get-File {
       if ($i -eq ($Retries - 1)) {
         if($FallbackUrl) {
           try {
-            if($null -ne $OutFile) {
+            if($OutFile -ne '') {
               Invoke-WebRequest -Uri $FallbackUrl -OutFile $OutFile -TimeoutSec $TimeoutSec
             } else {
               Invoke-WebRequest -Uri $FallbackUrl -TimeoutSec $TimeoutSec

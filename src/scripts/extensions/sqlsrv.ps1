@@ -7,6 +7,8 @@ Function Get-SqlsrvReleaseVersion() {
     return '5.9.0'
   } elseif ($version -eq '7.4') {
     return '5.10.1'
+  } elseif ($version -eq '8.0') {
+    return '5.11.1'
   } else {
     return 'latest'
   }

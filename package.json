@@ -1,6 +1,6 @@
 {
   "name": "setup-php",
-  "version": "2.30.0",
+  "version": "2.30.1",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
   "main": "lib/install.js",
@@ -19,7 +19,7 @@
     "lint": "eslint **/src/*.ts **/__tests__/*.ts --cache --fix",
     "format": "prettier --write **/src/*.ts **/__tests__/*.ts && git add -f __tests__/ ",
     "format-check": "prettier --check **/src/*.ts **/__tests__/*.ts",
-    "release": "ncc build -o dist && git add -f dist/",
+    "release": "ncc build -m -o dist && git add -f dist/",
     "test": "jest"
   },
   "repository": {
@@ -41,9 +41,9 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.11.24",
-    "@typescript-eslint/eslint-plugin": "^7.1.0",
-    "@typescript-eslint/parser": "^7.1.0",
+    "@types/node": "^20.11.30",
+    "@typescript-eslint/eslint-plugin": "^7.3.1",
+    "@typescript-eslint/parser": "^7.3.1",
     "@vercel/ncc": "^0.38.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -54,9 +54,9 @@
     "jest-circus": "^29.7.0",
     "nock": "^13.5.4",
     "prettier": "^3.2.5",
-    "simple-git-hooks": "^2.9.0",
+    "simple-git-hooks": "^2.11.0",
     "ts-jest": "^29.1.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.3"
   },
   "bugs": {
     "url": "https://github.com/shivammathur/setup-php/issues"

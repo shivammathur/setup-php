@@ -39,9 +39,13 @@ add_oci_helper() {
     status='Installed and enabled'
     read -r "${ext}_LINUX_LIBS" <<< "libaio-dev"
     read -r "${ext}_CONFIGURE_OPTS" <<< "--with-php-config=$(command -v php-config) --with-${ext/_/-}=instantclient,$oracle_client"
-    read -r "${ext}_PATH" <<< "ext/$ext"
     patch_phpize
-    add_extension_from_source "$ext" https://github.com php php-src "$(php_src_tag)" extension get
+    if [[ $(printf "%s\n%s" "${version:?}" "8.3" | sort -V | head -n1) != "$version" ]]; then
+      add_extension_from_source "$ext" https://github.com php pecl-database-"$ext" main extension get
+    else
+      read -r "${ext}_PATH" <<< "ext/$ext"
+      add_extension_from_source "$ext" https://github.com php php-src "$(php_src_tag)" extension get
+    fi
     restore_phpize
   else
     enable_extension "$ext" extension

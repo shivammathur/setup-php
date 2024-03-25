@@ -43,7 +43,7 @@ set_output() {
   name=$1
   value=$2
   if [ "${GITHUB_ACTIONS}" = "true" ]; then
-    echo "${name}=${value}" | tee -a "$GITHUB_OUTPUT" >/dev/null 2>&1
+    echo "${name}=${value}" | tee -a "$GITHUB_OUTPUT" 
   fi
 }
 
@@ -113,10 +113,10 @@ add_path() {
   path_to_add=$1
   [[ ":$PATH:" == *":$path_to_add:"* ]] && return
   if [[ -n "$GITHUB_PATH" ]]; then
-    echo "$path_to_add" | tee -a "$GITHUB_PATH" >/dev/null 2>&1
+    echo "$path_to_add" | tee -a "$GITHUB_PATH" 
   else
     profile=$(get_shell_profile)
-    ([ -e "$profile" ] && grep -q ":$path_to_add\"" "$profile" 2>/dev/null) || echo "export PATH=\"\${PATH:+\${PATH}:}\"$path_to_add" | sudo tee -a "$profile" >/dev/null 2>&1
+    ([ -e "$profile" ] && grep -q ":$path_to_add\"" "$profile" 2>/dev/null) || echo "export PATH=\"\${PATH:+\${PATH}:}\"$path_to_add" | sudo tee -a "$profile" 
   fi
   export PATH="${PATH:+${PATH}:}$path_to_add"
 }
@@ -138,10 +138,10 @@ add_env() {
   env_name=$1
   env_value=$2
   if [[ -n "$GITHUB_ENV" ]]; then
-    echo "$env_name=$env_value" | tee -a "$GITHUB_ENV" >/dev/null 2>&1
+    echo "$env_name=$env_value" | tee -a "$GITHUB_ENV" 
   else
     profile=$(get_shell_profile)
-    echo "export $env_name=\"$env_value\"" | sudo tee -a "$profile" >/dev/null 2>&1
+    echo "export $env_name=\"$env_value\"" | sudo tee -a "$profile" 
   fi
   export "$env_name"="$env_value"
 }
@@ -162,7 +162,7 @@ self_hosted_setup() {
       add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
       exit 1
     else
-      self_hosted_helper >/dev/null 2>&1
+      self_hosted_helper 
       add_env RUNNER_TOOL_CACHE /tmp
     fi
   fi
@@ -175,8 +175,8 @@ configure_php() {
   ini_config_files=("$ini_config_dir"/php.ini)
   jit_config_files=("$ini_config_dir"/jit.ini)
   [[ "$version" =~ $xdebug3_versions ]] && ini_config_files+=("$ini_config_dir"/xdebug.ini)
-  cat "${ini_config_files[@]}" | sudo tee -a "${ini_file[@]:?}" >/dev/null 2>&1
-  [[ "$version" =~ $jit_versions ]] && cat "${jit_config_files[@]}" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null 2>&1
+  cat "${ini_config_files[@]}" | sudo tee -a "${ini_file[@]:?}" 
+  [[ "$version" =~ $jit_versions ]] && cat "${jit_config_files[@]}" | sudo tee -a "${pecl_file:-${ini_file[@]}}" 
 }
 
 # Function to get PHP version in semver format.

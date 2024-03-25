@@ -11,7 +11,7 @@ add_geos() {
   if check_extension "geos"; then
     add_log "${tick:?}" "geos" "Enabled"
   else
-    add_geos_helper >/dev/null 2>&1
+    add_geos_helper 
     add_extension_log "geos" "Installed and enabled"
   fi
 }

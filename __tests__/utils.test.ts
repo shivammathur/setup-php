@@ -177,9 +177,9 @@ describe('Utils tests', () => {
   });
 
   it('checking suppressOutput', async () => {
-    expect(await utils.suppressOutput('win32')).toEqual(' >$null 2>&1');
-    expect(await utils.suppressOutput('linux')).toEqual(' >/dev/null 2>&1');
-    expect(await utils.suppressOutput('darwin')).toEqual(' >/dev/null 2>&1');
+    expect(await utils.suppressOutput('win32')).toEqual(' ');
+    expect(await utils.suppressOutput('linux')).toEqual(' ');
+    expect(await utils.suppressOutput('darwin')).toEqual(' ');
     expect(await utils.suppressOutput('openbsd')).toContain(
       'Platform openbsd is not supported'
     );

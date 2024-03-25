@@ -20,7 +20,7 @@ add_protoc() {
     get -q -n /tmp/protobuf.zip "https://github.com/protocolbuffers/protobuf/releases/download/$protobuf_tag/protoc-${protobuf_tag:1}-$platform-x86_64.zip"
     sudo unzip /tmp/protobuf.zip -d /usr/local/
     sudo chmod -R 777 /usr/local/bin/protoc /usr/local/include/google
-  ) >/dev/null 2>&1
+  ) 
   add_log "${tick:?}" "protoc" "Added protoc ${protobuf_tag:1}"
   printf "$GROUP\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "protoc" "Click to read the protoc related license information"
   curl "${curl_opts[@]:?}" https://raw.githubusercontent.com/protocolbuffers/protobuf/master/LICENSE

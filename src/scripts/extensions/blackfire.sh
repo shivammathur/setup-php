@@ -15,10 +15,10 @@ add_blackfire() {
         extension_version=$(get -s -n "" https://blackfire.io/api/v1/releases | grep -Eo 'php":"([0-9]+.[0-9]+.[0-9]+)' | cut -d '"' -f 3)
       fi
     fi
-    get -q -n "${ext_dir:?}/blackfire.so" https://packages.blackfire.io/binaries/blackfire-php/"$extension_version"/blackfire-php-"$platform"_amd64-php-"$no_dot_version".so >/dev/null 2>&1
+    get -q -n "${ext_dir:?}/blackfire.so" https://packages.blackfire.io/binaries/blackfire-php/"$extension_version"/blackfire-php-"$platform"_amd64-php-"$no_dot_version".so 
   fi
-  disable_extension xdebug >/dev/null 2>&1
-  disable_extension pcov >/dev/null 2>&1
+  disable_extension xdebug 
+  disable_extension pcov 
   enable_extension blackfire extension
   add_extension_log blackfire "$status"
 }

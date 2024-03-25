@@ -134,13 +134,13 @@ add_relay() {
   relay_releases=https://github.com/cachewerk/relay/releases
   relay_trunk=https://builds.r2.relay.so
   relay_version=$(get_relay_version "$ext")
-  add_relay_dependencies >/dev/null 2>&1
+  add_relay_dependencies 
   if shared_extension relay; then
     message="Enabled"
   else
-    add_relay_helper >/dev/null 2>&1
+    add_relay_helper 
     message="Installed and enabled"
   fi
-  configure_relay >/dev/null 2>&1
+  configure_relay 
   add_extension_log relay "$message"
 }

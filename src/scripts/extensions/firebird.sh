@@ -20,7 +20,7 @@ add_firebird_helper() {
 
 add_firebird() {
   if [ "$(uname -s )" = "Darwin" ]; then
-    add_firebird_client_darwin >/dev/null 2>&1
+    add_firebird_client_darwin 
   fi
   enable_extension pdo_firebird extension
   status="Enabled"
@@ -28,12 +28,12 @@ add_firebird() {
     status="Installed and enabled"
     if [ "$(uname -s)" = "Linux" ]; then
       if [[ "${version:?}" =~ 5.3|${nightly_versions:?} ]]; then
-        add_firebird_helper /usr >/dev/null 2>&1
+        add_firebird_helper /usr 
       else
-        add_pdo_extension firebird >/dev/null 2>&1
+        add_pdo_extension firebird 
       fi
     else
-      add_firebird_helper /opt/firebird >/dev/null 2>&1
+      add_firebird_helper /opt/firebird 
     fi
   fi
   add_extension_log pdo_firebird "$status"

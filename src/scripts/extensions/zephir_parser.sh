@@ -29,7 +29,7 @@ add_zephir_parser() {
   zp_releases=https://github.com/"$repo"/releases
   if ! shared_extension zephir_parser; then
     message='Installed and enabled'
-    add_zephir_parser_helper "$ext" >/dev/null 2>&1
+    add_zephir_parser_helper "$ext" 
   else
     message='Enabled'
     enable_extension zephir_parser extension

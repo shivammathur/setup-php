@@ -47,9 +47,9 @@ add_couchbase() {
       ext=$(get_couchbase_version)
     fi
     if [[ "$ext" =~ couchbase-[2-3].+ ]]; then
-      add_couchbase_clibs "$ext" >/dev/null 2>&1
+      add_couchbase_clibs "$ext" 
     else
-      add_couchbase_cxxlibs >/dev/null 2>&1
+      add_couchbase_cxxlibs 
     fi
     enable_extension "couchbase" "extension"
     if check_extension "couchbase"; then
@@ -60,9 +60,9 @@ add_couchbase() {
         n_proc="$(nproc)"
         export COUCHBASE_SUFFIX_OPTS="CMAKE_BUILD_TYPE=Release"
         export CMAKE_BUILD_PARALLEL_LEVEL="$n_proc"
-        add_extension_from_source couchbase https://pecl.php.net couchbase couchbase "${ext##*-}" extension pecl >/dev/null 2>&1
+        add_extension_from_source couchbase https://pecl.php.net couchbase couchbase "${ext##*-}" extension pecl 
       else
-        pecl_install "${ext}" >/dev/null 2>&1
+        pecl_install "${ext}" 
       fi
       add_extension_log "couchbase" "Installed and enabled"
     fi

@@ -140,17 +140,6 @@ update_dependencies() {
   fi
 }
 
-# Function to fix dependencies on install PHP version.
-fix_dependencies() {
-  broken_deps_paths=$(php -v 2>&1 | grep -Eo '/opt/[a-zA-Z0-9@\.]+')
-  if [ "x$broken_deps_paths" != "x" ]; then
-    update_dependencies
-    IFS=" " read -r -a formulae <<< "$(echo "$broken_deps_paths" | tr '\n' ' ' | sed 's|/opt/||g' 2>&1)$php_formula"
-    brew reinstall "${formulae[@]}"
-    brew link --force --overwrite "$php_formula" || true
-  fi
-}
-
 # Function to get PHP version if it is already installed using Homebrew.
 get_brewed_php() {
   cellar="$brew_prefix"/Cellar
@@ -232,8 +221,8 @@ setup_php() {
     add_php "upgrade" "$existing_version" >/dev/null 2>&1
     status="Updated to"
   else
-    status="Found"
-    fix_dependencies >/dev/null 2>&1
+    add_php "upgrade" "$existing_version" >/dev/null 2>&1
+    status="Updated to"
   fi
   php_config="$(command -v php-config)"
   ext_dir="$(grep 'extension_dir=' "$php_config" | cut -d "'" -f 2)"

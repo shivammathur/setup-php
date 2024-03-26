@@ -37,6 +37,7 @@ swoole=swoole
 uuid=uuid
 v8js=v8js
 vips=vips
+vld=vld
 xdebug=xdebug
 xdebug2=xdebug
 xlswriter=xlswriter

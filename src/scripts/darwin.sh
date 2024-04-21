@@ -227,7 +227,7 @@ setup_php() {
     status="Updated to"
   fi
   php_config="$(command -v php-config)"
-  ext_dir="$(grep 'extension_dir=' "$php_config" | cut -d "'" -f 2)"
+  ext_dir="$(sed -n "s/.*extension_dir=['\"]\(.*\)['\"].*/\1/p" "$php_config")"
   ini_dir="$(php_ini_path)"
   scan_dir="$(get_scan_dir)"
   ini_file="$ini_dir"/php.ini

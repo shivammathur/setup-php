@@ -1,6 +1,6 @@
 {
   "name": "setup-php",
-  "version": "2.30.2",
+  "version": "2.30.3",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
   "main": "lib/install.js",

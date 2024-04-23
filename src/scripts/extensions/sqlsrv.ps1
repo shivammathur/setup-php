@@ -29,7 +29,7 @@ Function Get-SqlsrvReleaseUrl()
 }
 
 # Function to add sqlsrv extension from GitHub.
-Function Add-SqlsrvFromGithub()
+Function Add-SqlsrvFromMSGithub()
 {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
@@ -37,16 +37,18 @@ Function Add-SqlsrvFromGithub()
     [string]
     $extension
   )
-  $zipUrl = SqlsrvReleaseUrl
-  if($zipUrl) {
-    $nts = if (!$installed.ThreadSafe) { "nts" } else { "ts" }
-    $noDotVersion = $version.replace('.', '')
-    $extensionFilePath = "Windows-$version\$arch\php_${extension}_${noDotVersion}_${nts}.dll"
-    Get-File -Url $zipUrl -OutFile $ENV:RUNNER_TOOL_CACHE\sqlsrv.zip > $null 2>&1
-    Expand-Archive -Path $ENV:RUNNER_TOOL_CACHE\sqlsrv.zip -DestinationPath $ENV:RUNNER_TOOL_CACHE\sqlsrv -Force > $null 2>&1
-    Copy-Item -Path "$ENV:RUNNER_TOOL_CACHE\sqlsrv\$extensionFilePath" -Destination "$ext_dir\php_$extension.dll"
-    Enable-PhpExtension -Extension $extension -Path $php_dir
-  }
+  try {
+    $zipUrl = SqlsrvReleaseUrl
+    if($zipUrl) {
+      $nts = if (!$installed.ThreadSafe) { "nts" } else { "ts" }
+      $noDotVersion = $version.replace('.', '')
+      $extensionFilePath = "Windows-$version\$arch\php_${extension}_${noDotVersion}_${nts}.dll"
+      Get-File -Url $zipUrl -OutFile $ENV:RUNNER_TOOL_CACHE\sqlsrv.zip > $null 2>&1
+      Expand-Archive -Path $ENV:RUNNER_TOOL_CACHE\sqlsrv.zip -DestinationPath $ENV:RUNNER_TOOL_CACHE\sqlsrv -Force > $null 2>&1
+      Copy-Item -Path "$ENV:RUNNER_TOOL_CACHE\sqlsrv\$extensionFilePath" -Destination "$ext_dir\php_$extension.dll"
+      Enable-PhpExtension -Extension $extension -Path $php_dir
+    }
+  } catch { }
 }
 
 # Function to add sqlsrv extension.
@@ -61,7 +63,12 @@ Function Add-Sqlsrv() {
   if (Test-Path $ext_dir\php_$extension.dll) {
     Enable-PhpExtension -Extension $extension -Path $php_dir
   } else {
-    Add-SqlsrvFromGithub $extension >$null 2>&1
+    try {
+      Add-ExtensionFromGithub $extension > $null 2>&1
+    } catch {}
+    if (-not(Test-Extension $extension)) {
+      Add-SqlsrvFromMSGithub $extension >$null 2>&1
+    }
     if (-not(Test-Extension $extension)) {
       Add-Extension $extension >$null 2>&1
     }

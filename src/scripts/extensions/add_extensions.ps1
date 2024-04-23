@@ -66,7 +66,7 @@ Function Enable-Extension() {
 }
 
 # Function to add custom built PHP extension for nightly builds.
-Function Add-NightlyExtension {
+Function Add-ExtensionFromGithub {
   Param (
     [Parameter(Position = 0, Mandatory = $true)]
     [ValidateNotNull()]
@@ -123,7 +123,7 @@ Function Add-Extension {
     }
     else {
       if(($version -match $nightly_versions) -and (Select-String -Path $src\configs\windows_extensions -Pattern $extension -SimpleMatch -Quiet)) {
-        Add-NightlyExtension $extension
+        Add-ExtensionFromGithub $extension
       } else {
         # Patch till DLLs for PHP 8.1 and above are released as stable.
         $minimumStability = $stability

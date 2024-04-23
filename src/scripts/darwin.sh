@@ -168,6 +168,7 @@ add_php() {
   else
     brew install -f "$php_formula"
   fi
+  sudo chown -R "$(id -un)":"$(id -gn)" "$brew_prefix"
   brew link --force --overwrite "$php_formula"
 }
 

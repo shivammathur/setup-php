@@ -469,7 +469,7 @@ describe('Tools tests', () => {
         'add_symfony latest',
         'add_composer_tool vapor-cli vapor-cli laravel/ scoped',
         'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"',
-        'add_composer_tool easy-coding-standard ecs symplify/ scoped'
+        'add_composer_tool easy-coding-standard easy-coding-standard symplify/ scoped'
       ]
     ]
   ])('checking addTools on darwin', async (tools_csv, scripts) => {

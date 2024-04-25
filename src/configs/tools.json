@@ -319,8 +319,9 @@
     "version_parameter": "--version",
     "version_prefix": "v"
   },
-  "ecs": {
+  "easy-coding-standard": {
     "type": "composer",
+    "alias": "ecs",
     "repository": "symplify/easy-coding-standard",
     "scope": "scoped"
   }

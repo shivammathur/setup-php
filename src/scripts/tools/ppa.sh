@@ -55,7 +55,7 @@ update_lists() {
   if [[ -n "$ppa" && -n "$ppa_search" ]]; then
     list="$list_dir"/"$(basename "$(grep -lr "$ppa_search" "$list_dir")")"
     status_file=/tmp/"${ppa/\//_}"
-  elif [ -e "$list_file" ] && grep -Eq '^deb ' "$list_file"; then
+  elif [ -e "$list_file" ] && grep -Eq '^deb |^Types deb' "$list_file"; then
     list="$list_file"
   fi
   if [ ! -e "$status_file" ]; then
@@ -189,8 +189,9 @@ update_ppa() {
 }
 
 # Variables
-list_file='/etc/apt/sources.list'
-list_dir="$list_file.d"
+list_dir='/etc/apt/sources.list.d'
+list_file="/etc/apt/sources.list.d/$ID.sources"
+[ -e "$list_file" ] || list_file='/etc/apt/sources.list'
 upstream_lsb='/etc/upstream-release/lsb-release'
 lp_api='https://api.launchpad.net/1.0'
 lp_ppa='http://ppa.launchpad.net'

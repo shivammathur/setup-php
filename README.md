@@ -70,6 +70,7 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 | Virtual environment | YAML workflow label                | Pre-installed PHP      |
 |---------------------|------------------------------------|------------------------|
+| Ubuntu 24.04        | `ubuntu-24.04`                     | `PHP 8.3`              |
 | Ubuntu 22.04        | `ubuntu-latest` or `ubuntu-22.04`  | `PHP 8.1`              |
 | Ubuntu 20.04        | `ubuntu-20.04`                     | `PHP 7.4` to `PHP 8.3` |
 | Windows Server 2022 | `windows-latest` or `windows-2022` | `PHP 8.3`              |
@@ -82,6 +83,7 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 | Host OS/Virtual environment      | YAML workflow label        |
 |----------------------------------|----------------------------|
+| Ubuntu 24.04                     | `self-hosted` or `Linux`   |
 | Ubuntu 22.04                     | `self-hosted` or `Linux`   |
 | Ubuntu 20.04                     | `self-hosted` or `Linux`   |
 | Debian 11                        | `self-hosted` or `Linux`   |
@@ -716,6 +718,9 @@ Choose the image tag which matches the `runs-on` property in your workflow. For 
 ```bash
 # For runs-on: ubuntu-latest
 act -P ubuntu-latest=shivammathur/node:latest
+
+# For runs-on: ubuntu-24.04
+act -P ubuntu-24.04=shivammathur/node:2404
 
 # For runs-on: ubuntu-22.04
 act -P ubuntu-22.04=shivammathur/node:2204

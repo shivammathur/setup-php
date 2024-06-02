@@ -164,9 +164,9 @@ add_php() {
   suffix="$(get_php_formula_suffix)"
   php_formula="shivammathur/php/php@$version$suffix"
   if [[ "$existing_version" != "false" && -z "$suffix" ]]; then
-    ([ "$action" = "upgrade" ] && brew upgrade -f "$php_formula") || brew unlink "$php_formula"
+    ([ "$action" = "upgrade" ] && brew upgrade -f --overwrite "$php_formula") || brew unlink "$php_formula"
   else
-    brew install -f "$php_formula"
+    brew install -f --overwrite "$php_formula"
   fi
   sudo chown -R "$(id -un)":"$(id -gn)" "$brew_prefix"
   brew link --force --overwrite "$php_formula"

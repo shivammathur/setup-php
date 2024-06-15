@@ -23,6 +23,10 @@ fix_broken_packages() {
 # Function to install a package
 install_packages() {
   packages=("$@")
+  if ! [ -e /etc/dpkg/dpkg.cfg.d/force-confnew ]; then
+    echo "force-confnew" | sudo tee /etc/dpkg/dpkg.cfg.d/force-confnew >/dev/null 2>&1
+    trap "sudo rm -f /etc/dpkg/dpkg.cfg.d/force-confnew 2>/dev/null" exit
+  fi
   $apt_install "${packages[@]}" >/dev/null 2>&1 || (update_lists && fix_broken_packages && $apt_install "${packages[@]}" >/dev/null 2>&1)
 }
 

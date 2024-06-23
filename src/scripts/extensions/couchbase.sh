@@ -7,13 +7,25 @@ add_couchbase_clibs() {
   else
     release=$(get -s -n "" "$trunk"/latest | grep -Eo -m 1 "[0-9]+\.[0-9]+\.[0-9]+" | head -n 1)
   fi
-  [ "$VERSION_ID" = "22.04" ] && vid=20.04 || vid="$VERSION_ID"
-  [ "$VERSION_CODENAME" = "jammy" ] && vcn=focal || vcn="$VERSION_CODENAME"
+  [ "$VERSION_ID" = "24.04" ] && vid=22.04 || vid="$VERSION_ID"
+  [ "$VERSION_CODENAME" = "noble" ] && vcn=jammy || vcn="$VERSION_CODENAME"
   deb_url="$trunk/download/$release/libcouchbase-${release}_ubuntu${vid/./}_${vcn}_amd64.tar"
   get -q -n /tmp/libcouchbase.tar "$deb_url"
+  if ! [ -e /tmp/libcouchbase.tar ] || ! file /tmp/libcouchbase.tar | grep -q 'tar archive'; then
+    deb_url="$trunk/download/$release/libcouchbase-${release}_ubuntu2004_focal_amd64.tar"
+    get -q -n /tmp/libcouchbase.tar "$deb_url"
+    add_old_libssl
+  fi
   sudo tar -xf /tmp/libcouchbase.tar -C /tmp
   install_packages libev4 libevent-dev
   sudo dpkg -i /tmp/libcouchbase-*/*.deb
+}
+
+add_old_libssl() {
+  if [[ "$VERSION_ID" = "24.04" ]]; then
+    get -q -n /tmp/libssl.deb http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
+    [ -e /tmp/libssl.deb ] && sudo dpkg -i /tmp/libssl.deb || add_extension_log "couchbase" "Could not install libssl1.1"
+  fi
 }
 
 add_couchbase_cxxlibs() {
@@ -33,7 +45,7 @@ get_couchbase_version() {
   elif [ "${version:?}" = '7.3' ]; then
     echo couchbase-3.2.2
   elif [ "${version:?}" = '7.4' ]; then
-    echo couchbase-4.1.0
+    echo couchbase-4.1.1
   else
     echo couchbase
   fi

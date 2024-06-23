@@ -2,7 +2,11 @@
 get_relay_version() {
  local ext=$1
   if [[ "$ext" =~ ^relay$ ]]; then
-    get -s -n "" "${relay_releases:?}"/latest 2<&1 | grep -m 1 -Eo "tag/(v[0-9]+(\.[0-9]+)?(\.[0-9]+)?)" | head -n 1 | cut -d '/' -f 2
+    if [ "${version:?}" = "7.4" ]; then
+      echo 'v0.7.0'
+    else
+      get -s -n "" "${relay_releases:?}"/latest 2<&1 | grep -m 1 -Eo "tag/(v[0-9]+(\.[0-9]+)?(\.[0-9]+)?)" | head -n 1 | cut -d '/' -f 2
+    fi
   else
     relay_version="${ext##*-}"
     echo "v${relay_version/v//}"
@@ -40,6 +44,7 @@ change_library_paths() {
     install_name_tool -change "$(echo "${dylibs}" | grep -E "liblz4.*dylib" | xargs)" "$brew_prefix"/opt/lz4/lib/liblz4.dylib "$ext_dir"/relay.so
     install_name_tool -change "$(echo "${dylibs}" | grep -E "libssl.*dylib" | xargs)" "$brew_prefix"/opt/openssl@"$openssl_version"/lib/libssl.dylib "$ext_dir"/relay.so
     install_name_tool -change "$(echo "${dylibs}" | grep -E "libcrypto.*dylib" | xargs)" "$brew_prefix"/opt/openssl@"$openssl_version"/lib/libcrypto.dylib "$ext_dir"/relay.so
+    install_name_tool -change "$(echo "${dylibs}" | grep -E "libck.*dylib" | xargs)" "$brew_prefix"/opt/concurrencykit/lib/libck.dylib "$ext_dir"/relay.so
   fi
 }
 
@@ -51,7 +56,7 @@ add_relay_dependencies() {
   if [ "$os" = "Darwin" ]; then
     . "${0%/*}"/tools/brew.sh
     configure_brew
-    brew install hiredis lz4 zstd
+    brew install hiredis lz4 zstd concurrencykit
   fi
 }
 
@@ -92,8 +97,7 @@ enable_relay() {
 # Patch binary id in relay extension
 init_relay_binary_id() {
   if [ -e "${ext_dir:?}"/relay.so ]; then
-    grep -aq 00000000 "${ext_dir:?}"/relay.so && \
-      sudo LC_ALL=C sed -i.bak "s/00000000-0000-0000-0000-000000000000/$(uuidgen)/" "$ext_dir"/relay.so
+    sudo LC_ALL=C sed -i.bak "s/00000000-0000-0000-0000-000000000000/$(uuidgen)/" "$ext_dir"/relay.so || true
   fi
 }
 

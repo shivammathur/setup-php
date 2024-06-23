@@ -88,7 +88,7 @@ add_key() {
   key_source=$4
   key_file=$5
   key_urls=("$key_source")
-  if [[ "$key_source" =~ launchpad.net|debian.org|setup-php.com ]]; then
+  if [[ "$key_source" =~ launchpad.net|debian.org ]]; then
     fingerprint="$("${ID}"_fingerprint "$ppa" "$ppa_url" "$package_dist")"
     sks_params="op=get&options=mr&exact=on&search=0x$fingerprint"
     key_urls=("${sks[@]/%/\/pks\/lookup\?"$sks_params"}")
@@ -153,9 +153,26 @@ check_ppa() {
 # Function to remove a PPA.
 remove_list() {
   ppa=${1-ondrej/php}
-  ppa_url=${2:-"$lp_ppa/$ppa/ubuntu"}
-  grep -lr "$ppa_url" "$list_dir" | xargs -n1 sudo rm -f
+  [ -n "$2" ] && ppa_urls=("$2") || ppa_urls=("$lp_ppa/$ppa/ubuntu" "$lpc_ppa/$ppa/ubuntu")
+  for ppa_url in "${ppa_urls[@]}"; do
+    grep -lr "$ppa_url" "$list_dir" | xargs -n1 sudo rm -f
+  done
   sudo rm -f "$key_dir"/"${ppa/\//-}"-keyring || true
+}
+
+# Function to check if ubuntu ppa is up
+is_ubuntu_ppa_up() {
+  ppa=${1:-ondrej/php}
+  curl -s --connect-timeout 5 --max-time 5 --head --fail "$lp_ppa/$ppa/ubuntu/dists/$VERSION_CODENAME/Release" > /dev/null
+}
+
+# Function to add the PPA mirror.
+add_ppa_sp_mirror() {
+  ppa=$1
+  ppa_name="$(basename "$ppa")"
+  remove_list "$ppa" || true
+  [ "${debug:?}" = "debug" ] && add_list sp/"$ppa_name" "$sp/$ppa/ubuntu" "$sp/$ppa/ubuntu/key.gpg" "$VERSION_CODENAME" "main/debug"
+  add_list sp/"$ppa_name" "$sp/$ppa/ubuntu" "$sp/$ppa/ubuntu/key.gpg"
 }
 
 # Function to add a PPA.
@@ -163,8 +180,12 @@ add_ppa() {
   set_base_version
   ppa=${1:-ondrej/php}
   if [[ "$ID" = "ubuntu" || "$ID_LIKE" =~ ubuntu ]] && [[ "$ppa" =~ "ondrej/" ]]; then
-    [ "${debug:?}" = "debug" ] && add_list "$ppa" "$lp_ppa/$ppa/ubuntu" "$lp_ppa/$ppa/ubuntu" "$VERSION_CODENAME" "main/debug"
-    add_list "$ppa"
+    if is_ubuntu_ppa_up "$ppa" ; then
+      [ "${debug:?}" = "debug" ] && add_list "$ppa" "$lp_ppa/$ppa/ubuntu" "$lp_ppa/$ppa/ubuntu" "$VERSION_CODENAME" "main/debug"
+      add_list "$ppa"
+    else
+      add_ppa_sp_mirror "$ppa"
+    fi
   elif [[ "$ID" = "debian" || "$ID_LIKE" =~ debian ]] && [[ "$ppa" =~ "ondrej/" ]]; then
     [ "${debug:?}" = "debug" ] && add_list "$ppa" "$sury"/"${ppa##*/}"/ "$sury"/"${ppa##*/}"/apt.gpg "$VERSION_CODENAME" "main/debug"
     add_list "$ppa" "$sury"/"${ppa##*/}"/ "$sury"/"${ppa##*/}"/apt.gpg
@@ -195,9 +216,11 @@ list_file="/etc/apt/sources.list.d/$ID.sources"
 upstream_lsb='/etc/upstream-release/lsb-release'
 lp_api='https://api.launchpad.net/1.0'
 lp_ppa='http://ppa.launchpad.net'
+lpc_ppa='https://ppa.launchpadcontent.net'
 key_dir='/usr/share/keyrings'
 dist_info_dir='/usr/share/distro-info'
 sury='https://packages.sury.org'
+sp='https://setup-php.com'
 sks=(
   'https://keyserver.ubuntu.com'
   'https://pgp.mit.edu'

@@ -1,7 +1,11 @@
 # Helper function to get phalcon version
 get_phalcon_version() {
   if [ "$extension" = "phalcon5" ]; then
-    get_pecl_version phalcon stable 5
+    if [ "${version:?}" = "7.4" ]; then
+      echo '5.4.0'
+    else
+      get_pecl_version phalcon stable 5
+    fi
   elif [ "$extension" = "phalcon4" ]; then
     echo '4.1.2'
   elif [ "$extension" = "phalcon3" ]; then

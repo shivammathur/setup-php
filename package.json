@@ -1,6 +1,6 @@
 {
   "name": "setup-php",
-  "version": "2.30.6",
+  "version": "2.31.0",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
   "main": "lib/install.js",
@@ -41,9 +41,9 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.14.2",
-    "@typescript-eslint/eslint-plugin": "^7.13.0",
-    "@typescript-eslint/parser": "^7.13.0",
+    "@types/node": "^20.14.8",
+    "@typescript-eslint/eslint-plugin": "^7.13.1",
+    "@typescript-eslint/parser": "^7.13.1",
     "@vercel/ncc": "^0.38.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -55,8 +55,8 @@
     "nock": "^13.5.4",
     "prettier": "^3.3.2",
     "simple-git-hooks": "^2.11.1",
-    "ts-jest": "^29.1.4",
-    "typescript": "^5.4.5"
+    "ts-jest": "^29.1.5",
+    "typescript": "^5.5.2"
   },
   "bugs": {
     "url": "https://github.com/shivammathur/setup-php/issues"

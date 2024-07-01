@@ -100,7 +100,7 @@ Function Add-Extension {
     $stability = 'stable',
     [Parameter(Position = 2, Mandatory = $false)]
     [ValidateNotNull()]
-    [ValidatePattern('^\d+(\.\d+){0,2}$')]
+    [ValidatePattern('^\d+(\.\d+){0,3}$')]
     [string]
     $extension_version = ''
   )

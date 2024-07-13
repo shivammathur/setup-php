@@ -70,7 +70,6 @@ configure_brew() {
   core_repo="$tap_dir"/homebrew/homebrew-core
 
   export HOMEBREW_CHANGE_ARCH_TO_ARM=1
-  export HOMEBREW_DEVELOPER=1
   export HOMEBREW_NO_AUTO_UPDATE=1
   export HOMEBREW_NO_ENV_HINTS=1
   export HOMEBREW_NO_INSTALL_CLEANUP=1

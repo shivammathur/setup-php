@@ -86,8 +86,8 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | Ubuntu 24.04                     | `self-hosted` or `Linux`   |
 | Ubuntu 22.04                     | `self-hosted` or `Linux`   |
 | Ubuntu 20.04                     | `self-hosted` or `Linux`   |
+| Debian 12                        | `self-hosted` or `Linux`   |
 | Debian 11                        | `self-hosted` or `Linux`   |
-| Debian 10                        | `self-hosted` or `Linux`   |
 | Windows 7 and newer              | `self-hosted` or `Windows` |
 | Windows Server 2012 R2 and newer | `self-hosted` or `Windows` |
 | macOS Sonoma 14.x x86_64/arm64   | `self-hosted` or `macOS`   |

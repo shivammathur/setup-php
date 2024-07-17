@@ -16,6 +16,11 @@
     "version_prefix": "",
     "version_parameter": "-V"
   },
+  "composer-dependency-analyser": {
+    "type": "composer",
+    "repository": "shipmonk-rnd/composer-dependency-analyser",
+    "scope": "scoped"
+  },
   "composer-unused": {
     "type": "phar",
     "repository": "composer-unused/composer-unused",

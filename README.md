@@ -75,9 +75,8 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | Ubuntu 20.04        | `ubuntu-20.04`                     | `PHP 7.4` to `PHP 8.3` |
 | Windows Server 2022 | `windows-latest` or `windows-2022` | `PHP 8.3`              |
 | Windows Server 2019 | `windows-2019`                     | `PHP 8.3`              |
-| macOS Sonoma 14.x   | `macos-14`                         | -                      |
+| macOS Sonoma 14.x   | `macos-latest` or `macos-14`       | -                      |
 | macOS Ventura 13.x  | `macos-13`                         | `PHP 8.3`              |
-| macOS Monterey 12.x | `macos-latest` or `macos-12`       | `PHP 8.3`              |
 
 ### Self-Hosted Runners
 
@@ -90,9 +89,9 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | Debian 11                        | `self-hosted` or `Linux`   |
 | Windows 7 and newer              | `self-hosted` or `Windows` |
 | Windows Server 2012 R2 and newer | `self-hosted` or `Windows` |
+| macOS Sequoia 15.x x86_64/arm64  | `self-hosted` or `macOS`   |
 | macOS Sonoma 14.x x86_64/arm64   | `self-hosted` or `macOS`   |
 | macOS Ventura 13.x x86_64/arm64  | `self-hosted` or `macOS`   |
-| macOS Monterey 12.x x86_64/arm64 | `self-hosted` or `macOS`   |
 
 - Refer to the [self-hosted setup](#self-hosted-setup) to use the action on self-hosted runners.
 - Operating systems based on the above Ubuntu and Debian versions are also supported on best effort basis.

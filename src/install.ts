@@ -30,8 +30,13 @@ export async function getScript(os: string): Promise<string> {
     await utils.getInput('ini-file', false)
   );
   let script = await utils.joins('.', script_path, version, ini_file);
-  if (extension_csv) {
-    script += await extensions.addExtension(extension_csv, version, os);
+  const required_extensions = await utils.getRequiredExtension();
+  if (extension_csv || required_extensions) {
+    script += await extensions.addExtension(
+      `${extension_csv},${required_extensions}`,
+      version,
+      os
+    );
   }
   script += await tools.addTools(tools_csv, version, os);
   if (coverage_driver) {

@@ -87,6 +87,18 @@ describe('Utils tests', () => {
       await utils.extensionArray('a, :b, php_c, none, php-d, Zend e, :Zend f')
     ).toEqual(['none', 'a', ':b', 'c', 'd', 'e', ':f']);
 
+    expect(await utils.extensionArray('a, none, a')).toEqual(['none', 'a']);
+
+    expect(await utils.extensionArray('a, none, a-1.1.0')).toEqual([
+      'none',
+      'a-1.1.0'
+    ]);
+
+    expect(await utils.extensionArray('a-1.1.0, none, :a, a')).toEqual([
+      'none',
+      ':a'
+    ]);
+
     expect(await utils.extensionArray('')).toEqual([]);
     expect(await utils.extensionArray(' ')).toEqual([]);
   });
@@ -299,6 +311,31 @@ describe('Utils tests', () => {
       '{ "config": { "platform": { "php": "7.4.33" } } }'
     );
     expect(await utils.readPHPVersion()).toBe('7.4.33');
+
+    existsSync.mockClear();
+    readFileSync.mockClear();
+  });
+
+  it('checking getRequiredExtension', async () => {
+    const existsSync = jest.spyOn(fs, 'existsSync').mockImplementation();
+    const readFileSync = jest.spyOn(fs, 'readFileSync').mockImplementation();
+
+    existsSync.mockReturnValueOnce(true);
+    readFileSync.mockReturnValue(
+      '{ "packages": [ { "require": { "ext-hash": "*", "ext-json": "*", "php": "^8.0", "psr/cache": "^3.0", "psr/log": "^3.0" } } ], "packages-dev": [ { "require": { "ext-dom": "*", "ext-pcre": "*", "php": "^8.0", "symfony/console": "^7.0.0", "symfony/process": "^7.0.0" } } ], "platform": { "php": ">=8.3.6", "ext-ctype": "*", "ext-redis": "*" }, "platform-dev": { "ext-gmp": "*" } }'
+    );
+    expect(await utils.getRequiredExtension()).toBe(
+      'hash,json,dom,pcre,ctype,redis,gmp'
+    );
+
+    existsSync.mockReturnValueOnce(false).mockReturnValueOnce(true);
+    readFileSync.mockReturnValue(
+      '{ "require": { "php": ">=8.3.6", "ext-ctype": "*", "ext-redis": "*" }, "require-dev": { "ext-gmp": "*" } }'
+    );
+    expect(await utils.getRequiredExtension()).toBe('ctype,redis,gmp');
+
+    existsSync.mockReturnValueOnce(false).mockReturnValueOnce(false);
+    expect(await utils.getRequiredExtension()).toBe('');
 
     existsSync.mockClear();
     readFileSync.mockClear();

@@ -226,6 +226,38 @@ export async function extensionArray(
               .toLowerCase()
               .replace(/^(:)?(php[-_]|none|zend )|(-[^-]*)-/, '$1$3');
           })
+          .filter(function (value, index, array) {
+            if (array.indexOf(value) !== index) {
+              return false;
+            }
+
+            /**
+             * there are several actions to install extension
+             * action selected base on this priority
+             * 1. Disable an extension
+             * 2. Install specific extension version
+             * 3. Install extension latest version
+             */
+
+            if (value.startsWith(':')) {
+              return true;
+            }
+
+            if (value.includes('-')) {
+              return !array.some(item =>
+                item.startsWith(`:${value.split('-')[0]}`)
+              );
+            }
+
+            if (
+              array.indexOf(`:${value}`) !== -1 ||
+              array.some(item => item.startsWith(`${value}-`))
+            ) {
+              return false;
+            }
+
+            return true;
+          })
       ].filter(Boolean);
   }
 }
@@ -490,4 +522,49 @@ export async function setVariable(
     default:
       return '\n' + variable + '="$(' + command + ')"\n';
   }
+}
+
+/**
+ * Get required extension from composer.lock or composer.json file
+ */
+export async function getRequiredExtension(): Promise<string> {
+  const composerLock = 'composer.lock';
+  if (fs.existsSync(composerLock)) {
+    const lockFileContents = JSON.parse(fs.readFileSync(composerLock, 'utf8'));
+
+    const requireExts = [
+      ...lockFileContents['packages'],
+      ...lockFileContents['packages-dev']
+    ].flatMap(pkg =>
+      Object.keys(pkg['require'] || {})
+        .filter(key => key.startsWith('ext-'))
+        .map(item => item.replace(/^ext-/, ''))
+    );
+
+    const platformExts = Object.keys({
+      ...lockFileContents['platform'],
+      ...lockFileContents['platform-dev']
+    })
+      .filter(key => key.startsWith('ext-'))
+      .map(item => item.replace(/^ext-/, ''));
+
+    return [...requireExts, ...platformExts].join(',');
+  }
+
+  const composerJson = 'composer.json';
+  if (fs.existsSync(composerJson)) {
+    const composerFileContents = JSON.parse(
+      fs.readFileSync(composerJson, 'utf8')
+    );
+    const platformExts = Object.keys({
+      ...composerFileContents['require'],
+      ...composerFileContents['require-dev']
+    })
+      .filter(key => key.startsWith('ext-'))
+      .map(item => item.replace(/^ext-/, ''));
+
+    return platformExts.join(',');
+  }
+
+  return '';
 }

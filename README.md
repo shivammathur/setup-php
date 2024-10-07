@@ -246,13 +246,13 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 ```
 
 - To set up a particular version of a tool, specify it in the form `tool:version`.
-  
+
   Version can be in the following format:
     - Semver. For example `tool:1.2.3` or `tool:1.2.3-beta1`.
     - Major version. For example `tool:1` or `tool:1.x`.
     - Major and minor version. For example `tool:1.2` or `tool:1.2.x`.
-  
-  When you specify just the major version or the version in `major.minor` format, the latest patch version matching the input will be setup. 
+
+  When you specify just the major version or the version in `major.minor` format, the latest patch version matching the input will be setup.
 
   With the exception of major versions of `composer`, if you specify only the `major` version or the version in `major.minor` format for a tool you can get rate limited by GitHub's API. To avoid this, it is recommended to provide a [`GitHub` OAuth token](https://github.com/shivammathur/setup-php#composer-github-oauth "Composer GitHub OAuth").
   You can do that by setting `GITHUB_TOKEN` environment variable. The `COMPOSER_TOKEN` environment variable has been deprecated in favor of `GITHUB_TOKEN` and will be removed in the next major version.
@@ -325,7 +325,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 
 ### Xdebug
 
-Specify `coverage: xdebug` to use `Xdebug` and disable `PCOV`.  
+Specify `coverage: xdebug` to use `Xdebug` and disable `PCOV`.
 Runs on all [PHP versions supported](#tada-php-support "List of PHP versions supported on this GitHub Action").
 
 ```yaml
@@ -351,10 +351,10 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
 
 ### PCOV
 
-Specify `coverage: pcov` to use `PCOV` and disable `Xdebug`.  
+Specify `coverage: pcov` to use `PCOV` and disable `Xdebug`.
 Runs on PHP 7.1 and newer PHP versions.
 
-- If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.  
+- If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.
 
 ```yaml
 - name: Setup PHP with PCOV
@@ -365,7 +365,7 @@ Runs on PHP 7.1 and newer PHP versions.
     coverage: pcov
 ```
 
-- PHPUnit 8.x and above supports PCOV out of the box.  
+- PHPUnit 8.x and above supports PCOV out of the box.
 - If you are using PHPUnit 5.x, 6.x or 7.x, you need to set up `pcov/clobber` before executing your tests.
 
 ```yaml
@@ -407,7 +407,7 @@ Disable coverage for these reasons:
 - Accepts `lowest` to set up the lowest supported PHP version.
 - Accepts `highest` or `latest` to set up the latest stable PHP version.
 - Accepts `nightly` to set up a nightly build from the master branch of PHP.
-- Accepts the format `d.x`, where `d` is the major version. For example `5.x`, `7.x` and `8.x`.  
+- Accepts the format `d.x`, where `d` is the major version. For example `5.x`, `7.x` and `8.x`.
 - See [PHP support](#tada-php-support) for the supported PHP versions.
 - If not specified, it looks for the following in order:
   - The `php-version-file` input if it exists
@@ -429,6 +429,7 @@ Disable coverage for these reasons:
 - Accepts `none` to disable all shared extensions.
 - Shared extensions prefixed with `:` are disabled.
 - See [PHP extension support](#heavy_plus_sign-php-extension-support) for more info.
+- If `composer.lock` or `composer.lock` file exists, required extension will be automatically installed/enabled
 
 #### `ini-file` (optional)
 
@@ -438,9 +439,9 @@ Disable coverage for these reasons:
 
 #### `ini-values` (optional)
 
-- Specify the values you want to add to `php.ini`. 
+- Specify the values you want to add to `php.ini`.
 - Accepts a `string` in csv-format. For example `post_max_size=256M, max_execution_time=180`.
-- Accepts ini values with commas if wrapped in quotes. For example `xdebug.mode="develop,coverage"`.  
+- Accepts ini values with commas if wrapped in quotes. For example `xdebug.mode="develop,coverage"`.
 
 #### `coverage` (optional)
 
@@ -737,7 +738,7 @@ act -P ubuntu-20.04=shivammathur/node:2004
 - By default, `opcache.jit=1235` and `opcache.jit_buffer_size=256M` are set which can be changed using `ini-values` input.
 - For detailed information about JIT related directives refer to the [`official PHP documentation`](https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.jit "opcache.jit documentation").
 
-For example to enable JIT in `tracing` mode with buffer size of `64 MB`. 
+For example to enable JIT in `tracing` mode with buffer size of `64 MB`.
 
 ```yaml
 - name: Setup PHP with JIT in tracing mode
@@ -750,7 +751,7 @@ For example to enable JIT in `tracing` mode with buffer size of `64 MB`.
 
 ### Cache Extensions
 
-You can cache PHP extensions using `shivammathur/cache-extensions` and `action/cache` GitHub Actions. Extensions which take very long to set up when cached are available in the next workflow run and are enabled directly. This reduces the workflow execution time.  
+You can cache PHP extensions using `shivammathur/cache-extensions` and `action/cache` GitHub Actions. Extensions which take very long to set up when cached are available in the next workflow run and are enabled directly. This reduces the workflow execution time.
 Refer to [`shivammathur/cache-extensions`](https://github.com/shivammathur/cache-extensions "GitHub Action to cache php extensions") for details.
 
 ### Cache Composer Dependencies
@@ -910,7 +911,7 @@ Psalm supports error reporting in GitHub Actions with an output format `github`.
 
 #### Tools with checkstyle support
 
-For tools that support `checkstyle` reporting like `phpstan`, `psalm`, `php-cs-fixer` and `phpcs` you can use `cs2pr` to annotate your code.  
+For tools that support `checkstyle` reporting like `phpstan`, `psalm`, `php-cs-fixer` and `phpcs` you can use `cs2pr` to annotate your code.
 For examples refer to the [cs2pr documentation](https://github.com/staabm/annotate-pull-request-from-checkstyle).
 
 > Here is an example with `phpcs`.
@@ -968,7 +969,7 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 
 ## :scroll: License
 
-- The scripts and documentation in this project are under the [MIT License](LICENSE "License for shivammathur/setup-php"). 
+- The scripts and documentation in this project are under the [MIT License](LICENSE "License for shivammathur/setup-php").
 - This project has multiple [dependencies](#package-dependencies "Dependencies for this PHP Action"). Their licenses can be found in their respective repositories.
 - The logo for `setup-php` is a derivative work of [php.net logo](https://www.php.net/download-logos.php) and is licensed under the [CC BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/ "Creative Commons License").
 

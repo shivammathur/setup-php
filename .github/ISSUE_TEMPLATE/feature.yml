@@ -1,0 +1,58 @@
+name: Feature request
+description: Suggest a new feature
+title: "Feature: "
+labels: ["enhancement"]
+assignees: ["shivammathur"]
+body:
+  - type: markdown
+    attributes:
+      value: "Please fill out the sections below to help us understand your new feature proposal."
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: "Describe the feature"
+      placeholder: "A clear and concise description of what you want and why."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: version-check
+    attributes:
+      label: "Please check the latest release"
+      options:
+        - label: "I have checked releases, and the feature is missing in the latest patch version of `v2`."
+          required: true
+
+  - type: textarea
+    id: underlying-issue
+    attributes:
+      label: "Underlying issue"
+      placeholder: "Please describe the issue this would solve."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Describe alternatives"
+      placeholder: "Please mention any alternative solutions you've considered."
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: "Additional context"
+      placeholder: "Drag and drop images or paste any additional information here..."
+
+  - type: dropdown
+    id: willing-to-submit-pr
+    attributes:
+      label: "Are you willing to submit a PR?"
+      description: "We accept pull requests targeting the develop branch."
+      options:
+        - "Yes"
+        - "No"
+    validations:
+      required: true

@@ -1,0 +1,94 @@
+name: Bug report
+description: Nice, you found a bug!
+title: "Bug: "
+labels: ["bug"]
+assignees: ["shivammathur"]
+body:
+  - type: markdown
+    attributes:
+      value: "Please fill out the sections below to help us address your issue."
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: "Describe the bug"
+      placeholder: "Please describe the bug concisely."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: version
+    attributes:
+      label: "Version"
+      description: "I have checked releases, and the bug exists in the latest patch version of `v1` or `v2`."
+      options:
+        - label: "v2"
+        - label: "v1"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: runners
+    attributes:
+      label: "Runners"
+      description: "Please choose the GitHub Action runner your workflow uses."
+      options:
+        - "GitHub Hosted"
+        - "Self Hosted"
+    validations:
+      required: true
+
+  - type: textarea
+    id: operating-systems
+    attributes:
+      label: "Operating systems"
+      placeholder: "e.g., Ubuntu 20.04, Windows Server 2019, etc."
+    validations:
+      required: true
+
+  - type: textarea
+    id: php-versions
+    attributes:
+      label: "PHP versions"
+      placeholder: "e.g., PHP 7.4, PHP 8.0, etc."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: "To Reproduce"
+      placeholder: "Please provide the relevant steps of your workflow `.yml` file."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: "Expected behavior"
+      placeholder: "A clear and concise description of what you expected to happen."
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots-logs
+    attributes:
+      label: "Screenshots/Logs"
+      placeholder: "Drag and drop images or paste logs here..."
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: "Additional context"
+      placeholder: "Add any other context about the problem here."
+
+  - type: dropdown
+    id: willing-to-submit-pr
+    attributes:
+      label: "Are you willing to submit a PR?"
+      description: "We accept pull requests targeting the develop branch."
+      options:
+        - "Yes"
+        - "No"
+    validations:
+      required: true

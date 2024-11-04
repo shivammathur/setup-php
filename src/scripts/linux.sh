@@ -111,8 +111,8 @@ add_devtools() {
   add_log "${tick:?}" "$tool" "Added $tool $semver"
 }
 
-# Function to setup the nightly build from shivammathur/php-builder
-setup_nightly() {
+# Function to setup PHP from the shivammathur/php-builder builds.
+setup_php_builder() {
   run_script "php-builder" "${runner:?}" "$version" "${debug:?}" "${ts:?}"
 }
 
@@ -186,8 +186,8 @@ update_php() {
 # Function to install PHP.
 add_php() {
   if [ "${runner:?}" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
-    if [[ "$version" =~ ${nightly_versions:?} ]]; then
-        setup_nightly
+    if [[ "$version" =~ ${nightly_versions:?} || "$ts" = "zts" ]]; then
+        setup_php_builder
     else
       add_packaged_php
       switch_version >/dev/null 2>&1

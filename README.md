@@ -75,6 +75,7 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | Ubuntu 20.04        | `ubuntu-20.04`                     | `PHP 7.4` to `PHP 8.3` |
 | Windows Server 2022 | `windows-latest` or `windows-2022` | `PHP 8.3`              |
 | Windows Server 2019 | `windows-2019`                     | `PHP 8.3`              |
+| macOS Sequoia 15.x  | `macos-15`                         | -                      |
 | macOS Sonoma 14.x   | `macos-latest` or `macos-14`       | -                      |
 | macOS Ventura 13.x  | `macos-13`                         | `PHP 8.3`              |
 

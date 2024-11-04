@@ -1,5 +1,5 @@
 import * as packagist from '../src/packagist';
-import nock = require('nock');
+import nock from 'nock';
 
 describe('search function', () => {
   const mockResponse = {

@@ -1,4 +1,4 @@
-import fs = require('fs');
+import * as fs from 'fs';
 import * as tools from '../src/tools';
 
 interface IData {

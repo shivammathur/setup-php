@@ -1,5 +1,5 @@
 import * as fetch from '../src/fetch';
-import nock = require('nock');
+import nock from 'nock';
 
 it('checking fetch', async () => {
   const host_url = 'https://example.com';

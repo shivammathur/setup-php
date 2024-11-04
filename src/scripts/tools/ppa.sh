@@ -54,7 +54,7 @@ update_lists() {
   status_file=/tmp/os_lists
   if [[ -n "$ppa" && -n "$ppa_search" ]]; then
     list="$list_dir"/"$(basename "$(grep -lr "$ppa_search" "$list_dir")")"
-    status_file=/tmp/"${ppa/\//_}"
+    status_file=/tmp/"$(echo -n "$ppa_search" | shasum -a 256 | cut -d ' ' -f 1)"
   elif [ -e "$list_file" ] && grep -Eq '^deb |^Types deb' "$list_file"; then
     list="$list_file"
   fi
@@ -121,7 +121,7 @@ add_list() {
   key_source=${3:-"$ppa_url"}
   package_dist=${4:-"$VERSION_CODENAME"}
   branches=${5:-main}
-  ppa_search="deb .*$ppa_url $package_dist .*$branches"
+  ppa_search="deb .*$ppa_url $package_dist .*$branches$"
   if check_lists "$ppa" "$ppa_search"; then
     echo "Repository $ppa already exists";
     return 1;
@@ -142,7 +142,7 @@ check_ppa() {
   ppa_url=${2:-"$lp_ppa/$ppa/ubuntu"}
   package_dist=${3:-"$VERSION_CODENAME"}
   branches=${4:-main}
-  ppa_search="deb .*$ppa_url $package_dist .*$branches"
+  ppa_search="deb .*$ppa_url $package_dist .*$branches$"
   if check_lists "$ppa" "$ppa_search"; then
     return 0;
   else

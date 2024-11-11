@@ -89,6 +89,12 @@ get() {
       echo "Another process is downloading a file at $file_path, waiting"
       sleep 1
     done
+    if [ "$execute" = "-e" ]; then
+      until [ -z "$(fuser "$file_path" 2>/dev/null)" ]; do
+        echo "Waiting for other processes to stop using $file_path..."
+        sleep 1
+      done
+    fi
     trap 'sudo rm -rf "$lock_path"' EXIT SIGINT SIGTERM
     for link in "${links[@]}"; do
       status_code=$(sudo curl -w "%{http_code}" -o "$file_path" "${curl_opts[@]}" "$link")

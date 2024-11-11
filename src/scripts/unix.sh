@@ -84,12 +84,19 @@ get() {
   if [ "$mode" = "-s" ]; then
     sudo curl "${curl_opts[@]}" "${links[0]}"
   else
+    lock_path="$file_path.lock"
+    until sudo mkdir "$lock_path" 2>/dev/null; do
+      echo "Another process is downloading a file at $file_path, waiting"
+      sleep 1
+    done
+    trap 'sudo rm -rf "$lock_path"' EXIT SIGINT SIGTERM
     for link in "${links[@]}"; do
       status_code=$(sudo curl -w "%{http_code}" -o "$file_path" "${curl_opts[@]}" "$link")
       [ "$status_code" = "200" ] && break
     done
     [ "$execute" = "-e" ] && sudo chmod a+x "$file_path"
     [ "$mode" = "-v" ] && echo "$status_code"
+    sudo rm -rf "$lock_path" >/dev/null 2>&1 || true
   fi
 }
 

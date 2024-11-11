@@ -86,12 +86,10 @@ get() {
   else
     lock_path="$file_path.lock"
     until sudo mkdir "$lock_path" 2>/dev/null; do
-      echo "Another process is downloading a file at $file_path, waiting"
       sleep 1
     done
     if [ "$execute" = "-e" ]; then
       until [ -z "$(fuser "$file_path" 2>/dev/null)" ]; do
-        echo "Waiting for other processes to stop using $file_path..."
         sleep 1
       done
     fi

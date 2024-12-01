@@ -22,7 +22,26 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-      - name: Create for Linux and macOS
+      - name: Create file with all extensions for Linux and macOS
+        env:
+          file: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
+          version: ${{ matrix.php-versions }}
+        if: matrix.operating-system != 'windows-2022'
+        run: |
+          php -m >> "$file.all"
+      - name: Create file with all extensions for Windows
+        env:
+          file: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
+          version: ${{ matrix.php-versions }}
+        if: matrix.operating-system == 'windows-2022'
+        run: |
+          php -m | Out-File -FilePath "$env:file.all" -Append
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: none
+      - name: Create final file for Linux and macOS
         env:
           file: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
           version: ${{ matrix.php-versions }}
@@ -31,10 +50,20 @@ jobs:
           echo "## PHP $version" >> "$file"
           printf "\n" >> "$file"
           echo "\`\`\`" >> "$file"
-          php -m >> "$file"
+          php -m >> "$file.builtin"
+          while IFS= read -r line; do
+            if [[ $line == [* || -z "${line// }" ]]; then
+              echo "$line" >> "$file"
+            elif grep -q "^$line" "$file.builtin"; then
+              echo "$line (builtin)" >> "$file"
+            else
+              echo "$line (shared)" >> "$file"
+            fi
+          done < "$file.all"
           echo "\`\`\`" >> "$file"
           printf "\n" >> "$file"
-      - name: Create for Windows
+          rm "$file.all" "$file.builtin"
+      - name: Create final file for Windows
         env:
           file: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
           version: ${{ matrix.php-versions }}
@@ -42,8 +71,19 @@ jobs:
         run: |
           Write-Output "## PHP ${{ matrix.php-versions }}`n" | Out-File -FilePath "$env:file"
           Write-Output "``````" | Out-File -FilePath "$env:file" -Append
-          php -m | Out-File -FilePath "$env:file" -Append
+          php -m | Out-File -FilePath "$env:file.builtin" -Append
+          Get-Content "$env:file.all" | ForEach-Object {
+              if ($_.startsWith('[') -or -not $_.trim()) {
+                Write-Output "$_" | Out-File -FilePath "$env:file" -Append
+              } elseif ($_ -in (Get-Content "$env:file.builtin")) {
+                Write-Output "$_ (builtin)" | Out-File -FilePath "$env:file" -Append
+              } else {
+                Write-Output "$_ (shared)" | Out-File -FilePath "$env:file" -Append
+              }
+          }
           Write-Output "```````n" | Out-File -FilePath "$env:file" -Append
+          Remove-Item "$env:file.all" -Force
+          Remove-Item "$env:file.builtin" -Force
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:

@@ -21,7 +21,8 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: ${{ matrix.php-versions
+          tools: none
       - name: Create file with all extensions for Linux and macOS
         env:
           file: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
@@ -41,6 +42,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: none
+          tools: none
       - name: Create final file for Linux and macOS
         env:
           file: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md

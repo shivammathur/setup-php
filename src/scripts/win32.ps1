@@ -434,7 +434,7 @@ if($installed.MajorMinorVersion -ne $version) {
   Write-Error "Could not setup PHP $version" -ErrorAction Stop
 }
 if($version -lt "5.5") {
-  ('libeay32.dll', 'ssleay32.dll') | ForEach-Object -Parallel { Get-File -Url "$using:php_builder/releases/download/openssl-1.0.2u/$_" -OutFile $using:php_dir\$_ >$null 2>&1 }
+  ('libeay32.dll', 'ssleay32.dll') | ForEach-Object -Parallel { Invoke-WebRequest -Uri "$using:php_builder/releases/download/openssl-1.0.2u/$_" -OutFile $using:php_dir\$_ >$null 2>&1 }
 } else {
   $enable_extensions += ('opcache')
 }

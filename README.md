@@ -529,7 +529,7 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-latest', 'windows-latest', 'macos-latest']
-        php-versions: [8.2', '8.3', '8.4']
+        php-versions: ['8.2', '8.3', '8.4']
         phpunit-versions: ['latest']
         include:
           - operating-system: 'ubuntu-latest'

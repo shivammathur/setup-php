@@ -213,6 +213,7 @@ get_scan_dir() {
 setup_php() {
   step_log "Setup PHP"
   php_config="$(command -v php-config 2>/dev/null)"
+  check_pre_installed
   existing_version=$(get_brewed_php)
   if [[ "$version" =~ ${old_versions:?} ]]; then
     run_script "php5-darwin" "${version/./}" >/dev/null 2>&1

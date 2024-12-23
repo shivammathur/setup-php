@@ -184,6 +184,19 @@ self_hosted_setup() {
   fi
 }
 
+# Function to check pre-installed PHP
+check_pre_installed() {
+  if [ "$version" = "pre" ]; then
+    if [ -n "$php_config" ]; then
+      version="$(php_semver | cut -c 1-3)"
+      update=false
+    else
+      fail_fast=true
+      add_log "$cross" "PHP" "No pre-installed PHP version found"
+    fi
+  fi
+}
+
 # Function to configure PHP
 configure_php() {
   add_php_config

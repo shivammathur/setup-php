@@ -246,6 +246,7 @@ setup_php() {
   step_log "Setup PHP"
   sudo mkdir -m 777 -p /var/run /run/php
   php_config="$(command -v php-config)"
+  check_pre_installed
   if [[ -z "$php_config" ]] || [ "$(php_semver | cut -c 1-3)" != "$version" ]; then
     if [ ! -e "/usr/bin/php$version" ] || [ ! -e "/usr/bin/php-config$version" ]; then
       add_php >/dev/null 2>&1

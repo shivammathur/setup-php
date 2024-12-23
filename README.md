@@ -416,6 +416,7 @@ Disable coverage for these reasons:
   - The `php-version-file` input if it exists
   - A `composer.lock` file and the `platform-overrides.php` value
   - A `composer.json` file and the `config.platform.php` value
+  - If the `composer.lock` or `composer.json` file is in a sub-directory in your repository, please specify the subdirectory path in `COMPOSER_PROJECT_DIR` env.
 
 #### `php-version-file` (optional)
 

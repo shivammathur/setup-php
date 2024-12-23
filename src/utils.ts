@@ -441,7 +441,8 @@ export async function readPHPVersion(): Promise<string> {
     throw new Error(`Could not find '${versionFile}' file.`);
   }
 
-  const composerLock = 'composer.lock';
+  const composerProjectDir = await readEnv('COMPOSER_PROJECT_DIR');
+  const composerLock = path.join(composerProjectDir, 'composer.lock');
   if (fs.existsSync(composerLock)) {
     const lockFileContents = JSON.parse(fs.readFileSync(composerLock, 'utf8'));
     if (
@@ -452,7 +453,7 @@ export async function readPHPVersion(): Promise<string> {
     }
   }
 
-  const composerJson = 'composer.json';
+  const composerJson = path.join(composerProjectDir, 'composer.json');
   if (fs.existsSync(composerJson)) {
     const composerFileContents = JSON.parse(
       fs.readFileSync(composerJson, 'utf8')

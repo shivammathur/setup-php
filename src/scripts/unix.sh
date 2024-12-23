@@ -63,7 +63,12 @@ read_env() {
 
   # Set Update to true if the ubuntu github image does not have PHP PPA.
   if [[ "$runner" = "github" && "${ImageOS}" =~ ubuntu.* ]]; then
-    check_ppa ondrej/php || update=true
+    if ! check_ppa ondrej/php; then
+      update=true
+      echo '' | sudo tee /tmp/sp_update >/dev/null 2>&1
+    elif [ -e /tmp/sp_update ]; then
+      update=true
+    fi
   fi
 
   export fail_fast

@@ -436,7 +436,11 @@ export async function readPHPVersion(): Promise<string> {
   const versionFile =
     (await getInput('php-version-file', false)) || '.php-version';
   if (fs.existsSync(versionFile)) {
-    return fs.readFileSync(versionFile, 'utf8').replace(/[\r\n]/g, '');
+    const contents: string = fs.readFileSync(versionFile, 'utf8');
+    const match: RegExpMatchArray | null = contents.match(
+      /^(?:php\s)?(\d+\.\d+\.\d+)$/m
+    );
+    return match ? match[1] : contents.trim();
   } else if (versionFile !== '.php-version') {
     throw new Error(`Could not find '${versionFile}' file.`);
   }

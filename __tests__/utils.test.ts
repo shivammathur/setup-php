@@ -285,6 +285,14 @@ describe('Utils tests', () => {
     delete process.env['php-version-file'];
     delete process.env['php-version'];
 
+    existsSync.mockReturnValue(true);
+    readFileSync.mockReturnValue('ruby 1.2.3\nphp 8.4.2\nnode 20.1.2');
+    expect(await utils.readPHPVersion()).toBe('8.4.2');
+
+    existsSync.mockReturnValue(true);
+    readFileSync.mockReturnValue('setup-php');
+    expect(await utils.readPHPVersion()).toBe('setup-php');
+
     existsSync.mockReturnValueOnce(false).mockReturnValueOnce(true);
     readFileSync.mockReturnValue(
       '{ "platform-overrides": { "php": "7.3.25" } }'

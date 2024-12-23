@@ -213,6 +213,7 @@ get_scan_dir() {
 setup_php() {
   step_log "Setup PHP"
   php_config="$(command -v php-config 2>/dev/null)"
+  update=true
   check_pre_installed
   existing_version=$(get_brewed_php)
   if [[ "$version" =~ ${old_versions:?} ]]; then
@@ -221,12 +222,13 @@ setup_php() {
   elif [ "$existing_version" != "$version" ]; then
     add_php "install" "$existing_version" >/dev/null 2>&1
     status="Installed"
-  elif [ "$existing_version" = "$version" ] && [ "${update:?}" = "true" ]; then
-    add_php "upgrade" "$existing_version" >/dev/null 2>&1
-    status="Updated to"
-  else
-    add_php "upgrade" "$existing_version" >/dev/null 2>&1
-    status="Updated to"
+  elif [ "$existing_version" = "$version" ]; then
+    if [ "${update:?}" = "true" ]; then
+      add_php "upgrade" "$existing_version" >/dev/null 2>&1
+      status="Updated to"
+    else
+      status="Found"
+    fi
   fi
   php_config="$(command -v php-config)"
   ext_dir="$(sed -n "s/.*extension_dir=['\"]\(.*\)['\"].*/\1/p" "$php_config")"

@@ -136,6 +136,10 @@ Function Add-Extension {
         {
           $params["Version"] = $extension_version
         }
+        # If extension for a different version exists
+        if(Test-Path $ext_dir\php_$extension.dll) {
+          Move-Item $ext_dir\php_$extension.dll $ext_dir\php_$extension.bak.dll -Force
+        }
         Install-PhpExtension @params
         Set-ExtensionPrerequisites $extension
       }

@@ -71,7 +71,11 @@ Function Add-ZephirParser() {
       Enable-PhpExtension -Extension zephir_parser -Path $php_dir
     } else {
       $status = 'Installed and enabled'
-      Add-ZephirParserFromGitHub $extension
+      try {
+        Add-ZephirParserFromGitHub $extension
+      } catch {
+        Add-Extension $extension >$null 2>&1
+      }
     }
     Add-ExtensionLog zephir_parser $status
   } catch {

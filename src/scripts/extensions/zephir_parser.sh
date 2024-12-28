@@ -17,9 +17,13 @@ add_zephir_parser_helper() {
   [ "$(uname -s)" = "Linux" ] && os_suffix=ubuntu || os_suffix=macos
   build_name=$(get -s -n "" https://api.github.com/repos/"$repo"/releases/tags/"$ext_version" | grep -Eo "zephir_parser-php-${version:?}-$nts-$os_suffix-.*.zip" | head -n 1)
   [ -z "$build_name" ] && build_name=$(get -s -n "" "$zp_releases"/expanded_assets/"$ext_version" | grep -Eo "zephir_parser-php-${version:?}-$nts-$os_suffix-.*.zip" | head -n 1)
-  get -q -e "/tmp/zp.zip" "$zp_releases"/download/"$ext_version"/"$build_name"
-  sudo unzip -o "/tmp/zp.zip" -d "${ext_dir:?}"
-  enable_extension zephir_parser extension
+  if [ -n "$build_name" ]; then
+    get -q -e "/tmp/zp.zip" "$zp_releases"/download/"$ext_version"/"$build_name"
+    sudo unzip -o "/tmp/zp.zip" -d "${ext_dir:?}"
+    enable_extension zephir_parser extension
+  else
+    pecl_install zephir_parser
+  fi
 }
 
 # Add zephir_parser

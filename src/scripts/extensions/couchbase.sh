@@ -23,7 +23,7 @@ add_couchbase_clibs() {
 
 add_old_libssl() {
   if [[ "$VERSION_ID" = "24.04" ]]; then
-    get -q -n /tmp/libssl.deb http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
+    get -q -n /tmp/libssl.deb http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
     [ -e /tmp/libssl.deb ] && sudo dpkg -i /tmp/libssl.deb || add_extension_log "couchbase" "Could not install libssl1.1"
   fi
 }

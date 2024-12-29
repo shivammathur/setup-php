@@ -152,7 +152,7 @@ add_extension_from_source() {
       patch_extension "$extension" >/dev/null 2>&1
       run_group "phpize" "phpize"
       run_group "sudo $prefix_opts ./configure $suffix_opts $opts" "configure"
-      run_group "sudo make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)" "make"
+      run_group "sudo $prefix_opts make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)" "make"
       run_group "sudo make install" "make install"
       enable_extension "$extension" "$prefix"
     fi

@@ -15,6 +15,7 @@ add_firebird_client_darwin() {
 add_firebird_helper() {
   firebird_dir=$1
   tag="$(php_src_tag)"
+  export PDO_FIREBIRD_CONFIGURE_PREFIX_OPTS="CFLAGS=-Wno-incompatible-function-pointer-types EXTRA_CFLAGS=-Wno-int-conversion"
   export PDO_FIREBIRD_CONFIGURE_OPTS="--with-pdo-firebird=$firebird_dir"
   export PDO_FIREBIRD_LINUX_LIBS="firebird-dev"
   export PDO_FIREBIRD_PATH="ext/pdo_firebird"

@@ -425,6 +425,7 @@ Disable coverage for these reasons:
 - Accepts a `string`. For example `'.phpenv-version'`.
 - See [PHP support](#tada-php-support) for the supported PHP versions.
 - By default, `.php-version` file is used.
+- The file either have the PHP version as its content, or follow the asdf `.tool-versions` format.
 - If not specified and the default `.php-version` file is not found, the latest stable PHP version is set up.
 
 #### `extensions` (optional)

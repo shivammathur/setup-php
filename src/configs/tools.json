@@ -18,7 +18,7 @@
   },
   "composer-dependency-analyser": {
     "type": "composer",
-    "repository": "shipmonk-rnd/composer-dependency-analyser",
+    "repository": "shipmonk/composer-dependency-analyser",
     "scope": "scoped"
   },
   "composer-unused": {

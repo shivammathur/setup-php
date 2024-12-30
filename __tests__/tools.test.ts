@@ -442,7 +442,7 @@ describe('Tools tests', () => {
         'add_tool https://get.blackfire.io/blackfire-player-v1.22.0.phar blackfire-player "-V"',
         'add_tool https://github.com/bmitch/churn-php/releases/latest/download/churn.phar churn "-V"',
         'add_tool https://github.com/ergebnis/composer-normalize/releases/latest/download/composer-normalize.phar composer-normalize "-V"',
-        'add_composer_tool composer-dependency-analyser composer-dependency-analyser shipmonk-rnd/ scoped',
+        'add_composer_tool composer-dependency-analyser composer-dependency-analyser shipmonk/ scoped',
         'add_composer_tool composer-require-checker composer-require-checker maglnet/ scoped',
         'add_tool https://github.com/composer-unused/composer-unused/releases/latest/download/composer-unused.phar composer-unused "-V"',
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr "-V"',

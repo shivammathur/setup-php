@@ -35,7 +35,7 @@
     "extension": ".phar",
     "domain": "https://github.com",
     "version_prefix": "",
-    "version_parameter": "-V"
+    "version_parameter": "diagnose"
   },
   "cs2pr": {
     "type": "phar",

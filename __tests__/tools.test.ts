@@ -403,7 +403,7 @@ describe('Tools tests', () => {
         'add_composer_tool flex flex symfony/ global',
         'add_grpc_php_plugin latest',
         'add_tool https://github.com/php-parallel-lint/PHP-Parallel-Lint/releases/latest/download/parallel-lint.phar parallel-lint "--version"',
-        'add_tool https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v3.2.1/php-cs-fixer.phar php-cs-fixer "-V"',
+        'add_tool https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/download/v3.2.1/php-cs-fixer.phar php-cs-fixer "-V"',
         'add_tool https://github.com/humbug/php-scoper/releases/latest/download/php-scoper.phar php-scoper "--version"',
         'add_tool https://github.com/phpDocumentor/phpDocumentor/releases/latest/download/phpDocumentor.phar phpDocumentor "--version"',
         'add_composer_tool phplint phplint overtrue/',

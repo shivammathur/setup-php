@@ -71,7 +71,7 @@
   },
   "php-cs-fixer": {
     "type": "phar",
-    "repository": "FriendsOfPHP/PHP-CS-Fixer",
+    "repository": "PHP-CS-Fixer/PHP-CS-Fixer",
     "extension": ".phar",
     "domain": "https://github.com",
     "fetch_latest": "true",

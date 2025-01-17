@@ -4,7 +4,7 @@ install_icu() {
   if [ "$(php -i | grep "ICU version =>" | sed -e "s|.*=> s*||")" != "$icu" ]; then
     get -q -n /tmp/icu.tar.zst "https://github.com/shivammathur/icu-intl/releases/download/icu4c/icu4c-$icu.tar.zst"
     sudo tar -I zstd -xf /tmp/icu.tar.zst -C /usr/local
-    sudo cp -r /usr/local/icu/lib/* /usr/lib/x86_64-linux-gnu/
+    sudo cp -r /usr/local/icu/lib/* /usr/lib/"$(uname -m)"-linux-gnu/
   fi
 }
 

@@ -9,7 +9,13 @@ Function Add-Msys2() {
 
 Function Add-GrpcPhpPlugin() {
   $msys_location = Add-Msys2
-  $logs = . $msys_location\usr\bin\bash -l -c "pacman -S --noconfirm mingw-w64-x86_64-grpc" >$null 2>&1
+  $arch = arch
+  if($arch -eq 'arm64' -or $arch -eq 'aarch64') {
+    $grpc_package = 'mingw-w64-clang-aarch64-grpc'
+  } else {
+    $grpc_package = 'mingw-w64-x86_64-grpc'
+  }
+  $logs = . $msys_location\usr\bin\bash -l -c "pacman -S --noconfirm $grpc_package" >$null 2>&1
   $grpc_version = Get-ToolVersion 'Write-Output' "$logs"
   Add-Path $msys_location\mingw64\bin
   Set-Output grpc_php_plugin_path "$msys_location\mingw64\bin\grpc_php_plugin.exe"

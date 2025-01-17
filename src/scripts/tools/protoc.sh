@@ -17,7 +17,9 @@ add_protoc() {
   (
     platform='linux'
     [ "$(uname -s)" = "Darwin" ] && platform='osx'
-    get -q -n /tmp/protobuf.zip "https://github.com/protocolbuffers/protobuf/releases/download/$protobuf_tag/protoc-${protobuf_tag:1}-$platform-x86_64.zip"
+    arch="$(uname -m)"
+    [[ "$arch" = 'arm64' || "$arch" = 'aarch64' ]] && arch='aarch_64'
+    get -q -n /tmp/protobuf.zip "https://github.com/protocolbuffers/protobuf/releases/download/$protobuf_tag/protoc-${protobuf_tag:1}-$platform-$arch.zip"
     sudo unzip /tmp/protobuf.zip -d /usr/local/
     sudo chmod -R 777 /usr/local/bin/protoc /usr/local/include/google
   ) >/dev/null 2>&1

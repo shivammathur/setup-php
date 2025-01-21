@@ -68,17 +68,19 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 ### GitHub-Hosted Runners
 
-| Virtual environment | YAML workflow label                | Pre-installed PHP      |
-|---------------------|------------------------------------|------------------------|
-| Ubuntu 24.04        | `ubuntu-24.04`                     | `PHP 8.3`              |
-| Ubuntu 22.04        | `ubuntu-latest` or `ubuntu-22.04`  | `PHP 8.1`              |
-| Ubuntu 20.04        | `ubuntu-20.04`                     | `PHP 7.4` to `PHP 8.3` |
-| Windows Server 2025 | `windows-2025`                     | `PHP 8.3`              |
-| Windows Server 2022 | `windows-latest` or `windows-2022` | `PHP 8.3`              |
-| Windows Server 2019 | `windows-2019`                     | `PHP 8.3`              |
-| macOS Sequoia 15.x  | `macos-15`                         | -                      |
-| macOS Sonoma 14.x   | `macos-latest` or `macos-14`       | -                      |
-| macOS Ventura 13.x  | `macos-13`                         | `PHP 8.3`              |
+| Virtual environment | Arch    | YAML workflow label                | Pre-installed PHP      |
+|---------------------|---------|------------------------------------|------------------------|
+| Ubuntu 24.04        | x86_64  | `ubuntu-24.04`                     | `PHP 8.3`              |
+| Ubuntu 22.04        | x86_64  | `ubuntu-latest` or `ubuntu-22.04`  | `PHP 8.1`              |
+| Ubuntu 20.04        | x86_64  | `ubuntu-20.04`                     | `PHP 7.4` to `PHP 8.3` |
+| Ubuntu 24.04        | aarch64 | `ubuntu-24.04-arm`                 | `PHP 8.3`              |
+| Ubuntu 22.04        | aarch64 | `ubuntu-22.04-arm`                 | `PHP 8.1`              |
+| Windows Server 2025 | x64     | `windows-2025`                     | `PHP 8.3`              |
+| Windows Server 2022 | x64     | `windows-latest` or `windows-2022` | `PHP 8.3`              |
+| Windows Server 2019 | x64     | `windows-2019`                     | `PHP 8.3`              |
+| macOS Sequoia 15.x  | arm64   | `macos-15`                         | -                      |
+| macOS Sonoma 14.x   | arm64   | `macos-latest` or `macos-14`       | -                      |
+| macOS Ventura 13.x  | x86_64  | `macos-13`                         | `PHP 8.3`              |
 
 ### Self-Hosted Runners
 

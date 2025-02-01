@@ -127,9 +127,10 @@ On all supported OS/Platforms the following PHP versions can be set up as per th
 | `8.4`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.5`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
 
-**Notes:**
-- Specifying `8.5` in `php-version` input installs a nightly build of `PHP 8.5.0-dev`. See [nightly build setup](#nightly-build-setup) for more information.
-- To use JIT on `PHP 8.0` and above, refer to the [JIT configuration](#jit-configuration) section.
+
+> [!Note]
+> - Specifying `8.5` in `php-version` input installs a nightly build of `PHP 8.5.0-dev`. See [nightly build setup](#nightly-build-setup) for more information.
+> - To use JIT on `PHP 8.0` and above, refer to the [JIT configuration](#jit-configuration) section.
 
 ## :heavy_plus_sign: PHP Extension Support
 
@@ -187,7 +188,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 
 - All shared extensions can be disabled by specifying `none`. When `none` is specified along with other extensions, it is hoisted to the start of the input. So, all the shared extensions will be disabled first, then rest of the extensions in the input will be processed.
 
-**Note:** This disables all core and third-party shared extensions and thus, can break some tools which need them. Required extensions are enabled again when the tools are set up on a best-effort basis. So it is recommended to add the extensions required for your tools after `none` in the `extensions` input to avoid any issues.
+This disables all core and third-party shared extensions and thus, can break some tools which need them. Required extensions are enabled again when the tools are set up on a best-effort basis. So it is recommended to add the extensions required for your tools after `none` in the `extensions` input to avoid any issues.
 
 ```yaml
 - name: Setup PHP without any shared extensions except mbstring
@@ -251,13 +252,13 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 ```
 
 - To set up a particular version of a tool, specify it in the form `tool:version`.
-  
+
   Version can be in the following format:
-    - Semver. For example `tool:1.2.3` or `tool:1.2.3-beta1`.
-    - Major version. For example `tool:1` or `tool:1.x`.
-    - Major and minor version. For example `tool:1.2` or `tool:1.2.x`.
-  
-  When you specify just the major version or the version in `major.minor` format, the latest patch version matching the input will be setup. 
+  - Semver. For example `tool:1.2.3` or `tool:1.2.3-beta1`.
+  - Major version. For example `tool:1` or `tool:1.x`.
+  - Major and minor version. For example `tool:1.2` or `tool:1.2.x`.
+
+  When you specify just the major version or the version in `major.minor` format, the latest patch version matching the input will be setup.
 
   With the exception of major versions of `composer`, if you specify only the `major` version or the version in `major.minor` format for a tool you can get rate limited by GitHub's API. To avoid this, it is recommended to provide a [`GitHub` OAuth token](https://github.com/shivammathur/setup-php#composer-github-oauth "Composer GitHub OAuth").
   You can do that by setting `GITHUB_TOKEN` environment variable. The `COMPOSER_TOKEN` environment variable has been deprecated in favor of `GITHUB_TOKEN` and will be removed in the next major version.
@@ -310,12 +311,12 @@ These tools can be set up globally using the `tools` input. It accepts a string 
     fail-fast: true
 ```
 
-**Notes**
-- Input `tools` is useful to set up tools which are only used in CI workflows, thus keeping your `composer.json` tidy.
-- If you do not want to use all your dev-dependencies in workflow, you can run composer with `--no-dev` and install required tools using `tools` input to speed up your workflow.
-- By default, `COMPOSER_NO_INTERACTION` is set to `1` and `COMPOSER_PROCESS_TIMEOUT` is set to `0`. In effect, this means that Composer commands in your scripts do not need to specify `--no-interaction`.
-- Also, `COMPOSER_NO_AUDIT` is set to `1`. So if you want to audit your dependencies for security vulnerabilities, it is recommended to add a `composer audit` step before you install them.
-- If you want to set a different `COMPOSER_PROCESS_TIMEOUT`, you can set it in your workflow file using the `env` keyword.
+> [!NOTE]
+> - Input `tools` is useful to set up tools which are only used in CI workflows, thus keeping your `composer.json` tidy.
+> - If you do not want to use all your dev-dependencies in workflow, you can run composer with `--no-dev` and install required tools using `tools` input to speed up your workflow.
+> - By default, `COMPOSER_NO_INTERACTION` is set to `1` and `COMPOSER_PROCESS_TIMEOUT` is set to `0`. In effect, this means that Composer commands in your scripts do not need to specify `--no-interaction`.
+> - Also, `COMPOSER_NO_AUDIT` is set to `1`. So if you want to audit your dependencies for security vulnerabilities, it is recommended to add a `composer audit` step before you install them.
+> - If you want to set a different `COMPOSER_PROCESS_TIMEOUT`, you can set it in your workflow file using the `env` keyword.
 
 ```yaml
 - name: Setup PHP with composer and custom process timeout
@@ -352,14 +353,15 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
     coverage: xdebug2
 ```
 
-**Note**: Xdebug is enabled by default on Ubuntu GitHub Actions images, so if you are not using it in your workflow it is recommended to disable it as that will have a positive impact on your PHP performance. Please refer to the [disable coverage](#disable-coverage) section for details.
+> [!NOTE]
+> Xdebug is enabled by default on Ubuntu GitHub Actions images, so if you are not using it in your workflow it is recommended to disable it as that will have a positive impact on your PHP performance. Please refer to the [disable coverage](#disable-coverage) section for details.
 
 ### PCOV
 
 Specify `coverage: pcov` to use `PCOV` and disable `Xdebug`.  
 Runs on PHP 7.1 and newer PHP versions.
 
-- If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.  
+- If your source code directory is other than `src`, `lib` or, `app`, specify `pcov.directory` using the `ini-values` input.
 
 ```yaml
 - name: Setup PHP with PCOV
@@ -370,7 +372,7 @@ Runs on PHP 7.1 and newer PHP versions.
     coverage: pcov
 ```
 
-- PHPUnit 8.x and above supports PCOV out of the box.  
+- PHPUnit 8.x and above supports PCOV out of the box.
 - If you are using PHPUnit 5.x, 6.x or 7.x, you need to set up `pcov/clobber` before executing your tests.
 
 ```yaml
@@ -413,7 +415,7 @@ Disable coverage for these reasons:
 - Accepts `highest` or `latest` to set up the latest stable PHP version.
 - Accepts `nightly` to set up a nightly build from the master branch of PHP.
 - Accepts `pre-installed` to set up the highest pre-installed PHP version. You can combine this with `update: true` to update the pre-installed PHP version.
-- Accepts the format `d.x`, where `d` is the major version. For example `5.x`, `7.x` and `8.x`.  
+- Accepts the format `d.x`, where `d` is the major version. For example `5.x`, `7.x` and `8.x`.
 - See [PHP support](#tada-php-support) for the supported PHP versions.
 - If not specified, it looks for the following in order:
   - The `php-version-file` input if it exists
@@ -446,9 +448,9 @@ Disable coverage for these reasons:
 
 #### `ini-values` (optional)
 
-- Specify the values you want to add to `php.ini`. 
+- Specify the values you want to add to `php.ini`.
 - Accepts a `string` in csv-format. For example `post_max_size=256M, max_execution_time=180`.
-- Accepts ini values with commas if wrapped in quotes. For example `xdebug.mode="develop,coverage"`.  
+- Accepts ini values with commas if wrapped in quotes. For example `xdebug.mode="develop,coverage"`.
 
 #### `coverage` (optional)
 
@@ -580,10 +582,10 @@ steps:
 - Production release builds of PHP without debugging symbols are set up by default.
 - You can use the `debug` environment variable to set up a build with debugging symbols for PHP 5.6 and above.
 
-**Notes**
-- On Linux, the debug symbols are added as [debug info files](https://sourceware.org/gdb/current/onlinedocs/gdb.html/Separate-Debug-Files.html) in the `/usr/lib/debug/.build-id` directory. These files match the `build-id` in the ELF section of the PHP binaries and debugging tools like `gdb` are able to resolve the symbols from these files.
-- On Windows, the debug symbols are added as `pdb` files in the PHP installation directory.
-- On macOS, the debug symbols are compiled into the binaries.
+> [!NOTE]
+> - On Linux, the debug symbols are added as [debug info files](https://sourceware.org/gdb/current/onlinedocs/gdb.html/Separate-Debug-Files.html) in the `/usr/lib/debug/.build-id` directory. These files match the `build-id` in the ELF section of the PHP binaries and debugging tools like `gdb` are able to resolve the symbols from these files.
+> - On Windows, the debug symbols are added as `pdb` files in the PHP installation directory.
+> - On macOS, the debug symbols are compiled into the binaries.
 
 ```yaml
 steps:
@@ -698,10 +700,10 @@ jobs:
         runner: self-hosted
 ```
 
-**Notes**
-- Do not set up multiple self-hosted runners on a single server instance as parallel workflow will conflict with each other.
-- Do not set up self-hosted runners on the side on your development environment or your production server.
-- Avoid using the same labels for your `self-hosted` runners which are used by `GitHub-hosted` runners.
+> [!NOTE]
+> - Do not set up multiple self-hosted runners on a single server instance as parallel workflow will conflict with each other.
+> - Do not set up self-hosted runners on the side on your development environment or your production server.
+> - Avoid using the same labels for your `self-hosted` runners which are used by `GitHub-hosted` runners.
 
 ### Local Testing Setup
 
@@ -745,7 +747,7 @@ act -P ubuntu-20.04=shivammathur/node:2004
 - By default, `opcache.jit=1235` and `opcache.jit_buffer_size=256M` are set which can be changed using `ini-values` input.
 - For detailed information about JIT related directives refer to the [`official PHP documentation`](https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.jit "opcache.jit documentation").
 
-For example to enable JIT in `tracing` mode with buffer size of `64 MB`. 
+For example to enable JIT in `tracing` mode with buffer size of `64 MB`.
 
 ```yaml
 - name: Setup PHP with JIT in tracing mode
@@ -781,9 +783,9 @@ If your project uses composer, you can persist the composer's internal cache dir
   run: composer install --prefer-dist
 ```
 
-**Notes**
-- Please do not cache `vendor` directory using `action/cache` as that will have side effects.
-- If you do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
+> [!NOTE]
+> - Please do not cache `vendor` directory using `action/cache` as that will have side effects.
+> - If you do not commit `composer.lock`, you can use the hash of `composer.json` as the key for your cache.
 ```yaml
 key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
 ```
@@ -976,7 +978,7 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 
 ## :scroll: License
 
-- The scripts and documentation in this project are under the [MIT License](LICENSE "License for shivammathur/setup-php"). 
+- The scripts and documentation in this project are under the [MIT License](LICENSE "License for shivammathur/setup-php").
 - This project has multiple [dependencies](#package-dependencies "Dependencies for this PHP Action"). Their licenses can be found in their respective repositories.
 - The logo for `setup-php` is a derivative work of [php.net logo](https://www.php.net/download-logos.php) and is licensed under the [CC BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/ "Creative Commons License").
 

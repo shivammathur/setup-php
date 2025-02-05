@@ -77,6 +77,32 @@ read_env() {
   export ts
 }
 
+# Function to create a lock.
+acquire_lock() {
+  lock_path="$1"
+  while true; do
+    if sudo mkdir "$lock_path" 2>/dev/null; then
+      echo $$ | sudo tee "$lock_path/pid" >/dev/null
+      return 0
+    else
+      if sudo test -f "$lock_path/pid"; then
+        lock_pid=$(sudo cat "$lock_path/pid")
+        if ! ps -p "$lock_pid" >/dev/null 2>&1; then
+          sudo rm -rf "$lock_path"
+          continue
+        fi
+      fi
+      sleep 1
+    fi
+  done
+}
+
+# Function to release the lock.
+release_lock() {
+  lock_path="$1"
+  sudo rm -rf "$lock_path"
+}
+
 # Function to download a file using cURL.
 # mode: -s pipe to stdout, -v save file and return status code
 # execute: -e save file as executable
@@ -89,23 +115,23 @@ get() {
   if [ "$mode" = "-s" ]; then
     sudo curl "${curl_opts[@]}" "${links[0]}"
   else
-    lock_path="$file_path.lock"
-    until sudo mkdir "$lock_path" 2>/dev/null; do
-      sleep 1
-    done
-    if [ "$execute" = "-e" ]; then
-      until [ -z "$(fuser "$file_path" 2>/dev/null)" ]; do
-        sleep 1
-      done
+    if [ "$runner" = "self-hosted" ]; then
+      lock_path="$file_path.lock"
+      acquire_lock "$lock_path"
+      if [ "$execute" = "-e" ]; then
+        until [ -z "$(fuser "$file_path" 2>/dev/null)" ]; do
+          sleep 1
+        done
+      fi
+      trap 'release_lock "$lock_path"' EXIT SIGINT SIGTERM
     fi
-    trap 'sudo rm -rf "$lock_path"' EXIT SIGINT SIGTERM
     for link in "${links[@]}"; do
       status_code=$(sudo curl -w "%{http_code}" -o "$file_path" "${curl_opts[@]}" "$link")
       [ "$status_code" = "200" ] && break
     done
     [ "$execute" = "-e" ] && sudo chmod a+x "$file_path"
     [ "$mode" = "-v" ] && echo "$status_code"
-    sudo rm -rf "$lock_path" >/dev/null 2>&1 || true
+    [ "$runner" = "self-hosted" ] && release_lock "$lock_path"
   fi
 }
 

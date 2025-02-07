@@ -422,6 +422,9 @@ export async function addPHPUnitTools(data: RS): Promise<string> {
       'latest';
   }
   data['url'] = await getPharUrl(data);
+  if (data['url'].match(/-\d+/)) {
+    data['url'] += ',' + data['url'].replace(/-(\d+)\.\d+\.\d+/, '-$1');
+  }
   return await addArchive(data);
 }
 

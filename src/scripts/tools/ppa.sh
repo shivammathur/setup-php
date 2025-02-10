@@ -67,7 +67,7 @@ update_lists() {
 # Function to get fingerprint from an Ubuntu PPA.
 ubuntu_fingerprint() {
   ppa=$1
-  get -s -n "" "$lp_api"/~"${ppa%/*}"/+archive/"${ppa##*/}" | jq -r '.signing_key_fingerprint'
+  get -s -n "" "${lp_api[@]/%//~${ppa%/*}/+archive/${ppa##*/}}" | jq -r '.signing_key_fingerprint'
 }
 
 # Function to get fingerprint from a Debian PPA.
@@ -214,7 +214,10 @@ list_dir='/etc/apt/sources.list.d'
 list_file="/etc/apt/sources.list.d/$ID.sources"
 [ -e "$list_file" ] || list_file='/etc/apt/sources.list'
 upstream_lsb='/etc/upstream-release/lsb-release'
-lp_api='https://api.launchpad.net/1.0'
+lp_api=(
+  'https://api.launchpad.net/1.0'
+  'https://api.launchpad.net/devel'
+)
 lp_ppa='http://ppa.launchpad.net'
 lpc_ppa='https://ppa.launchpadcontent.net'
 key_dir='/usr/share/keyrings'

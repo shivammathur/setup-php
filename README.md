@@ -122,7 +122,7 @@ On all supported OS/Platforms the following PHP versions can be set up as per th
 | `7.4`       | `Stable`  | `End of life`         | `GitHub-hosted`, `self-hosted` |
 | `8.0`       | `Stable`  | `End of life`         | `GitHub-hosted`, `self-hosted` |
 | `8.1`       | `Stable`  | `Security fixes only` | `GitHub-hosted`, `self-hosted` |
-| `8.2`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
+| `8.2`       | `Stable`  | `Security fixes only` | `GitHub-hosted`, `self-hosted` |
 | `8.3`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.4`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.5`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |

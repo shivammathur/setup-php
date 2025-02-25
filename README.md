@@ -70,8 +70,8 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 | Virtual environment | Arch    | YAML workflow label                | Pre-installed PHP      |
 |---------------------|---------|------------------------------------|------------------------|
-| Ubuntu 24.04        | x86_64  | `ubuntu-24.04`                     | `PHP 8.3`              |
-| Ubuntu 22.04        | x86_64  | `ubuntu-latest` or `ubuntu-22.04`  | `PHP 8.1`              |
+| Ubuntu 24.04        | x86_64  | `ubuntu-latest` or `ubuntu-24.04`  | `PHP 8.3`              |
+| Ubuntu 22.04        | x86_64  | `ubuntu-22.04`                     | `PHP 8.1`              |
 | Ubuntu 20.04        | x86_64  | `ubuntu-20.04`                     | `PHP 7.4` to `PHP 8.3` |
 | Ubuntu 24.04        | aarch64 | `ubuntu-24.04-arm`                 | `PHP 8.3`              |
 | Ubuntu 22.04        | aarch64 | `ubuntu-22.04-arm`                 | `PHP 8.1`              |

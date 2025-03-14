@@ -88,7 +88,7 @@ add_key() {
   key_source=$4
   key_file=$5
   key_urls=("$key_source")
-  if [[ "$key_source" =~ launchpad.net|debian.org ]]; then
+  if [[ "$key_source" =~ launchpadcontent.net|debian.org ]]; then
     fingerprint="$("${ID}"_fingerprint "$ppa" "$ppa_url" "$package_dist")"
     sks_params="op=get&options=mr&exact=on&search=0x$fingerprint"
     key_urls=("${sks[@]/%/\/pks\/lookup\?"$sks_params"}")
@@ -117,7 +117,7 @@ check_lists() {
 # Function to add a sources list.
 add_list() {
   ppa=${1-ondrej/php}
-  ppa_url=${2:-"$lp_ppa/$ppa/ubuntu"}
+  ppa_url=${2:-"$lpc_ppa/$ppa/ubuntu"}
   key_source=${3:-"$ppa_url"}
   package_dist=${4:-"$VERSION_CODENAME"}
   branches=${5:-main}
@@ -139,7 +139,7 @@ add_list() {
 # Function to check if a PPA exists
 check_ppa() {
   ppa=$1
-  ppa_url=${2:-"$lp_ppa/$ppa/ubuntu"}
+  ppa_url=${2:-"$lpc_ppa/$ppa/ubuntu"}
   package_dist=${3:-"$VERSION_CODENAME"}
   branches=${4:-main}
   ppa_search="deb .*$ppa_url $package_dist .*$branches$"
@@ -163,7 +163,7 @@ remove_list() {
 # Function to check if ubuntu ppa is up
 is_ubuntu_ppa_up() {
   ppa=${1:-ondrej/php}
-  curl -s --connect-timeout 5 --max-time 5 --head --fail "$lp_ppa/$ppa/ubuntu/dists/$VERSION_CODENAME/Release" > /dev/null
+  curl -s --connect-timeout 5 --max-time 5 --head --fail "$lpc_ppa/$ppa/ubuntu/dists/$VERSION_CODENAME/Release" > /dev/null
 }
 
 # Function to add the PPA mirror.
@@ -181,7 +181,7 @@ add_ppa() {
   ppa=${1:-ondrej/php}
   if [[ "$ID" = "ubuntu" || "$ID_LIKE" =~ ubuntu ]] && [[ "$ppa" =~ "ondrej/" ]]; then
     if is_ubuntu_ppa_up "$ppa" ; then
-      [ "${debug:?}" = "debug" ] && add_list "$ppa" "$lp_ppa/$ppa/ubuntu" "$lp_ppa/$ppa/ubuntu" "$VERSION_CODENAME" "main/debug"
+      [ "${debug:?}" = "debug" ] && add_list "$ppa" "$lpc_ppa/$ppa/ubuntu" "$lpc_ppa/$ppa/ubuntu" "$VERSION_CODENAME" "main/debug"
       add_list "$ppa"
     else
       add_ppa_sp_mirror "$ppa"
@@ -201,7 +201,7 @@ add_ppa() {
 update_ppa() {
   set_base_version
   ppa=${1:-ondrej/php}
-  ppa_url=${2:-"$lp_ppa/$ppa/ubuntu"}
+  ppa_url=${2:-"$lpc_ppa/$ppa/ubuntu"}
   package_dist=${4:-"$VERSION_CODENAME"}
   branches=${5:-main}
   ppa_search="deb .*$ppa_url $package_dist .*$branches"

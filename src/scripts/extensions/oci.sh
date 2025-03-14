@@ -40,7 +40,7 @@ add_client() {
     sudo mkdir -p "$libs"
     sudo ln -sf /opt/oracle/instantclient/*.$lib_ext* $libs
     if [ "$os" = "Linux" ]; then
-      [ -e "$libs/$arch"-linux-gnu/libaio.so.1t64 ] && sudo ln -sf "$libs/$arch"-linux-gnu/libaio.so.1t64 "$libs/$arch"-linux-gnu/libaio.so.1
+      [ -e "$libs/$arch"-linux-gnu/libaio.so.1 ] || sudo ln -sf "$libs/$arch"-linux-gnu/libaio.so.1t64 "$libs/$arch"-linux-gnu/libaio.so.1
     fi
   fi
 }

@@ -73,7 +73,7 @@ add_phalcon4() {
   fi
 }
 
-# Function to add phalcon3.
+# Function to add phalcon5.
 add_phalcon5() {
   if shared_extension phalcon; then
     phalcon_version=$(php -d="extension=phalcon.so" -r "echo phpversion('phalcon');" | cut -d'.' -f 1)

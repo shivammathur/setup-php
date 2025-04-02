@@ -26,6 +26,7 @@ inputs:
     required: false
   tools:
     description: 'Setup popular tools globally.'
+    defaut: '/usr/local/bin'
     required: false
   tools-dir:
     description: 'Directory where all tools will be installed to.'

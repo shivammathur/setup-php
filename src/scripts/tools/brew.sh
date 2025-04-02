@@ -14,11 +14,11 @@ add_brew_tap() {
   tap=$1
   if ! [ -d "$tap_dir/$tap" ]; then
     if [ "${runner:?}" = "self-hosted" ]; then
-      brew tap "$tap" >/dev/null 2>&1
+      brew tap "$tap" 
     else
-      fetch_brew_tap "$tap" >/dev/null 2>&1
+      fetch_brew_tap "$tap" 
       if ! [ -d "$tap_dir/$tap" ]; then
-        brew tap "$tap" >/dev/null 2>&1
+        brew tap "$tap" 
       fi
     fi
   fi
@@ -49,7 +49,7 @@ add_brew() {
   brew_prefix="$(get_brew_prefix)"
   if ! [ -d "$brew_prefix"/bin ]; then
     step_log "Setup Brew"
-    get -s "" "/tmp/install.sh" "https://raw.githubusercontent.com/Homebrew/install/master/install.sh" | bash -s >/dev/null 2>&1
+    get -s "" "/tmp/install.sh" "https://raw.githubusercontent.com/Homebrew/install/master/install.sh" | bash -s 
     add_log "${tick:?}" "Brew" "Installed Homebrew"
   fi
   add_brew_bins_to_path "$brew_prefix"

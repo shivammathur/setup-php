@@ -1,5 +1,4 @@
 # Variables
-export tool_path_dir="/usr/local/bin"
 export composer_home="$HOME/.composer"
 export composer_bin="$composer_home/vendor/bin"
 export composer_json="$composer_home/composer.json"

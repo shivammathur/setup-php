@@ -55,6 +55,7 @@ read_env() {
   fail_fast="${fail_fast:-${FAIL_FAST:-false}}"
   [[ -z "${ImageOS}" && -z "${ImageVersion}" || -n ${ACT} ]] && _runner=self-hosted || _runner=github
   runner="${runner:-${RUNNER:-$_runner}}"
+  tool_path_dir="${tools_dir:-${TOOLS_DIR:-/usr/local/bin}}"
 
   if [[ "$runner" = "github" && $_runner = "self-hosted" ]]; then
     fail_fast=true
@@ -75,6 +76,7 @@ read_env() {
   export runner
   export update
   export ts
+  export tools_dir_path
 }
 
 # Function to create a lock.

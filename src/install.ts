@@ -19,7 +19,6 @@ export async function getScript(os: string): Promise<string> {
   const script_path = path.join(__dirname, '../src/scripts', filename);
   const run_path = script_path.replace(os, 'run');
   process.env['fail_fast'] = await utils.getInput('fail-fast', false);
-  process.env['tool_path_dir'] = await utils.getInput('tools-dir', false);
   const extension_csv: string = await utils.getInput('extensions', false);
   const ini_values_csv: string = await utils.getInput('ini-values', false);
   const coverage_driver: string = await utils.getInput('coverage', false);

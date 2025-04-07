@@ -27,10 +27,6 @@ inputs:
   tools:
     description: 'Setup popular tools globally.'
     required: false
-  tools-dir:
-    description: 'Directory where all tools will be installed to.'
-    defaut: '/usr/local/bin'
-    required: false
 outputs:
   php-version:
     description: 'PHP version in semver format'

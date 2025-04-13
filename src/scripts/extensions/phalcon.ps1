@@ -80,9 +80,9 @@ Function Get-PhalconSemver() {
 # Function to install phalcon
 Function Add-PhalconHelper() {
   $semver = Get-PhalconSemver
-  if (($extension_version -eq '3') -or ($extension_version -eq '5')) {
+  if ($extension_version -eq '3') {
     Add-PhalconFromGitHub $semver
-  } elseif ($extension_version -eq '4') {
+  } else {
     Add-Extension -Extension phalcon -Stability stable -Extension_version $semver
   }
 }

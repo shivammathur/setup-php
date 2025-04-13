@@ -31,6 +31,9 @@ Function Get-ZephirParserVersion() {
   $repo = 'zephir-lang/php-zephir-parser'
   $zp_releases = "$github/$repo/releases"
   if($extension -eq 'zephir_parser') {
+    if($version -lt '7.2') {
+      return 'v1.6.1'
+    }
     return (Get-File -Url $zp_releases/latest).BaseResponse.RequestMessage.RequestUri.Segments[-1]
   } else {
     return 'v' + ($extension.split('-')[1] -replace 'v')

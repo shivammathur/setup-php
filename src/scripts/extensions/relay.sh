@@ -48,6 +48,14 @@ change_library_paths() {
   fi
 }
 
+# Link hiredis library
+link_hiredis() {
+    lib_dir="${brew_prefix:?}"/opt/hiredis/lib
+    if [ -e "$lib_dir"/libhiredis_ssl.1.1.0.dylib ]; then
+      sudo ln -sf "$lib_dir"/libhiredis_ssl.1.1.0.dylib "$lib_dir"/libhiredis_ssl.dylib.1.1.0
+    fi
+}
+
 # Add relay dependencies
 add_relay_dependencies() {
   add_extension json
@@ -57,6 +65,7 @@ add_relay_dependencies() {
     . "${0%/*}"/tools/brew.sh
     configure_brew
     brew install hiredis lz4 zstd concurrencykit
+    link_hiredis
   fi
 }
 

@@ -213,6 +213,11 @@ get_scan_dir() {
   fi
 }
 
+# Function to handle self-hosted runner setup.
+self_hosted_helper() {
+  :
+}
+
 # Function to Setup PHP.
 setup_php() {
   step_log "Setup PHP"

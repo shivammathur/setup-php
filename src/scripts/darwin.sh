@@ -69,9 +69,6 @@ add_brew_extension() {
   else
     add_brew_tap "$php_tap"
     add_brew_tap "$ext_tap"
-    if [[ -e "${core_repo:?}/Formula/" && -e "$tap_dir"/"$ext_tap"/.github/deps/"$formula" ]]; then
-      sudo mv "$tap_dir"/"$ext_tap"/.github/deps/"$formula"/* "${core_repo:?}/Formula/" 2>/dev/null || true
-    fi
     update_dependencies >/dev/null 2>&1
     handle_dependency_extensions "$formula" "$extension" >/dev/null 2>&1
     (brew install "${brew_opts[@]}" "$ext_tap/$formula@$version" >/dev/null 2>&1 && copy_brew_extensions "$formula") || pecl_install "$extension" >/dev/null 2>&1

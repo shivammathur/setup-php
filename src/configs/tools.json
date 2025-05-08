@@ -136,6 +136,14 @@
     "version_prefix": "",
     "version_parameter": "-V"
   },
+  "pie": {
+    "type": "phar",
+    "repository": "php/pie",
+    "extension": ".phar",
+    "domain": "https://github.com",
+    "version_prefix": "",
+    "version_parameter": "-V"
+  },
   "pint": {
     "type": "phar",
     "repository": "laravel/pint",

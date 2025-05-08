@@ -392,7 +392,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'blackfire, blackfire-player, box, churn, cs2pr, flex, grpc_php_plugin, parallel-lint, php-cs-fixer, php-scoper, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, phpunit-polyfills, pint, php-config, phpize, protoc, symfony, vapor, wp',
+      'blackfire, blackfire-player, box, churn, cs2pr, flex, grpc_php_plugin, parallel-lint, php-cs-fixer, php-scoper, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, phpunit-polyfills, pint, php-config, phpize, protoc, symfony, vapor, wp, pie',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_blackfire',
@@ -422,7 +422,8 @@ describe('Tools tests', () => {
         'add_protoc latest',
         'add_symfony latest',
         'add_composer_tool vapor-cli vapor-cli laravel/ scoped',
-        'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"'
+        'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"',
+        'add_tool https://github.com/php/pie/releases/latest/download/pie.phar pie "-V"'
       ]
     ]
   ])('checking addTools on linux', async (tools_csv, scripts) => {
@@ -434,7 +435,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'behat, blackfire, blackfire-player, churn, composer-dependency-analyser, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, ecs, flex, grpc_php_plugin:1.2.3, infection, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, rector, symfony-cli, vapor-cli, wp-cli',
+      'behat, blackfire, blackfire-player, churn, composer-dependency-analyser, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, ecs, flex, grpc_php_plugin:1.2.3, infection, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, rector, symfony-cli, vapor-cli, wp-cli, pie',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_composer_tool behat behat behat/ scoped',
@@ -470,7 +471,8 @@ describe('Tools tests', () => {
         'add_symfony latest',
         'add_composer_tool vapor-cli vapor-cli laravel/ scoped',
         'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"',
-        'add_composer_tool easy-coding-standard easy-coding-standard symplify/ scoped'
+        'add_composer_tool easy-coding-standard easy-coding-standard symplify/ scoped',
+        'add_tool https://github.com/php/pie/releases/latest/download/pie.phar pie "-V"'
       ]
     ]
   ])('checking addTools on darwin', async (tools_csv, scripts) => {
@@ -482,7 +484,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'blackfire, blackfire-player:1.2.3, cs2pr, churn, deployer, does_not_exist, flex, phinx, phive:0.13.2, php-config, phpize, phpmd, simple-phpunit, symfony, wp',
+      'blackfire, blackfire-player:1.2.3, cs2pr, churn, deployer, does_not_exist, flex, phinx, phive:0.13.2, php-config, phpize, phpmd, simple-phpunit, symfony, wp, pie',
       [
         'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'Add-Blackfire',
@@ -499,7 +501,8 @@ describe('Tools tests', () => {
         'Add-Tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"',
         'Add-ComposerTool phpunit-bridge phpunit-bridge symfony/ global',
         'Add-Symfony',
-        'Add-Tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"'
+        'Add-Tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"',
+        'Add-Tool https://github.com/php/pie/releases/latest/download/pie.phar pie "-V"'
       ]
     ]
   ])('checking addTools on Windows', async (tools_csv, scripts) => {

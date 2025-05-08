@@ -229,7 +229,7 @@ This disables all core and third-party shared extensions and thus, can break som
 
 These tools can be set up globally using the `tools` input. It accepts a string in csv-format.
 
-[`behat`], [`blackfire`], [`blackfire-player`], [`box`], [`castor`], [`churn`], [`codeception`], [`composer`], [`composer-dependency-analyser`], [`composer-normalize`], [`composer-prefetcher`], [`composer-require-checker`], [`composer-unused`], [`cs2pr`], [`deployer`], [`ecs`], [`flex`], [`grpc_php_plugin`], [`infection`], [`parallel-lint`], [`pecl`], [`phan`], [`phing`], [`phinx`], [`phive`], [`php-config`], [`php-cs-fixer`], [`php-scoper`], [`phpcbf`], [`phpcpd`], [`phpcs`], [`phpdoc`] or [`phpDocumentor`], [`phpize`], [`phplint`], [`phpmd`], [`phpspec`], [`phpstan`], [`phpunit`], [`phpunit-bridge`], [`phpunit-polyfills`], [`pint`], [`prestissimo`], [`protoc`], [`psalm`], [`rector`], [`symfony`] or [`symfony-cli`], [`vapor`] or [`vapor-cli`], [`wp`] or [`wp-cli`]
+[`behat`], [`blackfire`], [`blackfire-player`], [`box`], [`castor`], [`churn`], [`codeception`], [`composer`], [`composer-dependency-analyser`], [`composer-normalize`], [`composer-prefetcher`], [`composer-require-checker`], [`composer-unused`], [`cs2pr`], [`deployer`], [`ecs`], [`flex`], [`grpc_php_plugin`], [`infection`], [`parallel-lint`], [`pecl`], [`phan`], [`phing`], [`phinx`], [`phive`], [`php-config`], [`php-cs-fixer`], [`php-scoper`], [`phpcbf`], [`phpcpd`], [`phpcs`], [`phpdoc`] or [`phpDocumentor`], [`phpize`], [`phplint`], [`phpmd`], [`phpspec`], [`phpstan`], [`phpunit`], [`phpunit-bridge`], [`phpunit-polyfills`], [`pie`], [`pint`], [`prestissimo`], [`protoc`], [`psalm`], [`rector`], [`symfony`] or [`symfony-cli`], [`vapor`] or [`vapor-cli`], [`wp`] or [`wp-cli`]
 
 ```yaml
 - name: Setup PHP with tools
@@ -1086,6 +1086,7 @@ These companies generously provide setup-php their products and services to aid 
 [`phpunit`]:                  https://phpunit.de/
 [`phpunit-bridge`]:           https://symfony.com/doc/current/components/phpunit_bridge.html
 [`phpunit-polyfills`]:        https://github.com/Yoast/PHPUnit-Polyfills
+[`pie`]:                      https://github.com/php/pie
 [`pint`]:                     https://github.com/laravel/pint
 [`prestissimo`]:              https://github.com/hirak/prestissimo
 [`protoc`]:                   https://developers.google.com/protocol-buffers/

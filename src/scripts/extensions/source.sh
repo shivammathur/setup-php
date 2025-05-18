@@ -83,8 +83,10 @@ run_group() {
   echo "$command" | sudo tee ./run_group.sh >/dev/null 2>&1
   echo "$GROUP$log"
   . ./run_group.sh
+  local status=$?
   rm ./run_group.sh
   echo "$END_GROUP"
+  return $status
 }
 
 patch_extension() {
@@ -150,10 +152,10 @@ add_extension_from_source() {
       [[ -n "${libraries// }" ]] && run_group "add_libs $libraries" "add libraries"
       [ "${debug:?}" = "debug" ] && suffix_opts="$suffix_opts --enable-debug"
       patch_extension "$extension" >/dev/null 2>&1
-      run_group "phpize" "phpize"
-      run_group "sudo $prefix_opts ./configure $suffix_opts $opts" "configure"
-      run_group "sudo $prefix_opts make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)" "make"
-      run_group "sudo make install" "make install"
+      run_group "phpize" "phpize" && \
+      run_group "sudo $prefix_opts ./configure $suffix_opts $opts" "configure" && \
+      run_group "sudo $prefix_opts make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)" "make" && \
+      run_group "sudo make install" "make install" && \
       enable_extension "$extension" "$prefix"
     fi
   )

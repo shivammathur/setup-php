@@ -48,8 +48,11 @@ export async function getInput(
 /**
  * Function to get manifest URL
  */
-export async function getManifestURL(): Promise<string> {
-  return 'https://raw.githubusercontent.com/shivammathur/setup-php/develop/src/configs/php-versions.json';
+export async function getManifestURLS(): Promise<string[]> {
+  return [
+    'https://raw.githubusercontent.com/shivammathur/setup-php/develop/src/configs/php-versions.json',
+    'https://setup-php.com/php-versions.json'
+  ];
 }
 
 /**
@@ -60,9 +63,13 @@ export async function getManifestURL(): Promise<string> {
 export async function parseVersion(version: string): Promise<string> {
   switch (true) {
     case /^(latest|lowest|highest|nightly|\d+\.x)$/.test(version):
-      return JSON.parse((await fetch.fetch(await getManifestURL()))['data'])[
-        version
-      ];
+      for (const manifestURL of await getManifestURLS()) {
+        const fetchResult = await fetch.fetch(manifestURL);
+        if (fetchResult['data'] ?? false) {
+          return JSON.parse(fetchResult['data'])[version];
+        }
+      }
+      throw new Error(`Could not fetch the PHP version manifest.`);
     default:
       switch (true) {
         case version.length > 1:

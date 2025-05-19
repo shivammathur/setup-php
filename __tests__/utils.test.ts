@@ -1,6 +1,7 @@
 import fs from 'fs';
 import * as path from 'path';
 import * as utils from '../src/utils';
+import * as fetchModule from '../src/fetch';
 
 /**
  * Mock @actions/core
@@ -10,15 +11,6 @@ jest.mock('@actions/core', () => ({
     return ['setup-php'].indexOf(key) !== -1 ? key : '';
   }),
   info: jest.fn()
-}));
-
-/**
- * Mock fetch.ts
- */
-jest.mock('../src/fetch', () => ({
-  fetch: jest.fn().mockImplementation(() => {
-    return {data: '{ "latest": "8.1", "5.x": "5.6" }'};
-  })
 }));
 
 describe('Utils tests', () => {
@@ -43,15 +35,27 @@ describe('Utils tests', () => {
   });
 
   it('checking getManifestURL', async () => {
-    expect(await utils.getManifestURL()).toContain('php-versions.json');
+    for (const url of await utils.getManifestURLS()) {
+      expect(url).toContain('php-versions.json');
+    }
   });
 
   it('checking parseVersion', async () => {
+    const fetchSpy = jest
+      .spyOn(fetchModule, 'fetch')
+      .mockResolvedValue({data: '{ "latest": "8.1", "5.x": "5.6" }'});
     expect(await utils.parseVersion('latest')).toBe('8.1');
     expect(await utils.parseVersion('7')).toBe('7.0');
     expect(await utils.parseVersion('7.4')).toBe('7.4');
     expect(await utils.parseVersion('5.x')).toBe('5.6');
     expect(await utils.parseVersion('4.x')).toBe(undefined);
+
+    fetchSpy.mockReset();
+    fetchSpy.mockResolvedValueOnce({}).mockResolvedValueOnce({});
+    await expect(utils.parseVersion('latest')).rejects.toThrow(
+      'Could not fetch the PHP version manifest.'
+    );
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
 
   it('checking parseIniFile', async () => {

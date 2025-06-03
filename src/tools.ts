@@ -401,6 +401,9 @@ export async function addPhive(data: RS): Promise<string> {
     case /7\.2/.test(data['php_version']):
       data['version'] = '0.14.5';
       break;
+    case /7\.3|7\.4/.test(data['php_version']):
+      data['version'] = '0.15.3';
+      break;
     case /^latest$/.test(data['version']):
       data['version'] = await getLatestVersion(data);
       break;

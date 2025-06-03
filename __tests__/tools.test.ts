@@ -258,8 +258,9 @@ describe('Tools tests', () => {
 
   it.each`
     version     | php_version | os          | script
-    ${'latest'} | ${'7.4'}    | ${'linux'}  | ${'add_tool https://github.com/phar-io/phive/releases/download/3.2.1/phive-3.2.1.phar phive'}
-    ${'1.2.3'}  | ${'7.4'}    | ${'darwin'} | ${'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'}
+    ${'latest'} | ${'8.0'}    | ${'linux'}  | ${'add_tool https://github.com/phar-io/phive/releases/download/3.2.1/phive-3.2.1.phar phive'}
+    ${'1.2.3'}  | ${'8.0'}    | ${'darwin'} | ${'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'}
+    ${'1.2.3'}  | ${'7.4'}    | ${'win32'}  | ${'Add-Tool https://github.com/phar-io/phive/releases/download/0.15.3/phive-0.15.3.phar phive'}
     ${'1.2.3'}  | ${'7.2'}    | ${'win32'}  | ${'Add-Tool https://github.com/phar-io/phive/releases/download/0.14.5/phive-0.14.5.phar phive'}
     ${'1.2.3'}  | ${'7.1'}    | ${'win32'}  | ${'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.5/phive-0.13.5.phar phive'}
     ${'latest'} | ${'5.6'}    | ${'win32'}  | ${'Add-Tool https://github.com/phar-io/phive/releases/download/0.12.1/phive-0.12.1.phar phive'}
@@ -413,7 +414,7 @@ describe('Tools tests', () => {
         'add_tool https://www.phing.info/get/phing-latest.phar phing "-v"',
         'add_composer_tool phinx phinx robmorgan/ scoped',
         'add_composer_tool phinx phinx:1.2.3 robmorgan/ scoped',
-        'add_tool https://github.com/phar-io/phive/releases/download/3.2.1/phive-3.2.1.phar phive "status"',
+        'add_tool https://github.com/phar-io/phive/releases/download/0.15.3/phive-0.15.3.phar phive "status"',
         'add_composer_tool phpunit-bridge phpunit-bridge symfony/ global',
         'add_composer_tool phpunit-polyfills phpunit-polyfills yoast/ global',
         'add_tool https://github.com/laravel/pint/releases/latest/download/pint.phar pint "-V"',
@@ -454,7 +455,7 @@ describe('Tools tests', () => {
         'add_tool https://github.com/phan/phan/releases/download/1.2.3/phan.phar phan "-v"',
         'add_tool https://www.phing.info/get/phing-1.2.3.phar,https://github.com/phingofficial/phing/releases/download/1.2.3/phing-1.2.3.phar phing "-v"',
         'add_composer_tool phinx phinx robmorgan/ scoped',
-        'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive',
+        'add_tool https://github.com/phar-io/phive/releases/download/0.15.3/phive-0.15.3.phar phive',
         'add_devtools php-config',
         'add_tool https://github.com/PHPCSStandards/PHP_CodeSniffer/releases/latest/download/phpcbf.phar phpcbf "--version"',
         'add_tool https://phar.phpunit.de/phpcpd.phar phpcpd "--version"',
@@ -495,7 +496,7 @@ describe('Tools tests', () => {
         'Tool does_not_exist is not supported',
         'Add-ComposerTool flex flex symfony/ global',
         'Add-ComposerTool phinx phinx robmorgan/ scoped',
-        'Add-Tool https://github.com/phar-io/phive/releases/download/0.13.2/phive-0.13.2.phar phive "status"',
+        'Add-Tool https://github.com/phar-io/phive/releases/download/0.15.3/phive-0.15.3.phar phive "status"',
         'php-config is not a windows tool',
         'phpize is not a windows tool',
         'Add-Tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"',

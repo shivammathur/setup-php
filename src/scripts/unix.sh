@@ -107,6 +107,18 @@ release_lock() {
   sudo rm -rf "$lock_path"
 }
 
+# Function to get the SHA256 hash of a string.
+get_sha256() {
+  local input=$1
+  if command -v sha256sum >/dev/null 2>&1; then
+    printf '%s' "$input" | sha256sum | cut -d' ' -f1
+  elif command -v shasum >/dev/null 2>&1; then
+    printf '%s' "$input" | shasum -a 256 | cut -d' ' -f1
+  elif command -v openssl >/dev/null 2>&1; then
+    printf '%s' "$input" | openssl dgst -sha256 | cut -d' ' -f2
+  fi
+}
+
 # Function to download a file using cURL.
 # mode: -s pipe to stdout, -v save file and return status code
 # execute: -e save file as executable
@@ -120,7 +132,7 @@ get() {
     sudo curl "${curl_opts[@]}" "${links[0]}"
   else
     if [ "$runner" = "self-hosted" ]; then
-      lock_path="$file_path.lock"
+      lock_path="/tmp/sp-lck-$(get_sha256 "$file_path")"
       acquire_lock "$lock_path"
       if [ "$execute" = "-e" ]; then
         until [ -z "$(fuser "$file_path" 2>/dev/null)" ]; do

@@ -75,6 +75,11 @@ set_composer_env() {
     sed -i "$sed_arg" "$composer_env" 2>/dev/null || sed -i '' "$sed_arg" "$composer_env"
   fi
   add_env_path "$composer_env"
+  if [ -n "$COMPOSER_ALLOW_PLUGINS" ]; then
+    echo "$COMPOSER_ALLOW_PLUGINS" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$' | while IFS= read -r plugin; do
+      composer global config --no-plugins "allow-plugins.$plugin" true >/dev/null 2>&1
+    done
+  fi
 }
 
 # Helper function to configure tools.

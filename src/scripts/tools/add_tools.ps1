@@ -58,6 +58,11 @@ Function Set-ComposerEnv() {
     (Get-Content $src\configs\composer.env -Raw) -replace '(?m)^COMPOSER_PROCESS_TIMEOUT=.*$', "COMPOSER_PROCESS_TIMEOUT=$env:COMPOSER_PROCESS_TIMEOUT" | Set-Content $src\configs\composer.env
   }
   Add-EnvPATH $src\configs\composer.env
+  if($env:COMPOSER_ALLOW_PLUGINS) {
+    $env:COMPOSER_ALLOW_PLUGINS -split '\s*,\s*' | Where-Object { $_ } | ForEach-Object {
+      & composer global config --no-plugins "allow-plugins.$_" true > $null 2>&1
+    }
+  }
 }
 
 # Function to extract tool version.

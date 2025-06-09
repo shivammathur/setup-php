@@ -309,6 +309,17 @@ These tools can be set up globally using the `tools` input. It accepts a string 
     fail-fast: true
 ```
 
+- By default, `composer` blocks all its plugins. If you are using the `tools` input to install a composer plugin it will be added to the allow list, alternatively if your dependencies have composer plugins, you can allow them by setting `COMPOSER_ALLOW_PLUGINS` that accepts a csv string of plugin names.
+
+```yaml
+- name: Setup PHP with fail-fast
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '8.4'
+  env:
+    COMPOSER_ALLOW_PLUGINS: composer/installers, composer/satis
+```
+
 > [!NOTE]
 > - Input `tools` is useful to set up tools which are only used in CI workflows, thus keeping your `composer.json` tidy.
 > - If you do not want to use all your dev-dependencies in workflow, you can run composer with `--no-dev` and install required tools using `tools` input to speed up your workflow.

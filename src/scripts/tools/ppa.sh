@@ -182,6 +182,7 @@ add_ppa() {
   ppa=${1:-ondrej/php}
   if [[ "$ID" = "ubuntu" || "$ID_LIKE" =~ ubuntu ]] && [[ "$ppa" =~ "ondrej/" ]]; then
     if is_ubuntu_ppa_up "$ppa" ; then
+      [ "${runner:?}" = "self-hosted" ] && find "$list_dir" -type f -name 'sp*' -exec grep -qF "$sp" {} \; -delete
       [ "${debug:?}" = "debug" ] && add_list "$ppa" "$lpc_ppa/$ppa/ubuntu" "$lpc_ppa/$ppa/ubuntu" "$VERSION_CODENAME" "main/debug"
       add_list "$ppa"
     else

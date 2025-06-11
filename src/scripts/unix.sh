@@ -110,11 +110,11 @@ release_lock() {
 # Function to get the SHA256 hash of a string.
 get_sha256() {
   local input=$1
-  if command -v sha256sum >/dev/null 2>&1; then
+  if command -v sha256sum >/dev/null; then
     printf '%s' "$input" | sha256sum | cut -d' ' -f1
-  elif command -v shasum >/dev/null 2>&1; then
+  elif command -v shasum >/dev/null; then
     printf '%s' "$input" | shasum -a 256 | cut -d' ' -f1
-  elif command -v openssl >/dev/null 2>&1; then
+  elif command -v openssl >/dev/null; then
     printf '%s' "$input" | openssl dgst -sha256 | cut -d' ' -f2
   fi
 }

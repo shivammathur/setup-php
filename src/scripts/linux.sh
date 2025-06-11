@@ -20,6 +20,7 @@ self_hosted_helper() {
     sudo ln -sf /usr/bin/apt-get /usr/bin/apt-fast
     trap "sudo rm -f /usr/bin/apt-fast 2>/dev/null" exit
   fi
+  sudo mkdir -p /opt/hostedtoolcache >/dev/null 2>&1 || true
   install_packages apt-transport-https ca-certificates curl file make jq unzip autoconf automake gcc g++ gnupg
 }
 

@@ -212,7 +212,7 @@ get_scan_dir() {
 
 # Function to handle self-hosted runner setup.
 self_hosted_helper() {
-  :
+  sudo mkdir -p /opt/hostedtoolcache >/dev/null 2>&1 || true
 }
 
 # Function to Setup PHP.

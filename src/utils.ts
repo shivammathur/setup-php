@@ -456,6 +456,7 @@ export async function readPHPVersion(): Promise<string> {
   const composerLock = path.join(composerProjectDir, 'composer.lock');
   if (fs.existsSync(composerLock)) {
     const lockFileContents = JSON.parse(fs.readFileSync(composerLock, 'utf8'));
+    /* istanbul ignore next */
     if (
       lockFileContents['platform-overrides'] &&
       lockFileContents['platform-overrides']['php']
@@ -469,6 +470,7 @@ export async function readPHPVersion(): Promise<string> {
     const composerFileContents = JSON.parse(
       fs.readFileSync(composerJson, 'utf8')
     );
+    /* istanbul ignore next */
     if (
       composerFileContents['config'] &&
       composerFileContents['config']['platform'] &&

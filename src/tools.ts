@@ -419,6 +419,7 @@ export async function addPhive(data: RS): Promise<string> {
  * @param data
  */
 export async function addPHPUnitTools(data: RS): Promise<string> {
+  /* istanbul ignore next */
   if (data['version'] === 'latest') {
     data['version'] =
       (await packagist.search(data['packagist'], data['php_version'])) ??

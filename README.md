@@ -278,7 +278,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.4'
-    tools: composer:v2
+    tools: composer:v1
 ```
 
 - If you do not use composer in your workflow, you can specify `tools: none` to skip it.

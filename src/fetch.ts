@@ -1,56 +1,37 @@
-import {IncomingMessage, OutgoingHttpHeaders} from 'http';
-import * as https from 'https';
-import * as url from 'url';
+// This is a modified version of fetch.ts for local execution, using node-fetch.
+// User should install node-fetch: npm install node-fetch@2
+// (or node-fetch@3 if using ESM modules, but this project seems to be CJS for now)
+import OriginalNodeFetch from 'node-fetch';
 
-/**
- * Function to fetch a URL
- *
- * @param input_url
- * @param auth_token
- * @param redirect_count
- */
-export async function fetch(
-  input_url: string,
-  auth_token?: string,
-  redirect_count = 5
-): Promise<Record<string, string>> {
-  const fetch_promise: Promise<Record<string, string>> = new Promise(
-    resolve => {
-      const url_object: url.UrlObject = new url.URL(input_url);
-      const headers: OutgoingHttpHeaders = {
-        'User-Agent': `Mozilla/5.0 (${process.platform} ${process.arch}) setup-php`
-      };
-      if (auth_token) {
-        headers.authorization = 'Bearer ' + auth_token;
-      }
-      const options: https.RequestOptions = {
-        hostname: url_object.hostname,
-        path: url_object.pathname,
-        headers: headers,
-        agent: new https.Agent({keepAlive: false})
-      };
-      const req = https.get(options, (res: IncomingMessage) => {
-        if (res.statusCode === 200) {
-          let body = '';
-          res.setEncoding('utf8');
-          res.on('data', chunk => (body += chunk));
-          res.on('end', () => resolve({data: `${body}`}));
-        } else if (
-          [301, 302, 303, 307, 308].includes(res.statusCode as number)
-        ) {
-          if (redirect_count > 0 && res.headers.location) {
-            fetch(res.headers.location, auth_token, redirect_count--).then(
-              resolve
-            );
-          } else {
-            resolve({error: `${res.statusCode}: Redirect error`});
-          }
-        } else {
-          resolve({error: `${res.statusCode}: ${res.statusMessage}`});
-        }
-      });
-      req.end();
+// node-fetch v3 is ESM-only. If the project is CJS, we need v2 or a dynamic import.
+// For simplicity, assuming node-fetch v2 or that the project can handle ESM.
+// If using ts-node with commonjs, node-fetch v2 is easier.
+const fetchModule = OriginalNodeFetch as any; // Type assertion to handle CJS/ESM differences if any
+const actualFetch = fetchModule.default || fetchModule; // Handle default export for ESM
+
+interface FetchResult {
+  data: string | null;
+  statusCode: number;
+  error?: string;
+}
+
+export async function fetch(url: string): Promise<FetchResult> {
+  try {
+    const response = await actualFetch(url, {
+      // node-fetch options if needed, e.g., timeout, retries (though http-client handled retries)
+      // For simplicity, no complex retry logic here, but could be added.
+    });
+    const data = await response.text();
+    if (response.ok) {
+      return { data, statusCode: response.status };
     }
-  );
-  return await fetch_promise;
+    return { data, statusCode: response.status, error: `Request failed with status ${response.status}` };
+  } catch (error: any) {
+    // console.error(`Fetch error for URL ${url}:`, error);
+    return {
+      data: null,
+      statusCode: 0, // Indicate a client-side error or network issue
+      error: error.message
+    };
+  }
 }

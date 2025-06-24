@@ -1,4 +1,4 @@
-import * as utils from './utils';
+import * as utils from './local_utils';
 import * as extensions from './extensions';
 import * as config from './config';
 

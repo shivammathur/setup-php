@@ -1,4 +1,4 @@
-import * as utils from './utils';
+import * as utils from './local_utils';
 
 /**
  * Install and enable extensions for darwin

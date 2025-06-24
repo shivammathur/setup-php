@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import * as fetch from './fetch';
 import * as packagist from './packagist';
-import * as utils from './utils';
+import * as utils from './local_utils';
 
 type RS = Record<string, string>;
 type RSRS = Record<string, RS>;

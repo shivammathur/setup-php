@@ -258,7 +258,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 
   When you specify just the major version or the version in `major.minor` format, the latest patch version matching the input will be setup.
 
-  With the exception of major versions of `composer`, if you specify only the `major` version or the version in `major.minor` format for a tool you can get rate limited by GitHub's API. To avoid this, it is recommended to provide a [`GitHub` OAuth token](https://github.com/shivammathur/setup-php#composer-github-oauth "Composer GitHub OAuth").
+  With the exception of major versions of `composer`, if you specify only the `major` version or the version in `major.minor` format for a tool you can get rate limited by GitHub's API. To avoid this, it is recommended to provide a [`GitHub` OAuth token](https://github.com/shivammathur/setup-php#github-composer-authentication "Composer GitHub OAuth").
   You can do that by setting `GITHUB_TOKEN` environment variable. The `COMPOSER_TOKEN` environment variable has been deprecated in favor of `GITHUB_TOKEN` and will be removed in the next major version.
 
 ```yaml

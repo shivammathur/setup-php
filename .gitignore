@@ -3,7 +3,7 @@ node_modules/
 __tests__/runner/*
 lib/
 
-# Rest of the file pulled from https://github.com/github/gitignore/blob/master/Node.gitignore
+# Rest of the file pulled from https://github.com/github/gitignore/blob/main/Node.gitignore
 # Logs
 logs
 *.log

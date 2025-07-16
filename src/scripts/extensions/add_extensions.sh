@@ -216,7 +216,7 @@ add_pecl_extension() {
     add_log "${tick:?}" "$extension" "Enabled"
   else
     [ -n "$pecl_version" ] && pecl_version="-$pecl_version"
-    pecl_install "$extension$pecl_version" || add_extension "$extension" "$(get_extension_prefix "$extension")" >/dev/null 2>&1
+    pecl_install "$extension$pecl_version" || ( [ "${fail_fast:?}" = "false" ] && add_extension "$extension" "$(get_extension_prefix "$extension")" >/dev/null 2>&1)
     extension_version="$(php -r "echo phpversion('$extension');")"
     [ -n "$extension_version" ] && extension_version="-$extension_version"
     add_extension_log "$extension$extension_version" "Installed and enabled"

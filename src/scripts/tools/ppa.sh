@@ -164,7 +164,7 @@ remove_list() {
 # Function to check if ubuntu ppa is up
 is_ubuntu_ppa_up() {
   ppa=${1:-ondrej/php}
-  curl -s --connect-timeout 5 --max-time 5 --head --fail "$lpc_ppa/$ppa/ubuntu/dists/$VERSION_CODENAME/Release" > /dev/null
+  curl -s --connect-timeout 10 --max-time 10 --head --fail "$lpc_ppa/$ppa/ubuntu/dists/$VERSION_CODENAME/Release" > /dev/null
 }
 
 # Function to add the PPA mirror.
@@ -172,8 +172,8 @@ add_ppa_sp_mirror() {
   ppa=$1
   ppa_name="$(basename "$ppa")"
   remove_list "$ppa" || true
-  [ "${debug:?}" = "debug" ] && add_list sp/"$ppa_name" "$sp/$ppa/ubuntu" "$sp/$ppa/ubuntu/key.gpg" "$VERSION_CODENAME" "main/debug"
-  add_list sp/"$ppa_name" "$sp/$ppa/ubuntu" "$sp/$ppa/ubuntu/key.gpg"
+  [ "${debug:?}" = "debug" ] && add_list sp/"$ppa_name" "$ppa_sp/$ppa/ubuntu" "$ppa_sp/$ppa/ubuntu/key.gpg" "$VERSION_CODENAME" "main/debug"
+  add_list sp/"$ppa_name" "$ppa_sp/$ppa/ubuntu" "$ppa_sp/$ppa/ubuntu/key.gpg"
 }
 
 # Function to add a PPA.
@@ -182,7 +182,7 @@ add_ppa() {
   ppa=${1:-ondrej/php}
   if [[ "$ID" = "ubuntu" || "$ID_LIKE" =~ ubuntu ]] && [[ "$ppa" =~ "ondrej/" ]]; then
     if is_ubuntu_ppa_up "$ppa" ; then
-      [ "${runner:?}" = "self-hosted" ] && find "$list_dir" -type f -name 'sp*' -exec grep -qF "$sp" {} \; -delete
+      [ "${runner:?}" = "self-hosted" ] && find "$list_dir" -type f -name 'sp*' -exec grep -qF "${sp/https:\/\/}" {} \; -delete
       [ "${debug:?}" = "debug" ] && add_list "$ppa" "$lpc_ppa/$ppa/ubuntu" "$lpc_ppa/$ppa/ubuntu" "$VERSION_CODENAME" "main/debug"
       add_list "$ppa"
     else
@@ -225,6 +225,7 @@ lpc_ppa='https://ppa.launchpadcontent.net'
 key_dir='/usr/share/keyrings'
 dist_info_dir='/usr/share/distro-info'
 sury='https://packages.sury.org'
+ppa_sp='https://ppa.setup-php.com'
 sp='https://setup-php.com'
 sks=(
   'https://keyserver.ubuntu.com'

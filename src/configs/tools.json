@@ -337,5 +337,11 @@
     "alias": "ecs",
     "repository": "symplify/easy-coding-standard",
     "scope": "scoped"
+  },
+  "roave-backward-compatibility-check": {
+    "type": "composer",
+    "alias": "roave-backward-compatibility-check", 
+    "repository": "roave/backward-compatibility-check",
+    "scope": "scoped"
   }
 }

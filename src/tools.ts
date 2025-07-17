@@ -203,7 +203,7 @@ export async function addPackage(data: RS): Promise<string> {
   const command = await utils.getCommand(data['os'], 'composer_tool');
   const parts: string[] = data['repository'].split('/');
   const args: string = await utils.joins(
-    parts[1],
+    data['tool'],
     data['release'],
     parts[0] + '/',
     data['scope']

@@ -436,7 +436,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'behat, blackfire, blackfire-player, churn, composer-dependency-analyser, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, ecs, flex, grpc_php_plugin:1.2.3, infection, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, rector, symfony-cli, vapor-cli, wp-cli, pie',
+      'behat, blackfire, blackfire-player, churn, composer-dependency-analyser, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, ecs, flex, grpc_php_plugin:1.2.3, infection, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, rector, roave-backward-compatibility-check, symfony-cli, vapor-cli, wp-cli, pie',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_composer_tool behat behat behat/ scoped',
@@ -469,6 +469,7 @@ describe('Tools tests', () => {
         'add_protoc 1.2.3',
         'add_tool https://github.com/vimeo/psalm/releases/latest/download/psalm.phar psalm "-v"',
         'add_composer_tool rector rector rector/ scoped',
+        'add_composer_tool roave-backward-compatibility-check roave-backward-compatibility-check roave/ scoped',
         'add_symfony latest',
         'add_composer_tool vapor-cli vapor-cli laravel/ scoped',
         'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"',

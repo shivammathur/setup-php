@@ -393,7 +393,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'blackfire, blackfire-player, box, churn, cs2pr, flex, grpc_php_plugin, name-collision-detector, parallel-lint, php-cs-fixer, php-scoper, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, phpunit-polyfills, pint, php-config, phpize, protoc, symfony, vapor, wp, pie',
+      'blackfire, blackfire-player, box, churn, cs2pr, flex, grpc_php_plugin, mago, name-collision-detector, parallel-lint, php-cs-fixer, php-scoper, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, phpunit-polyfills, pint, php-config, phpize, protoc, symfony, vapor, wp, pie',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_blackfire',
@@ -403,6 +403,7 @@ describe('Tools tests', () => {
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"',
         'add_composer_tool flex flex symfony/ global',
         'add_grpc_php_plugin latest',
+        'add_mago latest',
         'add_composer_tool name-collision-detector name-collision-detector shipmonk/ scoped',
         'add_tool https://github.com/php-parallel-lint/PHP-Parallel-Lint/releases/latest/download/parallel-lint.phar parallel-lint "--version"',
         'add_tool https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/download/v3.2.1/php-cs-fixer.phar php-cs-fixer "-V"',
@@ -437,7 +438,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'backward-compatibility-check, behat, blackfire, blackfire-player, churn, composer-dependency-analyser, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, ecs, flex, grpc_php_plugin:1.2.3, infection, name-collision-detector, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, rector, symfony-cli, vapor-cli, wp-cli, pie',
+      'backward-compatibility-check, behat, blackfire, blackfire-player, churn, composer-dependency-analyser, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, ecs, flex, grpc_php_plugin:1.2.3, infection, mago:0.26.1, name-collision-detector, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, rector, symfony-cli, vapor-cli, wp-cli, pie',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_composer_tool behat behat behat/ scoped',
@@ -452,6 +453,7 @@ describe('Tools tests', () => {
         'add_composer_tool flex flex symfony/ global',
         'add_grpc_php_plugin 1.2.3',
         'add_tool https://github.com/infection/infection/releases/latest/download/infection.phar infection "-V"',
+        'add_mago 0.26.1',
         'add_composer_tool name-collision-detector name-collision-detector shipmonk/ scoped',
         'add_tool https://github.com/phan/phan/releases/latest/download/phan.phar phan "-v"',
         'add_tool https://github.com/phan/phan/releases/download/1.2.3/phan.phar phan "-v"',
@@ -488,7 +490,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'blackfire, blackfire-player:1.2.3, cs2pr, churn, deployer, does_not_exist, flex, name-collision-detector, phinx, phive:0.13.2, php-config, phpize, phpmd, simple-phpunit, symfony, wp, pie',
+      'blackfire, blackfire-player:1.2.3, cs2pr, churn, deployer, does_not_exist, flex, mago, name-collision-detector, phinx, phive:0.13.2, php-config, phpize, phpmd, simple-phpunit, symfony, wp, pie',
       [
         'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'Add-Blackfire',
@@ -498,6 +500,7 @@ describe('Tools tests', () => {
         'Add-Tool https://deployer.org/deployer.phar deployer "-V"',
         'Tool does_not_exist is not supported',
         'Add-ComposerTool flex flex symfony/ global',
+        'Add-Mago latest',
         'Add-ComposerTool name-collision-detector name-collision-detector shipmonk/ scoped',
         'Add-ComposerTool phinx phinx robmorgan/ scoped',
         'Add-Tool https://github.com/phar-io/phive/releases/download/0.15.3/phive-0.15.3.phar phive "status"',

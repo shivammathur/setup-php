@@ -249,6 +249,12 @@
     "domain": "https://github.com",
     "version_prefix": "v"
   },
+  "mago": {
+    "type": "custom-package",
+    "repository": "carthage-software/mago",
+    "domain": "https://github.com",
+    "version_prefix": ""
+  },
   "protoc": {
     "type": "custom-package",
     "repository": "protocolbuffers/protobuf",

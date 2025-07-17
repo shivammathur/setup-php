@@ -30,7 +30,7 @@ Function Add-Mago() {
   $url = "https://github.com/carthage-software/mago/releases/download/$mago_tag/mago-$mago_tag-$arch_name-pc-windows-msvc.zip"
   Get-File -Url $url -OutFile $bin_dir\mago.zip >$null 2>&1
   Expand-Archive -Path $bin_dir\mago.zip -DestinationPath $bin_dir\mago -Force >$null 2>&1
-  Move-Item -Path $bin_dir\mago\mago.exe -Destination $bin_dir\mago.exe
+  Move-Item -Path $bin_dir\mago\mago-$mago_tag-$arch_name-pc-windows-msvc\mago.exe -Destination $bin_dir\mago.exe
   Add-ToProfile $current_profile 'mago' "New-Alias mago $bin_dir\mago.exe"
   Add-Log $tick "mago" "Added mago $mago_tag"
 }

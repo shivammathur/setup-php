@@ -500,7 +500,7 @@ describe('Tools tests', () => {
         'Add-Tool https://deployer.org/deployer.phar deployer "-V"',
         'Tool does_not_exist is not supported',
         'Add-ComposerTool flex flex symfony/ global',
-        'Add-Mago latest',
+        'Add-Mago',
         'Add-ComposerTool name-collision-detector name-collision-detector shipmonk/ scoped',
         'Add-ComposerTool phinx phinx robmorgan/ scoped',
         'Add-Tool https://github.com/phar-io/phive/releases/download/0.15.3/phive-0.15.3.phar phive "status"',

@@ -19,7 +19,7 @@ Function Get-MagoTag() {
 Function Add-Mago() {
   param(
     [Parameter(Mandatory = $true, Position = 0, HelpMessage = 'The mago version to be installed')]
-    [ValidatePattern('^latest$|^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$')]
+    [ValidatePattern('^latest$|^\d+\.\d+\.\d+$')]
     [string] $mago_tag
   )
   $mago_tag = Get-MagoTag
@@ -33,7 +33,4 @@ Function Add-Mago() {
   Move-Item -Path $bin_dir\mago\mago.exe -Destination $bin_dir\mago.exe
   Add-ToProfile $current_profile 'mago' "New-Alias mago $bin_dir\mago.exe"
   Add-Log $tick "mago" "Added mago $mago_tag"
-  printf "$env:GROUP\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "mago" "Click to read the mago related license information"
-  Write-Output (Invoke-WebRequest https://raw.githubusercontent.com/carthage-software/mago/main/LICENSE).Content
-  Write-Output "$env:END_GROUP"
 }

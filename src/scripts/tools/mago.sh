@@ -26,7 +26,4 @@ add_mago() {
     sudo chmod +x /usr/local/bin/mago
   ) >/dev/null 2>&1
   add_log "${tick:?}" "mago" "Added mago $mago_tag"
-  printf "$GROUP\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "mago" "Click to read the mago related license information"
-  curl "${curl_opts[@]:?}" https://raw.githubusercontent.com/carthage-software/mago/main/LICENSE
-  echo "$END_GROUP"
 }

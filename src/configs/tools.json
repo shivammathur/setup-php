@@ -21,6 +21,11 @@
     "repository": "shipmonk/composer-dependency-analyser",
     "scope": "scoped"
   },
+  "name-collision-detector": {
+    "type": "composer",
+    "repository": "shipmonk/name-collision-detector",
+    "scope": "scoped"
+  },
   "composer-unused": {
     "type": "phar",
     "repository": "composer-unused/composer-unused",

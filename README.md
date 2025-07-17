@@ -258,19 +258,6 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 
   When you specify just the major version or the version in `major.minor` format, the latest patch version matching the input will be setup.
 
-  With the exception of major versions of `composer`, if you specify only the `major` version or the version in `major.minor` format for a tool you can get rate limited by GitHub's API. To avoid this, it is recommended to provide a [`GitHub` OAuth token](https://github.com/shivammathur/setup-php#github-composer-authentication "Composer GitHub OAuth").
-  You can do that by setting `GITHUB_TOKEN` environment variable. The `COMPOSER_TOKEN` environment variable has been deprecated in favor of `GITHUB_TOKEN` and will be removed in the next major version.
-
-```yaml
-- name: Setup PHP with tools
-  uses: shivammathur/setup-php@v2
-  with:
-    php-version: '8.4'
-    tools: php-cs-fixer:3.64, phpunit:11.4
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
-
 - The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying the major version `v1` or `v2`, or the version in `major.minor` or `semver` format. Additionally, for composer `snapshot` and `preview` can also be specified to set up the respective releases.
 
 ```yaml
@@ -473,6 +460,12 @@ Disable coverage for these reasons:
 - Accepts a `string` in csv-format. For example: `phpunit, phpcs`
 - See [tools support](#wrench-tools-support) for tools supported.
 
+#### `github-token` (optional)
+
+- Specify the GitHub token to use for authentication.
+- Accepts a `string`.
+- By default, `GITHUB_TOKEN` secret provided by GitHub Actions is used.
+
 ### Outputs
 
 #### `php-version`
@@ -561,8 +554,6 @@ jobs:
         ini-values: post_max_size=256M, max_execution_time=180
         coverage: xdebug
         tools: php-cs-fixer, phpunit:${{ matrix.phpunit-versions }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Nightly Build Setup
@@ -804,17 +795,16 @@ restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-
 
 ### GitHub Composer Authentication
 
-If you have a number of workflows which set up multiple tools or have many composer dependencies, you might hit the GitHub's rate limit for composer. Also, if you specify only the major version or the version in `major.minor` format, you can hit the rate limit. To avoid this you can specify an `OAuth` token by setting `GITHUB_TOKEN` environment variable. You can use [`GITHUB_TOKEN`](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token "GITHUB_TOKEN documentation") secret for this purpose.
+By default, setup-php uses the `GITHUB_TOKEN` secret that is generated for each workflow run. In case you want to use a Personal Access Token (PAT) instead, you can set the `github-token` input.
 
-The `COMPOSER_TOKEN` environment variable has been deprecated in favor of `GITHUB_TOKEN` and will be removed in the next major version.
+The `COMPOSER_TOKEN` and `GITHUB_TOKEN` environment variables have been deprecated in favor of the `github-token` input and will be removed in the next major version.
 
 ```yaml
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.4'
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    github-token: ${{ secrets.YOUR_PAT_TOKEN }}
 ```
 
 ### Private Packagist Authentication

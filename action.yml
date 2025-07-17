@@ -27,6 +27,9 @@ inputs:
   tools:
     description: 'Setup popular tools globally.'
     required: false
+  github-token:
+    description: 'GitHub token to use for authentication.'
+    default: ${{ github.token }}
 outputs:
   php-version:
     description: 'PHP version in semver format'

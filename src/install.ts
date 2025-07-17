@@ -18,7 +18,6 @@ export async function getScript(os: string): Promise<string> {
   const filename = os + (await utils.scriptExtension(os));
   const script_path = path.join(__dirname, '../src/scripts', filename);
   const run_path = script_path.replace(os, 'run');
-  process.env['fail_fast'] = await utils.getInput('fail-fast', false);
   const extension_csv: string = await utils.getInput('extensions', false);
   const ini_values_csv: string = await utils.getInput('ini-values', false);
   const coverage_driver: string = await utils.getInput('coverage', false);
@@ -49,12 +48,21 @@ export async function getScript(os: string): Promise<string> {
 }
 
 /**
+ * Function to set environment variables based on inputs.
+ */
+export async function setEnv(): Promise<void> {
+  process.env['fail_fast'] = await utils.getInput('fail-fast', false);
+  process.env['GITHUB_TOKEN'] ??= await utils.getInput('github-token', false);
+}
+
+/**
  * Run the script
  */
 export async function run(): Promise<void> {
   const os: string = process.platform;
   const tool = await utils.scriptTool(os);
   const run_path = await getScript(os);
+  await setEnv();
   await exec(tool + run_path);
 }
 

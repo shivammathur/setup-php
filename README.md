@@ -1005,19 +1005,26 @@ Many users and organisations support setup-php via [GitHub Sponsors](https://git
 These companies generously provide setup-php their products and services to aid in the development of this project.
 
 <p>
-  <a href="https://www.jetbrains.com/?from=setup-php">
-    <img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="212" height="120">
+  <a target="_blank" href="https://www.jetbrains.com/?from=setup-php">
+    <img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="140" height="80">
   </a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://www.macstadium.com/opensource/members#gh-light-mode-only">
-    <img src="https://setup-php.com/sponsors/macstadium.png" alt="Mac Stadium" width="296" height="120">
+  <a target="_blank" href="https://www.cloudflare.com/lp/project-alexandria/#gh-light-mode-only">
+    <img src="https://setup-php.com/sponsors/cloudflare.svg" alt="Cloudflare" width="240" height="80">
   </a>
-  <a href="https://www.macstadium.com/opensource/members#gh-dark-mode-only">
-    <img src="https://setup-php.com/sponsors/macstadium-white.png" alt="Mac Stadium" width="296" height="120">
+  <a target="_blank" href="https://www.cloudflare.com/lp/project-alexandria/#gh-dark-mode-only">
+    <img src="https://setup-php.com/sponsors/cloudflare-white.svg" alt="Cloudflare" width="240" height="80">
   </a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://tidelift.com/subscription/pkg/npm-setup-php">
-    <img src="https://setup-php.com/sponsors/tidelift.png" alt="Tidelift" width="140" height="120">
+  <a target="_blank" href="https://www.macstadium.com/company/opensource#gh-light-mode-only">
+    <img src="https://setup-php.com/sponsors/macstadium.png" alt="Mac Stadium" width="200" height="80">
+  </a>
+  <a target="_blank" href="https://www.macstadium.com/company/opensource#gh-dark-mode-only">
+    <img src="https://setup-php.com/sponsors/macstadium-white.png" alt="Mac Stadium" width="200" height="80">
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a target="_blank" href="#">
+    <img src="https://setup-php.com/sponsors/tidelift.png" alt="Tidelift" width="94" height="80">
   </a>
 </p>
 

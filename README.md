@@ -1072,6 +1072,7 @@ These companies generously provide setup-php their products and services to aid 
 [`flex`]:                     https://flex.symfony.com/
 [`grpc_php_plugin`]:          https://grpc.io/
 [`infection`]:                https://infection.github.io/
+[`name-collision-detector`]:  https://github.com/shipmonk/name-collision-detector
 [`parallel-lint`]:            https://github.com/php-parallel-lint/PHP-Parallel-Lint
 [`pecl`]:                     https://pecl.php.net/
 [`phan`]:                     https://github.com/phan/phan/wiki

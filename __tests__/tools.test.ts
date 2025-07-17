@@ -403,7 +403,7 @@ describe('Tools tests', () => {
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"',
         'add_composer_tool flex flex symfony/ global',
         'add_grpc_php_plugin latest',
-        'add_mago latest',
+        'add_mago',
         'add_composer_tool name-collision-detector name-collision-detector shipmonk/ scoped',
         'add_tool https://github.com/php-parallel-lint/PHP-Parallel-Lint/releases/latest/download/parallel-lint.phar parallel-lint "--version"',
         'add_tool https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/download/v3.2.1/php-cs-fixer.phar php-cs-fixer "-V"',

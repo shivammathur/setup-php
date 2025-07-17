@@ -417,7 +417,7 @@ Disable coverage for these reasons:
   - The `php-version-file` input if it exists
   - A `composer.lock` file and the `platform-overrides.php` value
   - A `composer.json` file and the `config.platform.php` value
-  - If the `composer.lock` or `composer.json` file is in a sub-directory in your repository, please specify the subdirectory path in `COMPOSER_PROJECT_DIR` env.
+  - If the `composer.lock` or `composer.json` file is in a subdirectory in your repository, please specify the subdirectory path in `COMPOSER_PROJECT_DIR` env.
 
 #### `php-version-file` (optional)
 
@@ -425,7 +425,7 @@ Disable coverage for these reasons:
 - Accepts a `string`. For example `'.phpenv-version'`.
 - See [PHP support](#tada-php-support) for the supported PHP versions.
 - By default, `.php-version` file is used.
-- The file either have the PHP version as its content, or follow the asdf `.tool-versions` format.
+- The file needs to either have the PHP version as its content or follows the asdf `.tool-versions` format.
 - If not specified and the default `.php-version` file is not found, the latest stable PHP version is set up.
 
 #### `extensions` (optional)

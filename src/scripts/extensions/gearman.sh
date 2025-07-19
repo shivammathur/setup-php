@@ -1,6 +1,5 @@
 # Helper function to add gearman extension.
 add_gearman_helper() {
-  add_ppa ondrej/pkg-gearman
   install_packages libgearman-dev
   enable_extension gearman extension
   if ! check_extension gearman; then

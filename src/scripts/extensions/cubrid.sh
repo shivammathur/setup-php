@@ -7,15 +7,6 @@ add_license_log() {
   echo "$END_GROUP"
 }
 
-# Function to setup gcc-7 and g++-7
-setup_compiler() {
-  if ! command -v gcc-7 >/dev/null || ! command -v g++-7 >/dev/null; then
-    add_ppa ubuntu-toolchain-r/test
-    add_packages gcc-7 g++-7 -y
-  fi
-  printf "gcc g++" | xargs -d ' ' -I {} sudo update-alternatives --install /usr/bin/{} {} /usr/bin/{}-7 7
-}
-
 # Function to set cubrid repo for the extension.
 set_cubrid_repo() {
   case "${ext:?}" in

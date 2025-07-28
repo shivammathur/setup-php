@@ -28,6 +28,39 @@ Function Edit-ComposerConfig() {
   Set-ComposerAuth
 }
 
+# Function to merge auth.json fragments.
+Function Get-MergedAuthJson {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory)][string[]] $ComposerAuth
+  )
+  if (Test-Path $composer_home\auth.json) {
+    try {
+      $existing = Get-Content $composer_home\auth.json -Raw | ConvertFrom-Json
+    } catch {
+      $existing = [PSCustomObject]@{}
+    }
+  } else {
+    $existing = [PSCustomObject]@{}
+  }
+  foreach ($fragment in $ComposerAuth) {
+    $piece = ('{' + $fragment + '}') | ConvertFrom-Json
+    foreach ($prop in $piece.PSObject.Properties) {
+      if ($prop.Name -eq 'http-basic') {
+        if (-not $existing.'http-basic') {
+          $existing | Add-Member -MemberType NoteProperty -Name 'http-basic' -Value ([PSCustomObject]@{}) -Force
+        }
+        foreach ($domainProp in $prop.Value.PSObject.Properties) {
+          $existing.'http-basic' | Add-Member -MemberType NoteProperty -Name $domainProp.Name -Value $domainProp.Value -Force
+        }
+      } else {
+        $existing | Add-Member -MemberType NoteProperty -Name $prop.Name -Value $prop.Value -Force
+      }
+    }
+  }
+  return $existing | ConvertTo-Json -Depth 5
+}
+
 # Function to setup authentication in composer.
 Function Set-ComposerAuth() {
   if(Test-Path env:COMPOSER_AUTH_JSON) {
@@ -48,7 +81,7 @@ Function Set-ComposerAuth() {
     $composer_auth += '"github-oauth": {"github.com": "' + $env:GITHUB_TOKEN + '"}'
   }
   if($composer_auth.length) {
-    Add-Env COMPOSER_AUTH ('{' + ($composer_auth -join ',') + '}')
+    Set-Content -Path $composer_home\auth.json -Value (Get-MergedAuthJson $composer_auth)
   }
 }
 

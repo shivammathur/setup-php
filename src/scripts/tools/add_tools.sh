@@ -46,6 +46,25 @@ configure_composer() {
   set_composer_auth
 }
 
+# Function to merge auth.json fragments.
+get_merged_auth_json() {
+  local auth_file="$composer_home/auth.json"
+  local merged
+  [[ -f "$auth_file" ]] && merged=$(<"$auth_file") || merged='{}'
+  for frag in "$@"; do
+    local obj="{$frag}"
+    merged=$(jq -n --argjson b "$merged" --argjson n "$obj" '
+      if $n|has("http-basic") then
+        (($b["http-basic"]//{}) + $n["http-basic"]) as $hb
+        | ($b + $n) | .["http-basic"] = $hb
+      else
+        $b + $n
+      end
+    ')
+  done
+  printf '%s' "$merged"
+}
+
 # Function to setup authentication in composer.
 set_composer_auth() {
   if [ -n "$COMPOSER_AUTH_JSON" ]; then
@@ -63,7 +82,7 @@ set_composer_auth() {
     composer_auth+=( '"github-oauth": {"github.com": "'"${GITHUB_TOKEN:-$COMPOSER_TOKEN}"'"}' )
   fi
   if ((${#composer_auth[@]})); then
-    add_env COMPOSER_AUTH "{$(IFS=$','; echo "${composer_auth[*]}")}"
+    get_merged_auth_json "${composer_auth[@]}" | tee "$composer_home/auth.json" >/dev/null
   fi
 }
 

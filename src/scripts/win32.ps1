@@ -447,7 +447,7 @@ if($version -lt "5.5") {
 } else {
   $enable_extensions += ('opcache')
 }
-Enable-PhpExtension -Extension $enable_extensions -Path $php_dir
+Enable-PhpExtension -Extension ($enable_extensions | Where-Object { Test-Path $ext_dir\php_$_.dll }) -Path $php_dir
 Add-PhpCAInfo
 Add-OpenSSLConf
 Copy-Item -Path $src\configs\pm\*.json -Destination $env:RUNNER_TOOL_CACHE

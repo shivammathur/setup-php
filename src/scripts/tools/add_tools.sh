@@ -47,7 +47,7 @@ configure_composer() {
 }
 
 # Function to merge auth.json fragments.
-get_merged_auth_json() {
+update_auth_json() {
   local auth_file="$composer_home/auth.json"
   local merged
   [[ -f "$auth_file" ]] && merged=$(<"$auth_file") || merged='{}'
@@ -62,7 +62,7 @@ get_merged_auth_json() {
       end
     ')
   done
-  printf '%s' "$merged"
+  printf '%s' "$merged" > "$composer_home/auth.json"
 }
 
 # Function to setup authentication in composer.
@@ -82,7 +82,7 @@ set_composer_auth() {
     composer_auth+=( '"github-oauth": {"github.com": "'"${GITHUB_TOKEN:-$COMPOSER_TOKEN}"'"}' )
   fi
   if ((${#composer_auth[@]})); then
-    get_merged_auth_json "${composer_auth[@]}" | tee "$composer_home/auth.json" >/dev/null
+    update_auth_json "${composer_auth[@]}"
   fi
 }
 

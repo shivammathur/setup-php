@@ -28,8 +28,8 @@ Function Edit-ComposerConfig() {
   Set-ComposerAuth
 }
 
-# Function to merge auth.json fragments.
-Function Get-MergedAuthJson {
+# Function to update auth.json.
+Function Update-AuthJson {
   [CmdletBinding()]
   param(
     [Parameter(Mandatory)][string[]] $ComposerAuth
@@ -58,7 +58,7 @@ Function Get-MergedAuthJson {
       }
     }
   }
-  return $existing | ConvertTo-Json -Depth 5
+  Set-Content -Path $composer_home\auth.json -Value ($existing | ConvertTo-Json -Depth 5)
 }
 
 # Function to setup authentication in composer.
@@ -81,7 +81,7 @@ Function Set-ComposerAuth() {
     $composer_auth += '"github-oauth": {"github.com": "' + $env:GITHUB_TOKEN + '"}'
   }
   if($composer_auth.length) {
-    Set-Content -Path $composer_home\auth.json -Value (Get-MergedAuthJson $composer_auth)
+    Update-AuthJson $composer_auth
   }
 }
 

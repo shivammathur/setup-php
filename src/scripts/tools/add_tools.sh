@@ -11,7 +11,7 @@ get_tool_version() {
   alp="[a-zA-Z0-9\.]"
   version_regex="[0-9]+((\.{1}$alp+)+)(\.{0})(-$alp+){0,1}"
   if [ "$tool" = "composer" ]; then
-    composer_alias_version="$(grep -Ea "const\sBRANCH_ALIAS_VERSION" "$tool_path_dir/composer" | grep -Eo "$version_regex")"
+    composer_alias_version="$(grep -Ea "const\sBRANCH_ALIAS_VERSION" "${tool_path_dir:?}/composer" | grep -Eo "$version_regex")"
     if [[ -n "$composer_alias_version" ]]; then
       composer_version="$composer_alias_version+$(grep -Ea "const\sVERSION" "$tool_path_dir/composer" | grep -Eo "$alp+" | tail -n 1)"
     else

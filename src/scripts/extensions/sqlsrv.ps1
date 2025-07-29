@@ -67,10 +67,10 @@ Function Add-Sqlsrv() {
       Add-ExtensionFromGithub $extension > $null 2>&1
     } catch {}
     if (-not(Test-Extension $extension)) {
-      Add-SqlsrvFromMSGithub $extension >$null 2>&1
+      Add-SqlsrvFromMSGithub $extension 
     }
     if (-not(Test-Extension $extension)) {
-      Add-Extension $extension >$null 2>&1
+      Add-Extension $extension 
     }
     $status = 'Installed and enabled'
   }

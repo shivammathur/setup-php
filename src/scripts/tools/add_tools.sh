@@ -78,8 +78,8 @@ set_composer_auth() {
   if [ -n "$PACKAGIST_TOKEN" ]; then
     composer_auth+=( '"http-basic": {"repo.packagist.com": { "username": "token", "password": "'"$PACKAGIST_TOKEN"'"}}' )
   fi
-  if [ -n "${GITHUB_TOKEN:-$COMPOSER_TOKEN}" ]; then
-    composer_auth+=( '"github-oauth": {"github.com": "'"${GITHUB_TOKEN:-$COMPOSER_TOKEN}"'"}' )
+  if [ -n "${COMPOSER_TOKEN:-$GITHUB_TOKEN}" ]; then
+    composer_auth+=( '"github-oauth": {"github.com": "'"${COMPOSER_TOKEN:-$GITHUB_TOKEN}"'"}' )
   fi
   if ((${#composer_auth[@]})); then
     update_auth_json "${composer_auth[@]}"

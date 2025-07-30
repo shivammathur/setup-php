@@ -74,11 +74,9 @@ Function Set-ComposerAuth() {
   if(Test-Path env:PACKAGIST_TOKEN) {
     $composer_auth += '"http-basic": {"repo.packagist.com": { "username": "token", "password": "' + $env:PACKAGIST_TOKEN + '"}}'
   }
-  if(-not(Test-Path env:GITHUB_TOKEN) -and (Test-Path env:COMPOSER_TOKEN)) {
-    $env:GITHUB_TOKEN = $env:COMPOSER_TOKEN
-  }
-  if (Test-Path env:GITHUB_TOKEN) {
-    $composer_auth += '"github-oauth": {"github.com": "' + $env:GITHUB_TOKEN + '"}'
+  $token = if ($env:COMPOSER_TOKEN) { $env:COMPOSER_TOKEN } else { $env:GITHUB_TOKEN }
+  if ($token) {
+    $composer_auth += '"github-oauth": {"github.com": "' + $token + '"}'
   }
   if($composer_auth.length) {
     Update-AuthJson $composer_auth

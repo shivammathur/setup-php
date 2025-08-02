@@ -61,6 +61,19 @@ Function Update-AuthJson {
   Set-Content -Path $composer_home\auth.json -Value ($existing | ConvertTo-Json -Depth 5)
 }
 
+function Test-GitHubPublicAccess {
+  param(
+    [Parameter(Mandatory=$true)]
+    [string]$Token
+  )
+  try {
+    Invoke-RestMethod -Uri 'https://api.github.com/' -Headers @{ Authorization = "token $Token" } -ErrorAction Stop | Out-Null
+    return $true
+  } catch {
+    return $false
+  }
+}
+
 # Function to setup authentication in composer.
 Function Set-ComposerAuth() {
   if(Test-Path env:COMPOSER_AUTH_JSON) {
@@ -74,9 +87,15 @@ Function Set-ComposerAuth() {
   if(Test-Path env:PACKAGIST_TOKEN) {
     $composer_auth += '"http-basic": {"repo.packagist.com": { "username": "token", "password": "' + $env:PACKAGIST_TOKEN + '"}}'
   }
+  $write_token = $true
   $token = if ($env:COMPOSER_TOKEN) { $env:COMPOSER_TOKEN } else { $env:GITHUB_TOKEN }
   if ($token) {
-    $composer_auth += '"github-oauth": {"github.com": "' + $token + '"}'
+    if ($env:GITHUB_SERVER_URL -ne "https://github.com" -and -not(Test-GitHubPublicAccess $token)) {
+      $write_token = $false
+    }
+    if($write_token) {
+      $composer_auth += '"github-oauth": {"github.com": "' + $token + '"}'
+    }
   }
   if($composer_auth.length) {
     Update-AuthJson $composer_auth

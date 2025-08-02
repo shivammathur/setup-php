@@ -65,6 +65,11 @@ update_auth_json() {
   printf '%s' "$merged" > "$composer_home/auth.json"
 }
 
+# Function to check if public GitHub token authentication is possible.
+can_access_public_github() {
+  curl --fail -s -H "Authorization: token $1" 'https://api.github.com/' >/dev/null 2>&1
+}
+
 # Function to setup authentication in composer.
 set_composer_auth() {
   if [ -n "$COMPOSER_AUTH_JSON" ]; then
@@ -78,8 +83,15 @@ set_composer_auth() {
   if [ -n "$PACKAGIST_TOKEN" ]; then
     composer_auth+=( '"http-basic": {"repo.packagist.com": { "username": "token", "password": "'"$PACKAGIST_TOKEN"'"}}' )
   fi
-  if [ -n "${COMPOSER_TOKEN:-$GITHUB_TOKEN}" ]; then
-    composer_auth+=( '"github-oauth": {"github.com": "'"${COMPOSER_TOKEN:-$GITHUB_TOKEN}"'"}' )
+  token="${COMPOSER_TOKEN:-$GITHUB_TOKEN}"
+  if [ -n "$token" ]; then
+    write_token=true
+    if [ "$GITHUB_SERVER_URL" != "https://github.com" ]; then
+      can_access_public_github "$token" || write_token=false
+    fi
+    if [ "$write_token" = 'true' ]; then
+      composer_auth+=( '"github-oauth": {"github.com": "'"$token"'"}' )
+    fi
   fi
   if ((${#composer_auth[@]})); then
     update_auth_json "${composer_auth[@]}"

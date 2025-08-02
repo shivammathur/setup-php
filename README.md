@@ -465,6 +465,7 @@ Disable coverage for these reasons:
 - Specify the GitHub token to use for authentication.
 - Accepts a `string`.
 - By default, `GITHUB_TOKEN` secret provided by GitHub Actions is used.
+- For GitHub Enterprise users, it is recommended to use a Personal Access Token (PAT).
 
 ### Outputs
 
@@ -797,8 +798,6 @@ restore-keys: ${{ runner.os }}-composer-${{ matrix.prefer }}-
 
 By default, setup-php uses the `GITHUB_TOKEN` secret that is generated for each workflow run. In case you want to use a Personal Access Token (PAT) instead, you can set the `github-token` input.
 
-The `COMPOSER_TOKEN` and `GITHUB_TOKEN` environment variables have been deprecated in favor of the `github-token` input and will be removed in the next major version.
-
 ```yaml
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
@@ -806,6 +805,10 @@ The `COMPOSER_TOKEN` and `GITHUB_TOKEN` environment variables have been deprecat
     php-version: '8.4'
     github-token: ${{ secrets.YOUR_PAT_TOKEN }}
 ```
+
+The `COMPOSER_TOKEN` and `GITHUB_TOKEN` environment variables have been deprecated in favor of the `github-token` input and will be removed in the next major version.
+
+For GitHub Enterprise users, the `github-token` input does not default to the `GITHUB_TOKEN` secret. Therefore, it's recommended to set the `github-token` input to a Personal Access Token (PAT).
 
 ### Private Packagist Authentication
 

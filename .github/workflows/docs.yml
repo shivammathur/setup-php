@@ -8,6 +8,7 @@ permissions:
 
 jobs:
   create:
+    if: github.event.repository.fork == false
     permissions:
       contents: none
     name: Create
@@ -92,6 +93,7 @@ jobs:
           name: lists-php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
           path: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
   update:
+    if: github.event.repository.fork == false
     permissions:
       contents: write  # for Git to git push
     name: Update

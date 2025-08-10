@@ -13,9 +13,9 @@ handle_dependency_extensions() {
   suffix="$(get_php_formula_suffix)"
   if [[ -n "$suffix" ]]; then
     brew_opts=(-sf)
-    patch_abstract_file >/dev/null 2>&1
+    patch_abstract_file 
     for dependency_extension in "${dependency_extensions[@]}"; do
-        brew install "${brew_opts[@]}" "$ext_tap/$dependency_extension@$version" >/dev/null 2>&1 && copy_brew_extensions "$dependency_extension"
+        brew install "${brew_opts[@]}" "$ext_tap/$dependency_extension@$version"  && copy_brew_extensions "$dependency_extension"
     done
   fi
 }
@@ -31,7 +31,7 @@ disable_extension_helper() {
   sudo sed -Ei '' "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file:?}"
   sudo rm -rf "$scan_dir"/*"$extension"* /tmp/php"$version"_extensions
   mkdir -p /tmp/extdisabled/"$version"
-  echo '' | sudo tee /tmp/extdisabled/"$version"/"$extension" >/dev/null 2>&1
+  echo '' | sudo tee /tmp/extdisabled/"$version"/"$extension" 
 }
 
 # Function to get extension name from brew formula.
@@ -69,9 +69,9 @@ add_brew_extension() {
   else
     add_brew_tap "$php_tap"
     add_brew_tap "$ext_tap"
-    update_dependencies >/dev/null 2>&1
-    handle_dependency_extensions "$formula" "$extension" >/dev/null 2>&1
-    (brew install "${brew_opts[@]}" "$ext_tap/$formula@$version" >/dev/null 2>&1 && copy_brew_extensions "$formula") || pecl_install "$extension" >/dev/null 2>&1
+    update_dependencies 
+    handle_dependency_extensions "$formula" "$extension" 
+    (brew install "${brew_opts[@]}" "$ext_tap/$formula@$version"  && copy_brew_extensions "$formula") || pecl_install "$extension" 
     add_extension_log "$extension" "Installed and enabled"
   fi
 }
@@ -80,7 +80,7 @@ add_brew_extension() {
 patch_abstract_file() {
     abstract_path="$tap_dir"/"$ext_tap"/Abstract/abstract-php-extension.rb
     if [[ -e "$abstract_path" && ! -e /tmp/abstract_patch ]]; then
-        echo '' | sudo tee /tmp/abstract_patch >/dev/null 2>&1
+        echo '' | sudo tee /tmp/abstract_patch 
         sudo sed -i '' -e "s|php@#{\(.*\)}|php@#{\1}$suffix|g" -e "s|php_version /|\"#{php_version}$suffix\" /|g" "$abstract_path"
     fi
 }
@@ -90,9 +90,9 @@ add_extension_helper() {
   local extension=$1
   prefix=$2
   if [[ "$version" =~ ${old_versions:?} ]] && [ "$extension" = "imagick" ]; then
-    run_script "php5-darwin" "${version/./}" "$extension" >/dev/null 2>&1
+    run_script "php5-darwin" "${version/./}" "$extension" 
   else
-    pecl_install "$extension" >/dev/null 2>&1 &&
+    pecl_install "$extension"  &&
     if [[ "$version" =~ ${old_versions:?} ]]; then echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"; fi
   fi
   add_extension_log "$extension" "Installed and enabled"
@@ -106,8 +106,8 @@ add_devtools() {
 
 # Function to handle request to add PECL.
 add_pecl() {
-  enable_extension xml extension >/dev/null 2>&1
-  configure_pecl >/dev/null 2>&1
+  enable_extension xml extension 
+  configure_pecl 
   pear_version=$(get_tool_version "pecl" "version")
   add_log "${tick:?}" "PECL" "Found PECL $pear_version"
 }
@@ -139,7 +139,7 @@ update_dependencies() {
         git_retry -C "$repo" fetch origin master && git -C "$repo" reset --hard origin/master
       fi
     done
-    echo '' | sudo tee /tmp/update_dependencies >/dev/null 2>&1
+    echo '' | sudo tee /tmp/update_dependencies 
   fi
 }
 
@@ -197,7 +197,7 @@ add_php_config() {
   if [[ "$ini" = "production" || "$ini" = "development" ]]; then
     sudo cp "$ini_dir"/php.ini-"$ini" "$ini_dir"/php.ini
   elif [ "$ini" = "none" ]; then
-    echo '' | sudo tee "${ini_file[@]}" >/dev/null 2>&1
+    echo '' | sudo tee "${ini_file[@]}" 
   fi
 }
 
@@ -212,7 +212,7 @@ get_scan_dir() {
 
 # Function to handle self-hosted runner setup.
 self_hosted_helper() {
-  sudo mkdir -p /opt/hostedtoolcache >/dev/null 2>&1 || true
+  sudo mkdir -p /opt/hostedtoolcache  || true
 }
 
 # Function to Setup PHP.
@@ -223,14 +223,14 @@ setup_php() {
   check_pre_installed
   existing_version=$(get_brewed_php)
   if [[ "$version" =~ ${old_versions:?} ]]; then
-    run_script "php5-darwin" "${version/./}" >/dev/null 2>&1
+    run_script "php5-darwin" "${version/./}" 
     status="Installed"
   elif [ "$existing_version" != "$version" ]; then
-    add_php "install" "$existing_version" >/dev/null 2>&1
+    add_php "install" "$existing_version" 
     status="Installed"
   elif [ "$existing_version" = "$version" ]; then
     if [ "${update:?}" = "true" ]; then
-      add_php "upgrade" "$existing_version" >/dev/null 2>&1
+      add_php "upgrade" "$existing_version" 
       status="Updated to"
     else
       status="Found"

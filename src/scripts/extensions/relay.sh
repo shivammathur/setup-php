@@ -48,6 +48,19 @@ change_library_paths() {
   fi
 }
 
+# Add hiredis library
+add_hiredis_1.1.0() {
+  hiredis_url=https://github.com/redis/hiredis/archive/v1.1.0.tar.gz
+  hiredis_sha=fe6d21741ec7f3fc9df409d921f47dfc73a4d8ff64f4ac6f1d95f951bf7f53d6
+  sed -Ei.bak -e "s#^  url.*#  url \"$hiredis_url\"#" -e "s#^  sha256.*#  sha256 \"$hiredis_sha\"#" ${core_repo:?}/Formula/h/hiredis.rb
+  brew install -s hiredis
+  lib_dir="${brew_prefix:?}"/opt/hiredis/lib
+  if [ -e "$lib_dir"/libhiredis_ssl.1.1.0.dylib ]; then
+    sudo ln -sf "$lib_dir"/libhiredis_ssl.1.1.0.dylib "$lib_dir"/libhiredis_ssl.dylib.1.1.0
+  fi
+  mv ${core_repo:?}/Formula/h/hiredis.rb.bak ${core_repo:?}/Formula/h/hiredis.rb
+}
+
 # Add relay dependencies
 add_relay_dependencies() {
   add_extension json
@@ -56,7 +69,12 @@ add_relay_dependencies() {
   if [ "$os" = "Darwin" ]; then
     . "${0%/*}"/tools/brew.sh
     configure_brew
-    brew install lz4 hiredis zstd concurrencykit
+    if [ "$relay_version" = "v0.7.0" ]; then
+      brew install lz4 zstd concurrencykit
+      add_hiredis_1.1.0 >/dev/null 2>&1
+    else
+      brew install lz4 hiredis zstd concurrencykit
+    fi
   fi
 }
 

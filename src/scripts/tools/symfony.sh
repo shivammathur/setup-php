@@ -29,7 +29,7 @@ add_symfony_helper() {
 }
 
 add_symfony() {
-  add_symfony_helper >/dev/null 2>&1
+  add_symfony_helper 
   symfony_path="$(command -v symfony)"
   if [[ -n "$symfony_path" ]]; then
     sudo ln -s "$symfony_path" "${tool_path_dir:?}"/symfony-cli

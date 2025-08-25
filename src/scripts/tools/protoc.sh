@@ -25,6 +25,6 @@ add_protoc() {
   ) >/dev/null 2>&1
   add_log "${tick:?}" "protoc" "Added protoc ${protobuf_tag:1}"
   printf "$GROUP\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "protoc" "Click to read the protoc related license information"
-  curl "${curl_opts[@]:?}" https://raw.githubusercontent.com/protocolbuffers/protobuf/master/LICENSE
+  curl "${curl_opts[@]:?}" https://raw.githubusercontent.com/protocolbuffers/protobuf/main/LICENSE
   echo "$END_GROUP"
 }

@@ -35,6 +35,6 @@ Function Add-Protoc() {
   Add-ToProfile $current_profile 'protoc' "New-Alias protoc $bin_dir\protoc.exe"
   Add-Log $tick "protoc" "Added protoc $($protobuf_tag -replace 'v', '')"
   printf "$env:GROUP\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" "protoc" "Click to read the protoc related license information"
-  Write-Output (Invoke-WebRequest https://raw.githubusercontent.com/protocolbuffers/protobuf/master/LICENSE).Content
+  Write-Output (Invoke-WebRequest https://raw.githubusercontent.com/protocolbuffers/protobuf/main/LICENSE).Content
   Write-Output "$env:END_GROUP"
 }

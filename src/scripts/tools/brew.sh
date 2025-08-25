@@ -49,7 +49,7 @@ add_brew() {
   brew_prefix="$(get_brew_prefix)"
   if ! [ -d "$brew_prefix"/bin ]; then
     step_log "Setup Brew"
-    get -s "" "/tmp/install.sh" "https://raw.githubusercontent.com/Homebrew/install/master/install.sh" | bash -s >/dev/null 2>&1
+    get -s "" "/tmp/install.sh" "https://raw.githubusercontent.com/Homebrew/install/main/install.sh" | bash -s >/dev/null 2>&1
     add_log "${tick:?}" "Brew" "Installed Homebrew"
   fi
   add_brew_bins_to_path "$brew_prefix"

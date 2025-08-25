@@ -134,9 +134,9 @@ patch_brew() {
 update_dependencies() {
   patch_brew
   if ! [ -e /tmp/update_dependencies ]; then
-    for repo in "$brew_repo" "$core_repo"; do
+    for repo in "$brew_repo" "${core_repo:?}"; do
       if [ -e "$repo" ]; then
-        git_retry -C "$repo" fetch origin master && git -C "$repo" reset --hard origin/master
+        git_retry -C "$repo" fetch origin main && git -C "$repo" reset --hard origin/main
       fi
     done
     echo '' | sudo tee /tmp/update_dependencies >/dev/null 2>&1

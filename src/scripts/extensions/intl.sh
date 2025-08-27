@@ -11,13 +11,13 @@ install_icu() {
 # Function to add ext-intl with the given version of ICU
 add_intl() {
   icu=$(echo "$1" | cut -d'-' -f 2)
-  supported_version=$(get -s -n "" https://api.github.com/repos/shivammathur/icu-intl/releases | grep -Po "${icu//./\\.}" | head -n 1)
-  if [ "$icu" != "$supported_version" ]; then
-    add_log "${cross:?}" "intl" "ICU $icu is not supported"
+  supported_version=$(get -s -n "" https://api.github.com/repos/shivammathur/icu-intl/releases/tags/intl-"$icu" | grep -Po "php${version?}-intl-$icu" | head -n 1)
+  if [ "php$version-intl-$icu" != "$supported_version" ]; then
+    add_log "${cross:?}" "intl" "ICU $icu is not supported for PHP $version"
   else
     [ "${ts:?}" = 'zts' ] && suffix='-zts'
     install_icu "$icu" >/dev/null 2>&1
-    get -q -n "${ext_dir:?}/intl.so" "https://github.com/shivammathur/icu-intl/releases/download/intl/php${version:?}-intl-$icu$suffix$arch_suffix.so"
+    get -q -n "${ext_dir:?}/intl.so" "https://github.com/shivammathur/icu-intl/releases/download/intl-$icu/php${version:?}-intl-$icu$suffix$arch_suffix.so"
     enable_extension intl extension
     add_extension_log intl "Installed and enabled with ICU $icu"
   fi

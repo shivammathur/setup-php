@@ -59,10 +59,10 @@ export async function setEnv(): Promise<void> {
  * Run the script
  */
 export async function run(): Promise<void> {
+  await setEnv();
   const os: string = process.platform;
   const tool = await utils.scriptTool(os);
   const run_path = await getScript(os);
-  await setEnv();
   await exec(tool + run_path);
 }
 

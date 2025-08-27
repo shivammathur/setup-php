@@ -12,6 +12,7 @@ install_icu() {
 add_intl() {
   icu=$(echo "$1" | cut -d'-' -f 2)
   supported_version=$(get -s -n "" https://api.github.com/repos/shivammathur/icu-intl/releases/tags/intl-"$icu" | grep -Po "php${version?}-intl-$icu" | head -n 1)
+  [ -z "$supported_version" ] && supported_version=$(get -s -n "" https://github.com/shivammathur/icu-intl/releases/expanded_assets/intl-"$icu" | grep -Po "php$version-intl-$icu" | head -n 1)
   if [ "php$version-intl-$icu" != "$supported_version" ]; then
     add_log "${cross:?}" "intl" "ICU $icu is not supported for PHP $version"
   else

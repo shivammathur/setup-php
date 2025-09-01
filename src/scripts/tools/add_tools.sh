@@ -200,7 +200,11 @@ add_tool() {
     elif [ -e /tmp/"$tool" ]; then
       sudo cp -a /tmp/"$tool" "$tool_path"
     fi
-    add_log "$cross" "$tool" "Could not setup $tool"
+    if [ "$status_code" = "404" ]; then
+      add_log "$cross" "$tool" "Failed to download $tool from ${url[*]}"
+    else
+      add_log "$cross" "$tool" "Could not setup $tool"
+    fi
   fi
 }
 

@@ -145,7 +145,7 @@ get() {
       status_code=$(sudo curl -w "%{http_code}" -o "$file_path" "${curl_opts[@]}" "$link")
       [ "$status_code" = "200" ] && break
     done
-    [ "$execute" = "-e" ] && sudo chmod a+x "$file_path"
+    [[ "$execute" = "-e" && -e "$file_path" ]] && sudo chmod a+x "$file_path"
     [ "$mode" = "-v" ] && echo "$status_code"
     [ "$runner" = "self-hosted" ] && release_lock "$lock_path"
   fi

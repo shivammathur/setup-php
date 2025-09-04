@@ -263,13 +263,15 @@ export async function addComposer(data: RS): Promise<string> {
   const github = data['github'];
   const getcomposer = data['domain'];
   const cds = 'https://dl.cloudsmith.io';
+  const spc = 'https://artifacts.setup-php.com';
   const filename = `composer-${data['php_version']}-${channel}.phar`;
   const releases_url = `${github}/shivammathur/composer-cache/releases/latest/download/${filename}`;
   const cds_url = `${cds}/public/shivammathur/composer-cache/raw/files/${filename}`;
+  const spc_url = `${spc}/composer/${filename}`;
   const lts_url = `${getcomposer}/download/latest-2.2.x/composer.phar`;
   const is_lts = /^5\.[3-6]$|^7\.[0-1]$/.test(data['php_version']);
   const version_source_url = `${getcomposer}/composer-${channel}.phar`;
-  let cache_url = `${releases_url},${cds_url}`;
+  let cache_url = `${releases_url},${spc_url},${cds_url}`;
   let source_url = `${getcomposer}/composer.phar`;
   switch (true) {
     case /^snapshot$/.test(channel):

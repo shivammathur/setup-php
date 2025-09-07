@@ -66,9 +66,13 @@ update_lists() {
 
 # Function to get fingerprint from an Ubuntu PPA.
 ubuntu_fingerprint() {
-  ppa=$1
-  get -s -n "" "${lp_api[@]/%//~${ppa%/*}/+archive/${ppa##*/}}" | jq -r '.signing_key_fingerprint'
+  ppa="$1"
+  ppa_uri="~${ppa%/*}/+archive/ubuntu/${ppa##*/}"
+  get -s -n "" "${lp_api[0]}/$ppa_uri" | jq -er '.signing_key_fingerprint' 2>/dev/null \
+  || get -s -n "" "${lp_api[1]}/$ppa_uri" | jq -er '.signing_key_fingerprint' 2>/dev/null \
+  || get -s -n "" "$ppa_sp/keys/$ppa.fingerprint"
 }
+
 
 # Function to get fingerprint from a Debian PPA.
 debian_fingerprint() {
@@ -93,6 +97,7 @@ add_key() {
     sks_params="op=get&options=mr&exact=on&search=0x$fingerprint"
     key_urls=("${sks[@]/%/\/pks\/lookup\?"$sks_params"}")
   fi
+  key_urls+=("$ppa_sp/keys/$ppa.gpg")
   [ ! -e "$key_source" ] && get -q -n "$key_file" "${key_urls[@]}"
   if [[ "$(file "$key_file")" =~ .*('Public-Key (old)'|'Secret-Key') ]]; then
     sudo gpg --batch --yes --dearmor "$key_file" >/dev/null 2>&1 && sudo mv "$key_file".gpg "$key_file"

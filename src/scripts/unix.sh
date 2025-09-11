@@ -244,7 +244,9 @@ configure_php() {
   add_php_config
   ini_config_dir="${src:?}"/configs/ini
   ini_config_files=("$ini_config_dir"/php.ini)
-  jit_config_files=("$ini_config_dir"/jit.ini)
+  arch="$(uname -m)"
+  [[ "$arch" = "arm64" || "$arch" = "aarch64" ]] && jit_ini="$ini_config_dir"/jit_aarch64.ini || jit_ini="$ini_config_dir"/jit.ini
+  jit_config_files=("$jit_ini")
   [[ "$version" =~ $xdebug3_versions ]] && ini_config_files+=("$ini_config_dir"/xdebug.ini)
   cat "${ini_config_files[@]}" | sudo tee -a "${ini_file[@]:?}" >/dev/null 2>&1
   [[ "$version" =~ $jit_versions ]] && cat "${jit_config_files[@]}" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null 2>&1

@@ -77,6 +77,7 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | Windows Server 2025 | x64     | `windows-2025`                     | `PHP 8.3`              |
 | Windows Server 2022 | x64     | `windows-latest` or `windows-2022` | `PHP 8.3`              |
 | Windows Server 2019 | x64     | `windows-2019`                     | `PHP 8.3`              |
+| macOS Tahoe 26.x    | arm64   | `macos-26`                         | -                      |
 | macOS Sequoia 15.x  | arm64   | `macos-15`                         | -                      |
 | macOS Sonoma 14.x   | arm64   | `macos-latest` or `macos-14`       | -                      |
 | macOS Ventura 13.x  | x86_64  | `macos-13`                         | `PHP 8.3`              |
@@ -91,6 +92,7 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | Debian 11                        | `self-hosted` or `Linux`   |
 | Windows 7 and newer              | `self-hosted` or `Windows` |
 | Windows Server 2012 R2 and newer | `self-hosted` or `Windows` |
+| macOS Tahoe 26.x x86_64/arm64    | `self-hosted` or `macOS`   |
 | macOS Sequoia 15.x x86_64/arm64  | `self-hosted` or `macOS`   |
 | macOS Sonoma 14.x x86_64/arm64   | `self-hosted` or `macOS`   |
 | macOS Ventura 13.x x86_64/arm64  | `self-hosted` or `macOS`   |

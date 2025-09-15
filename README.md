@@ -78,8 +78,8 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | Windows Server 2022 | x64     | `windows-latest` or `windows-2022` | `PHP 8.3`              |
 | Windows Server 2019 | x64     | `windows-2019`                     | `PHP 8.3`              |
 | macOS Tahoe 26.x    | arm64   | `macos-26`                         | -                      |
-| macOS Sequoia 15.x  | arm64   | `macos-15`                         | -                      |
-| macOS Sonoma 14.x   | arm64   | `macos-latest` or `macos-14`       | -                      |
+| macOS Sequoia 15.x  | arm64   | `macos-latest` or `macos-15`       | -                      |
+| macOS Sonoma 14.x   | arm64   | `macos-14`                         | -                      |
 | macOS Ventura 13.x  | x86_64  | `macos-13`                         | `PHP 8.3`              |
 
 ### Self-Hosted Runners

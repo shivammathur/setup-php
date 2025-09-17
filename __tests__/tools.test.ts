@@ -62,6 +62,14 @@ jest.mock('../src/fetch', () => ({
           return {data: `[{"ref": "refs/tags/1.2.3", "url": "${url}"}]`};
         } else if (token === 'beta_token') {
           return {data: `[{"ref": "refs/tags/1.2.3-beta1", "url": "${url}"}]`};
+        } else if (token === 'undefined_ref') {
+          return {
+            data: `[{"url":"${url}"},{"ref":"refs/tags/v1.2.4","url":"${url}"}]`
+          };
+        } else if (token === 'multi_refs') {
+          return {
+            data: `[{"ref":"refs/tags/v1.2.3","url":"${url}"},{"ref":"refs/tags/1.2.4","url":"${url}"}]`
+          };
         } else if (token === 'no_data') {
           return {data: '[]'};
         } else {
@@ -93,6 +101,8 @@ describe('Tools tests', () => {
     ${'invalid_token'} | ${'1.2'}
     ${'valid_token'}   | ${'1.2.3'}
     ${'beta_token'}    | ${'1.2.3-beta1'}
+    ${'undefined_ref'} | ${'1.2.4'}
+    ${'multi_refs'}    | ${'1.2.4'}
     ${''}              | ${'1.2.3'}
   `('checking getSemverVersion: $token', async ({token, version}) => {
     process.env['GITHUB_TOKEN'] = token;

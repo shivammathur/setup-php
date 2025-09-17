@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import * as cv from 'compare-versions';
 import * as fetch from './fetch';
 import * as packagist from './packagist';
 import * as utils from './utils';
@@ -30,10 +31,11 @@ export async function getSemverVersion(data: RS): Promise<string> {
     data['error'] = response.error ?? `No version found with prefix ${search}.`;
     return data['version'];
   } else {
-    const refs = JSON.parse(response['data']).reverse();
-    const ref = refs.find((i: IRef) => /.*\d+.\d+.\d+$/.test(i['ref']));
-    const tag: string = (ref || refs[0])['ref'].split('/').pop();
-    return tag.replace(/^v(\d)/, '$1');
+    const refs: IRef[] = JSON.parse(response['data']);
+    const tags = refs
+      .map((i: IRef) => (i.ref?.split('/').pop() ?? '').replace(/^v(?=\d)/, ''))
+      .filter((t: string) => t.length > 0);
+    return tags.sort((a: string, b: string) => cv.compareVersions(b, a))[0];
   }
 }
 

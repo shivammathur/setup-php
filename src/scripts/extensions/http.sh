@@ -75,7 +75,7 @@ add_http_latest() {
     if [ "$os" = "Linux" ]; then
       add_http_dependencies
       package="php$version-http"
-      add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
+      add_ppa ondrej/php  || update_ppa ondrej/php
       (check_package "$package" && install_packages "$package") || add_http_helper "$(get_http_version)" "$os"
     else
       if ! [[ "${version:?}" =~ ${old_versions:?} ]]; then
@@ -103,9 +103,9 @@ add_http() {
   ext=$1
   status="Enabled"
   if [[ "$ext" =~ ^(pecl_http|http)$ ]]; then
-    add_http_latest >/dev/null 2>&1
+    add_http_latest 
   else
-    add_http_version "$ext" >/dev/null 2>&1
+    add_http_version "$ext" 
   fi
   add_extension_log "http" "$status"
 }

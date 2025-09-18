@@ -21,6 +21,11 @@ interface IRef {
  * @param data
  */
 export async function getSemverVersion(data: RS): Promise<string> {
+  const fixSemver = (t: string): string => {
+    if (/^\d+\.\d+\.\d+(-|$)/.test(t)) return t;
+    const m = t.match(/^(\d+\.\d+\.\d+)([A-Za-z]+[0-9A-Za-z.]+)$/);
+    return m ? `${m[1]}-${m[2]}` : t;
+  };
   const search: string = data['version_prefix'] + data['version'];
   const url = `https://api.github.com/repos/${data['repository']}/git/matching-refs/tags%2F${search}.`;
   const github_token: string =
@@ -35,7 +40,20 @@ export async function getSemverVersion(data: RS): Promise<string> {
     const tags = refs
       .map((i: IRef) => (i.ref?.split('/').pop() ?? '').replace(/^v(?=\d)/, ''))
       .filter((t: string) => t.length > 0);
-    return tags.sort((a: string, b: string) => cv.compareVersions(b, a))[0];
+    const fixedToOriginal = new Map<string, string>();
+    const fixed = tags.map(t => {
+      const f = fixSemver(t);
+      fixedToOriginal.set(f, t);
+      return f;
+    });
+    fixed.sort((a, b) => {
+      try {
+        return cv.compareVersions(b, a);
+      } catch {
+        return b.localeCompare(a, 'en', {numeric: true, sensitivity: 'base'});
+      }
+    });
+    return fixedToOriginal.get(fixed[0]) ?? fixed[0];
   }
 }
 

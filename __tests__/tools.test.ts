@@ -61,7 +61,15 @@ jest.mock('../src/fetch', () => ({
         } else if (!token || token === 'valid_token') {
           return {data: `[{"ref": "refs/tags/1.2.3", "url": "${url}"}]`};
         } else if (token === 'beta_token') {
-          return {data: `[{"ref": "refs/tags/1.2.3-beta1", "url": "${url}"}]`};
+          return {data: `[{"ref": "refs/tags/1.2.3beta1", "url": "${url}"}]`};
+        } else if (token === 'rc_token') {
+          return {
+            data: `[{"ref":"refs/tags/3.0.0RC1"},{"ref":"refs/tags/3.0.0RC2"}]`
+          };
+        } else if (token === 'non_semver_tags') {
+          return {
+            data: `[{"ref":"refs/tags/release-2025-09-18"},{"ref":"refs/tags/release-2025-09-17"}]`
+          };
         } else if (token === 'undefined_ref') {
           return {
             data: `[{"url":"${url}"},{"ref":"refs/tags/v1.2.4","url":"${url}"}]`
@@ -97,18 +105,39 @@ jest.mock('../src/packagist', () => ({
 
 describe('Tools tests', () => {
   it.each`
-    token              | version
-    ${'invalid_token'} | ${'1.2'}
-    ${'valid_token'}   | ${'1.2.3'}
-    ${'beta_token'}    | ${'1.2.3-beta1'}
-    ${'undefined_ref'} | ${'1.2.4'}
-    ${'multi_refs'}    | ${'1.2.4'}
-    ${''}              | ${'1.2.3'}
+    token                | version
+    ${'invalid_token'}   | ${'1.2'}
+    ${'valid_token'}     | ${'1.2.3'}
+    ${'beta_token'}      | ${'1.2.3beta1'}
+    ${'undefined_ref'}   | ${'1.2.4'}
+    ${'multi_refs'}      | ${'1.2.4'}
+    ${'non_semver_tags'} | ${'release-2025-09-18'}
+    ${''}                | ${'1.2.3'}
   `('checking getSemverVersion: $token', async ({token, version}) => {
     process.env['GITHUB_TOKEN'] = token;
     expect(
       await tools.getSemverVersion(getData({tool: 'tool', version: '1.2'}))
     ).toBe(version);
+  });
+
+  it('checking getSemverVersion triggers ?? fallback via Map#get mock', async () => {
+    process.env['GITHUB_TOKEN'] = 'rc_token';
+    const spy = jest
+      .spyOn(Map.prototype as Map<string, string>, 'get')
+      .mockImplementation(function (
+        this: Map<string, string>,
+        key: string
+      ): string | undefined {
+        if (key === '3.0.0-RC2') {
+          return undefined;
+        }
+        return Map.prototype.get.call(this, key);
+      });
+    const result = await tools.getSemverVersion(
+      getData({tool: 'tool', version: '3.0.0'})
+    );
+    expect(result).toBe('3.0.0-RC2');
+    spy.mockRestore();
   });
 
   it.each`

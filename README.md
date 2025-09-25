@@ -10,7 +10,7 @@
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
   <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://img.shields.io/codecov/c/github/shivammathur/setup-php?logo=codecov"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/main/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg?logo=open%20source%20initiative&logoColor=white&labelColor=555555"></a>
-  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.5-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>
+  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.6-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>
 </p>
 <p align="center">
   <a href="https://reddit.com/r/setup_php" title="setup-php reddit"><img alt="setup-php reddit" src="https://img.shields.io/badge/reddit-join-FF5700?logo=reddit&logoColor=FF5700&labelColor=555555"></a>
@@ -68,19 +68,20 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 ### GitHub-Hosted Runners
 
-| Virtual environment | Arch    | YAML workflow label                | Pre-installed PHP      |
-|---------------------|---------|------------------------------------|------------------------|
-| Ubuntu 24.04        | x86_64  | `ubuntu-latest` or `ubuntu-24.04`  | `PHP 8.3`              |
-| Ubuntu 22.04        | x86_64  | `ubuntu-22.04`                     | `PHP 8.1`              |
-| Ubuntu 24.04        | aarch64 | `ubuntu-24.04-arm`                 | `PHP 8.3`              |
-| Ubuntu 22.04        | aarch64 | `ubuntu-22.04-arm`                 | `PHP 8.1`              |
-| Windows Server 2025 | x64     | `windows-2025`                     | `PHP 8.3`              |
-| Windows Server 2022 | x64     | `windows-latest` or `windows-2022` | `PHP 8.3`              |
-| Windows Server 2019 | x64     | `windows-2019`                     | `PHP 8.3`              |
-| macOS Tahoe 26.x    | arm64   | `macos-26`                         | -                      |
-| macOS Sequoia 15.x  | arm64   | `macos-latest` or `macos-15`       | -                      |
-| macOS Sonoma 14.x   | arm64   | `macos-14`                         | -                      |
-| macOS Ventura 13.x  | x86_64  | `macos-13`                         | `PHP 8.3`              |
+| Virtual environment | Arch    | YAML workflow label                | Pre-installed PHP |
+|---------------------|---------|------------------------------------|-------------------|
+| Ubuntu 24.04        | x86_64  | `ubuntu-latest` or `ubuntu-24.04`  | `PHP 8.3`         |
+| Ubuntu 22.04        | x86_64  | `ubuntu-22.04`                     | `PHP 8.1`         |
+| Ubuntu 24.04        | aarch64 | `ubuntu-24.04-arm`                 | `PHP 8.3`         |
+| Ubuntu 22.04        | aarch64 | `ubuntu-22.04-arm`                 | `PHP 8.1`         |
+| Windows Server 2025 | x64     | `windows-2025`                     | `PHP 8.3`         |
+| Windows Server 2022 | x64     | `windows-latest` or `windows-2022` | `PHP 8.3`         |
+| Windows Server 2019 | x64     | `windows-2019`                     | `PHP 8.3`         |
+| macOS Tahoe 26.x    | arm64   | `macos-26`                         | -                 |
+| macOS Sequoia 15.x  | arm64   | `macos-latest` or `macos-15`       | -                 |
+| macOS Sonoma 14.x   | arm64   | `macos-14`                         | -                 |
+| macOS Sequoia 15.x  | x86_64  | `macos-15-intel`                   | `PHP 8.3`         |
+| macOS Ventura 13.x  | x86_64  | `macos-13`                         | `PHP 8.3`         |
 
 ### Self-Hosted Runners
 
@@ -103,11 +104,11 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 ## :tada: PHP Support
 
-On all supported OS/Platforms the following PHP versions can be set up as per the runner.
+On all supported OS/Platforms, the following PHP versions can be set up as per the runner.
 
-- PHP 5.3 to PHP 8.5 on GitHub-hosted runners, except for macOS ARM64 runners (macos-14).
-- PHP 5.6 to PHP 8.5 on GitHub-hosted macOS ARM64 runners (macos-14).
-- PHP 5.6 to PHP 8.5 on self-hosted runners.
+- PHP 5.3 to PHP 8.6 on GitHub-hosted runners, except for macOS ARM64 runners (macos-14).
+- PHP 5.6 to PHP 8.6 on GitHub-hosted macOS ARM64 runners (macos-14).
+- PHP 5.6 to PHP 8.6 on self-hosted runners.
 
 | PHP Version | Stability | Release Support       | Runner Support                 |
 |-------------|-----------|-----------------------|--------------------------------|
@@ -126,10 +127,11 @@ On all supported OS/Platforms the following PHP versions can be set up as per th
 | `8.3`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.4`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.5`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
+| `8.6`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
 
 
 > [!Note]
-> - Specifying `8.5` in `php-version` input installs a nightly build of `PHP 8.5.0-dev`. See [nightly build setup](#nightly-build-setup) for more information.
+> - Specifying `8.6` in `php-version` input installs a nightly build of `PHP 8.6.0-dev` from the master branch of PHP. Specifying `8.5` in `php-version` input installs a nightly build of `PHP 8.5.0-dev` from the PHP-8.5 branch of PHP. See [nightly build setup](#nightly-build-setup) for more information.
 > - To use JIT on `PHP 8.0` and above, refer to the [JIT configuration](#jit-configuration) section.
 
 ## :heavy_plus_sign: PHP Extension Support
@@ -561,10 +563,10 @@ jobs:
 
 ### Nightly Build Setup
 
-> Set up a nightly build of `PHP 8.5`.
+> Set up a nightly build of `PHP 8.5` or `PHP 8.6`.
 
 - These PHP versions are currently in active development and might contain bugs and breaking changes.
-- Some user space extensions might not support this version currently.
+- Some user space extensions might not support these versions currently.
 
 ```yaml
 steps:

@@ -12,7 +12,7 @@ jobs:
         php-versions: ['7.4', '8.0', '8.1']
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Docs: https://github.com/shivammathur/setup-php
       - name: Setup PHP

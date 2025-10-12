@@ -29,10 +29,10 @@ jobs:
         php-versions: ['7.4', '8.0']
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set Node.js 10.x
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 10.x
 

@@ -1002,18 +1002,14 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 
 ## :sparkling_heart: Support This Project
 
-- Please star the project and share it. If you blog, please share your experience of using `setup-php`.
-- Please [reach out](mailto:contact@setup-php.com) if you have any questions about sponsoring setup-php.
-
-Many users and organisations support setup-php via [GitHub Sponsors](https://github.com/sponsors/shivammathur).
-
-<a href="https://github.com/sponsors/shivammathur"><img src="https://setup-php.com/sponsors.svg?" alt="Sponsor shivammathur"></a>
-
 These companies generously provide setup-php their products and services to aid in the development of this project.
 
 <p>
-  <a target="_blank" href="https://www.jetbrains.com/?from=setup-php">
-    <img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="140" height="80">
+  <a target="_blank" href="https://www.jetbrains.com/?from=setup-php#gh-light-mode-only">
+    <img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="140" height="100">
+  </a>
+  <a target="_blank" href="https://www.jetbrains.com/?from=setup-php#gh-dark-mode-only">
+    <img src="https://setup-php.com/sponsors/jetbrains-white.svg" alt="JetBrains" width="140" height="100">
   </a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a target="_blank" href="https://www.cloudflare.com/lp/project-alexandria/#gh-light-mode-only">
@@ -1030,10 +1026,21 @@ These companies generously provide setup-php their products and services to aid 
     <img src="https://setup-php.com/sponsors/macstadium-white.png" alt="Mac Stadium" width="200" height="80">
   </a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a target="_blank" href="#">
-    <img src="https://setup-php.com/sponsors/tidelift.png" alt="Tidelift" width="94" height="80">
+  <a target="_blank" href="https://m.do.co/c/f1a8ee1277b0#gh-light-mode-only">
+    <img src="https://setup-php.com/sponsors/digitalocean.svg" alt="Digitalocean" width="100" height="100">
+  </a>
+  <a target="_blank" href="https://m.do.co/c/f1a8ee1277b0#gh-dark-mode-only">
+    <img src="https://setup-php.com/sponsors/digitalocean-white.svg" alt="Digitalocean" width="100" height="100">
   </a>
 </p>
+
+Many users and organizations support setup-php via [GitHub Sponsors](https://github.com/sponsors/shivammathur).
+
+<a href="https://github.com/sponsors/shivammathur"><img src="https://setup-php.com/sponsors.svg?" alt="Sponsor shivammathur"></a>
+
+- If you use setup-php, please consider starring the project and share it. 
+- If you blog, please share your experience of using `setup-php`.
+- Please [reach out](mailto:contact@setup-php.com) if you have any questions about sponsoring setup-php.
 
 ## :package: Dependencies
 

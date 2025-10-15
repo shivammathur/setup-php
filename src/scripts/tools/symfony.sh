@@ -7,7 +7,7 @@ get_symfony_artifact_url() {
     arch=$(dpkg --print-architecture)
     url=$(get -s -n "" https://raw.githubusercontent.com/symfony-cli/homebrew-tap/main/Formula/symfony-cli.rb 2<&1 | grep -m 1 "url.*linux.*${arch}" | cut -d\" -f 2)
     if [ -z "$url" ]; then
-      url=$(get -s -n "" https://api.github.com/repos/symfony-cli/symfony-cli/releases 2<&1 | grep -m 1 "url.*linux.*${arch}.*gz\"" | cut -d\" -f 4)
+      url="https://github.com/symfony-cli/symfony-cli/releases/latest/download/symfony-cli_linux_${arch}.tar.gz"
     fi
     echo "$url"
 }

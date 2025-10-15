@@ -266,7 +266,8 @@
     "type": "custom-package",
     "repository": "symfony-cli/symfony-cli",
     "domain": "https://github.com",
-    "version_prefix": "-V"
+    "version_prefix": "v",
+    "version_parameter": "-V"
   },
   "blackfire-player": {
     "type": "custom-function",

@@ -2,11 +2,7 @@
 get_relay_version() {
  local ext=$1
   if [[ "$ext" =~ ^relay$ ]]; then
-    if [ "${version:?}" = "7.4" ]; then
-      echo 'v0.7.0'
-    else
-      get -s -n "" "${relay_releases:?}"/latest 2<&1 | grep -m 1 -Eo "tag/(v[0-9]+(\.[0-9]+)?(\.[0-9]+)?)" | head -n 1 | cut -d '/' -f 2
-    fi
+    get -s -n "" "${relay_releases:?}"/latest 2<&1 | grep -m 1 -Eo "tag/(v[0-9]+(\.[0-9]+)?(\.[0-9]+)?)" | head -n 1 | cut -d '/' -f 2
   else
     relay_version="${ext##*-}"
     echo "v${relay_version/v//}"

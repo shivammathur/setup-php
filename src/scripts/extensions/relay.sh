@@ -2,7 +2,8 @@
 get_relay_version() {
  local ext=$1
   if [[ "$ext" =~ ^relay$ ]]; then
-    get -s -n "" "${relay_releases:?}"/latest 2<&1 | grep -m 1 -Eo "tag/(v[0-9]+(\.[0-9]+)?(\.[0-9]+)?)" | head -n 1 | cut -d '/' -f 2
+  relay_release
+    get -s -n "" "${relay_release:?}" 2<&1 | xargs
   else
     relay_version="${ext##*-}"
     echo "v${relay_version/v//}"
@@ -131,7 +132,7 @@ add_relay() {
   local arch
   local url
   os=$(uname -s)
-  relay_releases=https://github.com/cachewerk/relay/releases
+  relay_release=https://builds.r2.relay.so/meta/latest
   relay_trunk=https://builds.r2.relay.so
   relay_version=$(get_relay_version "$ext")
   add_relay_dependencies >/dev/null 2>&1

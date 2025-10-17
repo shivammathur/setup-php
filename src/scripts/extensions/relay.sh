@@ -140,7 +140,7 @@ add_relay() {
     message="Enabled"
   else
     add_relay_helper >/dev/null 2>&1
-    message="Installed and enabled"
+    message="Installed and enabled ${relay_version}"
   fi
   configure_relay >/dev/null 2>&1
   add_extension_log relay "$message"

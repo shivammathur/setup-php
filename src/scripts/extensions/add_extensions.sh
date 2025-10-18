@@ -1,8 +1,10 @@
 # Function to log result of installing extension.
 add_extension_log() {
-  (
-    check_extension "$(echo "$1" | cut -d '-' -f 1)" && add_log "${tick:?}" "$1" "$2"
-  ) || add_log "${cross:?}" "$1" "Could not install $1 on PHP ${semver:?}"
+  if check_extension ${1%%-*}; then
+    add_log "${tick:?}" "$1" "$2"
+  else
+    add_log "${cross:?}" "$1" "${3:-Could not install $1 on PHP ${semver:?}}"
+  fi
 }
 
 # Function to test if extension is loaded.

@@ -38,7 +38,9 @@ export async function addExtensionDarwin(
       // match 5.3ioncube...8.4ioncube
       // match 7.0phalcon3...7.3phalcon3, 7.2phalcon4...7.4phalcon4, and 7.4phalcon5...8.4phalcon5
       // match 7.0zephir_parser...8.4zephir_parser
-      case /^(7\.4|8\.[0-5])relay(-v?\d+\.\d+\.\d+)?$/.test(version_extension):
+      case /^(7\.4|8\.[0-5])relay(-v?\d+\.\d+\.\d+|-nightly)?$/.test(
+        version_extension
+      ):
       case /^(5\.[3-6]|7\.[0-4]|8\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):
@@ -271,7 +273,9 @@ export async function addExtensionLinux(
       // match 5.3ioncube...8.4ioncube
       // match 7.0phalcon3...7.3phalcon3, 7.2phalcon4...7.4phalcon4, 7.4phalcon5...8.4phalcon5
       // match 7.0zephir_parser...8.4zephir_parser
-      case /^(7\.4|8\.[0-5])relay(-v?\d+\.\d+\.\d+)?$/.test(version_extension):
+      case /^(7\.4|8\.[0-5])relay(-v?\d+\.\d+\.\d+|-nightly)?$/.test(
+        version_extension
+      ):
       case /^(5\.[3-6]|7\.[0-4]|8\.[0-4])blackfire(-\d+\.\d+\.\d+)?$/.test(
         version_extension
       ):

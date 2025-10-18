@@ -3,6 +3,8 @@ get_relay_version() {
  local ext=$1
   if [[ "$ext" =~ ^relay$ ]]; then
     get -s -n "" "${relay_release:?}"
+  elif [[ $ext =~ ^relay-nightly$ ]]; then
+    echo "dev"
   else
     relay_version="${ext##*-}"
     echo "v${relay_version/v//}"

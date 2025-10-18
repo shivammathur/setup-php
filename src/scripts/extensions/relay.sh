@@ -106,7 +106,7 @@ configure_relay() {
 
 # Helper function to add relay extension
 add_relay_helper() {
-  arch="$(uname -m | sed 's/_/-/')"
+  local arch=$1
   os_suffix="$(get_os_suffix)"
   openssl_suffix="$(get_openssl_suffix)"
   artifact_file_name="relay-$relay_version-php${version:?}-$os_suffix-$arch$openssl_suffix.tar.gz"
@@ -130,17 +130,24 @@ add_relay() {
   local ext=$1
   local arch
   local url
+  local message
+  local error
   os=$(uname -s)
+  arch="$(uname -m | sed 's/_/-/')"
   relay_release=https://builds.r2.relay.so/meta/latest
   relay_trunk=https://builds.r2.relay.so
-  relay_version=$(get_relay_version "$ext")
-  add_relay_dependencies >/dev/null 2>&1
-  if shared_extension relay; then
-    message="Enabled"
+  if [[ "$arch" = "x86-64" && "$os" = "Darwin" ]]; then
+    error="Relay extension is not available for macOS x86_64 architecture"
   else
-    add_relay_helper >/dev/null 2>&1
-    message="Installed and enabled ${relay_version}"
+    relay_version=$(get_relay_version "$ext")
+    add_relay_dependencies >/dev/null 2>&1
+    if shared_extension relay; then
+      message="Enabled"
+    else
+      add_relay_helper "$arch" >/dev/null 2>&1
+      message="Installed and enabled ${relay_version}"
+    fi
+    configure_relay >/dev/null 2>&1
   fi
-  configure_relay >/dev/null 2>&1
-  add_extension_log relay "$message"
+  add_extension_log relay "$message" "$error"
 }

@@ -28,7 +28,7 @@ jobs:
           ref: ${{ github.event.inputs.tag }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: '20.x'
           registry-url: https://registry.npmjs.org
@@ -46,7 +46,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Change to GitHub Packages registry
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           registry-url: https://npm.pkg.github.com
           scope: '@shivammathur'

@@ -50,17 +50,89 @@ update_lists_helper() {
 update_lists() {
   local ppa=${1:-}
   local ppa_search=${2:-}
+  local status_token=${3:-$ppa_search}
   local list=
-  status_file=/tmp/os_lists
+  local status_file=/tmp/os_lists
+  local hash_cmd
   if [[ -n "$ppa" && -n "$ppa_search" ]]; then
-    list="$list_dir"/"$(basename "$(grep -lr "$ppa_search" "$list_dir")")"
-    status_file=/tmp/"$(echo -n "$ppa_search" | shasum -a 256 | cut -d ' ' -f 1)"
-  elif [ -e "$list_file" ] && grep -Eq '^deb |^Types deb' "$list_file"; then
+    if [ -f "$ppa_search" ]; then
+      list="$ppa_search"
+    else
+      list="$(grep -Elr "$ppa_search" "$list_dir" 2>/dev/null | head -n 1)"
+    fi
+    hash_cmd="$(command -v sha256sum || command -v shasum)"
+    if [ -n "$status_token" ] && [ -n "$hash_cmd" ]; then
+      status_file=/tmp/os_lists_"$(echo -n "$status_token" | $hash_cmd | awk '{print $1}')"
+    elif [ -n "$status_token" ]; then
+      status_file=/tmp/os_lists_$(date +%s)
+    fi
+  elif [ -e "$list_file" ] && grep -Eq '^deb |^Types: *deb' "$list_file"; then
     list="$list_file"
   fi
   if [ ! -e "$status_file" ]; then
     update_lists_helper "$list" >/dev/null 2>&1
     echo '' | tee "$status_file" >/dev/null 2>&1
+  fi
+}
+
+# Determine whether deb822 sources are the default on this system.
+get_sources_format() {
+  if [ -n "$sources_format" ]; then
+    echo "$sources_format"
+    return
+  fi
+  sources_format=deb
+  if [ -e "$list_dir"/ubuntu.sources ] || [ -e "$list_dir"/debian.sources ]; then
+    sources_format="deb822"
+  elif ! [[ "$ID" =~ ubuntu|debian ]]; then
+    find "$list_dir" -type f -name '*.sources' | grep -q . && sources_format="deb822"
+  fi
+  echo "$sources_format"
+}
+
+escape_regex() {
+  printf '%s' "$1" | sed -e 's/[][\.^$*+?{}()|\/]/\\&/g'
+}
+
+merge_components() {
+  local out=() t
+  for t in $1 $2; do [[ $t && " ${out[*]} " != *" $t "* ]] && out+=("$t"); done
+  printf '%s\n' "${out[*]}"
+}
+
+merge_components_from_file() {
+  local path=$1
+  local incoming=$2
+  local current=
+  if [ -n "$path" ] && [ -e "$path" ]; then
+    current="$(grep -E '^Components:' "$path" | head -n 1 | cut -d ':' -f 2 | xargs)"
+  fi
+  local merged
+  merged="$(merge_components "$current" "$incoming")"
+  if [ -z "$merged" ] || [ "$merged" = "$current" ]; then
+    return 1
+  fi
+  printf '%s\n' "$merged"
+}
+
+# Function to get repo patterns based on format.
+get_repo_patterns() {
+  local list_format=$1
+  local ppa_url=$2
+  local package_dist=$3
+  local branches=$4
+  local escaped_url
+  local escaped_dist
+  local escaped_branches
+  escaped_url="$(escape_regex "$ppa_url")"
+  escaped_dist="$(escape_regex "$package_dist")"
+  escaped_branches="$(escape_regex "$branches")"
+  local deb_pattern="^deb .*${escaped_url} ${escaped_dist} .*${escaped_branches}$"
+  local deb822_pattern="^URIs: ${escaped_url}$"
+  if [ "$list_format" = "deb822" ]; then
+    printf '%s|%s\n' "$deb822_pattern" "$deb_pattern"
+  else
+    printf '%s|%s\n' "$deb_pattern" "$deb822_pattern"
   fi
 }
 
@@ -104,19 +176,78 @@ add_key() {
   fi
 }
 
+handle_existing_list() {
+  local ppa=$1
+  local list_format=$2
+  branches=$3
+  [[ "$list_format" = "deb822"  && -n "$check_lists_file" ]] || {
+    echo "Repository $ppa ($branches) already exists"
+    return 1
+  }
+  [[ "$check_lists_file" = *.list ]] && {
+    sudo rm -f "$check_lists_file"
+    return 0
+  }
+  local merged_components
+  merged_components="$(merge_components_from_file "$check_lists_file" "$branches")" && {
+    sudo rm -f "$check_lists_file"
+    branches="$merged_components"
+    return 0
+  }
+  echo "Repository $ppa ($branches) already exists"
+  return 1
+}
+
+# Function to write a list file.
+write_list() {
+  local type=$1
+  local ppa=$2
+  local url=$3
+  local suite=$4
+  local components=$5
+  local key_file=$6
+  local list_basename="${ppa%%/*}"-"$ID"-"${ppa#*/}"-"$suite"
+  local arch
+  arch="$(dpkg --print-architecture)"
+  sudo rm -f "$list_dir"/"${ppa/\//-}".list "$list_dir"/"${ppa/\//-}".sources "$list_dir"/"$list_basename".list "$list_dir"/"$list_basename".sources || true
+  if [ "$type" = "deb822" ]; then
+    cat <<EOF | sudo tee "$list_dir"/"$list_basename".sources >/dev/null
+Types: deb
+URIs: $url
+Suites: $suite
+Components: $components
+Architectures: $arch
+Signed-By: $key_file
+EOF
+  else
+    echo "deb [arch=$arch signed-by=$key_file] $url $suite $components" | sudo tee "$list_dir"/"$list_basename".list >/dev/null 2>&1
+  fi
+}
+
 # Function to check if a PPA and its lists exist
 check_lists() {
-  ppa=$1
-  ppa_search=$2
-  if grep -Eqr "$ppa_search" "$list_dir"; then
+  local ppa=$1
+  local primary=${2:-}
+  local secondary=${3:-}
+  local status_token=${4:-$primary}
+  local match_file=
+  check_lists_file=
+  if [ -n "$primary" ]; then
+    match_file=$(grep -Elr "$primary" "$list_dir" 2>/dev/null | head -n 1)
+  fi
+  if [ -z "$match_file" ] && [ -n "$secondary" ]; then
+    match_file=$(grep -Elr "$secondary" "$list_dir" 2>/dev/null | head -n 1)
+  fi
+  if [ -n "$match_file" ]; then
+    local list_count
     list_count="$(sudo find /var/lib/apt/lists -type f -name "*${ppa/\//_}*" | wc -l)"
     if [ "$list_count" = "0" ]; then
-      update_lists "$ppa" "$ppa_search"
+      update_lists "$ppa" "$match_file" "$status_token"
     fi
-    return 0;
-  else
-    return 1;
+    check_lists_file="$match_file"
+    return 0
   fi
+  return 1
 }
 
 # Function to add a sources list.
@@ -126,19 +257,24 @@ add_list() {
   key_source=${3:-"$ppa_url"}
   package_dist=${4:-"$VERSION_CODENAME"}
   branches=${5:-main}
-  ppa_search="deb .*$ppa_url $package_dist .*$branches$"
-  if check_lists "$ppa" "$ppa_search"; then
-    echo "Repository $ppa already exists";
-    return 1;
-  else
-    arch=$(dpkg --print-architecture)
-    [ -e "$key_source" ] && key_file=$key_source || key_file="$key_dir"/"${ppa/\//-}"-keyring.gpg
-    add_key "$ppa" "$ppa_url" "$package_dist" "$key_source" "$key_file"
-    sudo rm -rf "$list_dir"/"${ppa/\//-}".list || true
-    echo "deb [arch=$arch signed-by=$key_file] $ppa_url $package_dist $branches" | sudo tee -a "$list_dir"/"${ppa%%/*}"-"$ID"-"${ppa#*/}"-"$package_dist".list >/dev/null 2>&1
-    update_lists "$ppa" "$ppa_search"
-    . /etc/os-release
+  local list_format
+  list_format="$(get_sources_format)"
+  local status_token
+  status_token="${ppa_url}|${package_dist}|${branches}"
+  local list_path=
+  IFS='|' read -r primary_pattern secondary_pattern <<< "$(get_repo_patterns "$list_format" "$ppa_url" "$package_dist" "$branches")"
+  if check_lists "$ppa" "$primary_pattern" "$secondary_pattern" "$status_token"; then
+    list_path="$check_lists_file"
+    handle_existing_list "$ppa" "$list_format" "$branches" || return 1;
+    check_lists_file=
+    IFS='|' read -r primary_pattern secondary_pattern <<< "$(get_repo_patterns "$list_format" "$ppa_url" "$package_dist" "$branches")"
+    status_token="${ppa_url}|${package_dist}|${branches}"
   fi
+  [ -e "$key_source" ] && key_file=$key_source || key_file="$key_dir"/"${ppa/\//-}"-keyring.gpg
+  add_key "$ppa" "$ppa_url" "$package_dist" "$key_source" "$key_file"
+  write_list "$list_format" "$ppa" "$ppa_url" "$package_dist" "$branches" "$key_file"
+  update_lists "$ppa" "$primary_pattern" "$status_token"
+  . /etc/os-release
   return 0;
 }
 
@@ -148,8 +284,12 @@ check_ppa() {
   ppa_url=${2:-"$lpc_ppa/$ppa/ubuntu"}
   package_dist=${3:-"$VERSION_CODENAME"}
   branches=${4:-main}
-  ppa_search="deb .*$ppa_url $package_dist .*$branches$"
-  if check_lists "$ppa" "$ppa_search"; then
+  local list_format
+  list_format="$(get_sources_format)"
+  IFS='|' read -r primary_pattern secondary_pattern <<< "$(get_repo_patterns "$list_format" "$ppa_url" "$package_dist" "$branches")"
+  local status_token
+  status_token="${ppa_url}|${package_dist}|${branches}"
+  if check_lists "$ppa" "$primary_pattern" "$secondary_pattern" "$status_token"; then
     return 0;
   else
     return 1;
@@ -163,7 +303,7 @@ remove_list() {
   for ppa_url in "${ppa_urls[@]}"; do
     grep -lr "$ppa_url" "$list_dir" | xargs -n1 sudo rm -f
   done
-  sudo rm -f "$key_dir"/"${ppa/\//-}"-keyring || true
+  sudo rm -f "$key_dir"/"${ppa/\//-}"-keyring /tmp/os_lists* || true
 }
 
 # Function to check if ubuntu ppa is up
@@ -213,12 +353,23 @@ update_ppa() {
   ppa_url=${2:-"$lpc_ppa/$ppa/ubuntu"}
   package_dist=${4:-"$VERSION_CODENAME"}
   branches=${5:-main}
-  ppa_search="deb .*$ppa_url $package_dist .*$branches"
-  update_lists "$ppa" "$ppa_search"
+  local list_format
+  list_format="$(get_sources_format)"
+  IFS='|' read -r primary_pattern secondary_pattern <<< "$(get_repo_patterns "$list_format" "$ppa_url" "$package_dist" "$branches")"
+  local list_path
+  list_path="$(grep -Elr "$primary_pattern" "$list_dir" 2>/dev/null | head -n 1)"
+  if [ -z "$list_path" ] && [ -n "$secondary_pattern" ]; then
+    list_path="$(grep -Elr "$secondary_pattern" "$list_dir" 2>/dev/null | head -n 1)"
+  fi
+  local status_token
+  status_token="${ppa_url}|${package_dist}|${branches}"
+  update_lists "$ppa" "${list_path:-$primary_pattern}" "$status_token"
   . /etc/os-release
 }
 
 # Variables
+sources_format=
+check_lists_file=
 list_dir='/etc/apt/sources.list.d'
 list_file="/etc/apt/sources.list.d/$ID.sources"
 [ -e "$list_file" ] || list_file='/etc/apt/sources.list'

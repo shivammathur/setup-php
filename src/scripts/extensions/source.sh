@@ -119,9 +119,10 @@ fetch_extension() {
   elif [ "$fetch" = "pecl" ]; then
     source="pecl"
     pecl_name=${extension/http/pecl_http}
-    get -q -n /tmp/"$pecl_name".tgz https://pecl.php.net/get/"$pecl_name"-"$release".tgz
+    capital_pecl_name=$(echo "$pecl_name" | tr '[:lower:]' '[:upper:]')
+    get -q -n /tmp/"$pecl_name".tgz https://pecl.php.net/get/"$pecl_name"-"$release".tgz https://pecl.php.net/get/"$capital_pecl_name"-"$release".tgz
     tar -xzf /tmp/"$pecl_name".tgz -C /tmp
-    cd /tmp/"$pecl_name"-"$release" || exit
+    cd /tmp/"$pecl_name"-"$release" 2>/dev/null || cd /tmp/"$capital_pecl_name"-"$release" 2>/dev/null || exit
   fi
 }
 

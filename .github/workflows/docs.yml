@@ -88,7 +88,7 @@ jobs:
           Remove-Item "$env:file.all" -Force
           Remove-Item "$env:file.builtin" -Force
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: lists-php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
           path: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md

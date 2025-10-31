@@ -1084,7 +1084,7 @@ Many users and organizations support setup-php via [GitHub Sponsors](https://git
 [`cs2pr`]:                    https://github.com/staabm/annotate-pull-request-from-checkstyle
 [`deployer`]:                 https://deployer.org/
 [`ecs`]:                      https://github.com/easy-coding-standard/easy-coding-standard
-[`flex`]:                     https://flex.symfony.com/
+[`flex`]:                     https://github.com/symfony/flex
 [`grpc_php_plugin`]:          https://grpc.io/
 [`infection`]:                https://infection.github.io/
 [`mago`]:                     https://github.com/carthage-software/mago

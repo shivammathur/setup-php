@@ -29,6 +29,7 @@ protobuf=protobuf
 psr=psr
 raphf=raphf
 rdkafka=rdkafka
+phpredis=redis
 redis=redis
 snmp=snmp
 sqlsrv=sqlsrv

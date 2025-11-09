@@ -39,8 +39,19 @@ get_extension_from_formula() {
   local formula=$1
   local extension
   extension=$(grep -E "^$formula=" "$src"/configs/brew_extensions | cut -d '=' -f 2)
-  [[ -z "$extension" ]] && extension="$(echo "$formula" | sed -E "s/pecl_|[0-9]//g")"
+  [[ -z "$extension" ]] && extension="$(echo "$formula" | sed -E "s/pecl_|php|[0-9]//g")"
   echo "$extension"
+}
+
+# Function to get renamed formula.
+get_renamed_formula() {
+  local formula=$1
+  formula_renames_json="$tap_dir/$ext_tap/formula_renames.json"
+  if [ -e "$formula_renames_json" ] && grep -q "$formula@$version\":" "$formula_renames_json"; then
+    grep "$formula@$version\":" "$formula_renames_json" | cut -d ':' -f 2 | tr -d ' ",' | cut -d '@' -f 1
+  else
+    echo $formula
+  fi
 }
 
 # Function to copy extension binaries to the extension directory.
@@ -69,6 +80,7 @@ add_brew_extension() {
   else
     add_brew_tap "$php_tap"
     add_brew_tap "$ext_tap"
+    formula="$(get_renamed_formula "$formula")"
     update_dependencies >/dev/null 2>&1
     handle_dependency_extensions "$formula" "$extension" >/dev/null 2>&1
     (brew install "${brew_opts[@]}" "$ext_tap/$formula@$version" >/dev/null 2>&1 && copy_brew_extensions "$formula") || pecl_install "$extension" >/dev/null 2>&1

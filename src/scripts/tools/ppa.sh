@@ -90,22 +90,34 @@ get_sources_format() {
   echo "$sources_format"
 }
 
+# Function to get sources file extension.
+get_sources_extension() {
+  [ "$1" = "deb822" ] && echo "sources" || echo "list"
+}
+
+# Function to escape regex special characters.
 escape_regex() {
   printf '%s' "$1" | sed -e 's/[][\.^$*+?{}()|\/]/\\&/g'
 }
 
+# Function to merge two components strings.
 merge_components() {
   local out=() t
   for t in $1 $2; do [[ $t && " ${out[*]} " != *" $t "* ]] && out+=("$t"); done
   printf '%s\n' "${out[*]}"
 }
 
+# Function to merge components from a file.
 merge_components_from_file() {
   local path=$1
   local incoming=$2
   local current=
   if [ -n "$path" ] && [ -e "$path" ]; then
-    current="$(grep -E '^Components:' "$path" | head -n 1 | cut -d ':' -f 2 | xargs)"
+    if grep -Eq '^Components:' "$path"; then
+      current="$(grep -E '^Components:' "$path" | head -n 1 | cut -d ':' -f 2 | xargs)"
+    else
+      current="$(sed -E -n 's/^deb[[:space:]]+(\[[^]]*\][[:space:]]+)?[^[:space:]]+[[:space:]]+[^[:space:]]+[[:space:]]+//p' "$path" | head -n 1 | xargs)"
+    fi
   fi
   local merged
   merged="$(merge_components "$current" "$incoming")"
@@ -127,12 +139,14 @@ get_repo_patterns() {
   escaped_url="$(escape_regex "$ppa_url")"
   escaped_dist="$(escape_regex "$package_dist")"
   escaped_branches="$(escape_regex "$branches")"
-  local deb_pattern="^deb .*${escaped_url} ${escaped_dist} .*${escaped_branches}$"
-  local deb822_pattern="^URIs: ${escaped_url}$"
+  local deb_primary="^deb[[:space:]]+(\\[[^]]*\\][[:space:]]+)?${escaped_url}[[:space:]]+${escaped_dist}[[:space:]]"
+  local deb_secondary="^deb[[:space:]]+(\\[[^]]*\\][[:space:]]+)?${escaped_url}[[:space:]]+${escaped_dist}[[:space:]]+.*${escaped_branches}([[:space:]]|$)"
+  local deb822_primary="^URIs: ${escaped_url}$"
+  local deb822_secondary="^Suites: ${escaped_dist}$"
   if [ "$list_format" = "deb822" ]; then
-    printf '%s|%s\n' "$deb822_pattern" "$deb_pattern"
+    printf '%s|%s\n' "$deb822_primary" "$deb822_secondary"
   else
-    printf '%s|%s\n' "$deb_pattern" "$deb822_pattern"
+    printf '%s|%s\n' "$deb_primary" "$deb_secondary"
   fi
 }
 
@@ -176,26 +190,22 @@ add_key() {
   fi
 }
 
+# Function to handle existing list files.
 handle_existing_list() {
   local ppa=$1
   local list_format=$2
-  branches=$3
-  [[ "$list_format" = "deb822"  && -n "$check_lists_file" ]] || {
-    echo "Repository $ppa ($branches) already exists"
-    return 1
-  }
-  [[ "$check_lists_file" = *.list ]] && {
-    sudo rm -f "$check_lists_file"
-    return 0
-  }
+  local branches=$3
   local merged_components
-  merged_components="$(merge_components_from_file "$check_lists_file" "$branches")" && {
-    sudo rm -f "$check_lists_file"
-    branches="$merged_components"
-    return 0
-  }
-  echo "Repository $ppa ($branches) already exists"
-  return 1
+  if [ -z "$check_lists_file" ]; then
+    echo "Repository $ppa ($branches) already exists" && return 1
+  fi
+  if merged_components="$(merge_components_from_file "$check_lists_file" "$branches")"; then
+    sudo rm -f "$check_lists_file" && printf '%s\n' "$merged_components" && return 0
+  fi
+  if [[ "$list_format" = "deb822" && "$check_lists_file" = *.list ]]; then
+    sudo rm -f "$check_lists_file" && printf '%s\n' "$branches" && return 0
+  fi
+  echo "Repository $ppa ($branches) already exists" && return 1
 }
 
 # Function to write a list file.
@@ -258,14 +268,21 @@ add_list() {
   package_dist=${4:-"$VERSION_CODENAME"}
   branches=${5:-main}
   local list_format
-  list_format="$(get_sources_format)"
+  local list_extension
   local status_token
-  status_token="${ppa_url}|${package_dist}|${branches}"
+  local resolved_branches
   local list_path=
+  list_format="$(get_sources_format)"
+  list_extension="$(get_sources_extension "$list_format")"
+  status_token="${ppa_url}|${package_dist}|${branches}"
   IFS='|' read -r primary_pattern secondary_pattern <<< "$(get_repo_patterns "$list_format" "$ppa_url" "$package_dist" "$branches")"
   if check_lists "$ppa" "$primary_pattern" "$secondary_pattern" "$status_token"; then
     list_path="$check_lists_file"
-    handle_existing_list "$ppa" "$list_format" "$branches" || return 1;
+    if resolved_branches="$(handle_existing_list "$ppa" "$list_format" "$branches")"; then
+      branches="$resolved_branches"
+    else
+      [ -n "$resolved_branches" ] && echo "$resolved_branches" && return 1
+    fi
     check_lists_file=
     IFS='|' read -r primary_pattern secondary_pattern <<< "$(get_repo_patterns "$list_format" "$ppa_url" "$package_dist" "$branches")"
     status_token="${ppa_url}|${package_dist}|${branches}"
@@ -273,7 +290,8 @@ add_list() {
   [ -e "$key_source" ] && key_file=$key_source || key_file="$key_dir"/"${ppa/\//-}"-keyring.gpg
   add_key "$ppa" "$ppa_url" "$package_dist" "$key_source" "$key_file"
   write_list "$list_format" "$ppa" "$ppa_url" "$package_dist" "$branches" "$key_file"
-  update_lists "$ppa" "$primary_pattern" "$status_token"
+  list_path="$list_dir"/"${ppa%%/*}"-"$ID"-"${ppa#*/}"-"$package_dist"."$list_extension"
+  update_lists "$ppa" "$list_path" "$status_token"
   . /etc/os-release
   return 0;
 }

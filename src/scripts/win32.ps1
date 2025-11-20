@@ -323,7 +323,7 @@ $php_builder = "$github/shivammathur/php-builder-windows"
 $current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $jit_versions = '8.[0-9]'
-$nightly_versions = '8.[2-9]'
+$nightly_versions = '8.[6-9]'
 $xdebug3_versions = "7.[2-4]|8.[0-9]"
 $enable_extensions = ('openssl', 'curl', 'mbstring')
 
@@ -444,8 +444,11 @@ if($installed.MajorMinorVersion -ne $version) {
 }
 if($version -lt "5.5") {
   ('libeay32.dll', 'ssleay32.dll') | ForEach-Object -Parallel { Invoke-WebRequest -Uri "$using:php_builder/releases/download/openssl-1.0.2u/$_" -OutFile $using:php_dir\$_ >$null 2>&1 }
-} else {
+} elseif($version -lt "8.5") {
   $enable_extensions += ('opcache')
+}
+if($version -ge "8.5" -and (Test-Path $ext_dir\php_opcache.dll)) {
+  Remove-Item $ext_dir\php_opcache.dll -Force
 }
 Enable-PhpExtension -Extension ($enable_extensions | Where-Object { Test-Path $ext_dir\php_$_.dll }) -Path $php_dir
 Add-PhpCAInfo

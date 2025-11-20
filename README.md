@@ -126,12 +126,12 @@ On all supported OS/Platforms, the following PHP versions can be set up as per t
 | `8.2`       | `Stable`  | `Security fixes only` | `GitHub-hosted`, `self-hosted` |
 | `8.3`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.4`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
-| `8.5`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
+| `8.5`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.6`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
 
 
 > [!Note]
-> - Specifying `8.6` in `php-version` input installs a nightly build of `PHP 8.6.0-dev` from the master branch of PHP. Specifying `8.5` in `php-version` input installs a nightly build of `PHP 8.5.0-dev` from the PHP-8.5 branch of PHP. See [nightly build setup](#nightly-build-setup) for more information.
+> - Specifying `8.6` in `php-version` input installs a nightly build of `PHP 8.6.0-dev` from the master branch of PHP. See [nightly build setup](#nightly-build-setup) for more information.
 > - To use JIT on `PHP 8.0` and above, refer to the [JIT configuration](#jit-configuration) section.
 
 ## :heavy_plus_sign: PHP Extension Support
@@ -563,7 +563,7 @@ jobs:
 
 ### Nightly Build Setup
 
-> Set up a nightly build of `PHP 8.5` or `PHP 8.6`.
+> Set up a nightly build of `PHP 8.6`.
 
 - These PHP versions are currently in active development and might contain bugs and breaking changes.
 - Some user space extensions might not support these versions currently.
@@ -573,7 +573,7 @@ steps:
 - name: Setup nightly PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.5'
+    php-version: '8.6'
     extensions: mbstring
     ini-values: post_max_size=256M, max_execution_time=180
     coverage: xdebug

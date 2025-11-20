@@ -290,7 +290,8 @@ export async function addComposer(data: RS): Promise<string> {
   const spc_url = `${spc}/composer/${filename}`;
   const lts_url = `${getcomposer}/download/latest-2.2.x/composer.phar`;
   const is_lts = /^5\.[3-6]$|^7\.[0-1]$/.test(data['php_version']);
-  const version_source_url = `${getcomposer}/composer-${channel}.phar`;
+  const channel_source_url = `${getcomposer}/composer-${channel}.phar`;
+  const version_source_url = `${getcomposer}/download/${channel}/composer.phar`;
   let cache_url = `${releases_url},${spc_url},${cds_url}`;
   let source_url = `${getcomposer}/composer.phar`;
   switch (true) {
@@ -298,17 +299,17 @@ export async function addComposer(data: RS): Promise<string> {
       source_url = is_lts ? lts_url : source_url;
       break;
     case /^preview$|^2$/.test(channel):
-      source_url = is_lts ? lts_url : version_source_url;
+      source_url = is_lts ? lts_url : channel_source_url;
       break;
     case /^1$/.test(channel):
-      source_url = version_source_url;
+      source_url = channel_source_url;
       break;
     case /^\d+\.\d+\.\d+[\w-]*$/.test(data['version']):
       cache_url = `${github}/${data['repository']}/releases/download/${data['version']}/composer.phar`;
       source_url = version_source_url;
       break;
     default:
-      source_url = is_lts ? lts_url : version_source_url;
+      source_url = is_lts ? lts_url : channel_source_url;
   }
   const use_cache: boolean = (await utils.readEnv('NO_TOOLS_CACHE')) !== 'true';
   data['url'] = use_cache ? `${cache_url},${source_url}` : source_url;

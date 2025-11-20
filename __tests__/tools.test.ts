@@ -383,8 +383,8 @@ describe('Tools tests', () => {
     ${'preview'}   | ${'7.1'}    | ${'true'}     | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.1-preview.phar'}  | ${'https://getcomposer.org/download/latest-2.2.x/composer.phar'}
     ${'1'}         | ${'7.1'}    | ${'false'}    | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.1-1.phar'}        | ${'https://getcomposer.org/composer-1.phar'}
     ${'2'}         | ${'7.1'}    | ${'false'}    | ${'https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.1-2.phar'}        | ${'https://getcomposer.org/download/latest-2.2.x/composer.phar'}
-    ${'1.2.3'}     | ${'7.4'}    | ${'false'}    | ${'https://github.com/composer/composer/releases/download/1.2.3/composer.phar'}                         | ${'https://getcomposer.org/composer-1.2.3.phar'}
-    ${'1.2.3-RC1'} | ${'7.4'}    | ${'false'}    | ${'https://github.com/composer/composer/releases/download/1.2.3-RC1/composer.phar'}                     | ${'https://getcomposer.org/composer-1.2.3-RC1.phar'}
+    ${'1.2.3'}     | ${'7.4'}    | ${'false'}    | ${'https://github.com/composer/composer/releases/download/1.2.3/composer.phar'}                         | ${'https://getcomposer.org/download/1.2.3/composer.phar'}
+    ${'1.2.3-RC1'} | ${'7.4'}    | ${'false'}    | ${'https://github.com/composer/composer/releases/download/1.2.3-RC1/composer.phar'}                     | ${'https://getcomposer.org/download/1.2.3-RC1/composer.phar'}
   `(
     'checking addComposer: $version, $php_version, $no_tool_cache',
     async ({version, php_version, no_tool_cache, cache_url, source_url}) => {

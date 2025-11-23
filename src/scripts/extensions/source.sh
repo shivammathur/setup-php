@@ -1,3 +1,7 @@
+os="$(uname -s)"
+os_lower=$(echo "$os" | tr '[:upper:]' '[:lower:]')
+os_capital=$(echo "$os" | tr '[:lower:]' '[:upper:]')
+
 # Function to parse extension environment variables
 parse_args() {
   local extension=${1%-*}
@@ -36,7 +40,7 @@ add_lib_log() {
 # Function to check if a library is installed
 check_lib() {
   local lib=$1
-  if [ "$(uname -s)" = "Linux" ]; then
+  if [ "$os" = "Linux" ]; then
     [ "x$(dpkg -s "$lib" 2>/dev/null | grep Status)" != "x" ]
   else
     [ "x$(find "${brew_prefix:?}"/Cellar -maxdepth 1 -name "$lib")" != "x" ]
@@ -68,12 +72,25 @@ add_darwin_libs() {
 add_libs() {
   local all_libs=("$@")
   for lib in "${all_libs[@]}"; do
-    if [ "$(uname -s)" = "Linux" ]; then
+    if [ "$os" = "Linux" ]; then
       add_linux_libs "$lib"
     else
       add_darwin_libs "$lib"
     fi
   done
+}
+
+# Function to get required libraries for an extension
+get_libraries() {
+  local extension=$1
+  {
+    parse_args "$extension" LIBS
+    parse_args "$extension" "$os_capital"_LIBS
+    [ -r "${src:?}/configs/${os_lower}_libs" ] && \
+      grep -E "^[[:space:]]*${extension}[[:space:]]*=" "${src:?}/configs/${os_lower}_libs" | \
+      head -n1 | \
+      sed -E "s/^[[:space:]]*${extension}[[:space:]]*=[[:space:]]*//"
+  } | xargs -n 1 2>/dev/null | sort -u | xargs 2>/dev/null
 }
 
 # Function to run command in a group
@@ -137,7 +154,7 @@ add_extension_from_source() {
   local fetch=${7:-clone}
   slug="$extension-$release"
   source="$url/$org/$repo"
-  libraries="$(parse_args "$extension" LIBS) $(parse_args "$extension" "$(uname -s)"_LIBS)"
+  libraries="$(get_libraries "$extension")"
   opts="$(parse_args "$extension" CONFIGURE_OPTS)"
   prefix_opts="$(parse_args "$extension" CONFIGURE_PREFIX_OPTS)"
   suffix_opts="$(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"

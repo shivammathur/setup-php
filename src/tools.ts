@@ -156,7 +156,7 @@ export async function filterList(tools_list: string[]): Promise<string[]> {
  * @param data
  */
 export async function getUrl(data: RS): Promise<string> {
-  if (data['version'] === 'latest') {
+  if ((data['version'] ?? 'latest') === 'latest') {
     return [
       data['domain'],
       data['repository'],

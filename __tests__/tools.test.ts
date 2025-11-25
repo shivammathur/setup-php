@@ -244,6 +244,19 @@ describe('Tools tests', () => {
     }
   );
 
+  it('checking getUrl handles undefined version without double slash', async () => {
+    const data = getData({
+      tool: 'cs2pr',
+      repository: 'staabm/annotate-pull-request-from-checkstyle',
+      domain: 'https://github.com'
+    });
+    data['extension'] = '';
+    delete data['version'];
+    expect(await tools.getUrl(data)).toBe(
+      'https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/cs2pr'
+    );
+  });
+
   it.each`
     version     | version_prefix | url
     ${'latest'} | ${''}          | ${'https://example.com/tool.phar'}

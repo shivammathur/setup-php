@@ -7,4 +7,3 @@ patch_geos() {
   patch -p1 < /tmp/php8.patch 2>/dev/null || true
   patch -p1 < /tmp/toString.patch 2>/dev/null || true
 }
-}

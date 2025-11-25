@@ -215,7 +215,7 @@ This disables all core and third-party shared extensions and thus, can break som
 - These extensions have custom support:
   - `cubrid` and `pdo_cubrid` on `Ubuntu`.
   - `event`, `gearman`, `geos` and `relay` on `Ubuntu` and `macOS`.
-  - `blackfire`, `couchbase`, `ioncube`, `oci8`, `pdo_firebird`, `pdo_oci`, `pecl_http`, `phalcon3`, `phalcon4`, `phalcon5`, and `zephir_parser` on all supported OS.
+  - `blackfire`, `couchbase`, `ibm_db2`, `ioncube`, `oci8`, `pdo_firebird`, `pdo_ibm`, `pdo_oci`, `pecl_http`, `phalcon3`, `phalcon4`, `phalcon5`, and `zephir_parser` on all supported OS.
 
 - By default, extensions which cannot be added or disabled gracefully leave an error message in the logs, the execution is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.
 

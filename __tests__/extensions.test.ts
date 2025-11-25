@@ -18,6 +18,8 @@ describe('Extension tests', () => {
     ${'oci8'}                                    | ${'7.4'} | ${'Add-Oci oci8'}
     ${'pcov'}                                    | ${'5.6'} | ${'Add-Log "$cross" "pcov" "pcov is not supported on PHP 5.6"'}
     ${'pdo_oci'}                                 | ${'7.4'} | ${'Add-Oci pdo_oci'}
+    ${'ibm_db2'}                                 | ${'7.4'} | ${'Add-Ibm ibm_db2'}
+    ${'pdo_ibm'}                                 | ${'7.4'} | ${'Add-Ibm pdo_ibm'}
     ${'pecl_http'}                               | ${'7.4'} | ${'Add-Http'}
     ${'pdo_sqlsrv'}                              | ${'7.4'} | ${'Add-Sqlsrv pdo_sqlsrv'}
     ${'phalcon3'}                                | ${'7.2'} | ${'Add-Phalcon phalcon3'}
@@ -56,11 +58,13 @@ describe('Extension tests', () => {
     ${'mongodb-mongodb/mongo-php-driver@master'} | ${'7.3'} | ${'add_extension_from_source mongodb https://github.com mongodb mongo-php-driver master extension'}
     ${'oci8'}                                    | ${'7.3'} | ${'add_oci oci8'}
     ${'pcov'}                                    | ${'5.6'} | ${'add_log "$cross" "pcov" "pcov is not supported on PHP 5.6'}
+    ${'ibm_db2'}                                 | ${'7.3'} | ${'add_ibm ibm_db2'}
     ${'pdo-odbc'}                                | ${'7.4'} | ${'add_pdo_extension odbc'}
     ${'pdo_cubrid'}                              | ${'7.0'} | ${'add_cubrid pdo_cubrid'}
     ${'pdo_cubrid'}                              | ${'7.4'} | ${'add_pdo_extension cubrid'}
     ${'pdo_mysql'}                               | ${'7.4'} | ${'add_pdo_extension mysql'}
     ${'pdo_oci'}                                 | ${'7.3'} | ${'add_oci pdo_oci'}
+    ${'pdo_ibm'}                                 | ${'7.3'} | ${'add_ibm pdo_ibm'}
     ${'pdo_sqlsrv'}                              | ${'7.4'} | ${'add_sqlsrv pdo_sqlsrv'}
     ${'pecl_http'}                               | ${'7.3'} | ${'add_http'}
     ${'phalcon3'}                                | ${'7.3'} | ${'add_phalcon phalcon3'}

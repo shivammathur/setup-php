@@ -3,7 +3,8 @@ get_phpize() {
   if [[ "${version:?}" =~ 5.[3-5] ]]; then
     echo '/opt/local/bin/phpize'
   else
-    echo "/usr/local/bin/$(readlink /usr/local/bin/phpize)"
+    [ -n "$brew_prefix" ] && phpize_dir="$brew_prefix" || phpize_dir="/usr/local/bin"
+    echo "${phpize_dir}/bin/$(readlink ${phpize_dir}/bin/phpize)"
   fi
 }
 

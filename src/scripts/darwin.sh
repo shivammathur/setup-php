@@ -50,7 +50,7 @@ get_renamed_formula() {
   if [ -e "$formula_renames_json" ] && grep -q "$formula@$version\":" "$formula_renames_json"; then
     grep "$formula@$version\":" "$formula_renames_json" | cut -d ':' -f 2 | tr -d ' ",' | cut -d '@' -f 1
   else
-    echo $formula
+    echo "$formula"
   fi
 }
 

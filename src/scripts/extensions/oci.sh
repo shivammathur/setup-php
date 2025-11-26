@@ -38,7 +38,7 @@ add_client() {
       sudo mv "$icdir"/* "$oracle_client"/
     done
     sudo mkdir -p "$libs"
-    sudo ln -sf /opt/oracle/instantclient/*.$lib_ext* $libs
+    sudo ln -sf /opt/oracle/instantclient/*."$lib_ext"* "$libs"
     if [ "$os" = "Linux" ]; then
       [ -e "$libs/$arch"-linux-gnu/libaio.so.1 ] || sudo ln -sf "$libs/$arch"-linux-gnu/libaio.so.1t64 "$libs/$arch"-linux-gnu/libaio.so.1
     fi
@@ -49,6 +49,7 @@ add_client() {
 add_oci_helper() {
   if ! shared_extension "$ext"; then
     status='Installed and enabled'
+    read -r "${ext}_CONFIGURE_PREFIX_OPTS" <<< "CFLAGS=-Wno-incompatible-function-pointer-types"
     read -r "${ext}_LINUX_LIBS" <<< "libaio-dev"
     read -r "${ext}_CONFIGURE_OPTS" <<< "--with-php-config=$(command -v php-config) --with-${ext/_/-}=instantclient,$oracle_client"
     patch_phpize

@@ -187,7 +187,7 @@ update_php() {
 # Function to install PHP.
 add_php() {
   if [ "${runner:?}" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
-    if [[ "$version" =~ ${nightly_versions:?} || "$ts" = "zts" ]]; then
+    if [[ "$version" =~ ${php_builder_versions:?} || "$ts" = "zts" ]]; then
         setup_php_builder
     else
       add_packaged_php

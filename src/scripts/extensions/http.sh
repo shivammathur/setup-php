@@ -61,7 +61,7 @@ add_http_helper() {
   export HTTP_CONFIGURE_OPTS="$http_configure_opts"
   export HTTP_LINUX_LIBS="zlib1g libbrotli-dev libcurl4-openssl-dev libevent-dev libicu-dev libidn2-dev"
   export HTTP_DARWIN_LIBS="brotli curl icu4c libevent libidn2"
-  if [[ "${version:?}" =~ ${nightly_versions:?} ]]; then
+  if ! [[ ${version:?} =~ 5.[3-6]|7.[0-4] ]]; then
     add_extension_from_source http https://github.com m6w6 ext-http master extension
   else
     add_extension_from_source pecl_http https://pecl.php.net http http "${ext##*-}" extension pecl

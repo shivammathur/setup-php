@@ -77,7 +77,7 @@ Function Add-ZephirParser() {
       try {
         Add-ZephirParserFromGitHub $extension
       } catch {
-        Add-Extension $extension >$null 2>&1
+        Add-Extension $extension 
       }
     }
     Add-ExtensionLog zephir_parser $status

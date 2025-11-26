@@ -31,7 +31,7 @@ set_base_version() {
   else
     set_base_version_codename
     set_base_version_id
-    printf "ID=%s\nVERSION_ID=%s\nVERSION_CODENAME=%s\n" "$ID" "$VERSION_ID" "$VERSION_CODENAME" | tee /tmp/os-release >/dev/null 2>&1
+    printf "ID=%s\nVERSION_ID=%s\nVERSION_CODENAME=%s\n" "$ID" "$VERSION_ID" "$VERSION_CODENAME" | tee /tmp/os-release 
   fi
 }
 
@@ -70,8 +70,8 @@ update_lists() {
     list="$list_file"
   fi
   if [ ! -e "$status_file" ]; then
-    update_lists_helper "$list" >/dev/null 2>&1
-    echo '' | tee "$status_file" >/dev/null 2>&1
+    update_lists_helper "$list" 
+    echo '' | tee "$status_file" 
   fi
 }
 
@@ -186,7 +186,7 @@ add_key() {
   key_urls+=("$ppa_sp/keys/$ppa.gpg")
   [ ! -e "$key_source" ] && get -q -n "$key_file" "${key_urls[@]}"
   if [[ "$(file "$key_file")" =~ .*('Public-Key (old)'|'Secret-Key') ]]; then
-    sudo gpg --batch --yes --dearmor "$key_file" >/dev/null 2>&1 && sudo mv "$key_file".gpg "$key_file"
+    sudo gpg --batch --yes --dearmor "$key_file"  && sudo mv "$key_file".gpg "$key_file"
   fi
 }
 
@@ -230,7 +230,7 @@ Architectures: $arch
 Signed-By: $key_file
 EOF
   else
-    echo "deb [arch=$arch signed-by=$key_file] $url $suite $components" | sudo tee "$list_dir"/"$list_basename".list >/dev/null 2>&1
+    echo "deb [arch=$arch signed-by=$key_file] $url $suite $components" | sudo tee "$list_dir"/"$list_basename".list 
   fi
 }
 

@@ -61,7 +61,7 @@ add_cli_driver() {
   else
     libs='/usr/local/lib'
     sudo mkdir -p "$libs"
-    sudo ln -sf "$ibm_cli"/lib/*.dylib "$libs" >/dev/null 2>&1 || true
+    sudo ln -sf "$ibm_cli"/lib/*.dylib "$libs"  || true
   fi
 }
 
@@ -93,11 +93,11 @@ add_ibm() {
   status='Enabled'
   ibm_home='/opt/ibm'
   ibm_cli=$ibm_home/clidriver
-  if ! add_cli_driver >/dev/null 2>&1; then
+  if ! add_cli_driver ; then
     add_log "${cross:?}" "$ext" "IBM Db2 CLI driver is not available on $(uname -s)/$(uname -m)"
     return 1
   fi
-  add_ibm_helper >/dev/null 2>&1
+  add_ibm_helper 
   add_extension_log "$ext" "$status"
   check_extension "$ext" && add_license_log
 }

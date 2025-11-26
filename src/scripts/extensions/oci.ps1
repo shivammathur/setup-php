@@ -71,7 +71,7 @@ Function Add-Oci() {
       }
     } else {
       $status = 'Installed and enabled'
-      Add-Extension $extension >$null 2>&1
+      Add-Extension $extension 
     }
     Add-ExtensionLog $extension $status
     Add-LicenseLog

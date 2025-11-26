@@ -51,7 +51,7 @@ check_lib() {
 add_linux_libs() {
   local lib=$1
   if ! check_lib "$lib"; then
-    install_packages "$lib" >/dev/null 2>&1 || true
+    install_packages "$lib"  || true
   fi
   add_lib_log "$lib"
 }
@@ -60,9 +60,9 @@ add_linux_libs() {
 add_darwin_libs() {
   local lib=$1
   if ! check_lib "$lib"; then
-    brew install "$lib" >/dev/null 2>&1 || true
+    brew install "$lib"  || true
     if [[ "$lib" = *@* ]]; then
-      brew link --overwrite --force "$lib" >/dev/null 2>&1 || true
+      brew link --overwrite --force "$lib"  || true
     fi
   fi
   add_lib_log "$lib"
@@ -97,7 +97,7 @@ get_libraries() {
 run_group() {
   local command=$1
   local log=$2
-  echo "$command" | sudo tee ./run_group.sh >/dev/null 2>&1
+  echo "$command" | sudo tee ./run_group.sh 
   echo "$GROUP$log"
   . ./run_group.sh
   local status=$?
@@ -161,7 +161,7 @@ add_extension_from_source() {
   sub_dir="$(parse_args "$extension" PATH)"
   step_log "Setup $slug"
   (
-    add_devtools phpize >/dev/null 2>&1
+    add_devtools phpize 
     disable_extension_helper "$extension"
     fetch_extension "$extension" "$fetch"
     if ! [ "$(find . -maxdepth 1 -name '*.m4' -exec grep -H 'PHP_NEW_EXTENSION' {} \; | wc -l)" != "0" ]; then
@@ -169,7 +169,7 @@ add_extension_from_source() {
     else
       [[ -n "${libraries// }" ]] && run_group "add_libs $libraries" "add libraries"
       [ "${debug:?}" = "debug" ] && suffix_opts="$suffix_opts --enable-debug"
-      patch_extension "$extension" >/dev/null 2>&1
+      patch_extension "$extension" 
       run_group "phpize" "phpize" && \
       run_group "sudo $prefix_opts ./configure $suffix_opts $opts" "configure" && \
       run_group "sudo $prefix_opts make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)" "make" && \

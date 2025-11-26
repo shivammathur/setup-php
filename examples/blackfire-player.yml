@@ -19,7 +19,7 @@ jobs:
         # blackfire-player supports PHP >= 5.5
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       # Docs: https://github.com/shivammathur/setup-php
       - name: Setup PHP

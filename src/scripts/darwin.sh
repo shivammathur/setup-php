@@ -190,7 +190,7 @@ add_php() {
     brew install --only-dependencies "$php_formula"
     brew install -f --overwrite "$php_formula" 2>/dev/null || brew upgrade -f --overwrite "$php_formula"
   fi
-  brew link --force --overwrite "$php_keg"
+  brew link --force --overwrite "$php_keg" || (sudo chown -R "$(id -un)":"$(id -gn)" "$brew_prefix" && brew link --force --overwrite "$php_keg")
 }
 
 # Function to get formula suffix

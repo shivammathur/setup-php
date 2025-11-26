@@ -246,7 +246,11 @@ check_lists() {
     match_file=$(grep -Elr "$primary" "$list_dir" 2>/dev/null | head -n 1)
   fi
   if [ -z "$match_file" ] && [ -n "$secondary" ]; then
-    match_file=$(grep -Elr "$secondary" "$list_dir" 2>/dev/null | head -n 1)
+    local candidate
+    candidate=$(grep -Elr "$secondary" "$list_dir" 2>/dev/null | head -n 1)
+    if [ -n "$candidate" ] && { [ -z "$primary" ] || grep -Eq "$primary" "$candidate"; }; then
+      match_file="$candidate"
+    fi
   fi
   if [ -n "$match_file" ]; then
     local list_count

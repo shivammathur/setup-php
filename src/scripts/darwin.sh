@@ -177,18 +177,19 @@ add_php() {
   php_formula="shivammathur/php/$php_keg"
   if [[ "$existing_version" = "false" || -n "$suffix" || "$action" = "upgrade" ]]; then
     update_dependencies
-    add_brew_tap
+    add_brew_tap "$php_tap"
   fi
   if [[ "$existing_version" != "false" && -z "$suffix" ]]; then
     if [ "$action" = "upgrade" ]; then
+      brew install --only-dependencies "$php_formula"
       brew upgrade -f --overwrite "$php_formula"
     else
       brew unlink "$php_keg"
     fi
   else
-    brew install -f --overwrite "$php_formula" || brew upgrade -f --overwrite "$php_formula"
+    brew install --only-dependencies "$php_formula"
+    brew install -f --overwrite "$php_formula" 2>/dev/null || brew upgrade -f --overwrite "$php_formula"
   fi
-  sudo chown -R "$(id -un)":"$(id -gn)" "$brew_prefix"
   brew link --force --overwrite "$php_keg"
 }
 

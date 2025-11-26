@@ -76,7 +76,6 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | Ubuntu 22.04        | aarch64 | `ubuntu-22.04-arm`                 | `PHP 8.1`         |
 | Windows Server 2025 | x64     | `windows-2025`                     | `PHP 8.3`         |
 | Windows Server 2022 | x64     | `windows-latest` or `windows-2022` | `PHP 8.3`         |
-| Windows Server 2019 | x64     | `windows-2019`                     | `PHP 8.3`         |
 | macOS Tahoe 26.x    | arm64   | `macos-26`                         | -                 |
 | macOS Sequoia 15.x  | arm64   | `macos-latest` or `macos-15`       | -                 |
 | macOS Sonoma 14.x   | arm64   | `macos-14`                         | -                 |
@@ -89,6 +88,7 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 |----------------------------------|----------------------------|
 | Ubuntu 24.04                     | `self-hosted` or `Linux`   |
 | Ubuntu 22.04                     | `self-hosted` or `Linux`   |
+| Debian 13                        | `self-hosted` or `Linux`   |
 | Debian 12                        | `self-hosted` or `Linux`   |
 | Debian 11                        | `self-hosted` or `Linux`   |
 | Windows 7 and newer              | `self-hosted` or `Windows` |
@@ -96,7 +96,6 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | macOS Tahoe 26.x x86_64/arm64    | `self-hosted` or `macOS`   |
 | macOS Sequoia 15.x x86_64/arm64  | `self-hosted` or `macOS`   |
 | macOS Sonoma 14.x x86_64/arm64   | `self-hosted` or `macOS`   |
-| macOS Ventura 13.x x86_64/arm64  | `self-hosted` or `macOS`   |
 
 - Refer to the [self-hosted setup](#self-hosted-setup) to use the action on self-hosted runners.
 - Operating systems based on the above Ubuntu and Debian versions are also supported on best effort basis.
@@ -144,8 +143,8 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 - name: Setup PHP with PECL extension
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
-    extensions: imagick, swoole
+    php-version: '8.5'
+    extensions: imagick, redis
 ```
 
 - On `Windows`, extensions available on `PECL` which have the `DLL` binary can be set up.
@@ -172,7 +171,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 - name: Setup PHP with pre-release PECL extension
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     extensions: xdebug-beta
 ```
 
@@ -184,30 +183,30 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 - name: Setup PHP and disable opcache
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
-    extensions: :opcache
+    php-version: '8.5'
+    extensions: :mbstring
 ```
 
 - All shared extensions can be disabled by specifying `none`. When `none` is specified along with other extensions, it is hoisted to the start of the input. So, all the shared extensions will be disabled first, then rest of the extensions in the input will be processed.
 
-This disables all core and third-party shared extensions and thus, can break some tools which need them. Required extensions are enabled again when the tools are set up on a best-effort basis. So it is recommended to add the extensions required for your tools after `none` in the `extensions` input to avoid any issues.
+This disables all core and third-party shared extensions and thus, can break some tools that need them. Required extensions are enabled again when the tools are set up on a best-effort basis. So it is recommended to add the extensions required for your tools after `none` in the `extensions` input to avoid any issues.
 
 ```yaml
 - name: Setup PHP without any shared extensions except mbstring
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     extensions: none, mbstring
 ```
 
-- Extension `intl` can be set up with specific `ICU` version for `PHP 5.6` and above in `Ubuntu` workflows by suffixing `intl` with the `ICU` version. `ICU 50.2` and newer versions are supported. Refer to [`ICU builds`](https://github.com/shivammathur/icu-intl#icu4c-builds) for the specific versions supported.
+- Extension `intl` can be set up with specific `ICU` version for `PHP 5.6` and above in `Ubuntu` workflows by suffixing `intl` with the `ICU` version. `ICU 50.2` and newer versions are supported for PHP 8.4 and lower, `ICU 57.2` and newer versions are supported for PHP 8.5 and above. Refer to [`ICU builds`](https://github.com/shivammathur/icu-intl#icu4c-builds) for the specific versions supported.
 
 ```yaml
 - name: Setup PHP with intl
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
-    extensions: intl-70.1
+    php-version: '8.5'
+    extensions: intl-77.1
 ```
 
 - Extensions loaded by default after `setup-php` runs can be found on the [wiki](https://github.com/shivammathur/setup-php/wiki).
@@ -223,7 +222,7 @@ This disables all core and third-party shared extensions and thus, can break som
 - name: Setup PHP with fail-fast
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     extensions: oci8
   env:
     fail-fast: true
@@ -239,7 +238,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - name: Setup PHP with tools
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     tools: php-cs-fixer, phpunit
 ```
 
@@ -249,7 +248,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - name: Setup PHP with tools
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     tools: vimeo/psalm
 ```
 
@@ -268,7 +267,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - name: Setup PHP with composer v2
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     tools: composer:v1
 ```
 
@@ -278,7 +277,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - name: Setup PHP without composer
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     tools: none
 ```
 
@@ -294,7 +293,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - name: Setup PHP with fail-fast
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     tools: deployer
   env:
     fail-fast: true
@@ -306,7 +305,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - name: Setup PHP with fail-fast
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
   env:
     COMPOSER_ALLOW_PLUGINS: composer/installers, composer/satis
 ```
@@ -322,7 +321,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - name: Setup PHP with composer and custom process timeout
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
   env:
     COMPOSER_PROCESS_TIMEOUT: 300
 ```
@@ -338,7 +337,7 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
 - name: Setup PHP with Xdebug
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     coverage: xdebug
 ```
 
@@ -367,12 +366,12 @@ Runs on PHP 7.1 and newer PHP versions.
 - name: Setup PHP with PCOV
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     ini-values: pcov.directory=api #optional, see above for usage.
     coverage: pcov
 ```
 
-- PHPUnit 8.x and above supports PCOV out of the box.
+- PHPUnit 8.x and above support PCOV out of the box.
 - If you are using PHPUnit 5.x, 6.x or 7.x, you need to set up `pcov/clobber` before executing your tests.
 
 ```yaml
@@ -397,7 +396,7 @@ Disable coverage for these reasons:
 - name: Setup PHP with no coverage driver
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     coverage: none
 ```
 
@@ -410,7 +409,7 @@ Disable coverage for these reasons:
 #### `php-version` (optional)
 
 - Specify the PHP version you want to set up.
-- Accepts a `string`. For example `'8.4'`.
+- Accepts a `string`. For example `'8.5'`.
 - Accepts `lowest` to set up the lowest supported PHP version.
 - Accepts `highest` or `latest` to set up the latest stable PHP version.
 - Accepts `nightly` to set up a nightly build from the master branch of PHP.
@@ -484,7 +483,7 @@ On GitHub Actions you can assign the `setup-php` step an `id`, you can use the s
   id: setup-php
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
 
 - name: Print PHP version
   run: echo ${{ steps.setup-php.outputs.php-version }}
@@ -526,7 +525,7 @@ steps:
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     extensions: mbstring, intl
     ini-values: post_max_size=256M, max_execution_time=180
     coverage: xdebug
@@ -544,7 +543,7 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-latest', 'windows-latest', 'macos-latest']
-        php-versions: ['8.2', '8.3', '8.4']
+        php-versions: ['8.2', '8.3', '8.4', '8.5']
         phpunit-versions: ['latest']
         include:
           - operating-system: 'ubuntu-latest'
@@ -597,7 +596,7 @@ steps:
 - name: Setup PHP with debugging symbols
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
   env:
     debug: true # specify true or false
 ```
@@ -617,7 +616,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.4'
+        php-version: '8.5'
       env:
         phpts: ts # specify ts or nts
 ```
@@ -634,7 +633,7 @@ jobs:
 - name: Setup PHP with latest versions
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
   env:
     update: true # specify true or false
 ```
@@ -649,30 +648,35 @@ To debug any issues, you can use the `verbose` tag instead of `v2`.
 - name: Setup PHP with logs
   uses: shivammathur/setup-php@verbose
   with:
-    php-version: '8.4'
+    php-version: '8.5'
 ```
 
 ### Multi-Arch Setup
 
 > Set up PHP on multiple architecture on Ubuntu GitHub Runners.
 
-- `PHP 5.6` to `PHP 8.4` are supported by `setup-php` on multiple architecture on `Ubuntu`.
-- For this, you can use `shivammathur/node` images as containers. These have compatible `Nodejs` installed for `setup-php`.
-- Currently, for `ARM` based setup, you will need [self-hosted runners](#self-hosted-setup).
+- `PHP 5.6` to `PHP 8.5` are supported by `setup-php` on multiple architecture on `Ubuntu` and `Debian`.
+- For this, you can use `shivammathur/node` images as containers. These have compatible `Nodejs` and `PHP` installed for `setup-php`.
 
 ```yaml
 jobs:
   run:
-    runs-on: ubuntu-latest
-    container: shivammathur/node:latest-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    container: shivammathur/node:php-${{ matrix.php-versions }}-24.04-${{ matrix.arch }}
     strategy:
       matrix:
-        arch: ["amd64", "i386"]
+        arch: ["amd64", "arm64v8"]
+        php-versions: [8.4, 8.5]
+        include:
+            - arch: "amd64"
+              os: "ubuntu-24.04"
+            - arch: "arm64v8" 
+              os: "ubuntu-24.04-arm"
     steps:
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: ${{ matrix.php-versions }}
 ```
 
 ### Self Hosted Setup
@@ -694,7 +698,7 @@ jobs:
     runs-on: self-hosted
     strategy:
       matrix:
-        php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+        php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
     name: PHP ${{ matrix.php-versions }}
     steps:
     - name: Setup PHP
@@ -707,7 +711,7 @@ jobs:
 
 > [!NOTE]
 > - Do not set up multiple self-hosted runners on a single server instance as parallel workflow will conflict with each other.
-> - Do not set up self-hosted runners on the side on your development environment or your production server.
+> - Do not set up self-hosted runners on the side of your development environment or your production server.
 > - Avoid using the same labels for your `self-hosted` runners which are used by `GitHub-hosted` runners.
 
 ### Local Testing Setup
@@ -722,22 +726,22 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.4'
+        php-version: '8.5'
 ```
 
 Run the workflow locally with `act` using [`shivammathur/node`](https://github.com/shivammathur/node-docker "Docker image to run setup-php") docker images.
 
-Choose the image tag which matches the `runs-on` property in your workflow. For example, if you are using `ubuntu-22.04` in your workflow, run `act -P ubuntu-22.04=shivammathur/node:2204`.
+Choose the image tag which matches the `runs-on` property in your workflow. For example, if you are using `ubuntu-22.04` in your workflow, run `act -P ubuntu-22.04=shivammathur/node:22.04`.
 
 ```bash
 # For runs-on: ubuntu-latest
 act -P ubuntu-latest=shivammathur/node:latest
 
 # For runs-on: ubuntu-24.04
-act -P ubuntu-24.04=shivammathur/node:2404
+act -P ubuntu-24.04=shivammathur/node:24.04
 
 # For runs-on: ubuntu-22.04
-act -P ubuntu-22.04=shivammathur/node:2204
+act -P ubuntu-22.04=shivammathur/node:22.04
 ```
 
 ### JIT Configuration
@@ -755,7 +759,7 @@ For example to enable JIT in `tracing` mode with buffer size of `64 MB`.
 - name: Setup PHP with JIT in tracing mode
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     coverage: none
     ini-values: opcache.enable_cli=1, opcache.jit=tracing, opcache.jit_buffer_size=64M
 ```
@@ -806,7 +810,7 @@ By default, setup-php uses the `GITHUB_TOKEN` secret that is generated for each 
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     github-token: ${{ secrets.YOUR_PAT_TOKEN }}
 ```
 
@@ -822,7 +826,7 @@ If you use Private Packagist for your private composer dependencies, you can set
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
   env:
     PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
 ```
@@ -836,7 +840,7 @@ Please refer to the authentication section in [`composer documentation`](https:/
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
   env:
     COMPOSER_AUTH_JSON: |
       {
@@ -859,7 +863,7 @@ Put the code in the run property of a step and specify the shell as `php {0}`.
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
 
 - name: Run PHP code
   shell: php {0}
@@ -899,7 +903,7 @@ PHPStan supports error reporting in GitHub Actions, so it does not require probl
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     tools: phpstan
 
 - name: Run PHPStan
@@ -914,7 +918,7 @@ Psalm supports error reporting in GitHub Actions with an output format `github`.
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     tools: psalm
 
 - name: Run Psalm
@@ -932,7 +936,7 @@ For examples refer to the [cs2pr documentation](https://github.com/staabm/annota
 - name: Setup PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.4'
+    php-version: '8.5'
     tools: cs2pr, phpcs
 
 - name: Run phpcs

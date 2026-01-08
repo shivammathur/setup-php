@@ -53,6 +53,7 @@ export async function getScript(os: string): Promise<string> {
 export async function setEnv(): Promise<void> {
   process.env['fail_fast'] = await utils.getInput('fail-fast', false);
   process.env['GITHUB_TOKEN'] ??= await utils.getInput('github-token', false);
+  process.env['ASAN'] = await utils.getInput('asan', false);
 }
 
 /**

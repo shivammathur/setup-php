@@ -52,6 +52,7 @@ read_env() {
   update="${update:-${UPDATE:-false}}"
   [ "${debug:-${DEBUG:-false}}" = "true" ] && debug=debug && update=true || debug=release
   [[ "${phpts:-${PHPTS:-nts}}" = "ts" || "${phpts:-${PHPTS:-nts}}" = "zts" ]] && ts=zts && update=true || ts=nts
+  [[ "${asan:-${ASAN:-false}}" = "true" ]] && asan=asan && update=true || asan=
   fail_fast="${fail_fast:-${FAIL_FAST:-false}}"
   [[ ( -z "$ImageOS" && -z "$ImageVersion" ) ||
      ( -n "$RUNNER_ENVIRONMENT" && "$RUNNER_ENVIRONMENT" = "self-hosted" ) ||
@@ -78,6 +79,7 @@ read_env() {
   export runner
   export update
   export ts
+  export asan
   export tool_path_dir
 }
 

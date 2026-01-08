@@ -114,7 +114,7 @@ add_devtools() {
 
 # Function to setup PHP from the shivammathur/php-builder builds.
 setup_php_builder() {
-  run_script "php-builder" "${runner:?}" "$version" "${debug:?}" "${ts:?}"
+  run_script "php-builder" "${runner:?}" "$version" "${debug:?}" "${ts:?}" "${asan:-}"
 }
 
 # Function to setup PHP 5.3, PHP 5.4 and PHP 5.5.
@@ -186,7 +186,15 @@ update_php() {
 
 # Function to install PHP.
 add_php() {
-  if [ "${runner:?}" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
+  # ASAN is only supported for PHP 8.0+
+  if [[ -n "${asan:-}" && ! "$version" =~ ^8\. ]]; then
+    add_log "${cross:?}" "PHP" "ASAN is only supported for PHP 8.0+"
+    exit 1
+  fi
+  # ASAN builds are only available from php-builder
+  if [[ -n "${asan:-}" ]]; then
+    setup_php_builder
+  elif [ "${runner:?}" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
     if [[ "$version" =~ ${php_builder_versions:?} || "$ts" = "zts" ]]; then
         setup_php_builder
     else

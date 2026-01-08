@@ -27,6 +27,9 @@ inputs:
   tools:
     description: 'Setup popular tools globally.'
     required: false
+  asan:
+    description: 'Setup PHP with Address Sanitizer (ASAN). PHP 8.0+ on Linux only.'
+    required: false
   github-token:
     description: 'GitHub token to use for authentication.'
     default: ${{ github.token }}

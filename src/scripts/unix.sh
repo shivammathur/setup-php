@@ -7,6 +7,7 @@ export jit_versions="8.[0-9]"
 export php_builder_versions="8.[3-9]"
 export nightly_versions="8.[7-9]"
 export xdebug3_versions="7.[2-4]|8.[0-9]"
+export no_asan_builds="5.[3-6]|7.[0-4]"
 export latest="releases/latest/download"
 export github="https://github.com/shivammathur"
 export jsdeliver="https://cdn.jsdelivr.net/gh/shivammathur"
@@ -84,6 +85,7 @@ read_env() {
   update="${update:-${UPDATE:-false}}"
   [ "${debug:-${DEBUG:-false}}" = "true" ] && debug=debug && update=true || debug=release
   [[ "${phpts:-${PHPTS:-nts}}" = "ts" || "${phpts:-${PHPTS:-nts}}" = "zts" ]] && ts=zts && update=true || ts=nts
+  [[ "${asan:-${ASAN:-false}}" = "true" ]] && asan=asan && update=true || asan=
   fail_fast="${fail_fast:-${FAIL_FAST:-false}}"
   use_builds_cache="${use_builds_cache:-${use_package_cache:-}}"
   [[ ( -z "$ImageOS" && -z "$ImageVersion" ) ||
@@ -120,6 +122,7 @@ read_env() {
   export runner
   export update
   export ts
+  export asan
   export tool_path_dir
   export tool_cache_path_dir
 }

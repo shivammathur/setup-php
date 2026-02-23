@@ -60,7 +60,7 @@ add_linux_libs() {
 add_darwin_libs() {
   local lib=$1
   if ! check_lib "$lib"; then
-    brew install "$lib" >/dev/null 2>&1 || true
+    safe_brew install "$lib" >/dev/null 2>&1 || true
     if [[ "$lib" = *@* ]]; then
       brew link --overwrite --force "$lib" >/dev/null 2>&1 || true
     fi

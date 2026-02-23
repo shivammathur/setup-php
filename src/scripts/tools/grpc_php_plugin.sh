@@ -4,7 +4,7 @@ add_bazel() {
       add_list bazel/apt https://storage.googleapis.com/bazel-apt https://bazel.build/bazel-release.pub.gpg stable jdk1.8
       install_packages bazel
     else
-      brew install bazel
+      safe_brew install bazel
     fi
   fi
 }
@@ -25,7 +25,7 @@ add_grpc_php_plugin_brew() {
   . "${0%/*}"/tools/brew.sh
   configure_brew
   [ -e /usr/local/bin/protoc ] && sudo mv /usr/local/bin/protoc /tmp/protoc && sudo mv /usr/local/include/google /tmp
-  brew install grpc
+  safe_brew install grpc
   brew link --force --overwrite grpc >/dev/null 2>&1
   [ -e /tmp/protoc ] && sudo mv /tmp/protoc /usr/local/bin/protoc && sudo mv /tmp/google /usr/local/include/
   grpc_tag="v$(brew info grpc | grep "grpc:" | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+")"

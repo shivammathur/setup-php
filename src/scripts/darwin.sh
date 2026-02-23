@@ -15,7 +15,7 @@ handle_dependency_extensions() {
     brew_opts=(-sf)
     patch_abstract_file >/dev/null 2>&1
     for dependency_extension in "${dependency_extensions[@]}"; do
-        brew install "${brew_opts[@]}" "$ext_tap/$dependency_extension@$version" >/dev/null 2>&1 && copy_brew_extensions "$dependency_extension"
+        safe_brew install "${brew_opts[@]}" "$ext_tap/$dependency_extension@$version" >/dev/null 2>&1 && copy_brew_extensions "$dependency_extension"
     done
   fi
 }
@@ -83,7 +83,7 @@ add_brew_extension() {
     formula="$(get_renamed_formula "$formula")"
     update_dependencies >/dev/null 2>&1
     handle_dependency_extensions "$formula" "$extension" >/dev/null 2>&1
-    (brew install "${brew_opts[@]}" "$ext_tap/$formula@$version" >/dev/null 2>&1 && copy_brew_extensions "$formula") || pecl_install "$extension" >/dev/null 2>&1
+    (safe_brew install "${brew_opts[@]}" "$ext_tap/$formula@$version" >/dev/null 2>&1 && copy_brew_extensions "$formula") || pecl_install "$extension" >/dev/null 2>&1
     add_extension_log "$extension" "Installed and enabled"
   fi
 }
@@ -181,14 +181,14 @@ add_php() {
   fi
   if [[ "$existing_version" != "false" && -z "$suffix" ]]; then
     if [ "$action" = "upgrade" ]; then
-      brew install --only-dependencies "$php_formula"
-      brew upgrade -f --overwrite "$php_formula"
+      safe_brew install --only-dependencies "$php_formula"
+      safe_brew upgrade -f --overwrite "$php_formula"
     else
       brew unlink "$php_keg"
     fi
   else
-    brew install --only-dependencies "$php_formula"
-    brew install -f --overwrite "$php_formula" 2>/dev/null || brew upgrade -f --overwrite "$php_formula"
+    safe_brew install --only-dependencies "$php_formula"
+    safe_brew install -f --overwrite "$php_formula" 2>/dev/null || safe_brew upgrade -f --overwrite "$php_formula"
   fi
   brew link --force --overwrite "$php_keg" || (sudo chown -R "$(id -un)":"$(id -gn)" "$brew_prefix" && brew link --force --overwrite "$php_keg")
 }

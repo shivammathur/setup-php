@@ -8,7 +8,7 @@ add_blackfire_linux() {
 add_blackfire_darwin() {
   sudo mkdir -p /usr/local/var/run
   add_brew_tap blackfireio/homebrew-blackfire
-  brew install blackfire
+  safe_brew install blackfire
 }
 
 blackfire_config() {

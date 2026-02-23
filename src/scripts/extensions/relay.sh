@@ -36,7 +36,7 @@ get_openssl_suffix() {
 change_library_paths() {
   if [ "$os" = "Darwin" ]; then
     otool -L "${ext_dir:?}"/relay.so | grep -q 'ssl.1' && openssl_version='1.1' || openssl_version='3'
-    [ -e "${brew_prefix:?}"/opt/openssl@"$openssl_version" ] || brew install openssl@"$openssl_version"
+    [ -e "${brew_prefix:?}"/opt/openssl@"$openssl_version" ] || safe_brew install openssl@"$openssl_version"
     dylibs="$(otool -L "${ext_dir:?}"/relay.so | grep -Eo '.*\.dylib' | cut -f1 -d ' ')"
     install_name_tool -change "$(echo "${dylibs}" | grep -E "libzstd.*dylib" | xargs)" "$brew_prefix"/opt/zstd/lib/libzstd.dylib "$ext_dir"/relay.so
     install_name_tool -change "$(echo "${dylibs}" | grep -E "liblz4.*dylib" | xargs)" "$brew_prefix"/opt/lz4/lib/liblz4.dylib "$ext_dir"/relay.so
@@ -54,7 +54,7 @@ add_relay_dependencies() {
   if [ "$os" = "Darwin" ]; then
     . "${0%/*}"/tools/brew.sh
     configure_brew
-    brew install lz4 hiredis zstd concurrencykit
+    safe_brew install lz4 hiredis zstd concurrencykit
   fi
 }
 

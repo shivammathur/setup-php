@@ -32,9 +32,9 @@ blackfire_config() {
 # Function to add blackfire cli.
 add_blackfire() {
   os="$(uname -s)"
-  [ "$os" = "Linux" ] && add_blackfire_linux >/dev/null 2>&1
-  [ "$os" = "Darwin" ] && add_blackfire_darwin >/dev/null 2>&1
-  blackfire_config >/dev/null 2>&1
+  [ "$os" = "Linux" ] && add_blackfire_linux 
+  [ "$os" = "Darwin" ] && add_blackfire_darwin 
+  blackfire_config 
   tool_version=$(get_tool_version "blackfire" "version")
   add_log "${tick:?}" "blackfire" "Added blackfire $tool_version"
 }

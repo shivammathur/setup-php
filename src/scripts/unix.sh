@@ -43,7 +43,7 @@ set_output() {
   name=$1
   value=$2
   if [ "${GITHUB_ACTIONS}" = "true" ]; then
-    echo "${name}=${value}" | tee -a "$GITHUB_OUTPUT" >/dev/null 2>&1
+    echo "${name}=${value}" | tee -a "$GITHUB_OUTPUT" 
   fi
 }
 
@@ -69,7 +69,7 @@ read_env() {
   if [[ "$runner" = "github" && "${ImageOS}" =~ ubuntu.* ]]; then
     if ! check_ppa ondrej/php; then
       update=true
-      echo '' | sudo tee /tmp/sp_update >/dev/null 2>&1
+      echo '' | sudo tee /tmp/sp_update 
     elif [ -e /tmp/sp_update ]; then
       update=true
     fi
@@ -93,7 +93,7 @@ acquire_lock() {
     else
       if sudo test -f "$lock_path/pid"; then
         lock_pid=$(sudo cat "$lock_path/pid")
-        if ! ps -p "$lock_pid" >/dev/null 2>&1; then
+        if ! ps -p "$lock_pid" ; then
           sudo rm -rf "$lock_path"
           continue
         fi
@@ -177,7 +177,7 @@ add_path() {
     printf '%s\n%s' "$path_to_add" "$(grep -v "^${path_to_add}$" "$GITHUB_PATH" 2>/dev/null)" > "$GITHUB_PATH"
   else
     profile=$(get_shell_profile)
-    ([ -e "$profile" ] && grep -q ":$path_to_add\"" "$profile" 2>/dev/null) || echo "export PATH=\"\${PATH:+\${PATH}:}\"$path_to_add" | sudo tee -a "$profile" >/dev/null 2>&1
+    ([ -e "$profile" ] && grep -q ":$path_to_add\"" "$profile" 2>/dev/null) || echo "export PATH=\"\${PATH:+\${PATH}:}\"$path_to_add" | sudo tee -a "$profile" 
   fi
   [[ ":$PATH:" == *":$path_to_add:"* ]] || export PATH="${PATH:+${PATH}:}$path_to_add"
 }
@@ -199,10 +199,10 @@ add_env() {
   env_name=$1
   env_value=$2
   if [[ -n "$GITHUB_ENV" ]]; then
-    echo "$env_name=$env_value" | tee -a "$GITHUB_ENV" >/dev/null 2>&1
+    echo "$env_name=$env_value" | tee -a "$GITHUB_ENV" 
   else
     profile=$(get_shell_profile)
-    echo "export $env_name=\"$env_value\"" | sudo tee -a "$profile" >/dev/null 2>&1
+    echo "export $env_name=\"$env_value\"" | sudo tee -a "$profile" 
   fi
   export "$env_name"="$env_value"
 }
@@ -223,7 +223,7 @@ self_hosted_setup() {
       add_log "$cross" "PHP" "PHP $version is not supported on self-hosted runner"
       exit 1
     else
-      self_hosted_helper >/dev/null 2>&1
+      self_hosted_helper 
       add_env RUNNER_TOOL_CACHE /opt/hostedtoolcache
     fi
   fi
@@ -251,8 +251,8 @@ configure_php() {
   [[ "$arch" = "arm64" || "$arch" = "aarch64" ]] && jit_ini="$ini_config_dir"/jit_aarch64.ini || jit_ini="$ini_config_dir"/jit.ini
   jit_config_files=("$jit_ini")
   [[ "$version" =~ $xdebug3_versions ]] && ini_config_files+=("$ini_config_dir"/xdebug.ini)
-  cat "${ini_config_files[@]}" | sudo tee -a "${ini_file[@]:?}" >/dev/null 2>&1
-  [[ "$version" =~ $jit_versions ]] && cat "${jit_config_files[@]}" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null 2>&1
+  cat "${ini_config_files[@]}" | sudo tee -a "${ini_file[@]:?}" 
+  [[ "$version" =~ $jit_versions ]] && cat "${jit_config_files[@]}" | sudo tee -a "${pecl_file:-${ini_file[@]}}" 
 }
 
 # Function to get PHP version in semver format.

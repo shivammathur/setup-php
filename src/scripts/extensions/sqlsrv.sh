@@ -6,6 +6,8 @@ get_sqlsrv_version() {
     echo '5.10.1'
   elif [[ "${version:?}" =~ 8.0 ]]; then
     echo '5.11.1'
+  elif [[ "${version:?}" =~ 8.[1-2] ]]; then
+    echo '5.12.0'
   else
     # Return an empty string so that pecl will install the latest version.
     echo ''

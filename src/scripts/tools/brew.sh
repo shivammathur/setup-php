@@ -74,35 +74,51 @@ terminate_process_tree() {
 run_with_inactivity_watchdog() {
   local timeout_secs="${SETUP_PHP_BREW_INACTIVITY_TIMEOUT:-180}"
   local poll_secs="${SETUP_PHP_BREW_WATCHDOG_POLL:-5}"
-  local tmp_dir fifo log_file timeout_file command_pid reader_pid monitor_pid exit_code
+  local tmp_dir stdout_fifo stderr_fifo stdout_log stderr_log timeout_file
+  local command_pid stdout_reader_pid stderr_reader_pid monitor_pid exit_code
   tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/setup-php-brew.XXXXXX")" || return 1
-  fifo="$tmp_dir/output.fifo"
-  log_file="$tmp_dir/output.log"
+  stdout_fifo="$tmp_dir/stdout.fifo"
+  stderr_fifo="$tmp_dir/stderr.fifo"
+  stdout_log="$tmp_dir/stdout.log"
+  stderr_log="$tmp_dir/stderr.log"
   timeout_file="$tmp_dir/timed_out"
-  mkfifo "$fifo" || {
+  mkfifo "$stdout_fifo" "$stderr_fifo" || {
     rm -rf "$tmp_dir"
     return 1
   }
-  : >"$log_file"
+  : >"$stdout_log"
+  : >"$stderr_log"
 
-  ("$@" >"$fifo" 2>&1) &
+  ("$@" >"$stdout_fifo" 2>"$stderr_fifo") &
   command_pid=$!
 
   (
     while IFS= read -r line || [ -n "$line" ]; do
       printf '%s\n' "$line"
-      printf '%s\n' "$line" >>"$log_file"
-    done <"$fifo"
+      printf '%s\n' "$line" >>"$stdout_log"
+    done <"$stdout_fifo"
   ) &
-  reader_pid=$!
+  stdout_reader_pid=$!
 
   (
-    local last_activity current_activity now
-    last_activity=$(get_file_mtime "$log_file")
+    while IFS= read -r line || [ -n "$line" ]; do
+      printf '%s\n' "$line" >&2
+      printf '%s\n' "$line" >>"$stderr_log"
+    done <"$stderr_fifo"
+  ) &
+  stderr_reader_pid=$!
+
+  (
+    local last_activity current_activity current_err_activity now
+    last_activity=$(get_file_mtime "$stdout_log")
+    current_err_activity=$(get_file_mtime "$stderr_log")
+    [ "$current_err_activity" -gt "$last_activity" ] && last_activity="$current_err_activity"
     while kill -0 "$command_pid" >/dev/null 2>&1; do
       sleep "$poll_secs"
-      current_activity=$(get_file_mtime "$log_file")
+      current_activity=$(get_file_mtime "$stdout_log")
       [ "$current_activity" -gt "$last_activity" ] && last_activity="$current_activity"
+      current_err_activity=$(get_file_mtime "$stderr_log")
+      [ "$current_err_activity" -gt "$last_activity" ] && last_activity="$current_err_activity"
       now=$(date +%s)
       if [ $((now - last_activity)) -ge "$timeout_secs" ]; then
         printf "\nsetup-php: brew produced no output for %ss; terminating and retrying...\n" "$timeout_secs" >&2
@@ -116,7 +132,8 @@ run_with_inactivity_watchdog() {
 
   wait "$command_pid"
   exit_code=$?
-  wait "$reader_pid" 2>/dev/null || true
+  wait "$stdout_reader_pid" 2>/dev/null || true
+  wait "$stderr_reader_pid" 2>/dev/null || true
   kill "$monitor_pid" >/dev/null 2>&1 || true
   wait "$monitor_pid" 2>/dev/null || true
 

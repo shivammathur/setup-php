@@ -244,12 +244,13 @@ export async function filterList(tools_list: string[]): Promise<string[]> {
  * @param data
  */
 export async function getUrl(data: ToolInput): Promise<string> {
-  if ((data.version ?? 'latest') === 'latest') {
+  const version = data.version ?? 'latest';
+  if (version === 'latest' || version === '') {
     return [
       data.domain,
       data.repository,
       data.prefix,
-      data.version,
+      'latest',
       data.verb,
       data.tool + data.extension
     ]

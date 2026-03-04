@@ -260,7 +260,7 @@ describe('Tools tests', () => {
     };
     data.extension = '';
     expect(await tools.getUrl(data)).toBe(
-      'https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/cs2pr'
+      'https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr'
     );
   });
 

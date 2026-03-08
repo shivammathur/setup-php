@@ -60,9 +60,11 @@ add_linux_libs() {
 add_darwin_libs() {
   local lib=$1
   if ! check_lib "$lib"; then
-    safe_brew install "$lib" >/dev/null 2>&1 || true
     if [[ "$lib" = *@* ]]; then
+      safe_brew install --skip-link "$lib" >/dev/null 2>&1 || true
       brew link --overwrite --force "$lib" >/dev/null 2>&1 || true
+    else
+      safe_brew install "$lib" >/dev/null 2>&1 || true
     fi
   fi
   add_lib_log "$lib"

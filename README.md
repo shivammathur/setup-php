@@ -79,6 +79,7 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | macOS Tahoe 26.x    | arm64   | `macos-26`                         | -                 |
 | macOS Sequoia 15.x  | arm64   | `macos-latest` or `macos-15`       | -                 |
 | macOS Sonoma 14.x   | arm64   | `macos-14`                         | -                 |
+| macOS Tahoe 26.x    | x86_64  | `macos-26-intel`                   | `PHP 8.5`         |
 | macOS Sequoia 15.x  | x86_64  | `macos-15-intel`                   | `PHP 8.5`         |
 
 ### Self-Hosted Runners

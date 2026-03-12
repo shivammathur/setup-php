@@ -127,6 +127,51 @@ setup_cached_versions() {
   run_script "php-ubuntu" "$version" "${debug:?}" "${ts:?}"
 }
 
+# Function to get the link path for an alternative.
+alternative_link() {
+  case "$1" in
+  php-cgi-bin) echo "/usr/lib/cgi-bin/php" ;;
+  php-fpm) echo "/usr/sbin/php-fpm" ;;
+  php-fpm.sock) echo "/run/php/php-fpm.sock" ;;
+  *) echo "/usr/bin/$1" ;;
+  esac
+}
+
+# Function to get the target path for an alternative.
+alternative_target() {
+  case "$1" in
+  php-cgi-bin) echo "/usr/lib/cgi-bin/php$version" ;;
+  php-fpm) echo "/usr/sbin/php-fpm$version" ;;
+  php-fpm.sock) echo "/run/php/php$version-fpm.sock" ;;
+  *) echo "/usr/bin/$1$version" ;;
+  esac
+}
+
+# Function to register an alternative if the versioned binary exists but is missing.
+register_alternative() {
+  local tool=$1
+  local link target priority state_file
+  target="$(alternative_target "$tool")"
+  [ -e "$target" ] || return 0
+  state_file="/var/lib/dpkg/alternatives/$tool"
+  if sudo test -r "$state_file" && sudo grep -Fxq "$target" "$state_file"; then
+    return 0
+  fi
+  link="$(alternative_link "$tool")"
+  priority="${version//./}"
+  sudo update-alternatives --install "$link" "$tool" "$target" "$priority" >/dev/null 2>&1
+}
+
+# Function to register and switch an alternative.
+set_alternative() {
+  local tool=$1
+  local target
+  target="$(alternative_target "$tool")"
+  [ -e "$target" ] || return 0
+  register_alternative "$tool" || return 1
+  sudo update-alternatives --set "$tool" "$target" >/dev/null 2>&1
+}
+
 # Function to add PECL.
 add_pecl() {
   add_devtools phpize >/dev/null 2>&1
@@ -143,16 +188,11 @@ switch_version() {
   tools=("$@")
   to_wait=()
   if ! (( ${#tools[@]} )); then
-    tools+=(pear pecl php phar phar.phar php-cgi php-config phpize phpdbg)
-    [ -e /usr/lib/cgi-bin/php"$version" ] && sudo update-alternatives --set php-cgi-bin /usr/lib/cgi-bin/php"$version" & to_wait+=($!)
-    [ -e /usr/sbin/php-fpm"$version" ] && sudo update-alternatives --set php-fpm /usr/sbin/php-fpm"$version" & to_wait+=($!)
-    [ -e /run/php/php"$version"-fpm.sock ] && sudo update-alternatives --set php-fpm.sock /run/php/php"$version"-fpm.sock & to_wait+=($!)
+    tools+=(php-cgi-bin php-fpm php-fpm.sock pear pecl php phar phar.phar php-cgi php-config phpize phpdbg)
   fi
   for tool in "${tools[@]}"; do
-    if [ -e "/usr/bin/$tool$version" ]; then
-      sudo update-alternatives --set "$tool" /usr/bin/"$tool$version" &
-      to_wait+=($!)
-    fi
+    set_alternative "$tool" &
+    to_wait+=($!)
   done
   wait "${to_wait[@]}"
 }

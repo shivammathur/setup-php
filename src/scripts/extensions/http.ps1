@@ -10,13 +10,15 @@ Function Get-ICUUrl() {
     [ValidateNotNull()]
     $vs_version
   )
-  $trunk = "https://windows.php.net"
-  $urls=@("${trunk}/downloads/php-sdk/deps/${vs_version}/${arch}", "${trunk}/downloads/php-sdk/deps/archives/${vs_version}/${arch}")
+  $trunk = "https://downloads.php.net"
+  $urls=@("${trunk}/~windows/php-sdk/deps/${vs_version}/${arch}/", "${trunk}/~windows/php-sdk/deps/archives/${vs_version}/${arch}/")
   foreach ($url in $urls) {
-    $web_content = Get-File -Url $url
+    try {
+      $web_content = Get-File -Url $url 2>$null
+    } catch { continue }
     foreach ($link in $web_content.Links) {
-      if ($link -match "/.*ICU-${icu_version}.*/") {
-        return $trunk + $link.HREF
+      if ($link.href -match ".*ICU-${icu_version}.*") {
+        return $url + $link.HREF
       }
     }
   }

@@ -21,6 +21,7 @@ describe('Extension tests', () => {
     ${'ibm_db2'}                                 | ${'7.4'} | ${'Add-Ibm ibm_db2'}
     ${'pdo_ibm'}                                 | ${'7.4'} | ${'Add-Ibm pdo_ibm'}
     ${'pecl_http'}                               | ${'7.4'} | ${'Add-Http'}
+    ${'http'}                                    | ${'8.5'} | ${'Add-Http'}
     ${'pdo_sqlsrv'}                              | ${'7.4'} | ${'Add-Sqlsrv pdo_sqlsrv'}
     ${'phalcon3'}                                | ${'7.2'} | ${'Add-Phalcon phalcon3'}
     ${'phalcon4'}                                | ${'7.4'} | ${'Add-Phalcon phalcon4'}

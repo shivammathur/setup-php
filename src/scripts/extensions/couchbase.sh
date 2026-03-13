@@ -79,9 +79,20 @@ add_couchbase() {
       add_extension_log "couchbase" "Installed and enabled"
     fi
   else
-    if [ -e "${ext_dir:?}"/libcouchbase_php_core.dylib ]; then
-      sudo cp "${ext_dir:?}"/libcouchbase_php_core.dylib "${brew_prefix:?}"/lib
+    if [ -e "${ext_dir:?}/couchbase.so" ]; then
+      couchbase_rpath="$(otool -l "${ext_dir:?}/couchbase.so" 2>/dev/null | awk '$1 == "path" && $2 ~ /\/couchbase@'"${version:?}"'\// {print $2; exit}')"
+      couchbase_rpath="${couchbase_rpath/@loader_path/${ext_dir:?}}"
+      otool -L "${ext_dir:?}/couchbase.so" 2>/dev/null |
+        awk -v rpath="$couchbase_rpath" '/libcouchbase_php.*\.dylib/ {if ($1 ~ /^@rpath\// && rpath != "") {sub(/^@rpath/, rpath, $1)}; print $1}' |
+        while read -r dylib; do
+          dylib="${dylib/@loader_path/${ext_dir:?}}"
+          [ -e "${ext_dir:?}/$(basename "$dylib")" ] || continue
+          sudo mkdir -p "$(dirname "$dylib")"
+          sudo cp "${ext_dir:?}/$(basename "$dylib")" "$dylib"
+        done
     fi
     add_brew_extension couchbase extension
+    find "${brew_prefix:?}/lib" "${brew_prefix:?}/opt/couchbase@${version:?}" "${brew_prefix:?}/Cellar/couchbase@${version:?}" \
+      -name 'libcouchbase_php*.dylib' -exec sudo cp {} "${ext_dir:?}" \; >/dev/null 2>&1
   fi
 }

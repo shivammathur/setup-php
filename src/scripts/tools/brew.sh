@@ -14,11 +14,11 @@ add_brew_tap() {
   tap=$1
   if ! [ -d "$tap_dir/$tap" ]; then
     if [ "${runner:?}" = "self-hosted" ]; then
-      brew tap "$tap" >/dev/null 2>&1
+      brew tap "$tap" 
     else
-      fetch_brew_tap "$tap" >/dev/null 2>&1
+      fetch_brew_tap "$tap" 
       if ! [ -d "$tap_dir/$tap" ]; then
-        brew tap "$tap" >/dev/null 2>&1
+        brew tap "$tap" 
       fi
     fi
   fi
@@ -59,12 +59,12 @@ terminate_process_tree() {
   local pid=$1
   local children child
   children=$(pgrep -P "$pid" 2>/dev/null || true)
-  kill -TERM "$pid" >/dev/null 2>&1 || true
+  kill -TERM "$pid"  || true
   for child in $children; do
     terminate_process_tree "$child"
   done
   sleep 2
-  kill -KILL "$pid" >/dev/null 2>&1 || true
+  kill -KILL "$pid"  || true
   for child in $children; do
     terminate_process_tree "$child"
   done
@@ -113,7 +113,7 @@ run_with_inactivity_watchdog() {
     last_activity=$(get_file_mtime "$stdout_log")
     current_err_activity=$(get_file_mtime "$stderr_log")
     [ "$current_err_activity" -gt "$last_activity" ] && last_activity="$current_err_activity"
-    while kill -0 "$command_pid" >/dev/null 2>&1; do
+    while kill -0 "$command_pid" ; do
       sleep "$poll_secs"
       current_activity=$(get_file_mtime "$stdout_log")
       [ "$current_activity" -gt "$last_activity" ] && last_activity="$current_activity"
@@ -134,7 +134,7 @@ run_with_inactivity_watchdog() {
   exit_code=$?
   wait "$stdout_reader_pid" 2>/dev/null || true
   wait "$stderr_reader_pid" 2>/dev/null || true
-  kill "$monitor_pid" >/dev/null 2>&1 || true
+  kill "$monitor_pid"  || true
   wait "$monitor_pid" 2>/dev/null || true
 
   if [ -e "$timeout_file" ]; then
@@ -178,7 +178,7 @@ add_brew() {
   brew_prefix="$(get_brew_prefix)"
   if ! [ -d "$brew_prefix"/bin ]; then
     step_log "Setup Brew"
-    get -s "" "/tmp/install.sh" "https://raw.githubusercontent.com/Homebrew/install/main/install.sh" | bash -s >/dev/null 2>&1
+    get -s "" "/tmp/install.sh" "https://raw.githubusercontent.com/Homebrew/install/main/install.sh" | bash -s 
     add_log "${tick:?}" "Brew" "Installed Homebrew"
   fi
   add_brew_bins_to_path "$brew_prefix"

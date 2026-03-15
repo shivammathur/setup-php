@@ -50,7 +50,7 @@ enable_extension() {
     [ -d "$modules_dir" ] && sudo find "$modules_dir" -path "*disabled*$1" -delete
     enable_extension_dependencies "$1" "$2"
     enable_cache_extension_dependencies "$1" "$2"
-    if ! [[ "${version:?}" =~ ${old_versions:?} ]] && command -v phpenmod >/dev/null 2>&1; then
+    if ! [[ "${version:?}" =~ ${old_versions:?} ]] && command -v phpenmod ; then
       sudo sed -Ei "/=(.*\/)?\"?$extension(.so)?\"?$/d" "$pecl_file"
       mod="${ini_dir:?}"/../mods-available/"$1".ini
       if ! [ -e "$mod" ]; then
@@ -59,7 +59,7 @@ enable_extension() {
         [ -n "$mod_priority_line" ] && priority=$(echo "$mod_priority_line" | cut -d'=' -f 2)
         (echo "; priority=$priority"; echo "$2=${ext_dir:?}/$1.so") | sudo tee "$mod" >/dev/null
       fi
-      sudo phpenmod -v "$version" "$1" >/dev/null 2>&1
+      sudo phpenmod -v "$version" "$1" 
     else
       echo "$2=${ext_dir:?}/$1.so" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null
     fi
@@ -71,7 +71,7 @@ enable_extensions() {
   local extensions=("$@")
   to_wait=()
   for ext in "${extensions[@]}"; do
-    enable_extension "$ext" extension >/dev/null 2>&1 &
+    enable_extension "$ext" extension  &
     to_wait+=($!)
   done
   wait "${to_wait[@]}"
@@ -79,7 +79,7 @@ enable_extensions() {
 
 # Function to get a map of extensions and their dependent shared extensions.
 get_extension_map() {
-  php -d'error_reporting=0' "${src:?}"/scripts/extensions/extension_map.php /tmp/map"$version".orig >/dev/null 2>&1
+  php -d'error_reporting=0' "${src:?}"/scripts/extensions/extension_map.php /tmp/map"$version".orig 
 }
 
 # Function to enable extension dependencies which are also extensions.
@@ -125,7 +125,7 @@ disable_extension() {
 disable_all_shared() {
   get_extension_map
   sudo sed -i.orig -E -e "/^(zend_)?extension\s*=/d" "${ini_file[@]}" "$pecl_file" 2>/dev/null || true
-  sudo find "${ini_dir:-$scan_dir}"/.. -name "*.ini" -not -path "*php.ini" -not -path "*phar.ini" -not -path "*pecl.ini" -not -path "*mods-available*" -delete >/dev/null 2>&1 || true
+  sudo find "${ini_dir:-$scan_dir}"/.. -name "*.ini" -not -path "*php.ini" -not -path "*phar.ini" -not -path "*pecl.ini" -not -path "*mods-available*" -delete  || true
   mkdir -p /tmp/extdisabled/"$version"
   sudo rm -f /tmp/php"$version"_extensions
   sudo find "$ext_dir" -name '*.so' -print0 | xargs -0 -n 1 basename -s .so | xargs -I{} touch /tmp/extdisabled/"$version"/{}
@@ -139,7 +139,7 @@ configure_pecl() {
     for script in pear pecl; do
       sudo "$script" channel-update "$script".php.net
     done
-    echo '' | sudo tee /tmp/pecl_config >/dev/null 2>&1
+    echo '' | sudo tee /tmp/pecl_config 
   fi
 }
 
@@ -177,8 +177,8 @@ get_pecl_version() {
 pecl_install() {
   local extension=$1
   local prefix=${2:-extension}
-  add_pecl >/dev/null 2>&1
-  disable_extension_helper "${extension%-*}" >/dev/null 2>&1
+  add_pecl 
+  disable_extension_helper "${extension%-*}" 
   # Compare version with 8.3 so it runs only on 8.4 and above
   # Install using the source interface as it allows for patching.
   if [[ $(printf "%s\n%s" "${version:?}" "8.3" | sort -V | head -n1) != "$version" ]]; then
@@ -191,11 +191,11 @@ pecl_install() {
     prefix_opts="$(parse_args "$extension" CONFIGURE_PREFIX_OPTS) MAKEFLAGS='-j $cpu_count'"
     suffix_opts="$(parse_args "$extension" CONFIGURE_OPTS) $(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"
     IFS=' ' read -r -a libraries <<<"$(parse_args "$extension" LIBS) $(parse_args "$extension" "$(uname -s)"_LIBS)"
-    (( ${#libraries[@]} )) && add_libs "${libraries[@]}" >/dev/null 2>&1
+    (( ${#libraries[@]} )) && add_libs "${libraries[@]}" 
     if [ "$version" = "5.3" ]; then
-      yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f "$extension" >/dev/null 2>&1
+      yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f "$extension" 
     else
-      yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f -D "$(parse_pecl_configure_options "$suffix_opts")" "$extension" >/dev/null 2>&1
+      yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f -D "$(parse_pecl_configure_options "$suffix_opts")" "$extension" 
     fi
     local exit_code=$?
     sudo pecl info "$extension" | grep -iq 'zend extension' && prefix=zend_extension
@@ -218,7 +218,7 @@ add_pecl_extension() {
     add_log "${tick:?}" "$extension" "Enabled"
   else
     [ -n "$pecl_version" ] && pecl_version="-$pecl_version"
-    pecl_install "$extension$pecl_version" || ( [ "${fail_fast:?}" = "false" ] && add_extension "$extension" "$(get_extension_prefix "$extension")" >/dev/null 2>&1)
+    pecl_install "$extension$pecl_version" || ( [ "${fail_fast:?}" = "false" ] && add_extension "$extension" "$(get_extension_prefix "$extension")" )
     extension_version="$(php -r "echo phpversion('$extension');")"
     [ -n "$extension_version" ] && extension_version="-$extension_version"
     add_extension_log "$extension$extension_version" "Installed and enabled"

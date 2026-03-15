@@ -15,12 +15,12 @@ add_firebird() {
   else
     if [ "$(uname -s)" = "Linux" ]; then
       if [[ "${version:?}" =~ 5.3|${php_builder_versions:?} ]]; then
-        add_firebird_helper /usr >/dev/null 2>&1
+        add_firebird_helper /usr 
       else
-        add_pdo_extension firebird >/dev/null 2>&1
+        add_pdo_extension firebird 
       fi
     else
-      add_brew_extension pdo_firebird extension >/dev/null 2>&1
+      add_brew_extension pdo_firebird extension 
     fi
     add_extension_log pdo_firebird "Installed and enabled"
   fi

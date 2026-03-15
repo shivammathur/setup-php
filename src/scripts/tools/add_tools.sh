@@ -113,6 +113,16 @@ set_composer_env() {
   fi
 }
 
+# Function to identify latest-like URLs that should bypass the persistent cache.
+is_mutable_tool_url() {
+  local tool_url=$1
+  local mutable_url_regex='(^|[/?#._=-])(latest|stable|preview|snapshot|nightly|master)([/?#._=-]|$)|/releases/latest/download/'
+  local version_like_regex='(^|[^0-9])[0-9]+\.[0-9]+([.-][0-9A-Za-z]+)*'
+  [[ "$tool_url" =~ $mutable_url_regex ]] && return 0
+  [[ "$tool_url" =~ \.phar([?#].*)?$ && ! "$tool_url" =~ $version_like_regex ]] && return 0
+  return 1
+}
+
 # Helper function to configure tools.
 add_tools_helper() {
   tool=$1
@@ -184,8 +194,10 @@ add_tool() {
   IFS="," read -r -a url <<<"$url"
   cache_key=$(get_sha256 "${url[0]}" | head -c 16)
   cache_path="$tool_cache_path_dir/${tool}-${cache_key}"
+  use_cache=true
+  is_mutable_tool_url "${url[0]}" && use_cache=false
   status_code="200"
-  if [ -f "$cache_path" ]; then
+  if [ "$use_cache" = "true" ] && [ -f "$cache_path" ]; then
     sudo cp -a "$cache_path" "$tool_path"
   else
     [ -f "$tool_path" ] && sudo cp -a "$tool_path" "$tool_path.bak"
@@ -194,7 +206,7 @@ add_tool() {
       url[0]="${url[0]//releases\/latest\/download/releases/download/$(get -s -n "" "$(echo "${url[0]}" | cut -d '/' -f '1-5')/releases" | grep -Eo -m 1 "([0-9]+\.[0-9]+\.[0-9]+)/$(echo "${url[0]}" | sed -e "s/.*\///")" | cut -d '/' -f 1)}"
       status_code=$(get -v -e "$tool_path" "${url[0]}")
     fi
-    if [ "$status_code" = "200" ]; then
+    if [ "$status_code" = "200" ] && [ "$use_cache" = "true" ]; then
       sudo cp -a "$tool_path" "$cache_path"
     elif [ -f "$tool_path.bak" ]; then
       sudo mv "$tool_path.bak" "$tool_path"

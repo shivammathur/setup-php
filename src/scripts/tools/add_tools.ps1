@@ -115,6 +115,18 @@ Function Set-ComposerEnv() {
   }
 }
 
+# Function to identify latest-like URLs that should bypass the persistent cache.
+Function Test-MutableToolUrl() {
+  Param(
+    [Parameter(Position = 0, Mandatory = $true)]
+    [string]
+    $Url
+  )
+  $mutableUrlRegex = '(^|[/?#._=-])(latest|stable|preview|snapshot|nightly|master)([/?#._=-]|$)|/releases/latest/download/'
+  $versionLikeRegex = '(^|[^0-9])[0-9]+\.[0-9]+([.-][0-9A-Za-z]+)*'
+  return ($Url -match $mutableUrlRegex) -or (($Url -match '\.phar([?#].*)?$') -and -not ($Url -match $versionLikeRegex))
+}
+
 # Function to extract tool version.
 Function Get-ToolVersion() {
   Param (
@@ -208,8 +220,9 @@ Function Add-Tool() {
   $url_stream = [System.IO.MemoryStream]::New([System.Text.Encoding]::UTF8.GetBytes($urls[0]))
   $cache_key = (Get-FileHash -InputStream $url_stream -Algorithm SHA256).Hash.Substring(0, 16)
   $cache_path = "$env:TEMP\$tool-$cache_key$tool_ext"
+  $use_cache = -not (Test-MutableToolUrl $urls[0])
   $status_code = 200
-  if (Test-Path $cache_path -PathType Leaf) {
+  if ($use_cache -and (Test-Path $cache_path -PathType Leaf)) {
     Copy-Item $cache_path -Destination $tool_path -Force
   } else {
     $backup_path = "$tool_path.bak"
@@ -230,7 +243,9 @@ Function Add-Tool() {
         }
       }
       if($status_code -eq 200 -and (Test-Path $tool_path)) {
-        Copy-Item $tool_path -Destination $cache_path -Force
+        if ($use_cache) {
+          Copy-Item $tool_path -Destination $cache_path -Force
+        }
         break
       }
     }

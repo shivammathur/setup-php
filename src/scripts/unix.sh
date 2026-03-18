@@ -54,16 +54,17 @@ read_env() {
   [ "${debug:-${DEBUG:-false}}" = "true" ] && debug=debug && update=true || debug=release
   [[ "${phpts:-${PHPTS:-nts}}" = "ts" || "${phpts:-${PHPTS:-nts}}" = "zts" ]] && ts=zts && update=true || ts=nts
   fail_fast="${fail_fast:-${FAIL_FAST:-false}}"
-  [[ ( -z "$ImageOS" && -z "$ImageVersion" ) ||
-     ( -n "$RUNNER_ENVIRONMENT" && "$RUNNER_ENVIRONMENT" = "self-hosted" ) ||
-     -n "$ACT" || -n "$CONTAINER" ]] && _runner=self-hosted || _runner=github
+  if [[ -n "$ImageOS" && -n "$ImageVersion" && -z "$ACT" && -z "$CONTAINER" ]]; then
+    _runner=github
+  else
+    _runner=self-hosted
+  fi
   runner="${runner:-${RUNNER:-$_runner}}"
   tool_path_dir="${setup_php_tools_dir:-${SETUP_PHP_TOOLS_DIR:-/usr/local/bin}}"
   tool_cache_path_dir="${setup_php_tool_cache_dir:-${SETUP_PHP_TOOL_CACHE_DIR:-${RUNNER_TOOL_CACHE:-/opt/hostedtoolcache}/setup-php/tools}}"  
 
-  if [[ "$runner" = "github" && $_runner = "self-hosted" ]]; then
-    fail_fast=true
-    add_log "$cross" "Runner" "Runner set as github in self-hosted environment"
+  if [[ "$runner" = "github" && -n "$RUNNER_ENVIRONMENT" && "$RUNNER_ENVIRONMENT" = "self-hosted" ]]; then
+    add_log "$tick" "Runner" "GitHub-compatible image detected on third-party runner"
   fi
 
   # Set Update to true if the ubuntu github image does not have PHP PPA.

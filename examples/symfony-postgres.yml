@@ -5,11 +5,13 @@ jobs:
   symfony:
     name: Symfony (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
+    env:
+      APP_ENV: test
 
     # Docs: https://docs.github.com/en/actions/using-containerized-services
     services:
       postgres:
-        image: postgres:latest
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -20,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.4', '8.0', '8.1']
+        php-versions: ['8.4', '8.5', '8.6']
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -30,8 +32,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          tools: phpunit-bridge
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pgsql
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, pgsql
           coverage: xdebug
 
       # Local PostgreSQL service in GitHub hosted environments is disabled by default.
@@ -55,16 +56,15 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
-      - name: Run Migration
+      - name: Prepare database
         run: |
-          composer require --dev symfony/orm-pack
-          php bin/console doctrine:schema:update --force || echo "No migrations found or schema update failed"
-          php bin/console doctrine:migrations:migrate || echo "No migrations found or migration failed"
+          php bin/console doctrine:database:create --if-not-exists --no-interaction
+          php bin/console doctrine:schema:create --no-interaction
+          php bin/console doctrine:fixtures:load --no-interaction
         env:
-          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?charset=UTF-8
-
-      - name: Install PHPUnit
-        run: simple-phpunit install
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?serverVersion=16.0.0&charset=utf8
 
       - name: Run tests
-        run: simple-phpunit --coverage-text
+        run: php bin/phpunit --coverage-text
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?serverVersion=16.0.0&charset=utf8

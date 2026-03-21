@@ -950,7 +950,7 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 | Framework/Package                      | Runs on                         | Workflow                                                                                                      |
 |----------------------------------------|---------------------------------|---------------------------------------------------------------------------------------------------------------|
 | Blackfire                              | `macOS`, `ubuntu` and `windows` | [blackfire.yml](./examples/blackfire.yml "GitHub Action using Blackfire")                                     |
-| Blackfire Player                       | `macOS`, `ubuntu` and `windows` | [blackfire-player.yml](./examples/blackfire-player.yml "GitHub Action using Blackfire Player")                |
+| Blackfire Player                       | `macOS` and `ubuntu`            | [blackfire-player.yml](./examples/blackfire-player.yml "GitHub Action using Blackfire Player")                |
 | CakePHP with `MySQL` and `Redis`       | `ubuntu`                        | [cakephp-mysql.yml](./examples/cakephp-mysql.yml "GitHub Action for CakePHP with MySQL and Redis")            |
 | CakePHP with `PostgreSQL` and `Redis`  | `ubuntu`                        | [cakephp-postgres.yml](./examples/cakephp-postgres.yml "GitHub Action for CakePHP with Postgres and Redis")   |
 | CakePHP without services               | `macOS`, `ubuntu` and `windows` | [cakephp.yml](./examples/cakephp.yml "GitHub Action for CakePHP without services")                            |
@@ -970,8 +970,9 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 | Symfony with `MySQL`                   | `ubuntu`                        | [symfony-mysql.yml](./examples/symfony-mysql.yml "GitHub Action for Symfony with MySQL")                      |
 | Symfony with `PostgreSQL`              | `ubuntu`                        | [symfony-postgres.yml](./examples/symfony-postgres.yml "GitHub Action for Symfony with PostgreSQL")           |
 | Symfony without services               | `macOS`, `ubuntu` and `windows` | [symfony.yml](./examples/symfony.yml "GitHub Action for Symfony without services")                            |
-| Yii2 Starter Kit with `MySQL`          | `ubuntu`                        | [yii2-mysql.yml](./examples/yii2-mysql.yml "GitHub Action for Yii2 Starter Kit with MySQL")                   |
-| Yii2 Starter Kit with `PostgreSQL`     | `ubuntu`                        | [yii2-postgres.yml](./examples/yii2-postgres.yml "GitHub Action for Yii2 Starter Kit with PostgreSQL")        |
+| Yii3 web application with `MySQL`      | `ubuntu`                        | [yii3-mysql.yml](./examples/yii3-mysql.yml "GitHub Action for Yii3 web application with MySQL")               |
+| Yii3 web application with `PostgreSQL` | `ubuntu`                        | [yii3-postgres.yml](./examples/yii3-postgres.yml "GitHub Action for Yii3 web application with PostgreSQL")    |
+| Yii3 web application                   | `ubuntu` and `windows`          | [yii3.yml](./examples/yii3.yml "GitHub Action for Yii3 web application")                                      |
 
 ## :bookmark: Versioning
 

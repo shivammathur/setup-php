@@ -1,13 +1,21 @@
-# GitHub Action for Laminas framework MVC projects
-name: Testing Laminas MVC
+# GitHub Action for Yii3 web application
+# Tested with https://github.com/yiisoft/app
+name: Testing Yii3
 on: [push, pull_request]
 jobs:
-  build:
-    strategy:
-      matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
-        php-versions: ['8.1', '8.2', '8.3']
+  yii:
+    name: Yii3 (PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }})
     runs-on: ${{ matrix.operating-system }}
+    env:
+      APP_C3: true
+      APP_ENV: test
+      APP_DEBUG: false
+    strategy:
+      fail-fast: false
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest]
+        php-versions: ['8.4', '8.5']
+        # The latest yiisoft/app release resolves Symfony 8.0 packages that require PHP 8.4+.
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -17,7 +25,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          coverage: xdebug
+          extensions: fileinfo, intl
+          ini-values: date.timezone='UTC', register_argc_argv=On
+          coverage: none
 
       - name: Get composer cache directory
         id: composer-cache
@@ -33,8 +43,11 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
-      - name: Install dependencies
+      - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
-      - name: Test with phpunit
-        run: vendor/bin/phpunit --coverage-text
+      - name: Run codeception build
+        run: vendor/bin/codecept build
+
+      - name: Run tests with Codeception
+        run: vendor/bin/codecept run

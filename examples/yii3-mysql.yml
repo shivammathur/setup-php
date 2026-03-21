@@ -1,42 +1,32 @@
-# GitHub Action for Laravel with MySQL and Redis
-name: Testing Laravel with MySQL
+# GitHub Action for Yii3 web application with MySQL
+# Tested with https://github.com/yiisoft/app
+name: Testing Yii3 with MySQL
 on: [push, pull_request]
 jobs:
-  laravel:
-    name: Laravel (PHP ${{ matrix.php-versions }})
+  yii:
+    name: Yii3 (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
     env:
-      DB_CONNECTION: mysql
-      DB_HOST: 127.0.0.1
-      DB_DATABASE: laravel
-      DB_USERNAME: root
-      DB_PASSWORD: password
-      BROADCAST_CONNECTION: log
-      CACHE_STORE: redis
-      QUEUE_CONNECTION: redis
-      SESSION_DRIVER: redis
+      APP_C3: true
+      APP_ENV: test
+      APP_DEBUG: false
 
     # Docs: https://docs.github.com/en/actions/using-containerized-services
     services:
       mysql:
-        image: mysql:latest
+        image: mysql:8.4
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: laravel
+          MYSQL_DATABASE: app
         ports:
           - 3306/tcp
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
-      redis:
-        image: redis
-        ports:
-          - 6379/tcp
-        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['8.3', '8.4', '8.5']
+        php-versions: ['8.4', '8.5']
+        # The latest yiisoft/app release resolves Symfony 8.0 packages that require PHP 8.4+.
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -46,13 +36,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, dom, fileinfo, mysql
-          coverage: xdebug
-
-      # Local MySQL service in GitHub hosted environments is disabled by default.
-      # If you are using it instead of service containers, make sure you start it.
-      # - name: Start mysql service
-      #   run: sudo systemctl start mysql.service
+          extensions: fileinfo, intl, pdo_mysql
+          ini-values: date.timezone='UTC', register_argc_argv=On
+          coverage: none
 
       - name: Get composer cache directory
         id: composer-cache
@@ -70,22 +56,23 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
-      - name: Prepare the application
-        run: |
-          php -r "file_exists('.env') || copy('.env.example', '.env');"
-          php artisan key:generate
-
-      - name: Clear Config
-        run: php artisan config:clear
-
-      - name: Run Migration
-        run: php artisan migrate -v
+      - name: Run migrations
+        run: php yii migrate:up --no-interaction
         env:
+          DB_HOST: 127.0.0.1
           DB_PORT: ${{ job.services.mysql.ports['3306'] }}
-          REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
+          DB_NAME: app
+          DB_USERNAME: root
+          DB_PASSWORD: password
 
-      - name: Test with phpunit
-        run: vendor/bin/phpunit --coverage-text
+      - name: Run codeception build
+        run: vendor/bin/codecept build
+
+      - name: Run tests with Codeception
+        run: vendor/bin/codecept run
         env:
+          DB_HOST: 127.0.0.1
           DB_PORT: ${{ job.services.mysql.ports['3306'] }}
-          REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
+          DB_NAME: app
+          DB_USERNAME: root
+          DB_PASSWORD: password

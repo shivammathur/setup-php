@@ -15,8 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
-        php-versions: ['7.4', '8.0', '8.1']
-        # Blackfire supports PHP >= 5.3 on Ubuntu and macOS, and PHP >= 5.4 on Windows
+        php-versions: ['8.3', '8.4', '8.5']
+        # Blackfire supports the current PHP releases on Ubuntu, macOS, and Windows.
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -26,12 +26,24 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          # Setup Blackfire extension and CLI
-          extensions: blackfire
+          # Setup Blackfire extension and CLI.
+          extensions: blackfire, :xdebug
           tools: blackfire
           # Disable Xdebug and PCOV coverage drivers
           coverage: none
 
       # Refer to https://blackfire.io/docs/cookbooks/profiling-cli
       - name: Profile
-        run: blackfire run php my-script.php
+        shell: bash
+        run: |
+          set +e
+          output=$(blackfire run php my-script.php 2>&1)
+          exit_code=$?
+          printf '%s\n' "$output"
+          if [ "$exit_code" -ne 0 ]; then
+            if printf '%s' "$output" | grep -q "upgrade your subscription"; then
+              echo "Blackfire profiling reached the repository quota limit; treating this as a known non-fatal condition."
+              exit 0
+            fi
+            exit "$exit_code"
+          fi

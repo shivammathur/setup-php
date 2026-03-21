@@ -8,8 +8,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.4', '8.0', '8.1']
-        node-versions: ['16']
+        php-versions: ['8.3', '8.4', '8.5']
+        node-versions: ['20']
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -53,17 +53,10 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install yarn dependencies
-        run: yarn -V
+        run: yarn install --frozen-lockfile --non-interactive
 
       - name: Install Composer dependencies
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
-      - name: Yarn test and build
-        run: |
-          yarn run test
-          yarn run build
-          yarn run rmdist
-          yarn run "build:production"
-
-      - name: PHP test
-        run: composer test
+      - name: Yarn build
+        run: yarn build

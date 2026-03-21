@@ -7,7 +7,8 @@ jobs:
     strategy:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
-        php-versions: ['7.4', '8.0', '8.1']
+        php-versions: ['8.4', '8.5']
+        # The latest cakephp/app release resolves dev dependencies that require PHP 8.4+.
     runs-on: ${{ matrix.operating-system }}
     steps:
       - name: Checkout
@@ -23,6 +24,7 @@ jobs:
 
       - name: Get composer cache directory
         id: composer-cache
+        shell: bash
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
@@ -37,7 +39,7 @@ jobs:
       - name: Install dependencies
         run: |
           composer install --no-progress --prefer-dist --optimize-autoloader
-          composer run-script post-install-cmd
+          composer run-script post-install-cmd --no-interaction
 
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text
@@ -53,10 +55,11 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.5'
           extensions: mbstring, intl
       - name: Get composer cache directory
         id: composer-cache
+        shell: bash
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
@@ -85,12 +88,13 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.5'
           extensions: mbstring, intl
           tools: phpstan
 
       - name: Get composer cache directory
         id: composer-cache
+        shell: bash
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
@@ -103,7 +107,9 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --no-progress --prefer-dist --optimize-autoloader
+        run: |
+          composer install --no-progress --prefer-dist --optimize-autoloader
+          composer run-script post-install-cmd --no-interaction
 
       - name: Static Analysis using PHPStan
         run: phpstan analyse --no-progress src/

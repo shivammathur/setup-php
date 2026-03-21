@@ -11,21 +11,18 @@ jobs:
     env:
       DB_ADAPTER: pgsql
       DB_HOST: 127.0.0.1
-      DB_NAME: postgres
+      DB_NAME: vokuro
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       CODECEPTION_URL: 127.0.0.1
       CODECEPTION_PORT: 8888
-      DB_CONNECTION: pgsql
-
-    # Docs: https://docs.github.com/en/actions/using-containerized-services
     services:
       postgres:
         image: postgres:latest
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
+          POSTGRES_DB: vokuro
         ports:
           - 5432/tcp
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
@@ -33,8 +30,6 @@ jobs:
       fail-fast: false
       matrix:
         php-versions: ['7.2', '7.3', '7.4']
-        # For phalcon 3.x, use
-        # php-versions: ['7.0', '7.1', '7.2', '7.3']
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -44,40 +39,39 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          # Use phalcon3 for the phalcon 3.x
           extensions: mbstring, dom, zip, phalcon4, pgsql
           coverage: xdebug
-
-      # Local PostgreSQL service in GitHub hosted environments is disabled by default.
-      # If you are using it instead of service containers, make sure you start it.
-      # - name: Start postgresql service
-      #   run: sudo systemctl start postgresql.service
 
       - name: Get composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
       - name: Cache composer dependencies
         uses: actions/cache@v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          # Use composer.json for key, if composer.lock is not committed.
-          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
+
       - name: Install Composer dependencies
-        run: composer install --no-progress --prefer-dist --optimize-autoloader
+        run: composer install --no-progress --prefer-dist --optimize-autoloader --no-security-blocking
+
       - name: Prepare the application
-        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+        run: |
+          php -r "file_exists('.env') || copy('.env.example', '.env');"
+          mkdir -p var/cache/acl var/cache/metaData var/cache/session var/cache/volt var/logs
+          chmod -R 777 var/cache var/logs
+
       - name: Run Migration
         run: |
-          if [ ! -e phinx.yml ]; then vendor/bin/phinx init; fi
           vendor/bin/phinx migrate
           vendor/bin/phinx seed:run
         env:
           DB_PORT: ${{ job.services.postgres.ports['5432'] }}
+
       - name: Run Tests
         run: |
-          (cd public && nohup php -S $CODECEPTION_URL:$CODECEPTION_PORT > phalcon.log 2>&1 &)
+          (cd public && nohup php -S $CODECEPTION_URL:$CODECEPTION_PORT > vokuro.log 2>&1 &)
           vendor/bin/codecept build
           vendor/bin/codecept run
         env:

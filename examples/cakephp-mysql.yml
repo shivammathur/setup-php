@@ -6,7 +6,8 @@ jobs:
   tests:
     strategy:
       matrix:
-        php-versions: ['7.4', '8.0', '8.1']
+        php-versions: ['8.4', '8.5']
+        # The latest cakephp/app release resolves dev dependencies that require PHP 8.4+.
     runs-on: ubuntu-latest
 
     # Docs: https://docs.github.com/en/actions/using-containerized-services
@@ -37,7 +38,7 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           # You can also use ext-apcu or ext-memcached instead of ext-redis
           # Install memcached if using ext-memcached
-          extensions: mbstring, intl, redis, pdo_mysql
+          extensions: mbstring, intl, redis, apcu, pdo_mysql
           coverage: pcov
 
       # Local MySQL service in GitHub hosted environments is disabled by default.
@@ -61,14 +62,15 @@ jobs:
       - name: Install dependencies
         run: |
           composer install --no-progress --prefer-dist --optimize-autoloader
-          composer run-script post-install-cmd
+          composer run-script post-install-cmd --no-interaction
 
       # Add a step to run migrations if required
       - name: Test with phpunit
         run: vendor/bin/phpunit --coverage-text
         env:
           REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
-          DB_DSN: "mysql://root:password@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/cakephp?init[]=SET sql_mode = \"STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION\""
+          DATABASE_URL: "mysql://root:password@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/cakephp?init[]=SET sql_mode = \"STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION\""
+          DATABASE_TEST_URL: "mysql://root:password@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/cakephp?init[]=SET sql_mode = \"STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION\""
 
   coding-standard:
     name: Coding Standard
@@ -81,7 +83,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.5'
           extensions: mbstring, intl
 
       - name: Get composer cache directory
@@ -114,7 +116,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.5'
           extensions: mbstring, intl
           tools: phpstan
 
@@ -132,7 +134,9 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --no-progress --prefer-dist --optimize-autoloader
+        run: |
+          composer install --no-progress --prefer-dist --optimize-autoloader
+          composer run-script post-install-cmd --no-interaction
 
       - name: Static Analysis using PHPStan
         run: phpstan analyse --no-progress src/

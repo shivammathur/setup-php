@@ -11,7 +11,7 @@ jobs:
       QUEUE_CONNECTION: redis
       SESSION_DRIVER: redis
       DB_CONNECTION: pgsql
-      DB_HOST: localhost
+      DB_HOST: 127.0.0.1
       DB_PASSWORD: postgres
       DB_USERNAME: postgres
       DB_DATABASE: postgres
@@ -36,7 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.4', '8.0', '8.1']
+        php-versions: ['8.3', '8.4', '8.5']
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -47,7 +47,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: mbstring, dom, fileinfo, pgsql
-          coverage: xdebug
+          coverage: none
 
       # Local PostgreSQL service in GitHub hosted environments is disabled by default.
       # If you are using it instead of service containers, make sure you start it.
@@ -81,11 +81,11 @@ jobs:
       - name: Run Migration
         run: php artisan migrate -v
         env:
-          DB_PORT: ${{ job.services.postgres.ports[5432] }}
+          DB_PORT: ${{ job.services.postgres.ports['5432'] }}
           REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
 
       - name: Test with phpunit
-        run: vendor/bin/phpunit --coverage-text
+        run: vendor/bin/phpunit
         env:
-          DB_PORT: ${{ job.services.postgres.ports[5432] }}
+          DB_PORT: ${{ job.services.postgres.ports['5432'] }}
           REDIS_PORT: ${{ job.services.redis.ports['6379'] }}

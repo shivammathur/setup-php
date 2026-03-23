@@ -955,6 +955,7 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 | CakePHP with `PostgreSQL` and `Redis`  | `ubuntu`                        | [cakephp-postgres.yml](./examples/cakephp-postgres.yml "GitHub Action for CakePHP with Postgres and Redis")   |
 | CakePHP without services               | `macOS`, `ubuntu` and `windows` | [cakephp.yml](./examples/cakephp.yml "GitHub Action for CakePHP without services")                            |
 | CodeIgniter                            | `macOS`, `ubuntu` and `windows` | [codeigniter.yml](./examples/codeigniter.yml "GitHub Action for CodeIgniter")                                 |
+| Drupal 11 (Composer-managed)           | `ubuntu`                        | [drupal.yml](./examples/drupal.yml "GitHub Action for Drupal 11 composer-managed projects")                   |
 | Laminas MVC                            | `macOS`, `ubuntu` and `windows` | [laminas-mvc.yml](./examples/laminas-mvc.yml "GitHub Action for Laminas Framework MVC Projects")              |
 | Laravel with `MySQL` and `Redis`       | `ubuntu`                        | [laravel-mysql.yml](./examples/laravel-mysql.yml "GitHub Action for Laravel with MySQL and Redis")            |
 | Laravel with `PostgreSQL` and `Redis`  | `ubuntu`                        | [laravel-postgres.yml](./examples/laravel-postgres.yml "GitHub Action for Laravel with PostgreSQL and Redis") |
@@ -964,12 +965,13 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 | Lumen without services                 | `macOS`, `ubuntu` and `windows` | [lumen.yml](./examples/lumen.yml "GitHub Action for Lumen without services")                                  |
 | Phalcon with `MySQL`                   | `ubuntu`                        | [phalcon-mysql.yml](./examples/phalcon-mysql.yml "GitHub Action for Phalcon with MySQL")                      |
 | Phalcon with `PostgreSQL`              | `ubuntu`                        | [phalcon-postgres.yml](./examples/phalcon-postgres.yml "GitHub Action for Phalcon with PostgreSQL")           |
-| Roots/bedrock                          | `ubuntu`                        | [bedrock.yml](./examples/bedrock.yml "GitHub Action for Wordpress Development using @roots/bedrock")          |
-| Roots/sage                             | `ubuntu`                        | [sage.yml](./examples/sage.yml "GitHub Action for Wordpress Development using @roots/sage")                   |
 | Slim Framework                         | `macOS`, `ubuntu` and `windows` | [slim-framework.yml](./examples/slim-framework.yml "GitHub Action for Slim Framework")                        |
 | Symfony with `MySQL`                   | `ubuntu`                        | [symfony-mysql.yml](./examples/symfony-mysql.yml "GitHub Action for Symfony with MySQL")                      |
 | Symfony with `PostgreSQL`              | `ubuntu`                        | [symfony-postgres.yml](./examples/symfony-postgres.yml "GitHub Action for Symfony with PostgreSQL")           |
 | Symfony without services               | `macOS`, `ubuntu` and `windows` | [symfony.yml](./examples/symfony.yml "GitHub Action for Symfony without services")                            |
+| WordPress plugin                       | `ubuntu`                        | [wordpress.yml](./examples/wordpress.yml "GitHub Action for WordPress plugins")                               |
+| WordPress with Roots/Bedrock           | `ubuntu`                        | [bedrock.yml](./examples/bedrock.yml "GitHub Action for WordPress development using @roots/bedrock")         |
+| WordPress with Roots/Sage              | `ubuntu`                        | [sage.yml](./examples/sage.yml "GitHub Action for WordPress development using @roots/sage")                   |
 | Yii3 web application with `MySQL`      | `ubuntu`                        | [yii3-mysql.yml](./examples/yii3-mysql.yml "GitHub Action for Yii3 web application with MySQL")               |
 | Yii3 web application with `PostgreSQL` | `ubuntu`                        | [yii3-postgres.yml](./examples/yii3-postgres.yml "GitHub Action for Yii3 web application with PostgreSQL")    |
 | Yii3 web application                   | `ubuntu` and `windows`          | [yii3.yml](./examples/yii3.yml "GitHub Action for Yii3 web application")                                      |

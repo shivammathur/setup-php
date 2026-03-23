@@ -1,0 +1,68 @@
+# GitHub Action for WordPress plugins
+# Tested with files scaffolded by wp scaffold plugin-tests --ci=github
+# Requires phpunit/phpunit and yoast/phpunit-polyfills in require-dev for vendor/bin/phpunit
+name: Testing WordPress
+on: [push, pull_request]
+jobs:
+  wordpress:
+    name: WordPress (PHP ${{ matrix.php-versions }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ['8.3', '8.4', '8.5']
+
+    # Docs: https://docs.github.com/en/actions/using-containerized-services
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306/tcp
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # Docs: https://github.com/shivammathur/setup-php
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, xml, zip, intl, mysql
+          coverage: none
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          # Use composer.json for key, if composer.lock is not committed.
+          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y subversion default-mysql-client
+
+      - name: Install Composer dependencies
+        run: |
+          if [ "${{ matrix.php-versions }}" = "8.3" ]; then
+            composer require --dev doctrine/instantiator:^2.0.0 --no-interaction --no-update
+            composer update doctrine/instantiator --with-all-dependencies --no-interaction --no-progress --prefer-dist --optimize-autoloader
+          else
+            composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
+          fi
+
+      - name: Install WordPress test environment
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:${{ job.services.mysql.ports['3306'] }} latest true
+
+      - name: Test with phpunit
+        run: vendor/bin/phpunit

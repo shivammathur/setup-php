@@ -224,11 +224,11 @@ export async function extensionArray(
           .split(',')
 
           .map(function (extension: string) {
+            extension = extension.trim().replace(/^\\\s*/, '');
             if (/.+-.+\/.+@.+/.test(extension)) {
               return extension;
             }
             return extension
-              .trim()
               .toLowerCase()
               .replace(/^(:)?(php[-_]|none|zend )|(-[^-]*)-/, '$1$3');
           })

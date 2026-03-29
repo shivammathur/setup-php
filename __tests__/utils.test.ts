@@ -85,6 +85,10 @@ describe('Utils tests', () => {
 
     expect(await utils.extensionArray('')).toEqual([]);
     expect(await utils.extensionArray(' ')).toEqual([]);
+
+    expect(
+      await utils.extensionArray('apcu, mbstring, \\ pdo_pgsql, posix, session')
+    ).toEqual(['apcu', 'mbstring', 'pdo_pgsql', 'posix', 'session']);
   });
 
   it('checking INIArray', async () => {

@@ -203,16 +203,20 @@ Function Install-PSPackage() {
     $cmdlet
   )
   $module_path = "$bin_dir\$psm1_path.psm1"
-  if(-not (Test-Path $module_path -PathType Leaf)) {
-    $zip_file = "$bin_dir\$package.zip"
-    Get-File -Url $url -OutFile $zip_file
-    Expand-Archive -Path $zip_file -DestinationPath $bin_dir -Force
-  }
-  Import-Module $module_path
-  if($null -eq (Get-Command $cmdlet -ErrorAction SilentlyContinue)) {
-    Install-Module -Name $package -Force
-  } else {
+  $imported = $false
+  try {
+    if(-not (Test-Path $module_path -PathType Leaf)) {
+      $zip_file = "$bin_dir\$package.zip"
+      Get-File -Url $url -OutFile $zip_file
+      Expand-Archive -Path $zip_file -DestinationPath $bin_dir -Force -ErrorAction Stop
+    }
+    Import-Module $module_path -ErrorAction Stop
+    $imported = $null -ne (Get-Command $cmdlet -ErrorAction SilentlyContinue)
+  } catch { }
+  if($imported) {
     Add-ToProfile $current_profile "$package-search" "Import-Module $module_path"
+  } else {
+    Install-Module -Name $package -Force
   }
 }
 

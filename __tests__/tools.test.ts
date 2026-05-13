@@ -187,6 +187,7 @@ describe('Tools tests', () => {
     ${'1.2.3-dev'}     | ${'tool'}     | ${'phar'}     | ${'1.2.3-dev'}
     ${'1.2.3-alpha1'}  | ${'tool'}     | ${'phar'}     | ${'1.2.3-alpha1'}
     ${'1.2.3-alpha.1'} | ${'tool'}     | ${'phar'}     | ${'1.2.3-alpha.1'}
+    ${'1.>=0'}         | ${'tool'}     | ${'phar'}     | ${'1.0'}
   `(
     'checking getVersion: $version, $tool, $type',
     async ({version, tool, type, expected}) => {
@@ -304,22 +305,30 @@ describe('Tools tests', () => {
   });
 
   it.each`
-    os           | script                                              | scope
-    ${'linux'}   | ${'add_composer_tool tool tool:1.2.3 user/ global'} | ${'global'}
-    ${'darwin'}  | ${'add_composer_tool tool tool:1.2.3 user/ scoped'} | ${'scoped'}
-    ${'win32'}   | ${'Add-ComposerTool tool tool:1.2.3 user/ scoped'}  | ${'scoped'}
-    ${'openbsd'} | ${'Platform openbsd is not supported'}              | ${'global'}
-  `('checking addPackage: $os, $scope', async ({os, script, scope}) => {
-    const data = getData({
-      tool: 'tool',
-      version: '1.2.3',
-      repository: 'user/tool',
-      os: os,
-      scope: scope
-    });
-    data['release'] = [data['tool'], data['version']].join(':');
-    expect(await tools.addPackage(data)).toContain(script);
-  });
+    os           | release           | scope       | script
+    ${'linux'}   | ${'tool:1.2.3'}   | ${'global'} | ${'add_composer_tool tool tool:1.2.3 user/ global'}
+    ${'darwin'}  | ${'tool:1.2.3'}   | ${'scoped'} | ${'add_composer_tool tool tool:1.2.3 user/ scoped'}
+    ${'win32'}   | ${'tool:1.2.3'}   | ${'scoped'} | ${'Add-ComposerTool tool tool:1.2.3 user/ scoped'}
+    ${'linux'}   | ${'tool:>=1.2'}   | ${'global'} | ${'add_composer_tool tool "tool:>=1.2" user/ global'}
+    ${'win32'}   | ${'tool:>=1.2'}   | ${'global'} | ${'Add-ComposerTool tool "tool:>=1.2" user/ global'}
+    ${'linux'}   | ${'tool:1.*'}     | ${'global'} | ${'add_composer_tool tool "tool:1.*" user/ global'}
+    ${'linux'}   | ${'psalm:^5||^6'} | ${'global'} | ${'add_composer_tool tool "psalm:^5||^6" user/ global'}
+    ${'linux'}   | ${'psalm:>=5,<6'} | ${'global'} | ${'add_composer_tool tool "psalm:>=5,<6" user/ global'}
+    ${'openbsd'} | ${'tool:1.2.3'}   | ${'global'} | ${'Platform openbsd is not supported'}
+  `(
+    'checking addPackage: $os, $release',
+    async ({os, release, scope, script}) => {
+      const data = getData({
+        tool: 'tool',
+        version: '1.2.3',
+        repository: 'user/tool',
+        os,
+        scope
+      });
+      data['release'] = release;
+      expect(await tools.addPackage(data)).toContain(script);
+    }
+  );
 
   it.each`
     version     | php_version | os          | script
@@ -651,7 +660,7 @@ describe('Tools tests', () => {
         'add_devtools phpize',
         'add_tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"',
         'add_tool https://github.com/phpspec/phpspec/releases/latest/download/phpspec.phar phpspec "-V"',
-        'add_composer_tool phpunit-bridge phpunit-bridge:5.6.* symfony/ global',
+        'add_composer_tool phpunit-bridge "phpunit-bridge:5.6.*" symfony/ global',
         'add_composer_tool phpunit-polyfills phpunit-polyfills:1.0.1 yoast/ global',
         'add_protoc 1.2.3',
         'add_tool https://github.com/vimeo/psalm/releases/latest/download/psalm.phar psalm "-v"',
@@ -711,7 +720,7 @@ describe('Tools tests', () => {
         'Add-ComposerTool codeception codeception codeception/ global',
         'Add-ComposerTool prestissimo prestissimo hirak/ global',
         'Add-ComposerTool automatic-composer-prefetcher automatic-composer-prefetcher narrowspark/ global',
-        'Add-ComposerTool phinx phinx:1.2.* robmorgan/ scoped',
+        'Add-ComposerTool phinx "phinx:1.2.*" robmorgan/ scoped',
         'Add-ComposerTool phinx phinx:^1.2 robmorgan/ global',
         'Add-ComposerTool tool tool:1.2.3 user/ global',
         'Add-ComposerTool tool tool:~1.2 user/ global'

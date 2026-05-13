@@ -231,7 +231,7 @@ export async function getVersion(
     case !!data.repository && major_minor_regex.test(data.version):
       return await getSemverVersion(data);
     default:
-      return data.version.replace(/[><=^~]*/, '');
+      return data.version.replace(/[^a-zA-Z0-9_.:@+,/-]/g, '');
   }
 }
 
@@ -347,12 +347,9 @@ export async function addArchive(data: ToolData): Promise<string> {
 export async function addPackage(data: ToolData): Promise<string> {
   const command = await utils.getCommand(data.os, 'composer_tool');
   const parts: string[] = data.repository.split('/');
-  const args: string = await utils.joins(
-    parts[1],
-    data.release,
-    parts[0] + '/',
-    data.scope
-  );
+  const args = [parts[1], data.release, parts[0] + '/', data.scope]
+    .map(a => utils.safeArg(a, data.os))
+    .join(' ');
   return command + args;
 }
 

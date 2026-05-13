@@ -18,7 +18,10 @@ export async function getScript(os: string): Promise<string> {
   const filename = os + (await utils.scriptExtension(os));
   const script_path = path.join(__dirname, '../src/scripts', filename);
   const run_path = script_path.replace(os, 'run');
-  const extension_csv: string = await utils.getInput('extensions', false);
+  const extension_csv: string = utils.sanitizeShellInput(
+    await utils.getInput('extensions', false),
+    true
+  );
   const ini_values_csv: string = await utils.getInput('ini-values', false);
   const coverage_driver: string = await utils.getInput('coverage', false);
   const tools_csv: string = await utils.getInput('tools', false);
@@ -28,7 +31,7 @@ export async function getScript(os: string): Promise<string> {
   const ini_file: string = await utils.parseIniFile(
     await utils.getInput('ini-file', false)
   );
-  let script = await utils.joins('.', script_path, version, ini_file);
+  let script = await utils.joins('.', script_path, `'${version}'`, ini_file);
   if (extension_csv) {
     script += await extensions.addExtension(extension_csv, version, os);
   }

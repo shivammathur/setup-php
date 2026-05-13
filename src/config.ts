@@ -16,7 +16,7 @@ export async function addINIValuesUnix(
   });
   return (
     'echo "' +
-    ini_values.join('\n') +
+    ini_values.map(v => utils.escapeForShell(v, 'linux')).join('\n') +
     '" | sudo tee -a "${pecl_file:-${ini_file[@]}}" >/dev/null 2>&1' +
     script
   );
@@ -37,7 +37,10 @@ export async function addINIValuesWindows(
       (await utils.addLog('$tick', line, 'Added to php.ini', 'win32')) + '\n';
   });
   return (
-    'Add-Content "$php_dir\\php.ini" "' + ini_values.join('\n') + '"' + script
+    'Add-Content "$php_dir\\php.ini" "' +
+    ini_values.map(v => utils.escapeForShell(v, 'win32')).join('\n') +
+    '"' +
+    script
   );
 }
 

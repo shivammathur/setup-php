@@ -40,7 +40,19 @@ describe('Utils tests', () => {
     expect(await utils.parseVersion('7')).toBe('7.0');
     expect(await utils.parseVersion('7.4')).toBe('7.4');
     expect(await utils.parseVersion('5.x')).toBe('5.6');
-    expect(await utils.parseVersion('4.x')).toBe(undefined);
+    expect(await utils.parseVersion('pre')).toBe('pre');
+    expect(await utils.parseVersion('pre-installed')).toBe('pre');
+    await expect(utils.parseVersion('4.x')).rejects.toThrow(
+      'Invalid PHP version: 4.x'
+    );
+    await expect(utils.parseVersion('foo')).rejects.toThrow(
+      'Invalid PHP version:'
+    );
+
+    fetchSpy.mockResolvedValue({data: '{ "latest": "8.1.0" }'});
+    await expect(utils.parseVersion('latest')).rejects.toThrow(
+      'Invalid PHP version in manifest:'
+    );
 
     fetchSpy.mockReset();
     fetchSpy.mockResolvedValueOnce({}).mockResolvedValueOnce({});
@@ -56,6 +68,12 @@ describe('Utils tests', () => {
     expect(await utils.parseIniFile('none')).toBe('none');
     expect(await utils.parseIniFile('php.ini-production')).toBe('production');
     expect(await utils.parseIniFile('php.ini-development')).toBe('development');
+    expect(await utils.parseIniFile('/etc/php.ini-production')).toBe(
+      'production'
+    );
+    expect(await utils.parseIniFile('/a-b/php.ini-development')).toBe(
+      'development'
+    );
     expect(await utils.parseIniFile('invalid')).toBe('production');
   });
 
@@ -89,6 +107,22 @@ describe('Utils tests', () => {
     expect(
       await utils.extensionArray('apcu, mbstring, \\ pdo_pgsql, posix, session')
     ).toEqual(['apcu', 'mbstring', 'pdo_pgsql', 'posix', 'session']);
+  });
+
+  it('checking shell helpers', () => {
+    expect(utils.escapeForShell('a$b`c\\d"e', 'linux')).toBe(
+      'a\\$b\\`c\\\\d\\"e'
+    );
+    expect(utils.escapeForShell('a$b`c"d', 'win32')).toBe('a`$b``c`"d');
+    expect(utils.safeArg('vendor-pkg/repo@v1.0.0', 'linux')).toBe(
+      'vendor-pkg/repo@v1.0.0'
+    );
+    expect(utils.safeArg('phpcs:>=3.0', 'linux')).toBe('"phpcs:>=3.0"');
+    expect(utils.safeArg('foo$bar', 'win32')).toBe('"foo`$bar"');
+    expect(utils.sanitizeShellInput('foo;$(`ls`)bar')).toBe('foolsbar');
+    expect(utils.sanitizeShellInput('vendor/foo:1.*', true)).toBe(
+      'vendor/foo:1.'
+    );
   });
 
   it('checking INIArray', async () => {
@@ -282,6 +316,9 @@ describe('Utils tests', () => {
     process.env['php-version'] = '8.2';
     expect(await utils.readPHPVersion()).toBe('8.2');
 
+    process.env['php-version'] = 'pre-installed';
+    expect(await utils.readPHPVersion()).toBe('pre-installed');
+
     delete process.env['php-version-file'];
     delete process.env['php-version'];
 
@@ -291,7 +328,7 @@ describe('Utils tests', () => {
 
     existsSync.mockReturnValue(true);
     readFileSync.mockReturnValue('setup-php');
-    expect(await utils.readPHPVersion()).toBe('setup-php');
+    await expect(utils.readPHPVersion()).rejects.toThrow('Invalid PHP version');
 
     existsSync.mockReturnValueOnce(false).mockReturnValueOnce(true);
     readFileSync.mockReturnValue(
@@ -307,6 +344,37 @@ describe('Utils tests', () => {
       '{ "config": { "platform": { "php": "7.4.33" } } }'
     );
     expect(await utils.readPHPVersion()).toBe('7.4.33');
+
+    existsSync.mockClear();
+    readFileSync.mockClear();
+  });
+
+  it('readPHPVersion rejects unsupported values from each source', async () => {
+    const existsSync = jest.spyOn(fs, 'existsSync').mockImplementation();
+    const readFileSync = jest.spyOn(fs, 'readFileSync').mockImplementation();
+
+    process.env['php-version'] = 'bogus';
+    await expect(utils.readPHPVersion()).rejects.toThrow('php-version input');
+    delete process.env['php-version'];
+
+    existsSync.mockReturnValue(true);
+    readFileSync.mockReturnValue('bogus');
+    await expect(utils.readPHPVersion()).rejects.toThrow('.php-version');
+
+    existsSync.mockReturnValueOnce(false).mockReturnValueOnce(true);
+    readFileSync.mockReturnValue('{"platform-overrides":{"php":"bogus"}}');
+    await expect(utils.readPHPVersion()).rejects.toThrow(
+      'composer.lock platform-overrides.php'
+    );
+
+    existsSync
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true);
+    readFileSync.mockReturnValue('{"config":{"platform":{"php":"bogus"}}}');
+    await expect(utils.readPHPVersion()).rejects.toThrow(
+      'composer.json config.platform.php'
+    );
 
     existsSync.mockClear();
     readFileSync.mockClear();

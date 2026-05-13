@@ -19,26 +19,6 @@ Function Get-PhalconReleaseAssetUrl() {
         $match = (Get-File -Url "$github/$releases/expanded_assets/v$Semver").Links.href | Select-String -Pattern "(phalcon_${arch}_.*_php${version}_${extension_version}.*[0-9]${nts}.zip)"
       } catch { }
     }
-  } else {
-    $nts = if (!$installed.ThreadSafe) { "-nts" } else { "-ts" }
-    try {
-      $match = (Invoke-RestMethod -Uri "$domain/$releases/tags/v$Semver").assets | Select-String -Pattern "browser_download_url=.*(php_phalcon-php${version}${nts}-windows.*-x64.zip)"
-    } catch { }
-    if($null -eq $match) {
-      try {
-        $match = (Get-File -Url "$github/$releases/expanded_assets/v$Semver").Links.href | Select-String -Pattern "(php_phalcon-php${version}${nts}-windows.*-x64.zip)"
-      } catch { }
-    }
-    if($null -eq $match) {
-      try {
-        $match = (Invoke-RestMethod -Uri "$domain/$releases/tags/v$Semver").assets | Select-String -Pattern "browser_download_url=.*(phalcon-php${version}${nts}-windows.*-x64.zip)"
-      } catch { }
-    }
-    if($null -eq $match) {
-      try {
-        $match = (Get-File -Url "$github/$releases/expanded_assets/v$Semver").Links.href | Select-String -Pattern "(phalcon-php${version}${nts}-windows.*-x64.zip)"
-      } catch { }
-    }
   }
   if($NULL -ne $match) {
     return "$github/$releases/download/v$Semver/$($match.Matches[0].Groups[1].Value)"
@@ -82,7 +62,7 @@ Function Get-PhalconSemver() {
 # Function to install phalcon
 Function Add-PhalconHelper() {
   $semver = Get-PhalconSemver
-  if ($extension_version -eq '3') {
+  if ($extension_version -match '[3-4]') {
     Add-PhalconFromGitHub $semver
   } else {
     Add-Extension -Extension phalcon -Stability stable -Extension_version $semver

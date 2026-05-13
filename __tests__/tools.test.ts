@@ -31,6 +31,12 @@ function getData(data: Partial<ToolData>): ToolData {
   };
 }
 
+function unsetComposerAuthEnv(): void {
+  delete process.env['GITHUB_TOKEN'];
+  delete process.env['COMPOSER_TOKEN'];
+  delete process.env['COMPOSER_AUTH_JSON'];
+}
+
 /**
  * Mock fetch.ts
  */
@@ -424,6 +430,118 @@ describe('Tools tests', () => {
   );
 
   it.each`
+    version            | affected
+    ${'1'}             | ${false}
+    ${'1.0.0-alpha1'}  | ${true}
+    ${'1.0.0-alpha2'}  | ${true}
+    ${'1.0.0-alpha3'}  | ${true}
+    ${'1.0.0-alpha4'}  | ${true}
+    ${'1.0.0-alpha5'}  | ${true}
+    ${'1.0.0-alpha6'}  | ${true}
+    ${'1.0.0-alpha7'}  | ${true}
+    ${'1.0.0-alpha8'}  | ${true}
+    ${'1.0.0-alpha9'}  | ${true}
+    ${'1.0.0-alpha10'} | ${true}
+    ${'1.0.0-alpha11'} | ${true}
+    ${'1.0.0-beta1'}   | ${true}
+    ${'1.0.0-beta2'}   | ${true}
+    ${'1.0.0'}         | ${true}
+    ${'1.10.27'}       | ${true}
+    ${'1.10.28'}       | ${false}
+    ${'2.0.0-alpha1'}  | ${true}
+    ${'2.0.0-alpha2'}  | ${true}
+    ${'2.0.0-alpha3'}  | ${true}
+    ${'2.0.0-RC1'}     | ${true}
+    ${'2.0.0-RC2'}     | ${true}
+    ${'2.2.27'}        | ${true}
+    ${'2.2.28'}        | ${false}
+    ${'2.3.0-RC1'}     | ${true}
+    ${'2.3.0-RC2'}     | ${true}
+    ${'2.9.7'}         | ${true}
+    ${'2.9.7-RC1'}     | ${true}
+    ${'2.9.8'}         | ${false}
+    ${'2.9.0RC1'}      | ${false}
+    ${'2.9.x-dev'}     | ${false}
+  `('checking affected composer version: $version', ({version, affected}) => {
+    expect(tools.skipGitHubAuthForComposerVersion(version)).toBe(affected);
+  });
+
+  it('checking affected composer version with CRLF ranges', async () => {
+    let affected = false;
+    let fixed = true;
+    await jest.isolateModulesAsync(async () => {
+      jest.doMock('fs', () => ({
+        ...jest.requireActual('fs'),
+        readFileSync: (
+          filePath: fs.PathOrFileDescriptor,
+          options?: unknown
+        ) => {
+          if (String(filePath).includes('composer-gh-auth-no-op')) {
+            return '1.0.0-0 1.10.28\r\n2.0.0-0 2.2.28\r\n2.3.0-0 2.9.8';
+          }
+          return (jest.requireActual('fs') as typeof fs).readFileSync(
+            filePath,
+            options as fs.ObjectEncodingOptions & {flag?: string}
+          );
+        }
+      }));
+      const isolatedTools = await import('../src/tools');
+      affected = isolatedTools.skipGitHubAuthForComposerVersion('2.9.7');
+      fixed = isolatedTools.skipGitHubAuthForComposerVersion('2.9.8');
+    });
+    expect(affected).toBe(true);
+    expect(fixed).toBe(false);
+  });
+
+  it.each`
+    auth_json                                                                                                          | expected
+    ${'{"github-oauth":{"github.com":"ghs_new-token"},"http-basic":{"repo.example":{"username":"u","password":"p"}}}'} | ${'{"http-basic":{"repo.example":{"username":"u","password":"p"}}}'}
+    ${'{"github-oauth":{"github.com":"ghs_new-token"}}'}                                                               | ${undefined}
+    ${'{"http-basic":{"repo.example":{"username":"u","password":"p"}}}'}                                               | ${'{"http-basic":{"repo.example":{"username":"u","password":"p"}}}'}
+    ${'{"nested":{"github-oauth":{"github.com":"ghs_new-token"}}}'}                                                    | ${'{"nested":{"github-oauth":{"github.com":"ghs_new-token"}}}'}
+    ${'{"github-oauth":'}                                                                                              | ${'{"github-oauth":'}
+  `('cleaning composer auth json', ({auth_json, expected}) => {
+    unsetComposerAuthEnv();
+    process.env['COMPOSER_AUTH_JSON'] = auth_json;
+    tools.cleanComposerAuthJson();
+    expect(process.env['COMPOSER_AUTH_JSON']).toBe(expected);
+    unsetComposerAuthEnv();
+  });
+
+  it.each`
+    version     | os         | envs                                                                                       | skip_github_auth
+    ${'latest'} | ${'linux'} | ${{GITHUB_TOKEN: 'ghs_token'}}                                                             | ${false}
+    ${'1'}      | ${'linux'} | ${{GITHUB_TOKEN: 'ghs_token'}}                                                             | ${false}
+    ${'2'}      | ${'linux'} | ${{GITHUB_TOKEN: 'ghs_token'}}                                                             | ${false}
+    ${'2.9.7'}  | ${'linux'} | ${{}}                                                                                      | ${true}
+    ${'2.9.7'}  | ${'linux'} | ${{GITHUB_TOKEN: 'ghs_token'}}                                                             | ${true}
+    ${'2.9.7'}  | ${'linux'} | ${{COMPOSER_TOKEN: 'ghs_token'}}                                                           | ${true}
+    ${'2.9.7'}  | ${'linux'} | ${{COMPOSER_AUTH_JSON: '{"github-oauth":{"github.com":"ghs_new-token"}}'}}                 | ${true}
+    ${'2.9.7'}  | ${'linux'} | ${{COMPOSER_AUTH_JSON: '{"http-basic":{"repo.example":{"username":"u","password":"p"}}}'}} | ${true}
+    ${'2.9.8'}  | ${'linux'} | ${{GITHUB_TOKEN: 'ghs_token'}}                                                             | ${false}
+    ${'2.9.7'}  | ${'win32'} | ${{GITHUB_TOKEN: 'ghs_token'}}                                                             | ${true}
+  `(
+    'checking composer github auth skip flag: $version, $os',
+    async ({version, os, envs, skip_github_auth}) => {
+      unsetComposerAuthEnv();
+      Object.assign(process.env, envs);
+      const data = getData({
+        tool: 'composer',
+        os: os,
+        php_version: '7.4',
+        domain: 'https://getcomposer.org',
+        repository: 'composer/composer',
+        version: version
+      });
+      const script = await tools.addComposer(data);
+      expect(script).toContain(
+        `composer ${version}${skip_github_auth ? ' true' : ''}`
+      );
+      unsetComposerAuthEnv();
+    }
+  );
+
+  it.each`
     version     | uri
     ${'latest'} | ${'wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true'}
     ${'1.2.3'}  | ${'wp-cli/wp-cli/releases/download/v1.2.3/wp-cli-1.2.3.phar'}
@@ -642,6 +760,7 @@ describe('Tools tests', () => {
     ${'composer:preview'}                                 | ${'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-preview.phar,https://artifacts.setup-php.com/composer/composer-7.4-preview.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-preview.phar,https://getcomposer.org/composer-preview.phar composer preview'}
     ${'composer, composer:v1'}                            | ${'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-1.phar,https://artifacts.setup-php.com/composer/composer-7.4-1.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-1.phar,https://getcomposer.org/composer-1.phar composer'}
     ${'composer:v1, composer:preview, composer:snapshot'} | ${'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-snapshot.phar,https://artifacts.setup-php.com/composer/composer-7.4-snapshot.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-snapshot.phar,https://getcomposer.org/composer.phar composer snapshot'}
+    ${'composer:2.9.7'}                                   | ${'add_tool https://github.com/composer/composer/releases/download/2.9.7/composer.phar,https://getcomposer.org/download/2.9.7/composer.phar composer 2.9.7 true'}
   `('checking composer setup: $tools_csv', async ({tools_csv, script}) => {
     expect(await tools.addTools(tools_csv, '7.4', 'linux')).toContain(script);
   });

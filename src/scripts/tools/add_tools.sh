@@ -3,6 +3,7 @@ export composer_home="$HOME/.composer"
 export composer_bin="$composer_home/vendor/bin"
 export composer_json="$composer_home/composer.json"
 export composer_lock="$composer_home/composer.lock"
+skip_composer_github_auth=false
 
 # Function to extract tool version.
 get_tool_version() {
@@ -41,6 +42,7 @@ configure_composer() {
     echo '{}' | tee "$composer_json" >/dev/null
     chmod 644 "$composer_json"
   fi
+  get_tool_version composer >/dev/null
   set_composer_env
   add_path "$composer_bin"
   set_composer_auth
@@ -70,22 +72,39 @@ can_access_public_github() {
   curl --fail -s -H "Authorization: token $1" 'https://api.github.com/' >/dev/null 2>&1
 }
 
+composer_gh_auth_no_op() {
+  local message
+  message="$(<"${src:?}"/configs/composer-gh-auth-warn)"
+  message="${message//%s/$composer_version}"
+  if [ "${fail_fast:-false}" = "true" ]; then
+    add_log "${cross:?}" "composer" "$message"
+  else
+    echo "::warning::$message"
+  fi
+}
+
 # Function to setup authentication in composer.
 set_composer_auth() {
-  if [ -n "$COMPOSER_AUTH_JSON" ]; then
-    if php -r "json_decode('$COMPOSER_AUTH_JSON'); if(json_last_error() !== JSON_ERROR_NONE) { throw new Exception('invalid json'); }"; then
-      echo "$COMPOSER_AUTH_JSON" | tee "$composer_home/auth.json" >/dev/null
+  token="${COMPOSER_TOKEN:-$GITHUB_TOKEN}"
+  if [ -n "${COMPOSER_AUTH_JSON:-}" ]; then
+    if printf '%s' "$COMPOSER_AUTH_JSON" | jq -e . >/dev/null; then
+      printf '%s' "$COMPOSER_AUTH_JSON" | tee "$composer_home/auth.json" >/dev/null
     else
       add_log "${cross:?}" "composer" "Could not parse COMPOSER_AUTH_JSON as valid JSON"
     fi
+  fi
+  if [ "$skip_composer_github_auth" = "true" ]; then
+    composer_gh_auth_no_op
   fi
   composer_auth=()
   if [ -n "$PACKAGIST_TOKEN" ]; then
     composer_auth+=( '"http-basic": {"repo.packagist.com": { "username": "token", "password": "'"$PACKAGIST_TOKEN"'"}}' )
   fi
-  token="${COMPOSER_TOKEN:-$GITHUB_TOKEN}"
   if [ -n "$token" ]; then
     write_token=true
+    if [ "$skip_composer_github_auth" = "true" ]; then
+      write_token=false
+    fi
     if [ "$GITHUB_SERVER_URL" != "https://github.com" ]; then
       can_access_public_github "$token" || write_token=false
     fi
@@ -182,6 +201,9 @@ add_tool() {
   url=$1
   tool=$2
   ver_param=$3
+  if [ "$tool" = "composer" ]; then
+    skip_composer_github_auth="${4:-false}"
+  fi
   tool_path="$tool_path_dir/$tool"
   if ! [ -d "$tool_path_dir" ]; then
     sudo mkdir -p "$tool_path_dir"

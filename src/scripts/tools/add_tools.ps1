@@ -3,6 +3,7 @@ $composer_home = "$env:APPDATA\Composer"
 $composer_bin = "$composer_home\vendor\bin"
 $composer_json = "$composer_home\composer.json"
 $composer_lock = "$composer_home\composer.lock"
+$skip_composer_github_auth = $false
 
 # Function to configure composer.
 Function Edit-ComposerConfig() {
@@ -23,6 +24,7 @@ Function Edit-ComposerConfig() {
   if (-not(Test-Path $composer_json)) {
     Set-Content -Path $composer_json -Value "{}"
   }
+  Get-ToolVersion "composer" $null | Out-Null
   Set-ComposerEnv
   Add-Path $composer_bin
   Set-ComposerAuth
@@ -74,8 +76,18 @@ function Test-GitHubPublicAccess {
   }
 }
 
+Function Write-ComposerGhAuthNoOpWarning() {
+  $message = (Get-Content (Join-Path $src 'configs\composer-gh-auth-warn') -Raw).Trim().Replace('%s', $composer_version)
+  if($env:fail_fast -eq 'true') {
+    Add-Log "$cross" "composer" $message
+  } else {
+    Write-Output "::warning::$message"
+  }
+}
+
 # Function to setup authentication in composer.
 Function Set-ComposerAuth() {
+  $token = if ($env:COMPOSER_TOKEN) { $env:COMPOSER_TOKEN } else { $env:GITHUB_TOKEN }
   if(Test-Path env:COMPOSER_AUTH_JSON) {
     if(Test-Json -JSON $env:COMPOSER_AUTH_JSON) {
       Set-Content -Path $composer_home\auth.json -Value $env:COMPOSER_AUTH_JSON
@@ -83,13 +95,18 @@ Function Set-ComposerAuth() {
       Add-Log "$cross" "composer" "Could not parse COMPOSER_AUTH_JSON as valid JSON"
     }
   }
+  if($skip_composer_github_auth) {
+    Write-ComposerGhAuthNoOpWarning
+  }
   $composer_auth = @()
   if(Test-Path env:PACKAGIST_TOKEN) {
     $composer_auth += '"http-basic": {"repo.packagist.com": { "username": "token", "password": "' + $env:PACKAGIST_TOKEN + '"}}'
   }
   $write_token = $true
-  $token = if ($env:COMPOSER_TOKEN) { $env:COMPOSER_TOKEN } else { $env:GITHUB_TOKEN }
   if ($token) {
+    if ($skip_composer_github_auth) {
+      $write_token = $false
+    }
     if ($env:GITHUB_SERVER_URL -ne "https://github.com" -and -not(Test-GitHubPublicAccess $token)) {
       $write_token = $false
     }
@@ -210,8 +227,13 @@ Function Add-Tool() {
     [ValidateNotNull()]
     $tool,
     [Parameter(Position = 2, Mandatory = $false)]
-    $ver_param
+    $ver_param,
+    [Parameter(Position = 3, Mandatory = $false)]
+    $skip_composer_github_auth
   )
+  if($tool -eq "composer") {
+    $script:skip_composer_github_auth = $skip_composer_github_auth -eq 'true'
+  }
   $urls = $urls -split ','
   $tool_path = "$bin_dir\$tool"
   $is_exe = ((($urls[0] | Split-Path -Extension).ToLowerInvariant()) -eq '.exe')

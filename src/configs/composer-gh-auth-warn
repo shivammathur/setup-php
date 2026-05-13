@@ -1,0 +1,1 @@
+Composer %s has a known GitHub token parsing bug that exposes GitHub tokens in the error output. So, GitHub authentication has not been configured for this Composer version. Please update to the latest version of Composer. See: https://github.com/composer/composer/security/advisories/GHSA-f9f8-rm49-7jv2

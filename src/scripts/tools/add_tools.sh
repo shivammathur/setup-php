@@ -228,8 +228,8 @@ add_tool() {
       url[0]="${url[0]//releases\/latest\/download/releases/download/$(get -s -n "" "$(echo "${url[0]}" | cut -d '/' -f '1-5')/releases" | grep -Eo -m 1 "([0-9]+\.[0-9]+\.[0-9]+)/$(echo "${url[0]}" | sed -e "s/.*\///")" | cut -d '/' -f 1)}"
       status_code=$(get -v -e "$tool_path" "${url[0]}")
     fi
-    if [ "$status_code" = "200" ] && [ "$use_cache" = "true" ]; then
-      sudo cp -a "$tool_path" "$cache_path"
+    if [ "$status_code" = "200" ]; then
+      [ "$use_cache" = "true" ] && sudo cp -a "$tool_path" "$cache_path"
     elif [ -f "$tool_path.bak" ]; then
       sudo mv "$tool_path.bak" "$tool_path"
     fi
@@ -237,8 +237,8 @@ add_tool() {
   fi
   if [ "$status_code" = "200" ]; then
     add_tools_helper "$tool"
-    [ -L "$tool_cache_path_dir/$tool" ] || sudo ln -s "$tool_path" "$tool_cache_path_dir/$tool" 2>/dev/null || true
     tool_version=$(get_tool_version "$tool" "$ver_param")
+    sudo ln -sfn "$tool_path" "$tool_cache_path_dir/$tool" 2>/dev/null || true
     add_log "${tick:?}" "$tool" "Added $tool $tool_version"
   else
     if [ "$tool" = "composer" ]; then

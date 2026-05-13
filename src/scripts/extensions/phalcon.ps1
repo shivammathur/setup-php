@@ -73,6 +73,8 @@ Function Get-PhalconSemver() {
     return '4.1.0'
   } elseif (($extension_version -eq '5') -and ($version -eq '7.4')) {
     return '5.4.0'
+  } elseif (($extension_version -eq '5') -and ($version -eq '8.0')) {
+    return '5.10.0'
   }
   return Get-PeclPackageVersion phalcon $extension_version stable stable | Select-Object -First 1
 }

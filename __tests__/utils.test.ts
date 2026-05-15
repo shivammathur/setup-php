@@ -11,6 +11,12 @@ describe('Utils tests', () => {
     expect(await utils.readEnv('TEST')).toBe('setup-php');
     expect(await utils.readEnv('test_hyphen')).toBe('setup-php');
     expect(await utils.readEnv('TEST_HYPHEN')).toBe('setup-php');
+    expect(await utils.readEnv('test invalid')).toBe('');
+    process.env['conflict_hyphen'] = 'setup-php';
+    process.env['conflict-hyphen'] = 'wrong';
+    expect(await utils.readEnv('conflict_hyphen')).toBe('setup-php');
+    delete process.env['conflict_hyphen'];
+    delete process.env['conflict-hyphen'];
     expect(await utils.readEnv('undefined')).toBe('');
   });
 

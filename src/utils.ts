@@ -9,16 +9,19 @@ import * as fetch from './fetch';
  * @param property
  */
 export async function readEnv(property: string): Promise<string> {
+  if (!/^[A-Za-z0-9_-]+$/.test(property)) {
+    return '';
+  }
   const property_lc: string = property.toLowerCase();
   const property_uc: string = property.toUpperCase();
-  return (
-    process.env[property] ||
-    process.env[property_lc] ||
-    process.env[property_uc] ||
-    process.env[property_lc.replace('_', '-')] ||
-    process.env[property_uc.replace('_', '-')] ||
-    ''
-  );
+  const candidates = [
+    property,
+    property_lc,
+    property_uc,
+    property_lc.replace('_', '-'),
+    property_uc.replace('_', '-')
+  ].filter((value, index, array) => array.indexOf(value) === index);
+  return candidates.map(name => process.env[name] || '').find(Boolean) || '';
 }
 
 /**

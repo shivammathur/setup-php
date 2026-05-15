@@ -5,12 +5,15 @@ on:
     - cron: '0 15 * * 6'
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   create:
     if: github.event.repository.fork == false
     permissions:
-      contents: none
+      contents: none # this job only prepares artifacts and uploads them, no repository writes
     name: Create
     runs-on: ${{ matrix.operating-system }}
     strategy:
@@ -20,7 +23,7 @@ jobs:
         php-versions: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
     steps:
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
         with:
           php-version: ${{ matrix.php-versions }}
           tools: none
@@ -39,7 +42,7 @@ jobs:
         run: |
           php -m | Out-File -FilePath "$env:file.all" -Append
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: none
@@ -72,7 +75,7 @@ jobs:
           version: ${{ matrix.php-versions }}
         if: matrix.operating-system == 'windows-2022'
         run: |
-          Write-Output "## PHP ${{ matrix.php-versions }}`n" | Out-File -FilePath "$env:file"
+          Write-Output "## PHP $env:version`n" | Out-File -FilePath "$env:file"
           Write-Output "``````" | Out-File -FilePath "$env:file" -Append
           php -m | Out-File -FilePath "$env:file.builtin" -Append
           Get-Content "$env:file.all" | ForEach-Object {
@@ -88,7 +91,7 @@ jobs:
           Remove-Item "$env:file.all" -Force
           Remove-Item "$env:file.builtin" -Force
       - name: Upload artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: lists-php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
           path: php${{ matrix.php-versions }}-${{ matrix.operating-system }}.md
@@ -101,19 +104,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           repository: ${{ github.repository }}.wiki
+          persist-credentials: false
       - name: Download artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           path: ${{ github.workspace }}/lists
           pattern: lists-*
           merge-multiple: true
       - name: Configure Git
+        env:
+          GIT_USER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_USER_NAME: github-actions[bot]
         run : |
-          git config --local user.email "${{ secrets.email }}"
-          git config --local user.name "${{ github.repository_owner }}"
+          git config --local user.email "$GIT_USER_EMAIL"
+          git config --local user.name "$GIT_USER_NAME"
       - name: Combine
         run: |
           for os in ubuntu-24.04 ubuntu-22.04 windows-2025 windows-2022 windows-2019 macos-13 macos-14 macos-15 macos-26; do
@@ -130,9 +137,12 @@ jobs:
           done
           rm -rf ./lists
       - name: Update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WIKI_REPOSITORY: ${{ github.repository }}
         run: |
           if [ "$(git status --porcelain=v1 2>/dev/null | wc -l)" != "0" ]; then
             git add .
             git commit -m "Update PHP extensions on wiki - $(date +'%d-%m-%y')"
-            git push -f https://${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git master || true
+            git push -f https://x-access-token:${GITHUB_TOKEN}@github.com/${WIKI_REPOSITORY}.wiki.git master || true
           fi

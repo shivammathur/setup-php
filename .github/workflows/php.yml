@@ -19,8 +19,11 @@ on:
       - 'examples/**'
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 env:
-  default-php-version: '8.2'
+  default-php-version: '8.5'
 jobs:
   run:
     name: Run
@@ -39,18 +42,20 @@ jobs:
       key: cache-v5
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - name: Setup cache environment
         id: cache-env
-        uses: shivammathur/cache-extensions@develop
+        uses: shivammathur/cache-extensions@256729b5fef535345e27904657f78048c0990f81 # v1
         with:
           php-version: ${{ matrix.php-versions || env.default-php-version }}
           extensions: ${{ env.extensions }}
           key: ${{ env.key }}
 
       - name: Cache extensions
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ${{ steps.cache-env.outputs.dir }}
           key: ${{ steps.cache-env.outputs.key }}
@@ -58,8 +63,10 @@ jobs:
 
       - name: Stage php-version-file
         if: ${{ matrix.php-version-file == 'php-version-file' }}
+        env:
+          DEFAULT_PHP_VERSION: ${{ env.default-php-version }}
         run: |
-          echo ${{ env.default-php-version }} > php-version-file
+          echo "$DEFAULT_PHP_VERSION" > php-version-file
 
       - name: Setup PHP with extensions and custom config
         run: node dist/index.js
@@ -70,9 +77,11 @@ jobs:
           ini-values: post_max_size=256M, short_open_tag=On, date.timezone=Asia/Kolkata
 
       - name: Testing PHP version
+        env:
+          EXPECTED_PHP_VERSION: ${{ matrix.php-versions || env.default-php-version }}
         run: |
           php -v
-          php -r "if(strpos(phpversion(), '${{ matrix.php-versions || env.default-php-version }}') === false) {throw new Exception('Wrong PHP version Installed');}"
+          php -r '$expected = getenv("EXPECTED_PHP_VERSION"); if(strpos(phpversion(), $expected) === false) {throw new Exception("Wrong PHP version Installed");}'
 
       - name: Testing Composer version
         run: |

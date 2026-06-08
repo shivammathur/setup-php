@@ -1,7 +1,7 @@
 Function Add-Msys2() {
   $msys_location = 'C:\msys64'
   if (-not(Test-Path $msys_location)) {
-    choco install msys2 -y >$null 2>&1
+    choco install msys2 -y 
     $msys_location = 'C:\tools\msys64'
   }
   return $msys_location
@@ -15,7 +15,7 @@ Function Add-GrpcPhpPlugin() {
   } else {
     $grpc_package = 'mingw-w64-x86_64-grpc'
   }
-  $logs = . $msys_location\usr\bin\bash -l -c "pacman -S --noconfirm $grpc_package" >$null 2>&1
+  $logs = . $msys_location\usr\bin\bash -l -c "pacman -S --noconfirm $grpc_package" 
   $grpc_version = Get-ToolVersion 'Write-Output' "$logs"
   Add-Path $msys_location\mingw64\bin
   Set-Output grpc_php_plugin_path "$msys_location\mingw64\bin\grpc_php_plugin.exe"

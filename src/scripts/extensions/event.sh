@@ -39,9 +39,9 @@ add_event() {
     add_log "${tick:?}" "event" "Enabled"
   else
     if ! [[ "${version:?}" =~ ${old_versions:?} ]] && [ "$os" = "Darwin" ]; then
-      add_brew_extension event extension >/dev/null 2>&1
+      add_brew_extension event extension 
     else
-      add_event_helper "$ext" >/dev/null 2>&1
+      add_event_helper "$ext" 
     fi
     add_extension_log "event" "Installed and enabled"
   fi

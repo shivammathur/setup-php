@@ -24,6 +24,6 @@ add_mago() {
     sudo tar -xzf /tmp/mago.tar.gz -C /tmp/
     sudo mv /tmp/mago-$mago_tag-$arch-$platform/mago /usr/local/bin/mago
     sudo chmod +x /usr/local/bin/mago
-  ) >/dev/null 2>&1
+  ) 
   add_log "${tick:?}" "mago" "Added mago $mago_tag"
 }

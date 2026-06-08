@@ -22,6 +22,7 @@ add_brew_tap() {
       fi
     fi
   fi
+  brew trust "$tap" >/dev/null 2>&1
 }
 
 # Function to get brew prefix.

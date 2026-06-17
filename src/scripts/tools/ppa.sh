@@ -343,23 +343,32 @@ add_ppa_sp_mirror() {
   add_list sp/"$ppa_name" "$ppa_sp/$ppa/ubuntu" "$ppa_sp/$ppa/ubuntu/key.gpg"
 }
 
+add_sury_list() {
+  ppa=${1:-ondrej/php}
+  [ "${debug:?}" = "debug" ] && add_list "$ppa" "$sury"/"${ppa##*/}"/ "$sury"/"${ppa##*/}"/apt.gpg "$VERSION_CODENAME" "main/debug"
+  add_list "$ppa" "$sury"/"${ppa##*/}"/ "$sury"/"${ppa##*/}"/apt.gpg
+}
+
 # Function to add a PPA.
 add_ppa() {
   set_base_version
   ppa=${1:-ondrej/php}
   if [[ "$ID" = "ubuntu" || "$ID_LIKE" =~ ubuntu ]] && [[ "$ppa" =~ "ondrej/" ]]; then
-    if is_ubuntu_ppa_up "$ppa" ; then
-      [ "${runner:?}" = "self-hosted" ] && find "$list_dir" -type f -name 'sp*' -exec grep -qF "${sp/https:\/\/}" {} \; -delete
-      [ "${debug:?}" = "debug" ] && add_list "$ppa" "$lpc_ppa/$ppa/ubuntu" "$lpc_ppa/$ppa/ubuntu" "$VERSION_CODENAME" "main/debug"
-      add_list "$ppa"
-    elif [ "$ppa" = "ondrej/php" ]; then
-      add_ppa_sp_mirror "$ppa"
+    if [ "$VERSION_ID" = "26.04" ]; then
+      add_sury_list
     else
-      add_log "${cross:?}" "$ppa" "PPA $ppa is not available"
+      if is_ubuntu_ppa_up "$ppa" ; then
+        [ "${runner:?}" = "self-hosted" ] && find "$list_dir" -type f -name 'sp*' -exec grep -qF "${sp/https:\/\/}" {} \; -delete
+        [ "${debug:?}" = "debug" ] && add_list "$ppa" "$lpc_ppa/$ppa/ubuntu" "$lpc_ppa/$ppa/ubuntu" "$VERSION_CODENAME" "main/debug"
+        add_list "$ppa"
+      elif [ "$ppa" = "ondrej/php" ]; then
+        add_ppa_sp_mirror "$ppa"
+      else
+        add_log "${cross:?}" "$ppa" "PPA $ppa is not available"
+      fi
     fi
   elif [[ "$ID" = "debian" || "$ID_LIKE" =~ debian ]] && [[ "$ppa" =~ "ondrej/" ]]; then
-    [ "${debug:?}" = "debug" ] && add_list "$ppa" "$sury"/"${ppa##*/}"/ "$sury"/"${ppa##*/}"/apt.gpg "$VERSION_CODENAME" "main/debug"
-    add_list "$ppa" "$sury"/"${ppa##*/}"/ "$sury"/"${ppa##*/}"/apt.gpg
+    add_sury_list
   else
     add_list "$ppa"
   fi

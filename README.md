@@ -18,7 +18,7 @@
   <a href="https://status.setup-php.com" title="setup-php status"><img alt="setup-php status" src="https://img.shields.io/badge/status-subscribe-28A745?logo=statuspage&logoColor=28A745&labelColor=555555"></a>
 </p>
 
-Setup PHP with required extensions, php.ini configuration, code-coverage support and various tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross-platform interface to set up the PHP environment you need to test your application. Refer to [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
+Setup PHP with required extensions, php.ini configuration, code-coverage support, and various tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross-platform interface to set up the PHP environment you need to test your application. Refer to the [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
 
 ## Contents
 
@@ -101,7 +101,7 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | macOS Sonoma 14.x x86_64/arm64   | `self-hosted` or `macOS`   |
 
 - Refer to the [self-hosted setup](#self-hosted-setup) to use the action on self-hosted runners.
-- Operating systems based on the above Ubuntu and Debian versions are also supported on best effort basis.
+- Operating systems based on the above Ubuntu and Debian versions are also supported on a best effort basis.
 - If the requested PHP version is pre-installed, `setup-php` switches to it, otherwise it installs the PHP version.
 
 ## :tada: PHP Support
@@ -158,7 +158,7 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 
 - Extensions installed along with PHP if specified are enabled.
 
-- Specific versions of extensions available on `PECL` can be set up by suffixing the extension's name with the version. This is useful for installing old versions of extensions which support end of life PHP versions.
+- Specific versions of extensions available on `PECL` can be set up by suffixing the extension's name with the version. This is useful for installing old versions of extensions which support end-of-life PHP versions.
 
 ```yaml
 - name: Setup PHP with specific version of PECL extension
@@ -183,14 +183,14 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 - Shared extensions can be disabled by prefixing them with a `:`. All extensions depending on the specified extension will also be disabled.
 
 ```yaml
-- name: Setup PHP and disable opcache
+- name: Setup PHP and disable mbstring
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.5'
     extensions: :mbstring
 ```
 
-- All shared extensions can be disabled by specifying `none`. When `none` is specified along with other extensions, it is hoisted to the start of the input. So, all the shared extensions will be disabled first, then rest of the extensions in the input will be processed.
+- All shared extensions can be disabled by specifying `none`. When `none` is specified along with other extensions, it is hoisted to the start of the input. So, all the shared extensions will be disabled first, then the rest of the extensions in the input will be processed.
 
 This disables all core and third-party shared extensions and thus, can break some tools that need them. Required extensions are enabled again when the tools are set up on a best-effort basis. So it is recommended to add the extensions required for your tools after `none` in the `extensions` input to avoid any issues.
 
@@ -219,7 +219,7 @@ This disables all core and third-party shared extensions and thus, can break som
   - `event`, `gearman`, `geos` and `relay` on `Ubuntu` and `macOS`.
   - `blackfire`, `couchbase`, `ibm_db2`, `ioncube`, `oci8`, `pdo_firebird`, `pdo_ibm`, `pdo_oci`, `pecl_http`, `phalcon3`, `phalcon4`, `phalcon5`, and `zephir_parser` on all supported OS.
 
-- By default, extensions which cannot be added or disabled gracefully leave an error message in the logs, the execution is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.
+- By default, extensions which cannot be added or disabled gracefully leave an error message in the logs. The execution is not interrupted. To change this behaviour you can set `fail-fast` flag to `true`.
 
 ```yaml
 - name: Setup PHP with fail-fast
@@ -245,7 +245,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
     tools: php-cs-fixer, phpunit
 ```
 
-- In addition to above tools any composer tool or package can also be set up globally by specifying it as `vendor/package` matching the listing on Packagist. This format accepts the same [version constraints](https://getcomposer.org/doc/articles/versions.md#writing-version-constraints "Composer version constraints") as `composer`.
+- In addition to the above tools, any composer tool or package can also be set up globally by specifying it as `vendor/package` matching the listing on Packagist. This format accepts the same [version constraints](https://getcomposer.org/doc/articles/versions.md#writing-version-constraints "Composer version constraints") as `composer`.
 
 ```yaml
 - name: Setup PHP with tools
@@ -262,7 +262,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
   - Major version. For example `tool:1` or `tool:1.x`.
   - Major and minor version. For example `tool:1.2` or `tool:1.2.x`.
 
-  When you specify just the major version or the version in `major.minor` format, the latest patch version matching the input will be setup.
+  When you specify just the major version or the version in `major.minor` format, the latest patch version matching the input will be set up.
 
 - The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying the major version `v1` or `v2`, or the version in `major.minor` or `semver` format. Additionally, for composer `snapshot` and `preview` can also be specified to set up the respective releases.
 
@@ -302,7 +302,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
     fail-fast: true
 ```
 
-- By default, `composer` blocks all its plugins. If you are using the `tools` input to install a composer plugin it will be added to the allow list, alternatively if your dependencies have composer plugins, you can allow them by setting `COMPOSER_ALLOW_PLUGINS` that accepts a csv string of plugin names.
+- By default, `composer` blocks all its plugins. If you are using the `tools` input to install a composer plugin it will be added to the allowlist, alternatively if your dependencies have composer plugins, you can allow them by setting `COMPOSER_ALLOW_PLUGINS` that accepts a csv string of plugin names.
 
 ```yaml
 - name: Setup PHP with fail-fast
@@ -345,7 +345,7 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
 ```
 
 - When you specify `coverage: xdebug`, the latest version of Xdebug compatible with the PHP version is set up by default.
-- If you need Xdebug 2.x on PHP 7.2, 7.3 or 7.4, you can specify `coverage: xdebug2`.
+- If you need Xdebug 2.x on PHP 7.2, 7.3, or 7.4, you can specify `coverage: xdebug2`.
 
 ```yaml
 - name: Setup PHP with Xdebug 2.x
@@ -356,7 +356,7 @@ Runs on all [PHP versions supported](#tada-php-support "List of PHP versions sup
 ```
 
 > [!NOTE]
-> Xdebug is enabled by default on Ubuntu GitHub Actions images, so if you are not using it in your workflow it is recommended to disable it as that will have a positive impact on your PHP performance. Please refer to the [disable coverage](#disable-coverage) section for details.
+> Xdebug is enabled by default on Ubuntu GitHub Actions images, so if you are not using it in your workflows, it is recommended to disable it as that will have a positive impact on your PHP performance. Please refer to the [disable coverage](#disable-coverage) section for details.
 
 ### PCOV
 
@@ -375,7 +375,7 @@ Runs on PHP 7.1 and newer PHP versions.
 ```
 
 - PHPUnit 8.x and above support PCOV out of the box.
-- If you are using PHPUnit 5.x, 6.x or 7.x, you need to set up `pcov/clobber` before executing your tests.
+- If you are using PHPUnit 5.x, 6.x, or 7.x, you need to set up `pcov/clobber` before executing your tests.
 
 ```yaml
 - name: Setup PCOV
@@ -393,7 +393,7 @@ Disable coverage for these reasons:
 - You are not generating coverage reports while testing.
 - You are using `phpdbg` for running your tests.
 - You are profiling your code using `blackfire`.
-- You are using PHP in JIT mode. Please refer to [JIT configuration](#jit-configuration) section for more details.
+- You are using PHP in JIT mode. Please refer to the [JIT configuration](#jit-configuration) section for more details.
 
 ```yaml
 - name: Setup PHP with no coverage driver
@@ -656,7 +656,7 @@ To debug any issues, you can use the `verbose` tag instead of `v2`.
 
 ### Multi-Arch Setup
 
-> Set up PHP on multiple architecture on Ubuntu GitHub Runners.
+> Set up PHP on multiple architectures on Ubuntu GitHub Runners.
 
 - `PHP 5.6` to `PHP 8.5` are supported by `setup-php` on multiple architecture on `Ubuntu` and `Debian`.
 - For this, you can use `shivammathur/node` images as containers. These have compatible `Nodejs` and `PHP` installed for `setup-php`.
@@ -686,7 +686,7 @@ jobs:
 
 > Set up PHP on a self-hosted runner.
 
-- To set up a containerised self-hosted runner, refer to the following guides as per your base operating system.
+- To set up a containerized self-hosted runner, refer to the following guides as per your base operating system.
   - [Linux](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Linux)
   - [Windows](https://github.com/shivammathur/setup-php/wiki/Dockerized-self-hosted-runner-on-Windows)
 
@@ -713,7 +713,7 @@ jobs:
 ```
 
 > [!NOTE]
-> - Do not set up multiple self-hosted runners on a single server instance as parallel workflow will conflict with each other.
+> - Do not set up multiple self-hosted runners on a single server instance as parallel workflows will conflict with each other.
 > - Do not set up self-hosted runners on the side of your development environment or your production server.
 > - Avoid using the same labels for your `self-hosted` runners which are used by `GitHub-hosted` runners.
 
@@ -756,7 +756,7 @@ act -P ubuntu-22.04=shivammathur/node:22.04
 - By default, `opcache.jit=1235` and `opcache.jit_buffer_size=256M` (`opcache.jit_buffer_size=128M` on ARM-based environments) are set which can be changed using `ini-values` input.
 - For detailed information about JIT related directives refer to the [`official PHP documentation`](https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.jit "opcache.jit documentation").
 
-For example to enable JIT in `tracing` mode with buffer size of `64 MB`.
+For example, to enable JIT in `tracing` mode with buffer size of `64 MB`.
 
 ```yaml
 - name: Setup PHP with JIT in tracing mode
@@ -836,7 +836,7 @@ If you use Private Packagist for your private composer dependencies, you can set
 
 ### Manual Composer Authentication
 
-In addition to GitHub or Private Packagist, if you want to authenticate private repositories hosted elsewhere, you can set the `COMPOSER_AUTH_JSON` environment variable with the authentication methods and the credentials in json format.
+In addition to GitHub or Private Packagist, if you want to authenticate private repositories hosted elsewhere, you can set the `COMPOSER_AUTH_JSON` environment variable with the authentication methods and the credentials in JSON format.
 Please refer to the authentication section in [`composer documentation`](https://getcomposer.org/doc/articles/authentication-for-private-packages.md "composer documentation") for more details.
 
 ```yaml
@@ -882,7 +882,7 @@ Problem matchers are `json` configurations which identify errors and warnings in
 
 #### PHP
 
-Setup problem matchers for your `PHP` output by adding this step after the `setup-php` step.
+Set up problem matchers for your `PHP` output by adding this step after the `setup-php` step.
 
 ```yaml
 - name: Setup problem matchers for PHP
@@ -891,7 +891,7 @@ Setup problem matchers for your `PHP` output by adding this step after the `setu
 
 #### PHPUnit
 
-Setup problem matchers for your `PHPUnit` output by adding this step after the `setup-php` step.
+Set up problem matchers for your `PHPUnit` output by adding this step after the `setup-php` step.
 
 ```yaml
 - name: Setup problem matchers for PHPUnit
@@ -973,7 +973,7 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 | Symfony with `PostgreSQL`              | `ubuntu`                        | [symfony-postgres.yml](./examples/symfony-postgres.yml "GitHub Action for Symfony with PostgreSQL")           |
 | Symfony without services               | `macOS`, `ubuntu` and `windows` | [symfony.yml](./examples/symfony.yml "GitHub Action for Symfony without services")                            |
 | WordPress plugin                       | `ubuntu`                        | [wordpress.yml](./examples/wordpress.yml "GitHub Action for WordPress plugins")                               |
-| WordPress with Roots/Bedrock           | `ubuntu`                        | [bedrock.yml](./examples/bedrock.yml "GitHub Action for WordPress development using @roots/bedrock")         |
+| WordPress with Roots/Bedrock           | `ubuntu`                        | [bedrock.yml](./examples/bedrock.yml "GitHub Action for WordPress development using @roots/bedrock")          |
 | WordPress with Roots/Sage              | `ubuntu`                        | [sage.yml](./examples/sage.yml "GitHub Action for WordPress development using @roots/sage")                   |
 | Yii3 web application with `MySQL`      | `ubuntu`                        | [yii3-mysql.yml](./examples/yii3-mysql.yml "GitHub Action for Yii3 web application with MySQL")               |
 | Yii3 web application with `PostgreSQL` | `ubuntu`                        | [yii3-postgres.yml](./examples/yii3-postgres.yml "GitHub Action for Yii3 web application with PostgreSQL")    |
@@ -981,12 +981,12 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 
 ## :bookmark: Versioning
 
-- Use the `v2` tag as `setup-php` version. It is a rolling tag and is synced with the latest minor and patch releases. With `v2` you automatically get the bug fixes, security patches, new features and support for latest PHP releases.
+- Use the `v2` tag as `setup-php` version. It is a rolling tag and is synced with the latest minor and patch releases. With `v2` you automatically get the bug fixes, security patches, new features, and support for latest PHP releases.
 - Semantic release versions can also be used. It is recommended to [use dependabot](https://docs.github.com/en/github/administering-a-repository/keeping-your-actions-up-to-date-with-github-dependabot "Setup Dependabot with GitHub Actions") with semantic versioning to keep the actions in your workflows up to date.
-- Commit SHA can also be used, but are not recommended unless you set up tooling to update them with each release of the action.
-- A new major version of the action will only be tagged when there are breaking changes in the setup-php API i.e. inputs, outputs, and environment flags.
+- Commit SHA can also be used, but is not recommended unless you set up tooling to update them with each release of the action.
+- A new major version of the action will only be tagged when there are breaking changes in the setup-php API i.e. - inputs, outputs, and environment flags.
 - For debugging any issues `verbose` tag can be used temporarily. It outputs all the logs and is also synced with the latest releases.
-- It is highly discouraged to use the `main` branch as version, it might break your workflow after major releases as they have breaking changes.
+- It is highly discouraged to use the `main` branch as the version, it might break your workflow after major releases as they have breaking changes.
 - If you are using the `v1` tag or a `1.x.y` version, you should [switch to v2](https://github.com/shivammathur/setup-php/wiki/Switch-to-v2 "Guide for switching from setup-php v1 to v2") as `v1` is not supported anymore.
 
 ## :scroll: License
@@ -1048,7 +1048,7 @@ Many users and organizations support setup-php via [GitHub Sponsors](https://git
 
 <a href="https://github.com/sponsors/shivammathur"><img src="https://setup-php.com/sponsors.svg?" alt="Sponsor shivammathur"></a>
 
-- If you use setup-php, please consider starring the project and share it. 
+- If you use setup-php, please consider starring the project and sharing it. 
 - If you blog, please share your experience of using `setup-php`.
 - Please [reach out](mailto:contact@setup-php.com) if you have any questions about sponsoring setup-php.
 

@@ -48,7 +48,7 @@ jobs:
 
       - name: Setup cache environment
         id: cache-env
-        uses: shivammathur/cache-extensions@256729b5fef535345e27904657f78048c0990f81 # v1
+        uses: shivammathur/cache-extensions@9b476298b44f2e4d4268dd103ff4c3e216314e27 # v1
         with:
           php-version: ${{ matrix.php-versions || env.default-php-version }}
           extensions: ${{ env.extensions }}

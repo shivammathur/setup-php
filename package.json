@@ -61,6 +61,8 @@
     "typescript": "^5.9.3"
   },
   "overrides": {
+    "@babel/core": "^7.29.7",
+    "js-yaml": "^4.2.0",
     "test-exclude": "^7.0.1",
     "glob": "^13.0.6",
     "minimatch": "^10.2.1"

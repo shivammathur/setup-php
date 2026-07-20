@@ -7,6 +7,7 @@ gmagick=graphicsmagick-libmagick-dev-compat
 gnupg=libgpgme-dev
 grpc=libgrpc-dev libprotobuf-dev protobuf-compiler
 imagick=libmagickwand-dev libmagickcore-dev
+krb5=libkrb5-dev
 memcached=libmemcached-dev libevent-dev
 protobuf=libprotobuf-dev protobuf-compiler
 rdkafka=librdkafka-dev

@@ -144,6 +144,21 @@ Function Test-MutableToolUrl() {
   return ($Url -match $mutableUrlRegex) -or (($Url -match '\.phar([?#].*)?$') -and -not ($Url -match $versionLikeRegex))
 }
 
+# Function to verify the checksum of a file.
+Function Test-ToolChecksum() {
+  Param(
+    [Parameter(Position = 0, Mandatory = $true)]
+    [string]
+    $Path,
+    [Parameter(Position = 1, Mandatory = $true)]
+    [string]
+    $Checksum
+  )
+  $checksum_parts = $Checksum -split ':'
+  $actual_checksum = (Get-FileHash -Path $Path -Algorithm $checksum_parts[0]).Hash
+  return $actual_checksum -eq $checksum_parts[1]
+}
+
 # Function to extract tool version.
 Function Get-ToolVersion() {
   Param (
@@ -255,7 +270,12 @@ Function Add-Tool() {
   $use_cache = -not (Test-MutableToolUrl $urls[0])
   $status_code = 200
   if ($use_cache -and (Test-Path $cache_path -PathType Leaf)) {
-    Copy-Item $cache_path -Destination $tool_path -Force
+    if($checksum -and -not(Test-ToolChecksum $cache_path $checksum)) {
+      Remove-Item $cache_path -Force -ErrorAction SilentlyContinue
+      $status_code = 'checksum_mismatch'
+    } else {
+      Copy-Item $cache_path -Destination $tool_path -Force
+    }
   } else {
     $backup_path = "$tool_path.bak"
     if (Test-Path $tool_path) { Copy-Item $tool_path -Destination $backup_path -Force }
@@ -275,10 +295,15 @@ Function Add-Tool() {
         }
       }
       if($status_code -eq 200 -and (Test-Path $tool_path)) {
-        if ($use_cache) {
-          Copy-Item $tool_path -Destination $cache_path -Force
-        }
         break
+      }
+    }
+    if($status_code -eq 200 -and (Test-Path $tool_path)) {
+      if($checksum -and -not(Test-ToolChecksum $tool_path $checksum)) {
+        Remove-Item @($tool_path, $cache_path) -Force -ErrorAction SilentlyContinue
+        $status_code = 'checksum_mismatch'
+      } elseif($use_cache) {
+        Copy-Item $tool_path -Destination $cache_path -Force
       }
     }
     if ($status_code -ne 200 -and (Test-Path $backup_path)) {
@@ -287,17 +312,12 @@ Function Add-Tool() {
     Remove-Item $backup_path -Force -ErrorAction SilentlyContinue
   }
 
-  if($checksum -and ($status_code -eq 200) -and (Test-Path $tool_path)) {
-    $checksum_parts = $checksum -split ':'
-    $actual_checksum = (Get-FileHash -Path $tool_path -Algorithm $checksum_parts[0]).Hash
-    if($actual_checksum -ne $checksum_parts[1]) {
-      Remove-Item @($tool_path, $cache_path) -Force -ErrorAction SilentlyContinue
-      if($tool -eq "composer") {
-        $env:fail_fast = 'true'
-      }
-      Add-Log $cross $tool "Checksum verification failed for $tool"
-      return
+  if($status_code -eq 'checksum_mismatch') {
+    if($tool -eq "composer") {
+      $env:fail_fast = 'true'
     }
+    Add-Log $cross $tool "Checksum verification failed for $tool"
+    return
   }
 
   $escaped_tool = [regex]::Escape($tool)

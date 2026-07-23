@@ -77,7 +77,8 @@ interface ToolConfig {
 /**
  * Regex to match a checksum suffix in a tool release - tool:version@sha256:<hash>
  */
-const checksum_suffix_regex = /@(sha256|sha512):([^@]*)$/;
+const checksum_suffix_regex = /@([a-z][a-z0-9-]*):([^@]*)$/i;
+const checksum_like_suffix_regex = /@sha[^@]*$/i;
 
 /**
  * Function to parse the checksum suffix in the tool release
@@ -91,10 +92,24 @@ export function extractChecksum(release: string): {
 } {
   const matches = release.match(checksum_suffix_regex);
   if (!matches) {
+    const checksum_like_matches = release.match(checksum_like_suffix_regex);
+    if (checksum_like_matches) {
+      return {
+        release: release.slice(0, -checksum_like_matches[0].length),
+        error:
+          'Invalid checksum syntax, expected @sha256:<hash> or @sha512:<hash>'
+      };
+    }
     return {release};
   }
   release = release.slice(0, -matches[0].length);
-  const algo = matches[1];
+  const algo = matches[1].toLowerCase();
+  if (!['sha256', 'sha512'].includes(algo)) {
+    return {
+      release,
+      error: `Unsupported checksum algorithm ${algo}, expected sha256 or sha512`
+    };
+  }
   const hash = matches[2].toLowerCase();
   const hash_length = algo === 'sha256' ? 64 : 128;
   if (!new RegExp(`^[a-f0-9]{${hash_length}}$`).test(hash)) {
@@ -294,10 +309,12 @@ export async function filterList(tools_list: string[]): Promise<string[]> {
   const regex_valid =
     /^composer:?($|preview$|snapshot$|v?\d+(\.\d+)?$|v?\d+\.\d+\.\d+[\w-]*$)/;
   const matches: string[] = tools_list.filter(tool =>
-    regex_valid.test(tool.replace(checksum_suffix_regex, ''))
+    regex_valid.test(extractChecksum(tool).release)
   );
   let composer = 'composer';
-  tools_list = tools_list.filter(tool => !regex_any.test(tool));
+  tools_list = tools_list.filter(
+    tool => !regex_any.test(extractChecksum(tool).release)
+  );
   switch (true) {
     case matches[0] == undefined:
       break;

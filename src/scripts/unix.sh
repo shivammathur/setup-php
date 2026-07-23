@@ -130,12 +130,13 @@ verify_checksum() {
   local algo="${checksum%%:*}"
   local expected="${checksum#*:}"
   local actual=
-  if command -v "${algo}sum" >/dev/null; then
-    actual="$(sudo "${algo}sum" "$file_path" | cut -d' ' -f1)"
-  elif command -v shasum >/dev/null; then
-    actual="$(sudo shasum -a "${algo#sha}" "$file_path" | cut -d' ' -f1)"
-  elif command -v openssl >/dev/null; then
-    actual="$(sudo openssl dgst -"$algo" "$file_path" | awk '{print $NF}')"
+  local hash_command=
+  if hash_command="$(command -v "${algo}sum")"; then
+    actual="$(sudo "$hash_command" "$file_path" | cut -d' ' -f1)"
+  elif hash_command="$(command -v shasum)"; then
+    actual="$(sudo "$hash_command" -a "${algo#sha}" "$file_path" | cut -d' ' -f1)"
+  elif hash_command="$(command -v openssl)"; then
+    actual="$(sudo "$hash_command" dgst -"$algo" "$file_path" | awk '{print $NF}')"
   fi
   [ -n "$actual" ] && [ "$(echo "$actual" | tr '[:upper:]' '[:lower:]')" = "$(echo "$expected" | tr '[:upper:]' '[:lower:]')" ]
 }

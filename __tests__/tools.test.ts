@@ -226,11 +226,15 @@ describe('Tools tests', () => {
     ${'tool:1.2.3'}                              | ${'tool:1.2.3'}     | ${undefined}                   | ${undefined}
     ${'tool:1.2.3@sha256:' + 'a'.repeat(64)}     | ${'tool:1.2.3'}     | ${'sha256:' + 'a'.repeat(64)}  | ${undefined}
     ${'tool:1.2.3@sha256:' + 'A'.repeat(64)}     | ${'tool:1.2.3'}     | ${'sha256:' + 'a'.repeat(64)}  | ${undefined}
+    ${'tool:1.2.3@SHA256:' + 'a'.repeat(64)}     | ${'tool:1.2.3'}     | ${'sha256:' + 'a'.repeat(64)}  | ${undefined}
     ${'tool:1.2.3@sha512:' + 'b'.repeat(128)}    | ${'tool:1.2.3'}     | ${'sha512:' + 'b'.repeat(128)} | ${undefined}
     ${'composer:2.9.8@sha256:' + 'c'.repeat(64)} | ${'composer:2.9.8'} | ${'sha256:' + 'c'.repeat(64)}  | ${undefined}
     ${'tool:1.2.3@sha256:xyz'}                   | ${'tool:1.2.3'}     | ${undefined}                   | ${'Invalid sha256 checksum, expected 64 hexadecimal characters'}
     ${'tool:1.2.3@sha256:' + 'a'.repeat(63)}     | ${'tool:1.2.3'}     | ${undefined}                   | ${'Invalid sha256 checksum, expected 64 hexadecimal characters'}
     ${'tool:1.2.3@sha512:' + 'b'.repeat(64)}     | ${'tool:1.2.3'}     | ${undefined}                   | ${'Invalid sha512 checksum, expected 128 hexadecimal characters'}
+    ${'tool:1.2.3@sha384:' + 'b'.repeat(96)}     | ${'tool:1.2.3'}     | ${undefined}                   | ${'Unsupported checksum algorithm sha384, expected sha256 or sha512'}
+    ${'tool:1.2.3@md5:' + 'b'.repeat(32)}        | ${'tool:1.2.3'}     | ${undefined}                   | ${'Unsupported checksum algorithm md5, expected sha256 or sha512'}
+    ${'tool:1.2.3@sha256' + 'a'.repeat(64)}      | ${'tool:1.2.3'}     | ${undefined}                   | ${'Invalid checksum syntax, expected @sha256:<hash> or @sha512:<hash>'}
     ${'tool:1.0@dev'}                            | ${'tool:1.0@dev'}   | ${undefined}                   | ${undefined}
   `(
     'checking extractChecksum: $release',
@@ -257,6 +261,11 @@ describe('Tools tests', () => {
     ${'a, b, composer:v2'}                              | ${'composer:2, a, b'}
     ${'a, b, composer:2.7.1@sha256:' + 'a'.repeat(64)}  | ${'composer:2.7.1@sha256:' + 'a'.repeat(64) + ', a, b'}
     ${'a, b, composer:v2.7.1@sha256:' + 'a'.repeat(64)} | ${'composer:2.7.1@sha256:' + 'a'.repeat(64) + ', a, b'}
+    ${'a, b, composer:2.7.1@SHA256:' + 'a'.repeat(64)}  | ${'composer:2.7.1@SHA256:' + 'a'.repeat(64) + ', a, b'}
+    ${'a, b, composer:2.7.1@sha384:' + 'a'.repeat(96)}  | ${'composer:2.7.1@sha384:' + 'a'.repeat(96) + ', a, b'}
+    ${'a, b, composer:2.7.1@md5:' + 'a'.repeat(32)}     | ${'composer:2.7.1@md5:' + 'a'.repeat(32) + ', a, b'}
+    ${'a, b, composer:2.7.1@sha256' + 'a'.repeat(64)}   | ${'composer:2.7.1@sha256' + 'a'.repeat(64) + ', a, b'}
+    ${'a, b, composer@sha256:' + 'a'.repeat(64)}        | ${'composer@sha256:' + 'a'.repeat(64) + ', a, b'}
   `('checking filterList $input_list', async ({input_list, filtered_list}) => {
     expect(await tools.filterList(input_list.split(', '))).toStrictEqual(
       filtered_list.split(', ')
@@ -825,6 +834,10 @@ describe('Tools tests', () => {
     ${'phinx:1.2.3@sha256:' + 'a'.repeat(64)}    | ${'linux'}  | ${'add_log "$cross" "phinx" "Checksum verification is not supported for phinx"'}
     ${'pecl@sha256:' + 'a'.repeat(64)}           | ${'linux'}  | ${'add_log "$cross" "pecl" "Checksum verification is not supported for pecl"'}
     ${'phpunit:9.5.0@sha256:invalid'}            | ${'linux'}  | ${'add_log "$cross" "phpunit" "Invalid sha256 checksum, expected 64 hexadecimal characters"'}
+    ${'composer:2.9.8@SHA256:' + 'b'.repeat(64)} | ${'linux'}  | ${'composer 2.9.8 sha256:' + 'b'.repeat(64)}
+    ${'composer:2.9.8@sha384:' + 'b'.repeat(96)} | ${'linux'}  | ${'add_log "$cross" "composer" "Unsupported checksum algorithm sha384, expected sha256 or sha512"'}
+    ${'composer:2.9.8@md5:' + 'b'.repeat(32)}    | ${'linux'}  | ${'add_log "$cross" "composer" "Unsupported checksum algorithm md5, expected sha256 or sha512"'}
+    ${'composer:2.9.8@sha256' + 'b'.repeat(64)}  | ${'linux'}  | ${'add_log "$cross" "composer" "Invalid checksum syntax, expected @sha256:<hash> or @sha512:<hash>"'}
   `(
     'checking addTools with checksum: $tools_csv, $os',
     async ({tools_csv, os, script}) => {

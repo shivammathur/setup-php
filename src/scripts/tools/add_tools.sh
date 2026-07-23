@@ -227,7 +227,12 @@ add_tool() {
   is_mutable_tool_url "${url[0]}" && use_cache=false
   status_code="200"
   if [ "$use_cache" = "true" ] && [ -f "$cache_path" ]; then
-    sudo cp -a "$cache_path" "$tool_path"
+    if [ -n "$checksum" ] && ! verify_checksum "$cache_path" "$checksum"; then
+      sudo rm -f "$cache_path"
+      status_code="checksum_mismatch"
+    else
+      sudo cp -a "$cache_path" "$tool_path"
+    fi
   else
     [ -f "$tool_path" ] && sudo cp -a "$tool_path" "$tool_path.bak"
     status_code=$(get -v -e "$tool_path" "${url[@]}")
@@ -236,15 +241,17 @@ add_tool() {
       status_code=$(get -v -e "$tool_path" "${url[0]}")
     fi
     if [ "$status_code" = "200" ]; then
-      [ "$use_cache" = "true" ] && sudo cp -a "$tool_path" "$cache_path"
-    elif [ -f "$tool_path.bak" ]; then
+      if [ -n "$checksum" ] && ! verify_checksum "$tool_path" "$checksum"; then
+        sudo rm -f "$tool_path" "$cache_path"
+        status_code="checksum_mismatch"
+      elif [ "$use_cache" = "true" ]; then
+        sudo cp -a "$tool_path" "$cache_path"
+      fi
+    fi
+    if [ "$status_code" != "200" ] && [ -f "$tool_path.bak" ]; then
       sudo mv "$tool_path.bak" "$tool_path"
     fi
     sudo rm -f "$tool_path.bak"
-  fi
-  if [ "$status_code" = "200" ] && [ -n "$checksum" ] && ! verify_checksum "$tool_path" "$checksum"; then
-    sudo rm -f "$tool_path" "$cache_path"
-    status_code="checksum_mismatch"
   fi
   if [ "$status_code" = "200" ]; then
     add_tools_helper "$tool"

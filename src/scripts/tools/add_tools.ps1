@@ -229,8 +229,18 @@ Function Add-Tool() {
     [Parameter(Position = 2, Mandatory = $false)]
     $ver_param,
     [Parameter(Position = 3, Mandatory = $false)]
-    $skip_composer_github_auth
+    $skip_composer_github_auth,
+    [Parameter(Position = 4, Mandatory = $false)]
+    $checksum
   )
+  $checksum_regex = '^sha(256|512):[0-9a-fA-F]+$'
+  if("$ver_param" -match $checksum_regex) {
+    $checksum = $ver_param
+    $ver_param = $null
+  } elseif("$skip_composer_github_auth" -match $checksum_regex) {
+    $checksum = $skip_composer_github_auth
+    $skip_composer_github_auth = $null
+  }
   if($tool -eq "composer") {
     $script:skip_composer_github_auth = $skip_composer_github_auth -eq 'true'
   }
@@ -275,6 +285,19 @@ Function Add-Tool() {
       Copy-Item $backup_path -Destination $tool_path -Force
     }
     Remove-Item $backup_path -Force -ErrorAction SilentlyContinue
+  }
+
+  if($checksum -and ($status_code -eq 200) -and (Test-Path $tool_path)) {
+    $checksum_parts = $checksum -split ':'
+    $actual_checksum = (Get-FileHash -Path $tool_path -Algorithm $checksum_parts[0]).Hash
+    if($actual_checksum -ne $checksum_parts[1]) {
+      Remove-Item @($tool_path, $cache_path) -Force -ErrorAction SilentlyContinue
+      if($tool -eq "composer") {
+        $env:fail_fast = 'true'
+      }
+      Add-Log $cross $tool "Checksum verification failed for $tool"
+      return
+    }
   }
 
   $escaped_tool = [regex]::Escape($tool)

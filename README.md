@@ -264,6 +264,18 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 
   When you specify just the major version or the version in `major.minor` format, the latest patch version matching the input will be set up.
 
+- To harden your workflow against supply chain attacks, you can pin a tool to a checksum in the form `tool:version@sha256:<hash>` or `tool:version@sha512:<hash>`. The downloaded tool is verified against the checksum and it is not set up if the verification fails, even if the tool is served from the tools cache.
+
+```yaml
+- name: Setup PHP with tools pinned to a checksum
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '8.5'
+    tools: composer:2.9.8@sha256:59b2c50e10cafa0d8efc19ede9a326d782f096c674a26baf98cf042ce23de890
+```
+
+  Checksum verification is supported for tools which are downloaded as phar archives. It is not supported for tools set up using `composer` packages or custom package scripts, specifying a checksum for these tools will result in an error. For checksum pinning to be effective, pin the tool to an exact version, as mutable versions like `latest` or `major.minor` can resolve to a different release with a different checksum.
+
 - The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying the major version `v1` or `v2`, or the version in `major.minor` or `semver` format. Additionally, for composer `snapshot` and `preview` can also be specified to set up the respective releases.
 
 ```yaml

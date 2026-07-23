@@ -122,6 +122,24 @@ get_sha256() {
   fi
 }
 
+# Function to verify the checksum of a file.
+# checksum format: sha256:<hash> or sha512:<hash>
+verify_checksum() {
+  local file_path=$1
+  local checksum=$2
+  local algo="${checksum%%:*}"
+  local expected="${checksum#*:}"
+  local actual=
+  if command -v "${algo}sum" >/dev/null; then
+    actual="$(sudo "${algo}sum" "$file_path" | cut -d' ' -f1)"
+  elif command -v shasum >/dev/null; then
+    actual="$(sudo shasum -a "${algo#sha}" "$file_path" | cut -d' ' -f1)"
+  elif command -v openssl >/dev/null; then
+    actual="$(sudo openssl dgst -"$algo" "$file_path" | awk '{print $NF}')"
+  fi
+  [ -n "$actual" ] && [ "$(echo "$actual" | tr '[:upper:]' '[:lower:]')" = "$(echo "$expected" | tr '[:upper:]' '[:lower:]')" ]
+}
+
 # Function to download a file using cURL.
 # mode: -s pipe to stdout, -v save file and return status code
 # execute: -e save file as executable

@@ -222,17 +222,41 @@ describe('Tools tests', () => {
   });
 
   it.each`
-    input_list                   | filtered_list
-    ${'a, b'}                    | ${'composer, a, b'}
-    ${'a, b, composer'}          | ${'composer, a, b'}
-    ${'a, b, composer:1.2.3'}    | ${'composer:1.2.3, a, b'}
-    ${'a, b, composer:v1.2.3'}   | ${'composer:1.2.3, a, b'}
-    ${'a, b, composer:snapshot'} | ${'composer:snapshot, a, b'}
-    ${'a, b, composer:preview'}  | ${'composer:preview, a, b'}
-    ${'a, b, composer:1'}        | ${'composer:1, a, b'}
-    ${'a, b, composer:2'}        | ${'composer:2, a, b'}
-    ${'a, b, composer:v1'}       | ${'composer:1, a, b'}
-    ${'a, b, composer:v2'}       | ${'composer:2, a, b'}
+    release                                      | expected_release    | checksum                       | error
+    ${'tool:1.2.3'}                              | ${'tool:1.2.3'}     | ${undefined}                   | ${undefined}
+    ${'tool:1.2.3@sha256:' + 'a'.repeat(64)}     | ${'tool:1.2.3'}     | ${'sha256:' + 'a'.repeat(64)}  | ${undefined}
+    ${'tool:1.2.3@sha256:' + 'A'.repeat(64)}     | ${'tool:1.2.3'}     | ${'sha256:' + 'a'.repeat(64)}  | ${undefined}
+    ${'tool:1.2.3@sha512:' + 'b'.repeat(128)}    | ${'tool:1.2.3'}     | ${'sha512:' + 'b'.repeat(128)} | ${undefined}
+    ${'composer:2.9.8@sha256:' + 'c'.repeat(64)} | ${'composer:2.9.8'} | ${'sha256:' + 'c'.repeat(64)}  | ${undefined}
+    ${'tool:1.2.3@sha256:xyz'}                   | ${'tool:1.2.3'}     | ${undefined}                   | ${'Invalid sha256 checksum, expected 64 hexadecimal characters'}
+    ${'tool:1.2.3@sha256:' + 'a'.repeat(63)}     | ${'tool:1.2.3'}     | ${undefined}                   | ${'Invalid sha256 checksum, expected 64 hexadecimal characters'}
+    ${'tool:1.2.3@sha512:' + 'b'.repeat(64)}     | ${'tool:1.2.3'}     | ${undefined}                   | ${'Invalid sha512 checksum, expected 128 hexadecimal characters'}
+    ${'tool:1.0@dev'}                            | ${'tool:1.0@dev'}   | ${undefined}                   | ${undefined}
+  `(
+    'checking extractChecksum: $release',
+    ({release, expected_release, checksum, error}) => {
+      expect(tools.extractChecksum(release)).toStrictEqual({
+        release: expected_release,
+        ...(checksum !== undefined && {checksum}),
+        ...(error !== undefined && {error})
+      });
+    }
+  );
+
+  it.each`
+    input_list                                          | filtered_list
+    ${'a, b'}                                           | ${'composer, a, b'}
+    ${'a, b, composer'}                                 | ${'composer, a, b'}
+    ${'a, b, composer:1.2.3'}                           | ${'composer:1.2.3, a, b'}
+    ${'a, b, composer:v1.2.3'}                          | ${'composer:1.2.3, a, b'}
+    ${'a, b, composer:snapshot'}                        | ${'composer:snapshot, a, b'}
+    ${'a, b, composer:preview'}                         | ${'composer:preview, a, b'}
+    ${'a, b, composer:1'}                               | ${'composer:1, a, b'}
+    ${'a, b, composer:2'}                               | ${'composer:2, a, b'}
+    ${'a, b, composer:v1'}                              | ${'composer:1, a, b'}
+    ${'a, b, composer:v2'}                              | ${'composer:2, a, b'}
+    ${'a, b, composer:2.7.1@sha256:' + 'a'.repeat(64)}  | ${'composer:2.7.1@sha256:' + 'a'.repeat(64) + ', a, b'}
+    ${'a, b, composer:v2.7.1@sha256:' + 'a'.repeat(64)} | ${'composer:2.7.1@sha256:' + 'a'.repeat(64) + ', a, b'}
   `('checking filterList $input_list', async ({input_list, filtered_list}) => {
     expect(await tools.filterList(input_list.split(', '))).toStrictEqual(
       filtered_list.split(', ')
@@ -301,6 +325,23 @@ describe('Tools tests', () => {
       os: os,
       url: 'https://example.com/tool.phar'
     });
+    expect(await tools.addArchive(data)).toContain(script);
+  });
+
+  it.each`
+    os          | script
+    ${'linux'}  | ${'add_tool https://example.com/tool.phar tool "-v" sha256:' + 'a'.repeat(64)}
+    ${'darwin'} | ${'add_tool https://example.com/tool.phar tool "-v" sha256:' + 'a'.repeat(64)}
+    ${'win32'}  | ${'Add-Tool https://example.com/tool.phar tool "-v" sha256:' + 'a'.repeat(64)}
+  `('checking addArchive with checksum: $os', async ({os, script}) => {
+    const data = getData({
+      tool: 'tool',
+      version: '1.2.3',
+      version_parameter: JSON.stringify('-v'),
+      os: os,
+      url: 'https://example.com/tool.phar'
+    });
+    data.checksum = 'sha256:' + 'a'.repeat(64);
     expect(await tools.addArchive(data)).toContain(script);
   });
 
@@ -773,6 +814,41 @@ describe('Tools tests', () => {
   `('checking composer setup: $tools_csv', async ({tools_csv, script}) => {
     expect(await tools.addTools(tools_csv, '7.4', 'linux')).toContain(script);
   });
+
+  it.each`
+    tools_csv                                    | os          | script
+    ${'phpunit:9.5.0@sha256:' + 'a'.repeat(64)}  | ${'linux'}  | ${'add_tool https://phar.phpunit.de/phpunit-9.5.0.phar,https://phar.phpunit.de/phpunit-9.phar phpunit "--version" sha256:' + 'a'.repeat(64)}
+    ${'phpunit:9.5.0@sha256:' + 'a'.repeat(64)}  | ${'win32'}  | ${'Add-Tool https://phar.phpunit.de/phpunit-9.5.0.phar,https://phar.phpunit.de/phpunit-9.phar phpunit "--version" sha256:' + 'a'.repeat(64)}
+    ${'composer:2.9.8@sha256:' + 'b'.repeat(64)} | ${'linux'}  | ${'composer 2.9.8 sha256:' + 'b'.repeat(64)}
+    ${'cs2pr:1.2.3@sha256:' + 'd'.repeat(64)}    | ${'linux'}  | ${'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr "-V" sha256:' + 'd'.repeat(64)}
+    ${'phive:0.15.3@sha512:' + 'c'.repeat(128)}  | ${'darwin'} | ${'add_tool https://github.com/phar-io/phive/releases/download/0.15.3/phive-0.15.3.phar phive "status" sha512:' + 'c'.repeat(128)}
+    ${'phinx:1.2.3@sha256:' + 'a'.repeat(64)}    | ${'linux'}  | ${'add_log "$cross" "phinx" "Checksum verification is not supported for phinx"'}
+    ${'pecl@sha256:' + 'a'.repeat(64)}           | ${'linux'}  | ${'add_log "$cross" "pecl" "Checksum verification is not supported for pecl"'}
+    ${'phpunit:9.5.0@sha256:invalid'}            | ${'linux'}  | ${'add_log "$cross" "phpunit" "Invalid sha256 checksum, expected 64 hexadecimal characters"'}
+  `(
+    'checking addTools with checksum: $tools_csv, $os',
+    async ({tools_csv, os, script}) => {
+      expect(await tools.addTools(tools_csv, '7.4', os)).toContain(script);
+    }
+  );
+
+  it.each`
+    type                 | tool_function  | supported
+    ${'phar'}            | ${undefined}   | ${true}
+    ${'custom-function'} | ${undefined}   | ${true}
+    ${'custom-function'} | ${'composer'}  | ${true}
+    ${'custom-function'} | ${'pecl'}      | ${false}
+    ${'custom-function'} | ${'dev_tools'} | ${false}
+    ${'composer'}        | ${undefined}   | ${false}
+    ${'custom-package'}  | ${undefined}   | ${false}
+  `(
+    'checking supportsChecksum: $type, $tool_function',
+    async ({type, tool_function, supported}) => {
+      const data = getData({tool: 'tool', type: type});
+      data.function = tool_function;
+      expect(await tools.supportsChecksum(data)).toBe(supported);
+    }
+  );
 
   it.each`
     tools_csv        | token              | script

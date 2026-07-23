@@ -27,6 +27,7 @@ type ToolFunction =
 export interface ToolData {
   tool: string;
   version: string;
+  checksum?: string;
   os: string;
   php_version: string;
   github: string;
@@ -71,6 +72,38 @@ interface ToolConfig {
   version_parameter?: string;
   version_prefix?: string;
   packagist?: string;
+}
+
+/**
+ * Regex to match a checksum suffix in a tool release - tool:version@sha256:<hash>
+ */
+const checksum_suffix_regex = /@(sha256|sha512):([^@]*)$/;
+
+/**
+ * Function to parse the checksum suffix in the tool release
+ *
+ * @param release
+ */
+export function extractChecksum(release: string): {
+  release: string;
+  checksum?: string;
+  error?: string;
+} {
+  const matches = release.match(checksum_suffix_regex);
+  if (!matches) {
+    return {release};
+  }
+  release = release.slice(0, -matches[0].length);
+  const algo = matches[1];
+  const hash = matches[2].toLowerCase();
+  const hash_length = algo === 'sha256' ? 64 : 128;
+  if (!new RegExp(`^[a-f0-9]{${hash_length}}$`).test(hash)) {
+    return {
+      release,
+      error: `Invalid ${algo} checksum, expected ${hash_length} hexadecimal characters`
+    };
+  }
+  return {release, checksum: `${algo}:${hash}`};
 }
 
 /**
@@ -260,7 +293,9 @@ export async function filterList(tools_list: string[]): Promise<string[]> {
   const regex_any = /^composer($|:.*)/;
   const regex_valid =
     /^composer:?($|preview$|snapshot$|v?\d+(\.\d+)?$|v?\d+\.\d+\.\d+[\w-]*$)/;
-  const matches: string[] = tools_list.filter(tool => regex_valid.test(tool));
+  const matches: string[] = tools_list.filter(tool =>
+    regex_valid.test(tool.replace(checksum_suffix_regex, ''))
+  );
   let composer = 'composer';
   tools_list = tools_list.filter(tool => !regex_any.test(tool));
   switch (true) {
@@ -335,7 +370,8 @@ export async function getPharUrl(data: ToolData): Promise<string> {
 export async function addArchive(data: ToolData): Promise<string> {
   return (
     (await utils.getCommand(data.os, 'tool')) +
-    (await utils.joins(data.url, data.tool, data.version_parameter))
+    (await utils.joins(data.url, data.tool, data.version_parameter)) +
+    (data.checksum ? ' ' + data.checksum : '')
   );
 }
 
@@ -612,6 +648,8 @@ export async function getData(
   const json_file: string = fs.readFileSync(json_file_path, 'utf8');
   const json_objects: Record<string, ToolConfig> = JSON.parse(json_file);
   release = release.replace(/\s+/g, '');
+  const checksum_data = extractChecksum(release);
+  release = checksum_data.release;
   const parts: string[] = release.split(':');
   const tool = parts[0];
   const version = parts[1];
@@ -663,6 +701,8 @@ export async function getData(
     function: config.function,
     alias: config.alias
   };
+  data.checksum = checksum_data.checksum;
+  data.error = checksum_data.error;
   data.release = await getRelease(release, data);
   data.version = version
     ? await getVersion(version, data)
@@ -689,6 +729,25 @@ export const functionRecord: Record<
 };
 
 /**
+ * Function to check if a tool supports checksum verification
+ *
+ * Only tools downloaded as archives via add_tool support it, so composer
+ * packages and tools set up using custom package scripts do not.
+ *
+ * @param data
+ */
+export async function supportsChecksum(data: ToolData): Promise<boolean> {
+  switch (data.type) {
+    case 'phar':
+      return true;
+    case 'custom-function':
+      return !['pecl', 'dev_tools'].includes(data.function ?? '');
+    default:
+      return false;
+  }
+}
+
+/**
  * Setup tools
  *
  * @param tools_csv
@@ -713,6 +772,14 @@ export async function addTools(
     switch (true) {
       case data.error !== undefined:
         script += await utils.addLog('$cross', data.tool, data.error, data.os);
+        break;
+      case data.checksum !== undefined && !(await supportsChecksum(data)):
+        script += await utils.addLog(
+          '$cross',
+          data.tool,
+          'Checksum verification is not supported for ' + data.tool,
+          data.os
+        );
         break;
       case 'phar' === data.type:
         script += await addArchive(data);

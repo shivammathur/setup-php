@@ -201,8 +201,15 @@ add_tool() {
   url=$1
   tool=$2
   ver_param=$3
+  checksum=
+  local arg
+  for arg in "$@"; do
+    [[ "$arg" =~ ^sha(256|512):[0-9a-fA-F]+$ ]] && checksum="$arg"
+  done
+  [[ "$ver_param" =~ ^sha(256|512): ]] && ver_param=
   if [ "$tool" = "composer" ]; then
     skip_composer_github_auth="${4:-false}"
+    [[ "$skip_composer_github_auth" =~ ^sha(256|512): ]] && skip_composer_github_auth=false
   fi
   tool_path="$tool_path_dir/$tool"
   if ! [ -d "$tool_path_dir" ]; then
@@ -235,6 +242,10 @@ add_tool() {
     fi
     sudo rm -f "$tool_path.bak"
   fi
+  if [ "$status_code" = "200" ] && [ -n "$checksum" ] && ! verify_checksum "$tool_path" "$checksum"; then
+    sudo rm -f "$tool_path" "$cache_path"
+    status_code="checksum_mismatch"
+  fi
   if [ "$status_code" = "200" ]; then
     add_tools_helper "$tool"
     tool_version=$(get_tool_version "$tool" "$ver_param")
@@ -244,7 +255,9 @@ add_tool() {
     if [ "$tool" = "composer" ]; then
       export fail_fast=true
     fi
-    if [ "$status_code" = "404" ]; then
+    if [ "$status_code" = "checksum_mismatch" ]; then
+      add_log "$cross" "$tool" "Checksum verification failed for $tool"
+    elif [ "$status_code" = "404" ]; then
       add_log "$cross" "$tool" "Failed to download $tool from ${url[*]}"
     else
       add_log "$cross" "$tool" "Could not setup $tool"

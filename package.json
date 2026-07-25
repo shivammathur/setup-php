@@ -44,6 +44,7 @@
     "@types/node": "^26.1.1",
     "@typescript-eslint/eslint-plugin": "^8.65.0",
     "@typescript-eslint/parser": "^8.65.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@vercel/ncc": "^0.44.1",
     "eslint": "^10.7.0",
     "eslint-config-prettier": "^10.1.8",
@@ -58,7 +59,7 @@
     "prettier": "^3.9.6",
     "simple-git-hooks": "^2.13.1",
     "ts-jest": "^29.4.11",
-    "typescript": "^5.9.3"
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "overrides": {
     "@babel/core": "^7.29.7",

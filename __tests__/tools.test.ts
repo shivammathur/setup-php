@@ -544,7 +544,7 @@ describe('Tools tests', () => {
           );
         }
       }));
-      const isolatedTools = await import('../src/tools');
+      const isolatedTools = jest.requireActual<typeof tools>('../src/tools');
       affected = isolatedTools.skipGitHubAuthForComposerVersion('2.9.7');
       fixed = isolatedTools.skipGitHubAuthForComposerVersion('2.9.8');
     });
@@ -903,7 +903,7 @@ describe('Tools tests', () => {
           );
         }
       }));
-      const isolatedTools = await import('../src/tools');
+      const isolatedTools = jest.requireActual<typeof tools>('../src/tools');
       result = await isolatedTools.addTools('broken-tool', '7.4', 'linux');
     });
 

@@ -317,7 +317,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
 - By default, `composer` blocks all its plugins. If you are using the `tools` input to install a composer plugin it will be added to the allowlist, alternatively if your dependencies have composer plugins, you can allow them by setting `COMPOSER_ALLOW_PLUGINS` that accepts a csv string of plugin names.
 
 ```yaml
-- name: Setup PHP with fail-fast
+- name: Setup PHP with allow composer plugins
   uses: shivammathur/setup-php@v2
   with:
     php-version: '8.5'

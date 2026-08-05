@@ -635,13 +635,14 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'blackfire, blackfire-player, box, churn, cs2pr, flex, grpc_php_plugin, mago, name-collision-detector, parallel-lint, php-cs-fixer, php-scoper, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, phpunit-polyfills, pint, php-config, phpize, protoc, symfony, vapor, wp, pie',
+      'blackfire, blackfire-player, box, churn, cpx, cs2pr, flex, grpc_php_plugin, mago, name-collision-detector, parallel-lint, php-cs-fixer, php-scoper, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, phpunit-polyfills, pint, php-config, phpize, protoc, symfony, vapor, wp, pie',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://artifacts.setup-php.com/composer/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_blackfire',
         'add_tool https://get.blackfire.io/blackfire-player-v1.22.0.phar blackfire-player "-V"',
         'add_tool https://github.com/box-project/box/releases/latest/download/box.phar box "--version"',
         'add_tool https://github.com/bmitch/churn-php/releases/latest/download/churn.phar churn "-V"',
+        'add_tool https://github.com/laravel/cpx/releases/latest/download/cpx cpx "--version"',
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/latest/download/cs2pr cs2pr "-V"',
         'add_composer_tool flex flex symfony/ global',
         'add_grpc_php_plugin latest',
@@ -680,7 +681,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'backward-compatibility-check, behat, blackfire, blackfire-player, churn, composer-dependency-analyser, composer-normalize, composer-require-checker, composer-unused, cs2pr:1.2.3, ecs, flex, grpc_php_plugin:1.2.3, infection, mago:0.26.1, name-collision-detector, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, rector, symfony-cli, vapor-cli, wp-cli, pie',
+      'backward-compatibility-check, behat, blackfire, blackfire-player, churn, composer-dependency-analyser, composer-normalize, composer-require-checker, composer-unused, cpx:2.0.0, cs2pr:1.2.3, ecs, flex, grpc_php_plugin:1.2.3, infection, mago:0.26.1, name-collision-detector, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, rector, symfony-cli, vapor-cli, wp-cli, pie',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://artifacts.setup-php.com/composer/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_composer_tool behat behat behat/ scoped',
@@ -691,6 +692,7 @@ describe('Tools tests', () => {
         'add_composer_tool composer-dependency-analyser composer-dependency-analyser shipmonk/ scoped',
         'add_composer_tool composer-require-checker composer-require-checker maglnet/ scoped',
         'add_tool https://github.com/composer-unused/composer-unused/releases/latest/download/composer-unused.phar composer-unused "-V"',
+        'add_tool https://github.com/laravel/cpx/releases/download/v2.0.0/cpx cpx "--version"',
         'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr "-V"',
         'add_composer_tool flex flex symfony/ global',
         'add_grpc_php_plugin 1.2.3',

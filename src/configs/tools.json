@@ -42,6 +42,14 @@
     "version_prefix": "",
     "version_parameter": "diagnose"
   },
+  "cpx": {
+    "type": "phar",
+    "repository": "laravel/cpx",
+    "extension": "",
+    "domain": "https://github.com",
+    "version_prefix": "v",
+    "version_parameter": "--version"
+  },
   "cs2pr": {
     "type": "phar",
     "repository": "staabm/annotate-pull-request-from-checkstyle",

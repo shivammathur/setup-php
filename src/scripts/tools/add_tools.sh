@@ -186,7 +186,7 @@ add_tools_helper() {
       sudo cp "$tool_path_dir"/phpunit "$composer_bin"
     fi
   elif [ "$tool" = "cloud-cli" ]; then
-    extensions+=(fileinfo json mbstring zip simplexml)
+    extensions+=(dom iconv sockets tokenizer)
     sudo ln -s "$scoped_dir"/vendor/bin/cloud "$scoped_dir"/vendor/bin/cloud-cli 2>/dev/null || true
   elif [ "$tool" = "vapor-cli" ]; then
     extensions+=(fileinfo json mbstring zip simplexml)

@@ -242,6 +242,12 @@
     "repository": "laravel/vapor-cli",
     "scope": "scoped"
   },
+  "cloud-cli": {
+    "type": "composer",
+    "alias": "laravel-cloud",
+    "repository": "laravel/cloud-cli",
+    "scope": "scoped"
+  },
   "rector": {
     "type": "composer",
     "repository": "rector/rector",

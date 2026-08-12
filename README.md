@@ -235,7 +235,7 @@ This disables all core and third-party shared extensions and thus, can break som
 
 These tools can be set up globally using the `tools` input. It accepts a string in csv-format.
 
-[`backward-compatibility-check`], [`behat`], [`blackfire`], [`blackfire-player`], [`box`], [`castor`], [`churn`], [`codeception`], [`composer`], [`composer-dependency-analyser`], [`composer-normalize`], [`composer-prefetcher`], [`composer-require-checker`], [`composer-unused`], [`cpx`], [`cs2pr`], [`deployer`], [`ecs`], [`flex`], [`grpc_php_plugin`], [`infection`], [`mago`], [`name-collision-detector`], [`parallel-lint`], [`pecl`], [`phan`], [`phing`], [`phinx`], [`phive`], [`php-config`], [`php-cs-fixer`], [`php-scoper`], [`phpcbf`], [`phpcpd`], [`phpcs`], [`phpdoc`] or [`phpDocumentor`], [`phpize`], [`phplint`], [`phpmd`], [`phpspec`], [`phpstan`], [`phpunit`], [`phpunit-bridge`], [`phpunit-polyfills`], [`pie`], [`pint`], [`prestissimo`], [`protoc`], [`psalm`], [`rector`], [`symfony`] or [`symfony-cli`], [`vapor`] or [`vapor-cli`], [`wp`] or [`wp-cli`]
+[`backward-compatibility-check`], [`behat`], [`blackfire`], [`blackfire-player`], [`box`], [`castor`], [`churn`], [`codeception`], [`composer`], [`composer-dependency-analyser`], [`composer-normalize`], [`composer-prefetcher`], [`composer-require-checker`], [`composer-unused`], [`cpx`], [`cs2pr`], [`deployer`], [`ecs`], [`flex`], [`grpc_php_plugin`], [`infection`], [`laravel-cloud`] or [`cloud-cli`], [`mago`], [`name-collision-detector`], [`parallel-lint`], [`pecl`], [`phan`], [`phing`], [`phinx`], [`phive`], [`php-config`], [`php-cs-fixer`], [`php-scoper`], [`phpcbf`], [`phpcpd`], [`phpcs`], [`phpdoc`] or [`phpDocumentor`], [`phpize`], [`phplint`], [`phpmd`], [`phpspec`], [`phpstan`], [`phpunit`], [`phpunit-bridge`], [`phpunit-polyfills`], [`pie`], [`pint`], [`prestissimo`], [`protoc`], [`psalm`], [`rector`], [`symfony`] or [`symfony-cli`], [`vapor`] or [`vapor-cli`], [`wp`] or [`wp-cli`]
 
 ```yaml
 - name: Setup PHP with tools
@@ -1096,6 +1096,7 @@ Many users and organizations support setup-php via [GitHub Sponsors](https://git
 [`box`]:                      https://github.com/humbug/box
 [`castor`]:                   https://github.com/jolicode/castor
 [`churn`]:                    https://github.com/bmitch/churn-php
+[`cloud-cli`]:                https://cloud.laravel.com/docs/api/cli
 [`codeception`]:              https://codeception.com/
 [`composer`]:                 https://getcomposer.org/
 [`composer-dependency-analyser`]: https://github.com/shipmonk-rnd/composer-dependency-analyser
@@ -1110,6 +1111,7 @@ Many users and organizations support setup-php via [GitHub Sponsors](https://git
 [`flex`]:                     https://github.com/symfony/flex
 [`grpc_php_plugin`]:          https://grpc.io/
 [`infection`]:                https://infection.github.io/
+[`laravel-cloud`]:            https://cloud.laravel.com/docs/api/cli
 [`mago`]:                     https://github.com/carthage-software/mago
 [`name-collision-detector`]:  https://github.com/shipmonk/name-collision-detector
 [`parallel-lint`]:            https://github.com/php-parallel-lint/PHP-Parallel-Lint

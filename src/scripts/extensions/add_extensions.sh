@@ -214,6 +214,24 @@ add_pecl_extension() {
     pecl_version=$(get_pecl_version "$extension" "$pecl_version")
   fi
   ext_version=$(php -r "echo phpversion('$extension');")
+  # The PHP package install itself can bundle its own default build of a
+  # versioned extension (e.g. redis ships with its own recent version),
+  # which overwrites ext_dir/$extension.so before this function ever runs.
+  # shared_extension only checks that *a* file exists, not which version, so
+  # a cache-restored build matching the pinned version never gets a chance -
+  # this always fell straight through to pecl_install regardless of caching.
+  # If a cache-restored copy is available at CACHED_EXTENSIONS_DIR (a path
+  # outside ext_dir, so the package install can't overwrite it), copy it into
+  # place and re-check before falling back to a full pecl_install.
+  if [ -n "$pecl_version" ] && [ -n "$CACHED_EXTENSIONS_DIR" ] && check_extension "$extension" && [ "${ext_version/-/}" != "$pecl_version" ]; then
+    cached_so="$CACHED_EXTENSIONS_DIR/$extension.so"
+    if [ -e "$cached_so" ]; then
+      disable_extension_helper "$extension" >/dev/null 2>&1
+      sudo cp "$cached_so" "${ext_dir:?}/$extension.so"
+      enable_extension "$extension" "$prefix"
+      ext_version=$(php -r "echo phpversion('$extension');")
+    fi
+  fi
   if check_extension "$extension" && [[ -z "$pecl_version" || (-n "$pecl_version" && "${ext_version/-/}" == "$pecl_version") ]]; then
     add_log "${tick:?}" "$extension" "Enabled"
   else

@@ -218,16 +218,19 @@ add_pecl_extension() {
   # versioned extension (e.g. redis ships with its own recent version),
   # which overwrites ext_dir/$extension.so before this function ever runs.
   # shared_extension only checks that *a* file exists, not which version, so
-  # a cache-restored build matching the pinned version never gets a chance -
-  # this always fell straight through to pecl_install regardless of caching.
-  # If a cache-restored copy is available at CACHED_EXTENSIONS_DIR (a path
-  # outside ext_dir, so the package install can't overwrite it), copy it into
-  # place and re-check before falling back to a full pecl_install.
-  if [ -n "$pecl_version" ] && [ -n "$CACHED_EXTENSIONS_DIR" ] && check_extension "$extension" && [ "${ext_version/-/}" != "$pecl_version" ]; then
-    cached_so="$CACHED_EXTENSIONS_DIR/$extension.so"
-    if [ -e "$cached_so" ]; then
+  # a build matching the pinned version - even one cache-extensions already
+  # restored into ext_dir - never gets a chance: this always fell straight
+  # through to pecl_install regardless of caching. Preserve built versions
+  # in ext_dir itself under a name with no .so suffix, so cache-extensions
+  # (which caches all of ext_dir) picks them up automatically, and the PHP
+  # package install's own file can't collide with or overwrite them. On a
+  # mismatch, restore the matching preserved build before falling back to a
+  # full pecl_install.
+  if [ -n "$pecl_version" ] && check_extension "$extension" && [ "${ext_version/-/}" != "$pecl_version" ]; then
+    preserved="${ext_dir:?}/$extension-$pecl_version"
+    if [ -e "$preserved" ]; then
       disable_extension_helper "$extension" >/dev/null 2>&1
-      sudo cp "$cached_so" "${ext_dir:?}/$extension.so"
+      sudo cp "$preserved" "${ext_dir:?}/$extension.so"
       enable_extension "$extension" "$prefix"
       ext_version=$(php -r "echo phpversion('$extension');")
     fi
@@ -238,6 +241,9 @@ add_pecl_extension() {
     [ -n "$pecl_version" ] && pecl_version="-$pecl_version"
     pecl_install "$extension$pecl_version" || ( [ "${fail_fast:?}" = "false" ] && add_extension "$extension" "$(get_extension_prefix "$extension")" >/dev/null 2>&1)
     extension_version="$(php -r "echo phpversion('$extension');")"
+    if check_extension "$extension" && [ -n "$extension_version" ]; then
+      sudo cp "${ext_dir:?}/$extension.so" "${ext_dir:?}/$extension-$extension_version" 2>/dev/null || true
+    fi
     [ -n "$extension_version" ] && extension_version="-$extension_version"
     add_extension_log "$extension$extension_version" "Installed and enabled"
   fi

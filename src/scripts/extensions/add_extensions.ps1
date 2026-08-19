@@ -105,10 +105,15 @@ Function Add-Extension {
     $extension_version = ''
   )
   try {
-    $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
     $deps_dir = "$ext_dir\$extension-vc$($installed.VCVersion)-$arch"
     New-Item $deps_dir -Type Directory -Force > $null 2>&1
-    if ($null -ne $extension_info) {
+    if($extension_version -ne '' -and (Test-Path "$ext_dir\$extension-$extension_version")) {
+      Copy-Item "$ext_dir\$extension-$extension_version" "$ext_dir\php_$extension.dll" -Force
+      Enable-Extension $extension
+      return
+    }
+    $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
+    if ($null -ne $extension_info -and ($extension_version -eq '' -or $extension_info.Version[0] -eq $extension_version)) {
       switch ($extension_info.State) {
         'Builtin' {
           Add-Log $tick $extension "Enabled"
@@ -144,6 +149,9 @@ Function Add-Extension {
         Set-ExtensionPrerequisites $extension
       }
       Add-Log $tick $extension "Installed and enabled"
+    }
+    if($extension_version -ne '' -and (Test-Path "$ext_dir\php_$extension.dll")) {
+      Copy-Item "$ext_dir\php_$extension.dll" "$ext_dir\$extension-$extension_version" -Force
     }
   } catch {
     Add-Log $cross $extension "Could not install $extension on PHP $( $installed.FullVersion )"

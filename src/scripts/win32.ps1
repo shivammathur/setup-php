@@ -167,6 +167,26 @@ Function Get-File {
   }
 }
 
+# Function to get an asset name from the PHP builder release manifest.
+Function Get-PhpReleaseAsset {
+  param (
+    [ValidateSet('php', 'debug')]
+    [string]$Type,
+    [ValidateSet('stable', 'dev')]
+    [string]$Stability = 'stable'
+  )
+
+  if($null -eq $script:php_manifest) {
+    $script:php_manifest = Invoke-RestMethod "$php_builder/releases/download/php$version/manifest.json"
+  }
+  $thread_safety = if($ts) { 'ts' } else { 'nts' }
+  $asset = $script:php_manifest.$Stability.$Type.$thread_safety.$arch
+  if($null -eq $asset) {
+    throw "Asset not found in the php$version release manifest"
+  }
+  return $asset
+}
+
 # Function to make sure printf is in PATH.
 Function Add-Printf {
   if (-not(Test-Path "C:\Program Files\Git\usr\bin\printf.exe")) {
@@ -261,48 +281,17 @@ Function Add-PhpConfig {
 # Function to get PHP from GitHub releases cache
 Function Set-PhpCache {
   try {
-    try {
-      $release = Invoke-RestMethod https://api.github.com/repos/shivammathur/php-builder-windows/releases/tags/php$version
-      $asset = $release.assets | ForEach-Object {
-        if($_.name -match "php-$version.[0-9]+$env:PHPTS-Win32-.*-$arch.zip") {
-          return $_.name
-        }
-      } | Select-Object -Last 1
-      if($null -eq $asset) {
-        throw "Asset not found"
-      }
-    } catch {
-      $release = Get-File -Url $php_builder/releases/expanded_assets/php$version
-      $asset = $release.links.href | ForEach-Object {
-        if($_ -match "php-$version.[0-9]+$env:PHPTS-Win32-.*-$arch.zip") {
-          return $_.split('/')[-1]
-        }
-      } | Select-Object -Last 1
-    }
-    Get-File -Url $php_builder/releases/download/php$version/$asset -OutFile $php_dir\$asset
+    $asset = Get-PhpReleaseAsset -Type php
+    Get-File -Url $php_builder/releases/download/php$version/$asset -FallbackUrl https://downloads.php.net/~windows/releases/archives/$asset -OutFile $php_dir\$asset
     Set-PhpDownloadCache -Path $php_dir CurrentUser
   } catch { }
 }
 
 # Function to add debug symbols to PHP.
 Function Add-DebugSymbols {
-  $dev = if ($version -match $nightly_versions) { '-dev' } else { '' }
-  try {
-    $release = Invoke-RestMethod https://api.github.com/repos/shivammathur/php-builder-windows/releases/tags/php$version
-    $asset = $release.assets | ForEach-Object {
-      if($_.name -match "php-debug-pack-$version.[0-9]+$dev$env:PHPTS-Win32-.*-$arch.zip") {
-        return $_.name
-      }
-    } | Select-Object -Last 1
-  } catch {
-    $release = Get-File -Url $php_builder/releases/expanded_assets/php$version
-    $asset = $release.links.href | ForEach-Object {
-      if($_ -match "php-debug-pack-$version.[0-9]+$dev$env:PHPTS-Win32-.*-$arch.zip") {
-        return $_.split('/')[-1]
-      }
-    } | Select-Object -Last 1
-  }
-  Get-File -Url $php_builder/releases/download/php$version/$asset -OutFile $php_dir\$asset
+  $stability = if ($version -match $nightly_versions) { 'dev' } else { 'stable' }
+  $asset = Get-PhpReleaseAsset -Type debug -Stability $stability
+  Get-File -Url $php_builder/releases/download/php$version/$asset -FallbackUrl https://downloads.php.net/~windows/releases/archives/$asset -OutFile $php_dir\$asset
   Expand-Archive -Path $php_dir\$asset -DestinationPath $php_dir -Force
   Get-ChildItem -Path $php_dir -Filter php_*.pdb | Move-Item -Destination $ext_dir
 }
@@ -325,6 +314,7 @@ $ext_dir = "$php_dir\ext"
 $bin_dir = $php_dir
 $github = 'https://github.com'
 $php_builder = "$github/shivammathur/php-builder-windows"
+$php_manifest = $null
 $current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'
 $jit_versions = '8.[0-9]'

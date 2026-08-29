@@ -282,7 +282,7 @@ Function Add-PhpConfig {
 Function Set-PhpCache {
   try {
     $asset = Get-PhpReleaseAsset -Type php
-    Get-File -Url $php_builder/releases/download/php$version/$asset -FallbackUrl https://downloads.php.net/~windows/releases/archives/$asset -OutFile $php_dir\$asset
+    Get-File -Url $php_builder/releases/download/php$version/$asset -FallbackUrl $php_windows/releases/archives/$asset -OutFile $php_dir\$asset
     Set-PhpDownloadCache -Path $php_dir CurrentUser
   } catch { }
 }
@@ -291,7 +291,7 @@ Function Set-PhpCache {
 Function Add-DebugSymbols {
   $stability = if ($version -match $nightly_versions) { 'dev' } else { 'stable' }
   $asset = Get-PhpReleaseAsset -Type debug -Stability $stability
-  Get-File -Url $php_builder/releases/download/php$version/$asset -FallbackUrl https://downloads.php.net/~windows/releases/archives/$asset -OutFile $php_dir\$asset
+  Get-File -Url $php_builder/releases/download/php$version/$asset -FallbackUrl $php_windows/releases/archives/$asset -OutFile $php_dir\$asset
   Expand-Archive -Path $php_dir\$asset -DestinationPath $php_dir -Force
   Get-ChildItem -Path $php_dir -Filter php_*.pdb | Move-Item -Destination $ext_dir
 }
@@ -314,6 +314,7 @@ $ext_dir = "$php_dir\ext"
 $bin_dir = $php_dir
 $github = 'https://github.com'
 $php_builder = "$github/shivammathur/php-builder-windows"
+$php_windows = 'https://downloads.php.net/~windows'
 $php_manifest = $null
 $current_profile = "$env:TEMP\setup-php.ps1"
 $ProgressPreference = 'SilentlyContinue'

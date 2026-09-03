@@ -21,6 +21,13 @@ check_extension() {
   fi
 }
 
+# Function to test the loaded version of an extension.
+check_extension_version() {
+  local extension=$1
+  local ext_version=$2
+  php -d display_errors=0 -r "exit(phpversion(\$argv[1]) === \$argv[2] ? 0 : 1);" -- "$extension" "$ext_version" >/dev/null 2>&1
+}
+
 # Function to check if extension is shared
 shared_extension() {
   [ -e "${ext_dir:?}/$1.so" ]

@@ -75,9 +75,10 @@ copy_brew_extensions() {
 add_brew_extension() {
   formula=$1
   prefix=$2
+  expected_version=${3:-}
   extension="$(get_extension_from_formula "$formula")"
   enable_extension "$extension" "$prefix"
-  if check_extension "$extension"; then
+  if check_extension "$extension" && { [ -z "$expected_version" ] || check_extension_version "$extension" "$expected_version"; }; then
     add_log "${tick:?}" "$extension" "Enabled"
   else
     add_brew_tap "$php_tap"

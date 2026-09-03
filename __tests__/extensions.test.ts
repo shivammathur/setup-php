@@ -107,6 +107,7 @@ describe('Extension tests', () => {
     ${'pecl_http'}                               | ${'7.3'} | ${'add_http'}
     ${'relay-1.2.3'}                             | ${'7.4'} | ${'add_relay relay-1.2.3'}
     ${'sqlite'}                                  | ${'7.2'} | ${'add_extension sqlite3'}
+    ${'xdebug2'}                                 | ${'7.4'} | ${'add_brew_extension xdebug2 zend_extension 2.9.8'}
     ${'zephir_parser-v1.2.3'}                    | ${'7.2'} | ${'add_zephir_parser zephir_parser-v1.2.3'}
   `(
     'checking addExtensionOnDarwin for extension $extension on version $version',

@@ -21,7 +21,7 @@ describe('Config tests', () => {
     ${'xdebug'}  | ${'7.4'} | ${'linux'}  | ${'Xdebug $xdebug_version enabled as coverage driver'}
     ${'xdebug'}  | ${'7.4'} | ${'darwin'} | ${'add_brew_extension xdebug'}
     ${'xdebug3'} | ${'7.1'} | ${'darwin'} | ${'xdebug3 is not supported on PHP 7.1'}
-    ${'xdebug2'} | ${'7.4'} | ${'darwin'} | ${'add_brew_extension xdebug2'}
+    ${'xdebug2'} | ${'7.4'} | ${'darwin'} | ${'add_brew_extension xdebug2 zend_extension 2.9.8'}
     ${'xdebug2'} | ${'8.0'} | ${'darwin'} | ${'xdebug2 is not supported on PHP 8.0'}
     ${'none'}    | ${'7.4'} | ${'win32'}  | ${'Disable-Extension xdebug false,Disable-Extension pcov false'}
     ${'none'}    | ${'7.4'} | ${'linux'}  | ${'disable_extension xdebug false,disable_extension pcov false'}

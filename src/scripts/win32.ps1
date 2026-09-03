@@ -278,13 +278,19 @@ Function Add-PhpConfig {
   Get-Content -Path $ini_files | Add-Content -Path $php_dir\php.ini
 }
 
-# Function to get PHP from GitHub releases cache
-Function Set-PhpCache {
-  try {
-    $asset = Get-PhpReleaseAsset -Type php
-    Get-File -Url $php_builder/releases/download/php$version/$asset -FallbackUrl $php_windows/releases/archives/$asset -OutFile $php_dir\$asset
-    Set-PhpDownloadCache -Path $php_dir CurrentUser
-  } catch { }
+# Function to install PHP directly from the GitHub releases cache.
+Function Install-PhpFromCache {
+  $asset = Get-PhpReleaseAsset -Type php
+  $url = "$php_builder/releases/download/php$version/$asset"
+  Get-File -Url $url -FallbackUrl $php_windows/releases/archives/$asset -OutFile $php_dir\$asset
+  Set-PhpDownloadCache -Path $php_dir CurrentUser
+  $php_version = Get-PhpVersionFromUrl -Url $url -ReleaseState Release
+  Install-PhpFromUrl -Url $url -Path $php_dir -PhpVersion $php_version -InstallVCRedist $true
+  $ini_path = "$php_dir\php.ini"
+  Copy-Item -Path $php_dir\php.ini-production -Destination $ini_path -Force
+  Set-PhpIniKey -Key date.timezone -Value UTC -Path $ini_path
+  Set-PhpIniKey -Key default_charset -Value UTF-8 -Path $ini_path
+  Set-PhpIniKey -Key extension_dir -Value $ext_dir -Path $ini_path
 }
 
 # Function to add debug symbols to PHP.
@@ -415,8 +421,11 @@ if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version 
     if ($version -match $nightly_versions) {
       $extra_version = Install-PhpNightly
     } else {
-      Set-PhpCache
-      Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni production -Force > $null 2>&1
+      try {
+        Install-PhpFromCache > $null 2>&1
+      } catch {
+        Install-Php -Version $version -Architecture $arch -ThreadSafe $ts -InstallVC -Path $php_dir -TimeZone UTC -InitialPhpIni production -Force > $null 2>&1
+      }
     }
     Add-PhpConfig
   } catch { }

@@ -284,8 +284,12 @@ Function Install-PhpFromCache {
   $url = "$php_builder/releases/download/php$version/$asset"
   Get-File -Url $url -FallbackUrl $php_windows/releases/archives/$asset -OutFile $php_dir\$asset
   Set-PhpDownloadCache -Path $php_dir CurrentUser
-  $php_version = Get-PhpVersionFromUrl -Url $url -ReleaseState Release
-  Install-PhpFromUrl -Url $url -Path $php_dir -PhpVersion $php_version -InstallVCRedist $true
+  $php_manager = Get-Module PhpManager
+  & $php_manager {
+    param($url, $path)
+    $php_version = Get-PhpVersionFromUrl -Url $url -ReleaseState Release
+    Install-PhpFromUrl -Url $url -Path $path -PhpVersion $php_version -InstallVCRedist $true
+  } $url $php_dir
   $ini_path = "$php_dir\php.ini"
   Copy-Item -Path $php_dir\php.ini-production -Destination $ini_path -Force
   Set-PhpIniKey -Key date.timezone -Value UTC -Path $ini_path

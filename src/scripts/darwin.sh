@@ -189,7 +189,7 @@ add_php() {
   php_keg="php@$version$suffix"
   php_formula="shivammathur/php/$php_keg"
   if [[ "$existing_version" = "false" || -n "$suffix" || "$action" = "upgrade" ]]; then
-    if [ "$(uname -m)" = "arm64" ] && [ "${runner:?}" != "self-hosted" ] && \
+    if [ "${runner:?}" != "self-hosted" ] && \
       [ "${use_package_cache:-true}" != "false" ] && setup_cached_versions; then
       return 0
     fi

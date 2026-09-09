@@ -48,8 +48,21 @@ set_output() {
   fi
 }
 
+# Function to run sensitive code without tracing. Expand tokens inside the function, not its arguments.
+without_trace() {
+  local setup_php_trace_flags=$-
+  set +x
+  "$@"
+  local setup_php_trace_status=$?
+  [[ "$setup_php_trace_flags" == *x* ]] && set -x
+  return "$setup_php_trace_status"
+}
+
 # Function to read env inputs.
 read_env() {
+  if [[ "${SETUP_PHP_TRACE:-0}" =~ ^[12]$ ]]; then
+    set -x
+  fi
   update="${update:-${UPDATE:-false}}"
   [ "${debug:-${DEBUG:-false}}" = "true" ] && debug=debug && update=true || debug=release
   [[ "${phpts:-${PHPTS:-nts}}" = "ts" || "${phpts:-${PHPTS:-nts}}" = "zts" ]] && ts=zts && update=true || ts=nts

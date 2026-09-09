@@ -87,35 +87,37 @@ Function Write-ComposerGhAuthNoOpWarning() {
 
 # Function to setup authentication in composer.
 Function Set-ComposerAuth() {
-  $token = if ($env:COMPOSER_TOKEN) { $env:COMPOSER_TOKEN } else { $env:GITHUB_TOKEN }
-  if(Test-Path env:COMPOSER_AUTH_JSON) {
-    if(Test-Json -JSON $env:COMPOSER_AUTH_JSON) {
-      Set-Content -Path $composer_home\auth.json -Value $env:COMPOSER_AUTH_JSON
-    } else {
-      Add-Log "$cross" "composer" "Could not parse COMPOSER_AUTH_JSON as valid JSON"
+  Invoke-WithoutTrace {
+    $token = if ($env:COMPOSER_TOKEN) { $env:COMPOSER_TOKEN } else { $env:GITHUB_TOKEN }
+    if(Test-Path env:COMPOSER_AUTH_JSON) {
+      if(Test-Json -JSON $env:COMPOSER_AUTH_JSON) {
+        Set-Content -Path $composer_home\auth.json -Value $env:COMPOSER_AUTH_JSON
+      } else {
+        Add-Log "$cross" "composer" "Could not parse COMPOSER_AUTH_JSON as valid JSON"
+      }
     }
-  }
-  if($skip_composer_github_auth) {
-    Write-ComposerGhAuthNoOpWarning
-  }
-  $composer_auth = @()
-  if(Test-Path env:PACKAGIST_TOKEN) {
-    $composer_auth += '"http-basic": {"repo.packagist.com": { "username": "token", "password": "' + $env:PACKAGIST_TOKEN + '"}}'
-  }
-  $write_token = $true
-  if ($token) {
-    if ($skip_composer_github_auth) {
-      $write_token = $false
+    if($skip_composer_github_auth) {
+      Write-ComposerGhAuthNoOpWarning
     }
-    if ($env:GITHUB_SERVER_URL -ne "https://github.com" -and -not(Test-GitHubPublicAccess $token)) {
-      $write_token = $false
+    $composer_auth = @()
+    if(Test-Path env:PACKAGIST_TOKEN) {
+      $composer_auth += '"http-basic": {"repo.packagist.com": { "username": "token", "password": "' + $env:PACKAGIST_TOKEN + '"}}'
     }
-    if($write_token) {
-      $composer_auth += '"github-oauth": {"github.com": "' + $token + '"}'
+    $write_token = $true
+    if ($token) {
+      if ($skip_composer_github_auth) {
+        $write_token = $false
+      }
+      if ($env:GITHUB_SERVER_URL -ne "https://github.com" -and -not(Test-GitHubPublicAccess $token)) {
+        $write_token = $false
+      }
+      if($write_token) {
+        $composer_auth += '"github-oauth": {"github.com": "' + $token + '"}'
+      }
     }
-  }
-  if($composer_auth.length) {
-    Update-AuthJson $composer_auth
+    if($composer_auth.length) {
+      Update-AuthJson $composer_auth
+    }
   }
 }
 

@@ -333,6 +333,43 @@ export async function suppressOutput(os: string): Promise<string> {
 }
 
 /**
+ * Prepare verbose runtime scripts without changing the original sources.
+ */
+export async function addVerbose(
+  run_path: string,
+  os: string
+): Promise<string> {
+  const verbose = await readEnv('verbose');
+  process.env['SETUP_PHP_TRACE'] = /^v{2,3}$/.test(verbose)
+    ? String(verbose.length - 1)
+    : '0';
+  if (!/^(true|v{1,3})$/.test(verbose) && process.env['RUNNER_DEBUG'] !== '1') {
+    return run_path;
+  }
+  const extension = await scriptExtension(os);
+  const src = path.dirname(path.dirname(run_path));
+  const dest = fs.mkdtempSync(src + '-verbose-');
+  await fs.promises.cp(src, dest, {recursive: true, dereference: true});
+  const scripts = path.join(dest, 'scripts');
+  const verbose_run = path.join(scripts, path.basename(run_path));
+  const pipe = />[ \t]*(?:\/dev\/null|\$null)[ \t]+2>&1/g;
+  for (const file of fs.readdirSync(scripts, {
+    recursive: true,
+    encoding: 'utf8'
+  })) {
+    if (!file.endsWith(extension)) continue;
+    const filename = path.join(scripts, file);
+    const original = fs.readFileSync(filename, 'utf8');
+    let script = original.replace(pipe, '');
+    if (filename === verbose_run) {
+      script = script.replaceAll(src, dest);
+    }
+    if (script !== original) fs.writeFileSync(filename, script);
+  }
+  return verbose_run;
+}
+
+/**
  * Function to get script to log unsupported extensions.
  *
  * @param extension

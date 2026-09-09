@@ -12,6 +12,10 @@ add_blackfire_darwin() {
 }
 
 blackfire_config() {
+  without_trace blackfire_config_helper
+}
+
+blackfire_config_helper() {
   if [[ -n $BLACKFIRE_SERVER_ID ]] && [[ -n $BLACKFIRE_SERVER_TOKEN ]]; then
     blackfire agent:config --server-id="$BLACKFIRE_SERVER_ID" --server-token="$BLACKFIRE_SERVER_TOKEN"
     if [ "$os" = "Linux" ]; then

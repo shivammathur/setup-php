@@ -85,6 +85,10 @@ composer_gh_auth_no_op() {
 
 # Function to setup authentication in composer.
 set_composer_auth() {
+  without_trace set_composer_auth_helper
+}
+
+set_composer_auth_helper() {
   token="${COMPOSER_TOKEN:-$GITHUB_TOKEN}"
   if [ -n "${COMPOSER_AUTH_JSON:-}" ]; then
     if printf '%s' "$COMPOSER_AUTH_JSON" | jq -e . >/dev/null; then

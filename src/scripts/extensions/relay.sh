@@ -63,6 +63,10 @@ add_relay_dependencies() {
 
 # Initialize relay extension ini configuration
 init_relay_ini() {
+  without_trace init_relay_ini_helper "$@"
+}
+
+init_relay_ini_helper() {
   relay_ini=$1
   if [ -e "$relay_ini" ]; then
     if [[ -n "$RELAY_KEY" ]]; then

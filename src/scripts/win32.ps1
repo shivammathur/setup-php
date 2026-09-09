@@ -28,6 +28,18 @@ Function Add-Log($mark, $subject, $message) {
   }
 }
 
+# Function to run sensitive code without tracing. Expand tokens inside the script block.
+Function Invoke-WithoutTrace([scriptblock]$Script) {
+  Set-PSDebug -Off
+  $previous_trace = $setup_php_trace
+  $setup_php_trace = 0
+  try {
+    & $Script
+  } finally {
+    Set-PSDebug -Trace $previous_trace
+  }
+}
+
 # Function to set output on GitHub Actions.
 Function Set-Output() {
   param(
@@ -332,6 +344,12 @@ $jit_versions = '8.[0-9]'
 $nightly_versions = '8.[6-9]'
 $xdebug3_versions = "7.[2-4]|8.[0-9]"
 $enable_extensions = ('openssl', 'curl', 'mbstring')
+
+$setup_php_trace = 0
+if ($env:SETUP_PHP_TRACE -match '^[12]$') {
+  $setup_php_trace = [int]$env:SETUP_PHP_TRACE
+  Set-PSDebug -Trace $setup_php_trace
+}
 
 $arch = 'x64'
 if(-not([Environment]::Is64BitOperatingSystem) -or $version -lt '7.0') {

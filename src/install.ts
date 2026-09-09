@@ -47,7 +47,7 @@ export async function getScript(os: string): Promise<string> {
 
   fs.writeFileSync(run_path, script, {mode: 0o755});
 
-  return run_path;
+  return await utils.addVerbose(run_path, os);
 }
 
 /**

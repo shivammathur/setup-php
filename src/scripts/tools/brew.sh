@@ -55,25 +55,45 @@ get_file_mtime() {
   fi
 }
 
-# Function to terminate a process and its direct children.
-terminate_process_tree() {
+# Function to list descendants before their parents, including separate sessions.
+get_process_tree() {
   local pid=$1
   local children child
   children=$(pgrep -P "$pid" 2>/dev/null || true)
-  kill -TERM "$pid" >/dev/null 2>&1 || true
   for child in $children; do
-    terminate_process_tree "$child"
+    get_process_tree "$child"
+  done
+  echo "$pid"
+}
+
+# Function to detect Homebrew's source-build worker, even with buffered output.
+is_brew_building_from_source() {
+  local pid
+  for pid in $(get_process_tree "$1"); do
+    if ps -ww -p "$pid" -o command= 2>/dev/null | grep -qE '/Homebrew/build[.]rb([[:space:]]|$)'; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Function to terminate the entire tree captured before any parents can exit.
+terminate_process_tree() {
+  local pids pid
+  pids=$(get_process_tree "$1")
+  for pid in $pids; do
+    kill -TERM "$pid" >/dev/null 2>&1 || true
   done
   sleep 2
-  kill -KILL "$pid" >/dev/null 2>&1 || true
-  for child in $children; do
-    terminate_process_tree "$child"
+  for pid in $pids; do
+    kill -KILL "$pid" >/dev/null 2>&1 || true
   done
 }
 
 # Function to run a command with an inactivity watchdog.
 run_with_inactivity_watchdog() {
   local timeout_secs="${SETUP_PHP_BREW_INACTIVITY_TIMEOUT:-180}"
+  local source_timeout_secs="${SETUP_PHP_BREW_SOURCE_INACTIVITY_TIMEOUT:-1800}"
   local poll_secs="${SETUP_PHP_BREW_WATCHDOG_POLL:-5}"
   local tmp_dir stdout_fifo stderr_fifo stdout_log stderr_log timeout_file
   local command_pid stdout_reader_pid stderr_reader_pid monitor_pid exit_code
@@ -93,36 +113,39 @@ run_with_inactivity_watchdog() {
   ("$@" >"$stdout_fifo" 2>"$stderr_fifo") &
   command_pid=$!
 
-  (
-    while IFS= read -r line || [ -n "$line" ]; do
-      printf '%s\n' "$line"
-      printf '%s\n' "$line" >>"$stdout_log"
-    done <"$stdout_fifo"
-  ) &
+  tee "$stdout_log" <"$stdout_fifo" &
   stdout_reader_pid=$!
 
-  (
-    while IFS= read -r line || [ -n "$line" ]; do
-      printf '%s\n' "$line" >&2
-      printf '%s\n' "$line" >>"$stderr_log"
-    done <"$stderr_fifo"
-  ) &
+  tee "$stderr_log" <"$stderr_fifo" >&2 &
   stderr_reader_pid=$!
 
   (
     local last_activity current_activity current_err_activity now
+    local building_from_source=false was_building_from_source=false active_timeout_secs
     last_activity=$(get_file_mtime "$stdout_log")
     current_err_activity=$(get_file_mtime "$stderr_log")
     [ "$current_err_activity" -gt "$last_activity" ] && last_activity="$current_err_activity"
     while kill -0 "$command_pid" >/dev/null 2>&1; do
       sleep "$poll_secs"
+      kill -0 "$command_pid" >/dev/null 2>&1 || break
+      now=$(date +%s)
+      active_timeout_secs="$timeout_secs"
+      building_from_source=false
+      if is_brew_building_from_source "$command_pid"; then
+        building_from_source=true
+        active_timeout_secs="$source_timeout_secs"
+      fi
+      if [ "$building_from_source" != "$was_building_from_source" ]; then
+        last_activity="$now"
+        was_building_from_source="$building_from_source"
+      fi
       current_activity=$(get_file_mtime "$stdout_log")
       [ "$current_activity" -gt "$last_activity" ] && last_activity="$current_activity"
       current_err_activity=$(get_file_mtime "$stderr_log")
       [ "$current_err_activity" -gt "$last_activity" ] && last_activity="$current_err_activity"
       now=$(date +%s)
-      if [ $((now - last_activity)) -ge "$timeout_secs" ]; then
-        printf "\nsetup-php: brew produced no output for %ss; terminating and retrying...\n" "$timeout_secs" >&2
+      if [ $((now - last_activity)) -ge "$active_timeout_secs" ]; then
+        printf "\nsetup-php: brew produced no output for %ss; terminating...\n" "$active_timeout_secs" >&2
         : >"$timeout_file"
         terminate_process_tree "$command_pid"
         break
@@ -131,12 +154,15 @@ run_with_inactivity_watchdog() {
   ) &
   monitor_pid=$!
 
-  wait "$command_pid"
-  exit_code=$?
+  exit_code=0
+  wait "$command_pid" || exit_code=$?
+  # Let timeout cleanup finish killing source-build descendants before retrying.
+  if [ ! -e "$timeout_file" ]; then
+    kill "$monitor_pid" >/dev/null 2>&1 || true
+  fi
+  wait "$monitor_pid" 2>/dev/null || true
   wait "$stdout_reader_pid" 2>/dev/null || true
   wait "$stderr_reader_pid" 2>/dev/null || true
-  kill "$monitor_pid" >/dev/null 2>&1 || true
-  wait "$monitor_pid" 2>/dev/null || true
 
   if [ -e "$timeout_file" ]; then
     rm -rf "$tmp_dir"

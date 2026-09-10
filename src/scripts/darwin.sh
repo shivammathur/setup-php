@@ -183,6 +183,7 @@ setup_cached_versions() {
 
 # Function to setup PHP 5.6 and newer using Homebrew.
 add_php() {
+  local exit_code
   action=$1
   existing_version=$2
   suffix="$(get_php_formula_suffix)"
@@ -198,14 +199,18 @@ add_php() {
   fi
   if [[ "$existing_version" != "false" && -z "$suffix" ]]; then
     if [ "$action" = "upgrade" ]; then
-      safe_brew install --only-dependencies "$php_formula"
-      safe_brew upgrade -f --overwrite "$php_formula"
+      safe_brew install --only-dependencies "$php_formula" || return $?
+      safe_brew upgrade -f --overwrite "$php_formula" || return $?
     else
       brew unlink "$php_keg"
     fi
   else
-    safe_brew install --only-dependencies "$php_formula"
-    safe_brew install --skip-link -f --overwrite "$php_formula" 2>/dev/null || safe_brew upgrade -f --overwrite "$php_formula"
+    safe_brew install --only-dependencies "$php_formula" || return $?
+    safe_brew install --skip-link -f --overwrite "$php_formula" 2>/dev/null || {
+      exit_code=$?
+      [ "$exit_code" -ne 124 ] || return "$exit_code"
+      safe_brew upgrade -f --overwrite "$php_formula" || return $?
+    }
   fi
   brew link --force --overwrite "$php_keg" || (sudo chown -R "$(id -un)":"$(id -gn)" "$brew_prefix" && brew link --force --overwrite "$php_keg")
 }

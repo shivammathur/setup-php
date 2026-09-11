@@ -20,6 +20,7 @@
     "format": "prettier --write **/src/*.ts **/__tests__/*.ts && git add -f __tests__/ ",
     "format-check": "prettier --check **/src/*.ts **/__tests__/*.ts",
     "release": "ncc build -m -o dist && git add -f dist/",
+    "typecheck": "tsc --project tsconfig.test.json --noEmit",
     "test": "jest"
   },
   "repository": {

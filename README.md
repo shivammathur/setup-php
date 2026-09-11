@@ -272,7 +272,7 @@ These tools can be set up globally using the `tools` input. It accepts a string 
     tools: composer:2.9.8@sha256:59b2c50e10cafa0d8efc19ede9a326d782f096c674a26baf98cf042ce23de890
 ```
 
-  Checksum verification is supported for tools which are downloaded as phar archives. It is not supported for tools set up using `composer` packages or custom package scripts, specifying a checksum for these tools will result in an error. For checksum pinning to be effective, pin the tool to an exact version, as mutable versions like `latest` or `major.minor` can resolve to a different release with a different checksum.
+  Checksum verification is supported only for tools downloaded as phar archives with a full version, such as `tool:1.2.3` or `tool:1.2.3-beta1`. Specifying a checksum with an omitted version, a variable tag such as `latest`, `stable`, `preview` or `snapshot`, or a partial version such as `2`, `2.x`, `2.9` or `2.9.x` results in an error. These versions can resolve to different releases with different checksums. Checksum verification is not supported for tools set up using `composer` packages or custom package scripts; specifying a checksum for these tools also results in an error.
 
 - The latest stable version of `composer` is set up by default. You can set up the required `composer` version by specifying the major version `v1` or `v2`, or the version in `major.minor` or `semver` format. Additionally, for composer `snapshot` and `preview` can also be specified to set up the respective releases.
 

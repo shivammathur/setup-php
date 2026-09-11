@@ -222,20 +222,21 @@ describe('Tools tests', () => {
   });
 
   it.each`
-    release                                      | expected_release    | checksum                       | error
-    ${'tool:1.2.3'}                              | ${'tool:1.2.3'}     | ${undefined}                   | ${undefined}
-    ${'tool:1.2.3@sha256:' + 'a'.repeat(64)}     | ${'tool:1.2.3'}     | ${'sha256:' + 'a'.repeat(64)}  | ${undefined}
-    ${'tool:1.2.3@sha256:' + 'A'.repeat(64)}     | ${'tool:1.2.3'}     | ${'sha256:' + 'a'.repeat(64)}  | ${undefined}
-    ${'tool:1.2.3@SHA256:' + 'a'.repeat(64)}     | ${'tool:1.2.3'}     | ${'sha256:' + 'a'.repeat(64)}  | ${undefined}
-    ${'tool:1.2.3@sha512:' + 'b'.repeat(128)}    | ${'tool:1.2.3'}     | ${'sha512:' + 'b'.repeat(128)} | ${undefined}
-    ${'composer:2.9.8@sha256:' + 'c'.repeat(64)} | ${'composer:2.9.8'} | ${'sha256:' + 'c'.repeat(64)}  | ${undefined}
-    ${'tool:1.2.3@sha256:xyz'}                   | ${'tool:1.2.3'}     | ${undefined}                   | ${'Invalid sha256 checksum, expected 64 hexadecimal characters'}
-    ${'tool:1.2.3@sha256:' + 'a'.repeat(63)}     | ${'tool:1.2.3'}     | ${undefined}                   | ${'Invalid sha256 checksum, expected 64 hexadecimal characters'}
-    ${'tool:1.2.3@sha512:' + 'b'.repeat(64)}     | ${'tool:1.2.3'}     | ${undefined}                   | ${'Invalid sha512 checksum, expected 128 hexadecimal characters'}
-    ${'tool:1.2.3@sha384:' + 'b'.repeat(96)}     | ${'tool:1.2.3'}     | ${undefined}                   | ${'Unsupported checksum algorithm sha384, expected sha256 or sha512'}
-    ${'tool:1.2.3@md5:' + 'b'.repeat(32)}        | ${'tool:1.2.3'}     | ${undefined}                   | ${'Unsupported checksum algorithm md5, expected sha256 or sha512'}
-    ${'tool:1.2.3@sha256' + 'a'.repeat(64)}      | ${'tool:1.2.3'}     | ${undefined}                   | ${'Invalid checksum syntax, expected @sha256:<hash> or @sha512:<hash>'}
-    ${'tool:1.0@dev'}                            | ${'tool:1.0@dev'}   | ${undefined}                   | ${undefined}
+    release                                                  | expected_release                | checksum                       | error
+    ${'tool:1.2.3'}                                          | ${'tool:1.2.3'}                 | ${undefined}                   | ${undefined}
+    ${'tool:1.2.3@sha256:' + 'a'.repeat(64)}                 | ${'tool:1.2.3'}                 | ${'sha256:' + 'a'.repeat(64)}  | ${undefined}
+    ${'tool:1.2.3@sha256:' + 'A'.repeat(64)}                 | ${'tool:1.2.3'}                 | ${'sha256:' + 'a'.repeat(64)}  | ${undefined}
+    ${'tool:1.2.3@SHA256:' + 'a'.repeat(64)}                 | ${'tool:1.2.3'}                 | ${'sha256:' + 'a'.repeat(64)}  | ${undefined}
+    ${'tool:1.2.3@sha512:' + 'b'.repeat(128)}                | ${'tool:1.2.3'}                 | ${'sha512:' + 'b'.repeat(128)} | ${undefined}
+    ${'tool:v1.2.3-beta.1+build.2@sha256:' + 'a'.repeat(64)} | ${'tool:v1.2.3-beta.1+build.2'} | ${'sha256:' + 'a'.repeat(64)}  | ${undefined}
+    ${'composer:2.9.8@sha256:' + 'c'.repeat(64)}             | ${'composer:2.9.8'}             | ${'sha256:' + 'c'.repeat(64)}  | ${undefined}
+    ${'tool:1.2.3@sha256:xyz'}                               | ${'tool:1.2.3'}                 | ${undefined}                   | ${'Invalid sha256 checksum, expected 64 hexadecimal characters'}
+    ${'tool:1.2.3@sha256:' + 'a'.repeat(63)}                 | ${'tool:1.2.3'}                 | ${undefined}                   | ${'Invalid sha256 checksum, expected 64 hexadecimal characters'}
+    ${'tool:1.2.3@sha512:' + 'b'.repeat(64)}                 | ${'tool:1.2.3'}                 | ${undefined}                   | ${'Invalid sha512 checksum, expected 128 hexadecimal characters'}
+    ${'tool:1.2.3@sha384:' + 'b'.repeat(96)}                 | ${'tool:1.2.3'}                 | ${undefined}                   | ${'Unsupported checksum algorithm sha384, expected sha256 or sha512'}
+    ${'tool:1.2.3@md5:' + 'b'.repeat(32)}                    | ${'tool:1.2.3'}                 | ${undefined}                   | ${'Unsupported checksum algorithm md5, expected sha256 or sha512'}
+    ${'tool:1.2.3@sha256' + 'a'.repeat(64)}                  | ${'tool:1.2.3'}                 | ${undefined}                   | ${'Invalid checksum syntax, expected @sha256:<hash> or @sha512:<hash>'}
+    ${'tool:1.0@dev'}                                        | ${'tool:1.0@dev'}               | ${undefined}                   | ${undefined}
   `(
     'checking extractChecksum: $release',
     ({release, expected_release, checksum, error}) => {
@@ -836,7 +837,7 @@ describe('Tools tests', () => {
     ${'cs2pr:1.2.3@sha256:' + 'd'.repeat(64)}    | ${'linux'}  | ${'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr "-V" sha256:' + 'd'.repeat(64)}
     ${'phive:0.15.3@sha512:' + 'c'.repeat(128)}  | ${'darwin'} | ${'add_tool https://github.com/phar-io/phive/releases/download/0.15.3/phive-0.15.3.phar phive "status" sha512:' + 'c'.repeat(128)}
     ${'phinx:1.2.3@sha256:' + 'a'.repeat(64)}    | ${'linux'}  | ${'add_log "$cross" "phinx" "Checksum verification is not supported for phinx"'}
-    ${'pecl@sha256:' + 'a'.repeat(64)}           | ${'linux'}  | ${'add_log "$cross" "pecl" "Checksum verification is not supported for pecl"'}
+    ${'pecl:1.2.3@sha256:' + 'a'.repeat(64)}     | ${'linux'}  | ${'add_log "$cross" "pecl" "Checksum verification is not supported for pecl"'}
     ${'phpunit:9.5.0@sha256:invalid'}            | ${'linux'}  | ${'add_log "$cross" "phpunit" "Invalid sha256 checksum, expected 64 hexadecimal characters"'}
     ${'composer:2.9.8@SHA256:' + 'b'.repeat(64)} | ${'linux'}  | ${'composer 2.9.8 sha256:' + 'b'.repeat(64)}
     ${'composer:2.9.8@sha384:' + 'b'.repeat(96)} | ${'linux'}  | ${'add_log "$cross" "composer" "Unsupported checksum algorithm sha384, expected sha256 or sha512"'}
@@ -846,6 +847,44 @@ describe('Tools tests', () => {
     'checking addTools with checksum: $tools_csv, $os',
     async ({tools_csv, os, script}) => {
       expect(await tools.addTools(tools_csv, '7.4', os)).toContain(script);
+    }
+  );
+
+  describe.each(['linux', 'darwin', 'win32'])(
+    'Checksum version requirements on %s',
+    os => {
+      it.each([
+        '',
+        ':latest',
+        ':stable',
+        ':preview',
+        ':snapshot',
+        ':2',
+        ':2.x',
+        ':2.9',
+        ':2.9.x',
+        ':^2.9.8'
+      ])(
+        'rejects a checksum on a non-full version %s without an unpinned install',
+        async version => {
+          for (const tool of ['composer', 'phpunit']) {
+            const release = `${tool}${version}@sha256:${'a'.repeat(64)}`;
+            const data = await tools.getData(release, '8.4', os);
+            expect(data.error).toBe(
+              'Checksum pinning requires a full version, for example tool:1.2.3'
+            );
+            expect(data.url).toBe('');
+            const script = await tools.addTools(release, '8.4', os);
+            expect(script).toContain(data.error);
+            const installations = script
+              .split('\n')
+              .filter(line => /^add[-_]tool /i.test(line));
+            expect(
+              installations.some(line => new RegExp(` ${tool}( |$)`).test(line))
+            ).toBe(false);
+          }
+        }
+      );
     }
   );
 

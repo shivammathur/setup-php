@@ -118,6 +118,12 @@ export function extractChecksum(release: string): {
       error: `Invalid ${algo} checksum, expected ${hash_length} hexadecimal characters`
     };
   }
+  if (!/^[^:]+:v?\d+\.\d+\.\d+(?:-[\w.-]+)?(?:\+[\w.-]+)?$/.test(release)) {
+    return {
+      release,
+      error: 'Checksum pinning requires a full version, for example tool:1.2.3'
+    };
+  }
   return {release, checksum: `${algo}:${hash}`};
 }
 
@@ -308,9 +314,13 @@ export async function filterList(tools_list: string[]): Promise<string[]> {
   const regex_any = /^composer($|:.*)/;
   const regex_valid =
     /^composer:?($|preview$|snapshot$|v?\d+(\.\d+)?$|v?\d+\.\d+\.\d+[\w-]*$)/;
-  const matches: string[] = tools_list.filter(tool =>
-    regex_valid.test(extractChecksum(tool).release)
-  );
+  const matches: string[] = tools_list.filter(tool => {
+    const parsed = extractChecksum(tool);
+    return (
+      regex_valid.test(parsed.release) ||
+      (regex_any.test(parsed.release) && parsed.error !== undefined)
+    );
+  });
   let composer = 'composer';
   tools_list = tools_list.filter(
     tool => !regex_any.test(extractChecksum(tool).release)
@@ -721,6 +731,7 @@ export async function getData(
   data.checksum = checksum_data.checksum;
   data.error = checksum_data.error;
   data.release = await getRelease(release, data);
+  if (data.error !== undefined) return data;
   data.version = version
     ? await getVersion(version, data)
     : await getLatestVersion(data);

@@ -458,7 +458,9 @@ describe.each(['linux', 'darwin', 'win32'])(
         const prepared = await utils.addVerbose(run, platform);
         const script = fs.readFileSync(prepared, 'utf8');
         expect(prepared !== run).toBe(enabled);
-        expect(script.includes('2>&1')).toBe(!enabled);
+        expect(
+          script.includes(platform === 'win32' ? '>$null' : '>/dev/null')
+        ).toBe(!enabled);
         expect(script.includes('src-verbose')).toBe(enabled);
         expect(script.startsWith('. ')).toBe(true);
         expect(process.env.SETUP_PHP_TRACE).toBe(
@@ -501,7 +503,9 @@ describe.each(['linux', 'darwin', 'win32'])(
             path.join(path.dirname(prepared), 'tools', path.basename(helper)),
             'utf8'
           )
-        ).toBe(`echo nested-output \n${probe}\n`);
+        ).toBe(
+          `echo nested-output ${platform === 'win32' ? '2>&1 | Out-Host' : ''}\n${probe}\n`
+        );
         expect(fs.readFileSync(helper, 'utf8')).toContain(pipe);
         const shell = platform === 'win32' ? 'pwsh' : 'bash';
         if (platform === 'win32' ? hasPwsh : process.platform !== 'win32') {
@@ -529,7 +533,9 @@ describe.each(['linux', 'darwin', 'win32'])(
         if (verbose !== undefined) process.env.verbose = verbose;
         const prepared = await utils.addVerbose(run, platform);
         expect(prepared).not.toBe(run);
-        expect(fs.readFileSync(prepared, 'utf8')).not.toContain('2>&1');
+        expect(fs.readFileSync(prepared, 'utf8')).not.toMatch(
+          />\s*(?:\/dev\/null|\$null)\s+2>&1/
+        );
         expect(process.env.SETUP_PHP_TRACE).toBe(
           /^v{2,3}$/.test(verbose || '') ? String(verbose!.length - 1) : '0'
         );
@@ -826,7 +832,9 @@ echo should-not-run
             path.join(path.dirname(first), 'tools', path.basename(helper)),
             'utf8'
           )
-        ).toBe('echo original \n');
+        ).toBe(
+          `echo original ${platform === 'win32' ? '2>&1 | Out-Host' : ''}\n`
+        );
       }
     );
   }

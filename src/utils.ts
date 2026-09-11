@@ -360,7 +360,11 @@ export async function addVerbose(
     if (!file.endsWith(extension)) continue;
     const filename = path.join(scripts, file);
     const original = fs.readFileSync(filename, 'utf8');
-    let script = original.replace(pipe, '');
+    // PowerShell's success stream also carries function return values.
+    let script = original.replace(
+      pipe,
+      os === 'win32' ? '2>&1 | Out-Host' : ''
+    );
     if (filename === verbose_run) {
       script = script.replaceAll(src, dest);
     }

@@ -81,6 +81,10 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | macOS Tahoe 26.x    | arm64   | `macos-26`                         | -                 |
 | macOS Sequoia 15.x  | arm64   | `macos-latest` or `macos-15`       | -                 |
 | macOS Sonoma 14.x   | arm64   | `macos-14`                         | -                 |
+| macOS Tahoe 26.x    | x86_64  | `macos-26-intel`                   | `PHP 8.5`         |
+| macOS Sequoia 15.x  | x86_64  | `macos-15-intel`                   | `PHP 8.5`         |
+
+Support for Intel (`x86_64`) macOS runners is deprecated and will be removed completely in a future release of `setup-php`. We recommend migrating to arm64-based macOS runners, such as `macos-26` or `macos-15`.
 
 ### Self-Hosted Runners
 
@@ -1071,7 +1075,7 @@ Many users and organizations support setup-php via [GitHub Sponsors](https://git
 
 <a href="https://github.com/sponsors/shivammathur"><img src="https://setup-php.com/sponsors.svg?" alt="Sponsor shivammathur"></a>
 
-- If you use setup-php, please consider starring the project and sharing it. 
+- If you use setup-php, please consider starring the project and sharing it.
 - If you blog, please share your experience of using `setup-php`.
 - Please [reach out](mailto:contact@setup-php.com) if you have any questions about sponsoring setup-php.
 

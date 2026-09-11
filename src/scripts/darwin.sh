@@ -90,7 +90,13 @@ add_brew_extension() {
       safe_brew install --skip-link "${brew_opts[@]}" "$ext_tap/$formula@$version" >/dev/null 2>&1 &&
       brew link --overwrite --force "$formula@$version" >/dev/null 2>&1 &&
       copy_brew_extensions "$formula"
-    ) || pecl_install "$extension" >/dev/null 2>&1
+    ) || {
+      if [ -n "$expected_version" ]; then
+        pecl_install "$extension-$expected_version" || pecl_install "$extension"
+      else
+        pecl_install "$extension"
+      fi
+    } >/dev/null 2>&1
     add_extension_log "$extension" "Installed and enabled"
   fi
 }

@@ -84,7 +84,8 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 | macOS Tahoe 26.x    | x86_64  | `macos-26-intel`                   | `PHP 8.5`         |
 | macOS Sequoia 15.x  | x86_64  | `macos-15-intel`                   | `PHP 8.5`         |
 
-Support for Intel (`x86_64`) macOS runners is deprecated and will be removed completely in a future release of `setup-php`. We recommend migrating to arm64-based macOS runners, such as `macos-26` or `macos-15`.
+> [!NOTE]
+> Support for Intel (`x86_64`) macOS runners and macOS Sonoma 14.x (`macos-14`) arm64 runners is deprecated and will be removed completely in a future release of `setup-php`. We recommend migrating to arm64-based macOS runners running macOS 15 or newer, such as `macos-26` or `macos-15`.
 
 ### Self-Hosted Runners
 

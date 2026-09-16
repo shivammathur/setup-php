@@ -144,8 +144,10 @@ Function Add-Extension {
         }
         # If extension for a different version exists
         if(Test-Path $ext_dir\php_$extension.dll) {
-          Move-Item $ext_dir\php_$extension.dll $ext_dir\php_$extension.bak.dll -Force -ErrorAction Stop
-          $extension_backup = "$ext_dir\php_$extension.bak.dll"
+          # Keep backups outside PhpManager's DLL scan and reuse known versions as cache entries.
+          $backup_name = if($extension_info.Version) { "$extension-$($extension_info.Version)" } else { "$extension.bak" }
+          Move-Item $ext_dir\php_$extension.dll "$ext_dir\$backup_name" -Force -ErrorAction Stop
+          $extension_backup = "$ext_dir\$backup_name"
         }
         Install-PhpExtension @params
         Set-ExtensionPrerequisites $extension
@@ -157,7 +159,7 @@ Function Add-Extension {
     }
   } catch {
     if($extension_backup -ne '') {
-      Move-Item $extension_backup "$ext_dir\php_$extension.dll" -Force
+      Copy-Item $extension_backup "$ext_dir\php_$extension.dll" -Force
     }
     Add-Log $cross $extension "Could not install $extension on PHP $( $installed.FullVersion )"
   }

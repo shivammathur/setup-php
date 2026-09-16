@@ -222,16 +222,15 @@ add_pecl_extension() {
   # Cache versioned extensions using suffixless copies in extension_dir.
   if [ -n "$pecl_version" ] && [ -e "${ext_dir:?}/$extension-$pecl_version" ]; then
     sudo cp "${ext_dir:?}/$extension-$pecl_version" "${ext_dir:?}/$extension.so"
-    enable_extension "$extension" "$prefix"
-    add_log "${tick:?}" "$extension" "Enabled"
-    return
+    sudo rm -f /tmp/php"${version:?}"_extensions
   fi
   enable_extension "$extension" "$prefix"
-  ext_version=$(php -r "echo phpversion('$extension');")
+  ext_version=$(php -d display_errors=0 -r "echo phpversion('$extension');" 2>/dev/null)
   if check_extension "$extension" && [[ -z "$pecl_version" || (-n "$pecl_version" && "${ext_version/-/}" == "$pecl_version") ]]; then
     [ -n "$pecl_version" ] && sudo cp "${ext_dir:?}/$extension.so" "${ext_dir:?}/$extension-$pecl_version" 2>/dev/null || true
     add_log "${tick:?}" "$extension" "Enabled"
   else
+    [ -n "$pecl_version" ] && sudo rm -f "${ext_dir:?}/$extension-$pecl_version"
     [ -n "$pecl_version" ] && pecl_version="-$pecl_version"
     pecl_install "$extension$pecl_version" || ( [ "${fail_fast:?}" = "false" ] && add_extension "$extension" "$(get_extension_prefix "$extension")" >/dev/null 2>&1)
     extension_version="$(php -r "echo phpversion('$extension');")"

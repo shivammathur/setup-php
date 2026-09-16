@@ -224,7 +224,7 @@ Function Add-ToolsHelper() {
   } elseif($tool -eq "phpunit-bridge") {
     $extensions += @('dom', 'pdo', 'tokenizer', 'xmlwriter')
   } elseif($tool -eq "cloud-cli") {
-    $extensions += @('sockets')
+    $extensions += @('fileinfo', 'sockets')
     Copy-Item $env:cloud_cli_bin\cloud.bat -Destination $env:cloud_cli_bin\cloud-cli.bat
   } elseif($tool -eq "vapor-cli") {
     $extensions += @('fileinfo', 'json', 'mbstring', 'zip', 'simplexml')

@@ -318,7 +318,8 @@ export async function filterList(tools_list: string[]): Promise<string[]> {
     const parsed = extractChecksum(tool);
     return (
       regex_valid.test(parsed.release) ||
-      (regex_any.test(parsed.release) && parsed.error !== undefined)
+      (regex_any.test(parsed.release) &&
+        (parsed.checksum !== undefined || parsed.error !== undefined))
     );
   });
   let composer = 'composer';
@@ -490,7 +491,7 @@ export async function addComposer(data: ToolData): Promise<string> {
     case /^1$/.test(channel):
       source_url = channel_source_url;
       break;
-    case /^\d+\.\d+\.\d+(?:-[\w-]+)?$/.test(data.version):
+    case /^\d+\.\d+\.\d+(?:-[\w.-]+)?(?:\+[\w.-]+)?$/.test(data.version):
       if (skipGitHubAuthForComposerVersion(data.version)) {
         cleanComposerAuthJson();
         skip_composer_github_auth = ' true';

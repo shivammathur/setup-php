@@ -853,6 +853,25 @@ describe('Tools tests', () => {
   describe.each(['linux', 'darwin', 'win32'])(
     'Checksum version requirements on %s',
     os => {
+      it.each(['2.9.8+build.1', '2.9.8-rc.1', '2.9.8-rc.1+build.2'])(
+        'preserves the exact Composer version and checksum for %s',
+        async version => {
+          const checksum = 'sha256:' + 'a'.repeat(64);
+          const release = `composer:${version}@${checksum}`;
+          expect(await tools.filterList([release])).toEqual([release]);
+          const script = await tools.addTools(release, '8.4', os);
+          expect(script).toContain(
+            `https://github.com/composer/composer/releases/download/${version}/composer.phar`
+          );
+          expect(script).toContain(
+            `https://getcomposer.org/download/${version}/composer.phar`
+          );
+          expect(script).toContain(`composer ${version} ${checksum}`);
+          expect(script).not.toContain('latest');
+          expect(script).not.toContain('composer-stable.phar');
+        }
+      );
+
       it.each([
         '',
         ':latest',

@@ -110,8 +110,20 @@ Function Add-Extension {
     New-Item $deps_dir -Type Directory -Force > $null 2>&1
     if($extension_version -ne '' -and (Test-Path "$ext_dir\$extension-$extension_version")) {
       Copy-Item "$ext_dir\$extension-$extension_version" "$ext_dir\php_$extension.dll" -Force
-      Enable-Extension $extension
-      return
+      try {
+        Enable-ExtensionDependencies $extension
+        Enable-PhpExtension -Extension $extension -Path $php_dir
+        Set-ExtensionPrerequisites $extension
+        $cached_extension = Get-PhpExtension -Path $php_dir | Where-Object { ($_.Name -eq $extension -or $_.Handle -eq $extension) -and $_.State -eq 'Enabled' }
+        if($null -ne $cached_extension) {
+          Add-Log $tick $extension "Enabled"
+          return
+        }
+      } catch {
+        Write-Verbose "Could not enable cached ${extension}: $_"
+      }
+      # A cached DLL may target another PHP build; install it again if it did not load.
+      Remove-Item "$ext_dir\php_$extension.dll" -Force
     }
     $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
     if ($null -ne $extension_info -and ($extension_version -eq '' -or $extension_info.Version -eq $extension_version)) {

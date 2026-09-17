@@ -535,7 +535,7 @@ export async function readPHPVersion(): Promise<string> {
     (await getInput('php-version-file', false)) || '.php-version';
   if (fs.existsSync(versionFile)) {
     const contents: string = fs.readFileSync(versionFile, 'utf8');
-    const match = contents.match(/^(?:php\s)?(\d+\.\d+\.\d+)$/m);
+    const match = contents.match(/^(?:php\s)?(\S+)$/m);
     return validatePHPVersionInput(
       match ? match[1] : contents.trim(),
       versionFile

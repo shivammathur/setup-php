@@ -334,6 +334,12 @@ describe('Utils tests', () => {
     readFileSync.mockReturnValue('ruby 1.2.3\nphp 8.4.2\nnode 20.1.2');
     expect(await utils.readPHPVersion()).toBe('8.4.2');
 
+    readFileSync.mockReturnValue('ruby 1.2.3\nphp 8.4\nnode 20.1.2');
+    expect(await utils.readPHPVersion()).toBe('8.4');
+
+    readFileSync.mockReturnValue('ruby 1.2.3\nphp latest\nnode 20.1.2');
+    expect(await utils.readPHPVersion()).toBe('latest');
+
     existsSync.mockReturnValue(true);
     readFileSync.mockReturnValue('setup-php');
     await expect(utils.readPHPVersion()).rejects.toThrow('Invalid PHP version');

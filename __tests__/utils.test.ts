@@ -56,11 +56,16 @@ describe('Utils tests', () => {
     await expect(utils.parseVersion('foo')).rejects.toThrow(
       'Invalid PHP version:'
     );
-
-    fetchSpy.mockResolvedValue({data: '{ "latest": "8.1.0" }'});
-    await expect(utils.parseVersion('latest')).rejects.toThrow(
-      'Invalid PHP version in manifest:'
+    await expect(utils.parseVersion('8.4\n$(id)')).rejects.toThrow(
+      'Invalid PHP version:'
     );
+
+    for (const latest of ['8.1.0', 'pre', 8.4, ['8.4']]) {
+      fetchSpy.mockResolvedValue({data: JSON.stringify({latest})});
+      await expect(utils.parseVersion('latest')).rejects.toThrow(
+        'Invalid PHP version in manifest:'
+      );
+    }
 
     fetchSpy.mockReset();
     fetchSpy.mockResolvedValueOnce({}).mockResolvedValueOnce({});
@@ -340,8 +345,24 @@ describe('Utils tests', () => {
     readFileSync.mockReturnValue('ruby 1.2.3\nphp latest\nnode 20.1.2');
     expect(await utils.readPHPVersion()).toBe('latest');
 
+    readFileSync.mockReturnValue(' \t8.4 \t\n');
+    expect(await utils.readPHPVersion()).toBe('8.4');
+
+    readFileSync.mockReturnValue(
+      '#PHP\r\n\r\nruby 1.2.3\r\n \tphp \t latest \t# version\r\nnode 20.1.2'
+    );
+    expect(await utils.readPHPVersion()).toBe('latest');
+
+    readFileSync.mockReturnValue('php\n8.4');
+    await expect(utils.readPHPVersion()).rejects.toThrow('Invalid PHP version');
+
+    process.env['php-version-file'] = '.tool-versions';
+    readFileSync.mockReturnValue("ruby 1.2.3\nphp 8.4';id;#\nnode 20.1.2");
+    await expect(utils.readPHPVersion()).rejects.toThrow('.tool-versions');
+    delete process.env['php-version-file'];
+
     existsSync.mockReturnValue(true);
-    readFileSync.mockReturnValue('setup-php');
+    readFileSync.mockReturnValue('php 8.4 8.5');
     await expect(utils.readPHPVersion()).rejects.toThrow('Invalid PHP version');
 
     existsSync.mockReturnValueOnce(false).mockReturnValueOnce(true);
@@ -367,27 +388,42 @@ describe('Utils tests', () => {
     const existsSync = jest.spyOn(fs, 'existsSync').mockImplementation();
     const readFileSync = jest.spyOn(fs, 'readFileSync').mockImplementation();
 
-    process.env['php-version'] = 'bogus';
+    process.env['php-version'] = '$0';
     await expect(utils.readPHPVersion()).rejects.toThrow('php-version input');
     delete process.env['php-version'];
 
     existsSync.mockReturnValue(true);
-    readFileSync.mockReturnValue('bogus');
+    readFileSync.mockReturnValue(';id');
     await expect(utils.readPHPVersion()).rejects.toThrow('.php-version');
 
     existsSync.mockReturnValueOnce(false).mockReturnValueOnce(true);
-    readFileSync.mockReturnValue('{"platform-overrides":{"php":"bogus"}}');
+    readFileSync.mockReturnValue('{"platform-overrides":{"php":"`w`"}}');
     await expect(utils.readPHPVersion()).rejects.toThrow(
       'composer.lock platform-overrides.php'
+    );
+
+    existsSync.mockReturnValueOnce(false).mockReturnValueOnce(true);
+    readFileSync.mockReturnValue('{"platform-overrides":{"php":8.4}}');
+    await expect(utils.readPHPVersion()).rejects.toThrow(
+      'composer.lock platform-overrides.php: number'
     );
 
     existsSync
       .mockReturnValueOnce(false)
       .mockReturnValueOnce(false)
       .mockReturnValueOnce(true);
-    readFileSync.mockReturnValue('{"config":{"platform":{"php":"bogus"}}}');
+    readFileSync.mockReturnValue('{"config":{"platform":{"php":"8.4$(id)"}}}');
     await expect(utils.readPHPVersion()).rejects.toThrow(
       'composer.json config.platform.php'
+    );
+
+    existsSync
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true);
+    readFileSync.mockReturnValue('{"config":{"platform":{"php":["8.4"]}}}');
+    await expect(utils.readPHPVersion()).rejects.toThrow(
+      'composer.json config.platform.php: object'
     );
 
     existsSync.mockClear();

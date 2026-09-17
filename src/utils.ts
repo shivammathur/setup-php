@@ -71,15 +71,13 @@ export async function parseVersion(version: string): Promise<string> {
       for (const manifestURL of await getManifestURLS()) {
         const fetchResult = await fetch.fetch(manifestURL);
         if (fetchResult['data'] ?? false) {
-          const resolved: string | undefined = JSON.parse(fetchResult['data'])[
-            version
-          ];
+          const resolved: unknown = JSON.parse(fetchResult['data'])[version];
           if (resolved === undefined) {
             throw new Error(`Invalid PHP version: ${version.slice(0, 20)}`);
           }
-          if (!/^\d+\.\d+$/.test(resolved)) {
+          if (typeof resolved !== 'string' || !/^\d+\.\d+$/.test(resolved)) {
             throw new Error(
-              `Invalid PHP version in manifest: ${resolved.slice(0, 10)}`
+              `Invalid PHP version in manifest: ${typeof resolved === 'string' ? resolved.slice(0, 10) : typeof resolved}`
             );
           }
           return resolved;
@@ -514,10 +512,10 @@ export async function parseExtensionSource(
 const VERSION_INPUT_REGEX =
   /^(latest|lowest|highest|nightly|master|pre|pre-installed|\d+\.x|\d+(\.\d+){0,2})$/;
 
-function validatePHPVersionInput(version: string, source: string): string {
-  if (!VERSION_INPUT_REGEX.test(version)) {
+function validatePHPVersionInput(version: unknown, source: string): string {
+  if (typeof version !== 'string' || !VERSION_INPUT_REGEX.test(version)) {
     throw new Error(
-      `Invalid PHP version in ${source}: ${version.slice(0, 20)}`
+      `Invalid PHP version in ${source}: ${typeof version === 'string' ? version.slice(0, 20) : typeof version}`
     );
   }
   return version;
@@ -535,7 +533,9 @@ export async function readPHPVersion(): Promise<string> {
     (await getInput('php-version-file', false)) || '.php-version';
   if (fs.existsSync(versionFile)) {
     const contents: string = fs.readFileSync(versionFile, 'utf8');
-    const match = contents.match(/^(?:php\s)?(\S+)$/m);
+    const match = contents.match(
+      /^[ \t]*(?:php[ \t]+)?([^\s#]+)[ \t]*(?:#.*)?$/m
+    );
     return validatePHPVersionInput(
       match ? match[1] : contents.trim(),
       versionFile

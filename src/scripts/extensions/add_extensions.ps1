@@ -111,7 +111,14 @@ Function Add-Extension {
     Set-PhpIniKey -Key display_startup_errors -Value Off -Path "$php_dir\php.ini"
     $deps_dir = "$ext_dir\$extension-vc$($installed.VCVersion)-$arch"
     New-Item $deps_dir -Type Directory -Force > $null 2>&1
+    $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
     if($extension_version -ne '' -and (Test-Path "$ext_dir\$extension-$extension_version")) {
+      # Preserve the active DLL before probing a cache entry for another PHP build.
+      if(Test-Path "$ext_dir\php_$extension.dll") {
+        $backup_name = if($extension_info.Version) { "$extension-$($extension_info.Version)" } else { "$extension.bak" }
+        Copy-Item "$ext_dir\php_$extension.dll" "$ext_dir\$backup_name" -Force -ErrorAction Stop
+        $extension_backup = "$ext_dir\$backup_name"
+      }
       Copy-Item "$ext_dir\$extension-$extension_version" "$ext_dir\php_$extension.dll" -Force
       try {
         Enable-ExtensionDependencies $extension
@@ -127,8 +134,8 @@ Function Add-Extension {
       }
       # A cached DLL may target another PHP build; install it again if it did not load.
       Remove-Item "$ext_dir\php_$extension.dll" -Force
+      $extension_info = $null
     }
-    $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
     if ($null -ne $extension_info -and ($extension_version -eq '' -or $extension_info.Version -eq $extension_version)) {
       switch ($extension_info.State) {
         'Builtin' {

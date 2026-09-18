@@ -105,7 +105,10 @@ Function Add-Extension {
     $extension_version = ''
   )
   $extension_backup = ''
+  $startup_errors = Get-PhpIniKey -Key display_startup_errors -Path "$php_dir\php.ini"
   try {
+    # PhpManager parses php -m while DLLs are temporarily moved or replaced.
+    Set-PhpIniKey -Key display_startup_errors -Value Off -Path "$php_dir\php.ini"
     $deps_dir = "$ext_dir\$extension-vc$($installed.VCVersion)-$arch"
     New-Item $deps_dir -Type Directory -Force > $null 2>&1
     if($extension_version -ne '' -and (Test-Path "$ext_dir\$extension-$extension_version")) {
@@ -174,6 +177,12 @@ Function Add-Extension {
       Copy-Item $extension_backup "$ext_dir\php_$extension.dll" -Force
     }
     Add-Log $cross $extension "Could not install $extension on PHP $( $installed.FullVersion )"
+  } finally {
+    if($null -eq $startup_errors) {
+      Set-PhpIniKey -Key display_startup_errors -Delete -Path "$php_dir\php.ini"
+    } else {
+      Set-PhpIniKey -Key display_startup_errors -Value $startup_errors -Path "$php_dir\php.ini"
+    }
   }
 }
 

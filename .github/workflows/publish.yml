@@ -50,9 +50,14 @@ jobs:
           npm run build
           sed -i -e '/lib\//d' .gitignore
 
+      - name: Select npm distribution tag
+        id: publish-tag
+        run: |
+          jq -r '.version | if test("alpha|beta|rc"; "i") then "tag=next" else "tag=latest" end' package.json >> "$GITHUB_OUTPUT"
+
       - name: Publish to NPM
         if: "!contains(github.event.inputs.skip, 'skip-npm')"
-        run: npm publish --access public
+        run: npm publish --access public --tag "${{ steps.publish-tag.outputs.tag }}"
 
       - name: Change to GitHub Packages registry
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
@@ -67,6 +72,6 @@ jobs:
 
       - name: Publish to GitHub Packages
         if: "!contains(github.event.inputs.skip, 'skip-github-packages')"
-        run: npm publish
+        run: npm publish --tag "${{ steps.publish-tag.outputs.tag }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

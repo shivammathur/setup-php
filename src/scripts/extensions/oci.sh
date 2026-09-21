@@ -59,7 +59,7 @@ add_oci_helper() {
     else
       compatibility_flag='-Wno-incompatible-function-pointer-types'
     fi
-    read -r "${ext}_CONFIGURE_PREFIX_OPTS" <<< "CFLAGS=$compatibility_flag"
+    read -r "${ext}_CONFIGURE_PREFIX_OPTS" <<< "SED=sed CFLAGS=$compatibility_flag"
     read -r "${ext}_LINUX_LIBS" <<< "libaio-dev"
     read -r "${ext}_CONFIGURE_OPTS" <<< "--with-php-config=$(command -v php-config) --with-${ext/_/-}=instantclient,$oracle_client"
     patch_phpize

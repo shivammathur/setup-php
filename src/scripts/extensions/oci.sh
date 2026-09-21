@@ -37,6 +37,10 @@ add_client() {
     for icdir in /opt/oracle/instantclient_*; do
       sudo mv "$icdir"/* "$oracle_client"/
     done
+    if [ "$os" = "Linux" ]; then
+      client_library=$(find "$oracle_client" -maxdepth 1 -type f -name 'libclntsh.so.*.1' | sort -V | tail -n1)
+      [ -n "$client_library" ] && sudo ln -sfn "${client_library##*/}" "$oracle_client/libclntsh.so"
+    fi
     sudo mkdir -p "$libs"
     sudo ln -sf /opt/oracle/instantclient/*."$lib_ext"* "$libs"
     if [ "$os" = "Linux" ]; then
@@ -49,7 +53,13 @@ add_client() {
 add_oci_helper() {
   if ! shared_extension "$ext"; then
     status='Installed and enabled'
-    read -r "${ext}_CONFIGURE_PREFIX_OPTS" <<< "CFLAGS=-Wno-incompatible-function-pointer-types"
+    local compatibility_flag
+    if [ "$os" = "Linux" ]; then
+      compatibility_flag='-Wno-error=incompatible-pointer-types'
+    else
+      compatibility_flag='-Wno-incompatible-function-pointer-types'
+    fi
+    read -r "${ext}_CONFIGURE_PREFIX_OPTS" <<< "CFLAGS=$compatibility_flag"
     read -r "${ext}_LINUX_LIBS" <<< "libaio-dev"
     read -r "${ext}_CONFIGURE_OPTS" <<< "--with-php-config=$(command -v php-config) --with-${ext/_/-}=instantclient,$oracle_client"
     patch_phpize

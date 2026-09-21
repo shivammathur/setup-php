@@ -88,6 +88,7 @@ add_ibm_helper() {
     else
       configure_flag="--with-pdo-ibm=$IBM_DB_HOME"
     fi
+    read -r "${ext}_CONFIGURE_PREFIX_OPTS" <<< "SED=sed"
     read -r "${ext}_CONFIGURE_OPTS" <<< "--with-php-config=$(command -v php-config) $configure_flag"
     patch_phpize
     add_extension_from_source "$ext" https://github.com php "pecl-database-$ext" master extension get

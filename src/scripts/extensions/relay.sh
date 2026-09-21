@@ -35,7 +35,7 @@ get_openssl_suffix() {
 # Change library paths in relay binary.
 change_library_paths() {
   if [ "$os" = "Darwin" ]; then
-    otool -L "${ext_dir:?}"/relay.so | grep -q 'ssl.1' && openssl_version='1.1' || openssl_version='3'
+    otool -L "${ext_dir:?}"/relay.so | grep -q 'ssl.3.' && openssl_version='3' || openssl_version='1.1'
     [ -e "${brew_prefix:?}"/opt/openssl@"$openssl_version" ] || {
       safe_brew install --skip-link openssl@"$openssl_version" &&
       brew link --overwrite --force openssl@"$openssl_version"

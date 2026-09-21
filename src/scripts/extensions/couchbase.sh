@@ -8,7 +8,7 @@ add_couchbase_clibs() {
     release=$(get -s -n "" "$trunk"/latest | grep -Eo -m 1 "[0-9]+\.[0-9]+\.[0-9]+" | head -n 1)
   fi
   [[ "$VERSION_ID" = "24.04" || "$VERSION_ID" = "26.04" ]] && vid=22.04 || vid="$VERSION_ID"
-  [ "$VERSION_CODENAME" = "noble" ] && vcn=jammy || vcn="$VERSION_CODENAME"
+  [[ "$VERSION_CODENAME" = "noble" || "$VERSION_CODENAME" = "resolute" ]] && vcn=jammy || vcn="$VERSION_CODENAME"
   deb_url="$trunk/download/$release/libcouchbase-${release}_ubuntu${vid/./}_${vcn}_amd64.tar"
   get -q -n /tmp/libcouchbase.tar "$deb_url"
   if ! [ -e /tmp/libcouchbase.tar ] || ! file /tmp/libcouchbase.tar | grep -q 'tar archive'; then
@@ -59,6 +59,7 @@ add_couchbase() {
       ext=$(get_couchbase_version)
     fi
     if [[ "$ext" =~ couchbase-[2-3].+ ]]; then
+      export COUCHBASE_CONFIGURE_PREFIX_OPTS="${COUCHBASE_CONFIGURE_PREFIX_OPTS:-} SED=sed CFLAGS=-Wno-error=incompatible-pointer-types"
       add_couchbase_clibs "$ext" >/dev/null 2>&1
     else
       add_couchbase_cxxlibs >/dev/null 2>&1

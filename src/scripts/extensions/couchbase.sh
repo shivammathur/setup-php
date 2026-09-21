@@ -7,7 +7,7 @@ add_couchbase_clibs() {
   else
     release=$(get -s -n "" "$trunk"/latest | grep -Eo -m 1 "[0-9]+\.[0-9]+\.[0-9]+" | head -n 1)
   fi
-  [ "$VERSION_ID" = "24.04" ] && vid=22.04 || vid="$VERSION_ID"
+  [[ "$VERSION_ID" = "24.04" || "$VERSION_ID" = "26.04" ]] && vid=22.04 || vid="$VERSION_ID"
   [ "$VERSION_CODENAME" = "noble" ] && vcn=jammy || vcn="$VERSION_CODENAME"
   deb_url="$trunk/download/$release/libcouchbase-${release}_ubuntu${vid/./}_${vcn}_amd64.tar"
   get -q -n /tmp/libcouchbase.tar "$deb_url"
@@ -22,9 +22,9 @@ add_couchbase_clibs() {
 }
 
 add_old_libssl() {
-  if [[ "$VERSION_ID" = "24.04" ]]; then
+  if [[ "$VERSION_ID" = "24.04" || "$VERSION_ID" = "26.04" ]]; then
     get -q -n /tmp/libssl.deb http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
-    [ -e /tmp/libssl.deb ] && sudo dpkg -i /tmp/libssl.deb || add_extension_log "couchbase" "Could not install libssl1.1"
+    ([ -e /tmp/libssl.deb ] && sudo dpkg -i /tmp/libssl.deb) || add_extension_log "couchbase" "Could not install libssl1.1"
   fi
 }
 

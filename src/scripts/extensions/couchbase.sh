@@ -62,19 +62,28 @@ add_couchbase() {
       add_couchbase_clibs "$ext" >/dev/null 2>&1
     else
       add_couchbase_cxxlibs >/dev/null 2>&1
+      if [[ "$ext" =~ ^couchbase-4\.1\. ]]; then
+        export COUCHBASE_CONFIGURE_PREFIX_OPTS="${COUCHBASE_CONFIGURE_PREFIX_OPTS:-} COUCHBASE_CMAKE_EXTRA=-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+      fi
     fi
     enable_extension "couchbase" "extension"
     if check_extension "couchbase"; then
       add_log "${tick:?}" "couchbase" "Enabled"
     else
+      local install_method=pecl_install
       if [ "$ext" = "couchbase" ]; then
         ext="couchbase-$(get_pecl_version "couchbase" "stable")"
         n_proc="$(nproc)"
         export COUCHBASE_SUFFIX_OPTS="CMAKE_BUILD_TYPE=Release"
         export CMAKE_BUILD_PARALLEL_LEVEL="$n_proc"
+        install_method=add_extension_from_source
+      elif [[ "$ext" =~ ^couchbase-4\.1\. ]]; then
+        install_method=add_extension_from_source
+      fi
+      if [ "$install_method" = add_extension_from_source ]; then
         add_extension_from_source couchbase https://pecl.php.net couchbase couchbase "${ext##*-}" extension pecl >/dev/null 2>&1
       else
-        pecl_install "${ext}" >/dev/null 2>&1
+        "$install_method" "${ext}" >/dev/null 2>&1
       fi
       add_extension_log "couchbase" "Installed and enabled"
     fi

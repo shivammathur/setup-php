@@ -195,14 +195,15 @@ pecl_install() {
     check_extension "${extension%-*}" && return 0 || return 1;
   else
     cpu_count="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo '1')"
-    prefix_opts="$(parse_args "$extension" CONFIGURE_PREFIX_OPTS) MAKEFLAGS='-j $cpu_count'"
+    local prefix_opts=()
+    IFS=' ' read -r -a prefix_opts <<<"$(parse_args "$extension" CONFIGURE_PREFIX_OPTS)"
     suffix_opts="$(parse_args "$extension" CONFIGURE_OPTS) $(parse_args "$extension" CONFIGURE_SUFFIX_OPTS)"
     IFS=' ' read -r -a libraries <<<"$(parse_args "$extension" LIBS) $(parse_args "$extension" "$(uname -s)"_LIBS)"
     (( ${#libraries[@]} )) && add_libs "${libraries[@]}" >/dev/null 2>&1
     if [ "$version" = "5.3" ]; then
-      yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f "$extension" >/dev/null 2>&1
+      yes '' 2>/dev/null | sudo env "${prefix_opts[@]}" MAKEFLAGS="-j $cpu_count" pecl install -f "$extension" >/dev/null 2>&1
     else
-      yes '' 2>/dev/null | sudo "$prefix_opts" pecl install -f -D "$(parse_pecl_configure_options "$suffix_opts")" "$extension" >/dev/null 2>&1
+      yes '' 2>/dev/null | sudo env "${prefix_opts[@]}" MAKEFLAGS="-j $cpu_count" pecl install -f -D "$(parse_pecl_configure_options "$suffix_opts")" "$extension" >/dev/null 2>&1
     fi
     local exit_code=$?
     sudo pecl info "$extension" 2>/dev/null | grep -iq 'zend extension' && prefix=zend_extension

@@ -35,6 +35,15 @@ get_cli_archive() {
   esac
 }
 
+# Function to add the libxml2 ABI name expected by the IBM Db2 CLI driver.
+add_ibm_libxml2_link() {
+  local libxml2
+  if ! ldconfig -p 2>/dev/null | grep -q 'libxml2\.so\.2 '; then
+    libxml2=$(ldconfig -p 2>/dev/null | awk '$1 == "libxml2.so.16" {print $NF; exit}')
+    [ -n "$libxml2" ] && sudo ln -sfn "$libxml2" "$(dirname "$libxml2")/libxml2.so.2"
+  fi
+}
+
 # Function to install IBM Db2 CLI driver.
 add_cli_driver() {
   local os arch archive url tmp libs
@@ -58,6 +67,7 @@ add_cli_driver() {
   if [ "$os" = "Linux" ]; then
     echo "$ibm_cli/lib" | sudo tee /etc/ld.so.conf.d/ibm_db2.conf >/dev/null
     sudo ldconfig
+    add_ibm_libxml2_link
   else
     libs='/usr/local/lib'
     sudo mkdir -p "$libs"

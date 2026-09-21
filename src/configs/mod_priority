@@ -11,6 +11,7 @@ grpc=30
 http=25
 pecl_http=25
 pecl-http=25
+ibm_db2=40
 inotify=30
 libvirt-php=40
 mailparse=25

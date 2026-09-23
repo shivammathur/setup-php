@@ -10,7 +10,7 @@
   <a href="https://github.com/shivammathur/setup-php" title="GitHub action to setup PHP"><img alt="GitHub Actions status" src="https://github.com/shivammathur/setup-php/workflows/Main%20workflow/badge.svg"></a>
   <a href="https://codecov.io/gh/shivammathur/setup-php" title="Code coverage"><img alt="Codecov Code Coverage" src="https://img.shields.io/codecov/c/github/shivammathur/setup-php?logo=codecov"></a>
   <a href="https://github.com/shivammathur/setup-php/blob/main/LICENSE" title="license"><img alt="LICENSE" src="https://img.shields.io/badge/license-MIT-428f7e.svg?logo=open%20source%20initiative&logoColor=white&labelColor=555555"></a>
-  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.6-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>
+  <a href="#tada-php-support" title="PHP Versions Supported"><img alt="PHP Versions Supported" src="https://img.shields.io/badge/php-5.3%20to%208.7-777bb3.svg?logo=php&logoColor=white&labelColor=555555"></a>
 </p>
 <p align="center">
   <a href="https://reddit.com/r/setup_php" title="setup-php reddit"><img alt="setup-php reddit" src="https://img.shields.io/badge/reddit-join-FF5700?logo=reddit&logoColor=FF5700&labelColor=555555"></a>
@@ -112,9 +112,9 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 On all supported OS/Platforms, the following PHP versions can be set up as per the runner.
 
-- PHP 5.3 to PHP 8.6 on GitHub-hosted runners, except for macOS ARM64 runners (macos-14).
-- PHP 5.6 to PHP 8.6 on GitHub-hosted macOS ARM64 runners (macos-14).
-- PHP 5.6 to PHP 8.6 on self-hosted runners.
+- PHP 5.3 to PHP 8.7 on GitHub-hosted runners, except for macOS ARM64 runners (macos-14).
+- PHP 5.6 to PHP 8.7 on GitHub-hosted macOS ARM64 runners (macos-14).
+- PHP 5.6 to PHP 8.7 on self-hosted runners.
 
 | PHP Version | Stability | Release Support       | Runner Support                 |
 |-------------|-----------|-----------------------|--------------------------------|
@@ -134,10 +134,11 @@ On all supported OS/Platforms, the following PHP versions can be set up as per t
 | `8.4`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.5`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.6`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
+| `8.7`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
 
 
 > [!Note]
-> - Specifying `8.6` in `php-version` input installs a nightly build of `PHP 8.6.0-dev` from the master branch of PHP. See [nightly build setup](#nightly-build-setup) for more information.
+> - Specifying `8.7` or `master` in `php-version` input installs a nightly build of `PHP 8.7.0-dev` from the master branch of PHP. Specifying `8.6` or `nightly` installs a nightly build of `PHP 8.6.0-dev` from the PHP-8.6 branch. See [nightly build setup](#nightly-build-setup) for more information.
 > - To use JIT on `PHP 8.0` and above, refer to the [JIT configuration](#jit-configuration) section.
 
 ## :heavy_plus_sign: PHP Extension Support
@@ -431,7 +432,8 @@ Disable coverage for these reasons:
 - Accepts a `string`. For example `'8.5'`.
 - Accepts `lowest` to set up the lowest supported PHP version.
 - Accepts `highest` or `latest` to set up the latest stable PHP version.
-- Accepts `nightly` to set up a nightly build from the master branch of PHP.
+- Accepts `nightly` to set up a nightly build of the next PHP release (`8.6`).
+- Accepts `master` to set up a nightly build from the master branch of PHP (`8.7`).
 - Accepts `pre-installed` to set up the highest pre-installed PHP version. You can combine this with `update: true` to update the pre-installed PHP version.
 - Accepts the format `d.x`, where `d` is the major version. For example `5.x`, `7.x` and `8.x`.
 - See [PHP support](#tada-php-support) for the supported PHP versions.
@@ -588,7 +590,7 @@ jobs:
 
 ### Nightly Build Setup
 
-> Set up a nightly build of `PHP 8.6`.
+> Set up a nightly build of `PHP 8.6` or `PHP 8.7`.
 
 - These PHP versions are currently in active development and might contain bugs and breaking changes.
 - Some user space extensions might not support these versions currently.
@@ -598,7 +600,7 @@ steps:
 - name: Setup nightly PHP
   uses: shivammathur/setup-php@v2
   with:
-    php-version: '8.6'
+    php-version: '8.7'
     extensions: mbstring
     ini-values: post_max_size=256M, max_execution_time=180
     coverage: xdebug

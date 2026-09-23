@@ -41,10 +41,17 @@ describe('Utils tests', () => {
   });
 
   it('checking parseVersion', async () => {
-    const fetchSpy = jest
-      .spyOn(fetchModule, 'fetch')
-      .mockResolvedValue({data: '{ "latest": "8.1", "5.x": "5.6" }'});
-    expect(await utils.parseVersion('latest')).toBe('8.1');
+    const fetchSpy = jest.spyOn(fetchModule, 'fetch').mockResolvedValue({
+      data: fs.readFileSync(
+        path.join(__dirname, '../src/configs/php-versions.json'),
+        'utf8'
+      )
+    });
+    expect(await utils.parseVersion('latest')).toBe('8.5');
+    expect(await utils.parseVersion('nightly')).toBe('8.6');
+    expect(await utils.parseVersion('master')).toBe('8.7');
+    expect(await utils.parseVersion('8.7')).toBe('8.7');
+    expect(await utils.parseVersion('8.7.0')).toBe('8.7');
     expect(await utils.parseVersion('7')).toBe('7.0');
     expect(await utils.parseVersion('7.4')).toBe('7.4');
     expect(await utils.parseVersion('5.x')).toBe('5.6');

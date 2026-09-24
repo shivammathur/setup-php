@@ -1,5 +1,18 @@
 import * as utils from './utils';
 
+/** Select only unversioned, requested macOS extension caches. */
+export async function extensionPacks(
+  extension_csv: string,
+  version: string,
+  os: string
+): Promise<string[]> {
+  if (os !== 'darwin' || !/^8\.[2-5]$/.test(version)) return [];
+  const requested = await utils.extensionArray(extension_csv);
+  return ['imagick', 'mongodb', 'memcached'].filter(
+    name => requested.includes(name) && !requested.includes(':' + name)
+  );
+}
+
 /**
  * Install and enable extensions for darwin
  *

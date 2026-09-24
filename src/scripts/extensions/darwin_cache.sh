@@ -24,7 +24,11 @@ finish_extension_cache_downloads() {
   if [[ "${verbose:-${VERBOSE:-}}" =~ ^(true|v{1,3})$ ]]; then
     cat "$extension_cache_dir/download.log"
   fi
-  [ -s "$extension_cache_dir/install-extensions.cjs" ] || return 0
+  if [ ! -s "$extension_cache_dir/install-extensions.cjs" ]; then
+    rm -rf "$extension_cache_dir"
+    extension_cache_dir=
+    return 0
+  fi
   local extension variable value
   for extension in $SETUP_PHP_EXTENSION_PACKS; do
     [ -s "$extension_cache_dir/$extension.json" ] || continue

@@ -77,6 +77,9 @@ add_brew_extension() {
   prefix=$2
   expected_version=${3:-}
   extension="$(get_extension_from_formula "$formula")"
+  if [ "$extension" = memcached ] && [ -n "${extension_cache_memcached_dependencies:-}" ]; then
+    enable_extension_cache_dependencies "$extension"
+  fi
   enable_extension "$extension" "$prefix"
   if check_extension "$extension" && { [ -z "$expected_version" ] || check_extension_version "$extension" "$expected_version"; }; then
     add_log "${tick:?}" "$extension" "Enabled"
@@ -337,4 +340,10 @@ export HOMEBREW_NO_INSTALL_FROM_API=1
 configure_brew
 read_env
 self_hosted_setup
+if [ -n "${SETUP_PHP_EXTENSION_PACKS:-}" ]; then
+  # shellcheck source=.
+  . "$scripts/extensions/darwin_cache.sh"
+  start_extension_cache_downloads
+fi
 setup_php
+if [ -n "${SETUP_PHP_EXTENSION_PACKS:-}" ]; then finish_extension_cache_downloads; fi

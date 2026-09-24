@@ -31,6 +31,13 @@ export async function getScript(os: string): Promise<string> {
   const ini_file: string = await utils.parseIniFile(
     await utils.getInput('ini-file', false)
   );
+  const packs = await extensions.extensionPacks(extension_csv, version, os);
+  if (packs.length) {
+    process.env['SETUP_PHP_EXTENSION_PACKS'] = packs.join(' ');
+    process.env['SETUP_PHP_NODE'] = process.execPath;
+  } else {
+    delete process.env['SETUP_PHP_EXTENSION_PACKS'];
+  }
   let script = await utils.joins('.', script_path, `'${version}'`, ini_file);
   if (extension_csv) {
     script += await extensions.addExtension(extension_csv, version, os);

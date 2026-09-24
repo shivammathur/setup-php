@@ -35,7 +35,7 @@ finish_extension_cache_downloads() {
     if "$SETUP_PHP_NODE" "$extension_cache_dir/install-extensions.cjs" install "$extension_cache_dir" "$extension"; then
       while IFS='=' read -r variable value; do
         case "$variable" in
-          MAGICK_CONFIGURE_PATH|MAGICK_CODER_MODULE_PATH|MAGICK_FILTER_MODULE_PATH)
+          MAGICK_CONFIGURE_PATH|MAGICK_CODER_MODULE_PATH|MAGICK_FILTER_MODULE_PATH|SASL_PATH)
             add_env "$variable" "$value"
             ;;
         esac

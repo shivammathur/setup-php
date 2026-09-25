@@ -196,7 +196,7 @@ add_php() {
   php_keg="php@$version$suffix"
   php_formula="shivammathur/php/$php_keg"
   if [[ "$existing_version" = "false" || -n "$suffix" || "$action" = "upgrade" ]]; then
-    if [ "${runner:?}" != "self-hosted" ] && [ "${use_package_cache:-true}" != "false" ]; then
+    if [ "$(uname -m)" = "x86_64" ] || { [ "${runner:?}" != "self-hosted" ] && [ "${use_package_cache:-true}" != "false" ]; }; then
       setup_cached_versions && return 0
       [ "$(uname -m)" != "x86_64" ] || return 1
     fi
@@ -270,7 +270,7 @@ setup_php() {
   php_config="$(command -v php-config 2>/dev/null)"
   update=true
   check_pre_installed
-  existing_version=$(get_brewed_php)
+  existing_version=$([ "$(uname -m)" != "x86_64" ] && get_brewed_php || echo false)
   status="Found"
   if [[ "$version" =~ ${old_versions:?} ]]; then
     run_script "php5-darwin" "${version/./}" >/dev/null 2>&1

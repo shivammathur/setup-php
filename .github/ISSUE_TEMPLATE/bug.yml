@@ -88,7 +88,7 @@ body:
       label: "Are you willing to submit a PR?"
       description: "We accept pull requests targeting the develop branch."
       options:
-        - "Yes"
         - "No"
+        - "Yes"
     validations:
       required: true

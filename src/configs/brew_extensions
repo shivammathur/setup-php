@@ -8,6 +8,7 @@ event=event
 excimer=excimer
 expect=expect
 gearman=gearman
+geos=geos
 gmagick=gmagick
 gnupg=gnupg
 grpc=grpc

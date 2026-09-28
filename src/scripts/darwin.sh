@@ -17,7 +17,7 @@ handle_dependency_extensions() {
     for dependency_extension in "${dependency_extensions[@]}"; do
         safe_brew install --skip-link "${brew_opts[@]}" "$ext_tap/$dependency_extension@$version" >/dev/null 2>&1 &&
         brew link --overwrite --force "$dependency_extension@$version" >/dev/null 2>&1 &&
-        copy_brew_extensions "$dependency_extension"
+        copy_brew_extensions "$dependency_extension" || return $?
     done
   fi
 }
@@ -71,6 +71,16 @@ copy_brew_extensions() {
   fi
 }
 
+# Install an extension and its variant-specific dependencies with the current Brew state.
+install_brew_extension() {
+  local formula=$1
+  local extension=$2
+  handle_dependency_extensions "$formula" "$extension" &&
+  safe_brew install --skip-link "${brew_opts[@]}" "$ext_tap/$formula@$version" &&
+  brew link --overwrite --force "$formula@$version" &&
+  copy_brew_extensions "$formula"
+}
+
 # Function to install a php extension from shivammathur/extensions tap.
 add_brew_extension() {
   formula=$1
@@ -84,13 +94,13 @@ add_brew_extension() {
     add_brew_tap "$php_tap"
     add_brew_tap "$ext_tap"
     formula="$(get_renamed_formula "$formula")"
-    update_dependencies >/dev/null 2>&1
-    handle_dependency_extensions "$formula" "$extension" >/dev/null 2>&1
     (
-      safe_brew install --skip-link "${brew_opts[@]}" "$ext_tap/$formula@$version" >/dev/null 2>&1 &&
-      brew link --overwrite --force "$formula@$version" >/dev/null 2>&1 &&
-      copy_brew_extensions "$formula"
-    ) || {
+      patch_brew
+      # Keep the watchdog, but refresh before retrying a failed first attempt.
+      SETUP_PHP_BREW_RETRY_ATTEMPTS=1 install_brew_extension "$formula" "$extension" || {
+        update_dependencies && install_brew_extension "$formula" "$extension"
+      }
+    ) >/dev/null 2>&1 || {
       if [ -n "$expected_version" ]; then
         pecl_install "$extension-$expected_version" || pecl_install "$extension"
       else
@@ -157,15 +167,15 @@ patch_brew() {
 
 # Function to update dependencies.
 update_dependencies() {
-  patch_brew
   if ! [ -e /tmp/update_dependencies ]; then
     for repo in "$brew_repo" "${core_repo:?}"; do
       if [ -e "$repo" ]; then
-        git_retry -C "$repo" fetch origin main && git -C "$repo" reset --hard origin/main
+        git_retry -C "$repo" fetch origin main && git -C "$repo" reset --hard origin/main || return $?
       fi
     done
     echo '' | sudo tee /tmp/update_dependencies >/dev/null 2>&1
   fi
+  patch_brew
 }
 
 # Function to get PHP version if it is already installed using Homebrew.

@@ -226,7 +226,7 @@ update_php() {
 
 # Function to install PHP.
 add_php() {
-  if [ "${runner:?}" = "self-hosted" ] || [ "${use_package_cache:-true}" = "false" ]; then
+  if [ "${runner:?}" = "self-hosted" ] || [ "${use_builds_cache:-true}" = "false" ]; then
     if [[ "$version" =~ ${php_builder_versions:?} || "$ts" = "zts" ]]; then
         setup_php_builder
     else
@@ -285,6 +285,9 @@ add_php_config() {
 # Function to Setup PHP
 setup_php() {
   step_log "Setup PHP"
+  if [ "${builds_cache_warning:-false}" = "true" ]; then
+    add_log "!" "PHP" "Cached PHP builds are experimental on this runner and may fail to install"
+  fi
   sudo mkdir -m 777 -p /var/run /run/php
   php_config="$(command -v php-config)"
   check_pre_installed

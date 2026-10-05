@@ -206,7 +206,7 @@ add_php() {
   php_keg="php@$version$suffix"
   php_formula="shivammathur/php/$php_keg"
   if [[ "$existing_version" = "false" || -n "$suffix" || "$action" = "upgrade" ]]; then
-    if [ "$(uname -m)" = "x86_64" ] || { [ "${runner:?}" != "self-hosted" ] && [ "${use_package_cache:-true}" != "false" ]; }; then
+    if [ "$(uname -m)" = "x86_64" ] || { [ "${runner:?}" != "self-hosted" ] && [ "${use_builds_cache:-true}" != "false" ]; }; then
       setup_cached_versions && return 0
       [ "$(uname -m)" != "x86_64" ] || return 1
     fi

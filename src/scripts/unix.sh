@@ -33,6 +33,8 @@ add_log() {
   local message=$3
   if [ "$mark" = "$tick" ]; then
     printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
+  elif [ "$mark" = "!" ]; then
+    printf "\033[33;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
   else
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s\033[0m\n" "$mark" "$subject" "$message"
     [ "$fail_fast" = "true" ] && exit 1
@@ -58,6 +60,22 @@ without_trace() {
   return "$setup_php_trace_status"
 }
 
+# Function to check third-party runners eligible for the builds cache.
+check_builds_cache_runner() {
+  local pid=$PPID executable
+  while [[ "$pid" =~ ^[0-9]+$ && "$pid" -gt 1 ]]; do
+    executable="$(readlink -f "/proc/$pid/exe")" || return 1
+    if [[ "$executable" = */bin/Runner.Worker ]]; then
+      jq -e --arg name "${RUNNER_NAME:-}" \
+        '.AgentName == $name and (.AgentName | test("^(blacksmith|depot)-"))' \
+        "${executable%/bin/Runner.Worker}/.runner" >/dev/null 2>&1
+      return $?
+    fi
+    pid="$(awk '$1 == "PPid:" {print $2}' "/proc/$pid/status")" || return 1
+  done
+  return 1
+}
+
 # Function to read env inputs.
 read_env() {
   if [[ "${SETUP_PHP_TRACE:-0}" =~ ^[12]$ ]]; then
@@ -67,10 +85,19 @@ read_env() {
   [ "${debug:-${DEBUG:-false}}" = "true" ] && debug=debug && update=true || debug=release
   [[ "${phpts:-${PHPTS:-nts}}" = "ts" || "${phpts:-${PHPTS:-nts}}" = "zts" ]] && ts=zts && update=true || ts=nts
   fail_fast="${fail_fast:-${FAIL_FAST:-false}}"
+  use_builds_cache="${use_builds_cache:-${use_package_cache:-}}"
   [[ ( -z "$ImageOS" && -z "$ImageVersion" ) ||
      ( -n "$RUNNER_ENVIRONMENT" && "$RUNNER_ENVIRONMENT" = "self-hosted" ) ||
      -n "$ACT" || -n "$CONTAINER" ]] && _runner=self-hosted || _runner=github
   runner="${runner:-${RUNNER:-$_runner}}"
+  if [[ $_runner = "self-hosted" && "${use_builds_cache:-false}" = "true" ]]; then
+    runner=github
+    if [[ "${ID:-}" = "ubuntu" && -z "$ACT" && -z "$CONTAINER" &&
+          ( -n "${BLACKSMITH_VM_ID:-}" || "${RUNNER_NAME:-}" =~ ^(blacksmith|depot)- ) ]] && check_builds_cache_runner; then
+      _runner=github
+      builds_cache_warning=true
+    fi
+  fi
   tool_path_dir="${setup_php_tools_dir:-${SETUP_PHP_TOOLS_DIR:-/usr/local/bin}}"
   tool_cache_path_dir="${setup_php_tool_cache_dir:-${SETUP_PHP_TOOL_CACHE_DIR:-${RUNNER_TOOL_CACHE:-/opt/hostedtoolcache}/setup-php/tools}}"  
 

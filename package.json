@@ -21,7 +21,7 @@
     "format-check": "prettier --check **/src/*.ts **/__tests__/*.ts",
     "release": "ncc build -m -o dist && git add -f dist/",
     "typecheck": "tsc --project tsconfig.test.json --noEmit",
-    "test": "jest"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "repository": {
     "type": "git",
@@ -35,7 +35,7 @@
   "author": "shivammathur",
   "license": "MIT",
   "dependencies": {
-    "@actions/exec": "^2.0.0",
+    "@actions/exec": "^3.0.0",
     "compare-versions": "^6.1.1"
   },
   "devDependencies": {
@@ -43,8 +43,8 @@
     "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.6.4",
-    "@typescript-eslint/eslint-plugin": "^8.71.0",
-    "@typescript-eslint/parser": "^8.71.0",
+    "@typescript-eslint/eslint-plugin": "^8.71.1",
+    "@typescript-eslint/parser": "^8.71.1",
     "@typescript/native": "npm:typescript@^7.0.2",
     "@vercel/ncc": "^0.45.0",
     "eslint": "^10.12.0",
@@ -56,7 +56,7 @@
     "globals": "^17.13.0",
     "jest": "^30.5.2",
     "jest-circus": "^30.5.2",
-    "nock": "^14.0.17",
+    "nock": "^15.0.1",
     "prettier": "^3.9.9",
     "simple-git-hooks": "^2.14.0",
     "ts-jest": "^29.4.14",
@@ -76,8 +76,9 @@
     "pre-commit": "npm run format && npm run lint && npm run test && npm run build && npm run release"
   },
   "allowScripts": {
+    "@parcel/watcher@2.6.0": true,
     "fsevents@2.3.3": true,
-    "simple-git-hooks@2.13.1": true,
-    "unrs-resolver@1.11.1": true
+    "simple-git-hooks@2.14.0": true,
+    "unrs-resolver@1.12.2": true
   }
 }

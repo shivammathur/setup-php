@@ -305,6 +305,7 @@ export HOMEBREW_NO_INSTALL_FROM_API=1
 . "${scripts:?}"/tools/add_tools.sh
 . "${scripts:?}"/extensions/source.sh
 . "${scripts:?}"/extensions/add_extensions.sh
+set -x
 configure_brew
 read_env
 self_hosted_setup

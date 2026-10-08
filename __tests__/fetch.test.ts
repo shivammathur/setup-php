@@ -1,6 +1,19 @@
 import * as fetch from '../src/fetch';
 import nock from 'nock';
 
+beforeAll(() => nock.disableNetConnect());
+
+afterEach(() => {
+  const pending = nock.pendingMocks();
+  nock.cleanAll();
+  expect(pending).toEqual([]);
+});
+
+afterAll(() => {
+  nock.enableNetConnect();
+  nock.restore();
+});
+
 it('checking fetch', async () => {
   const host_url = 'https://example.com';
   const manifest_url = host_url + '/manifest';
@@ -9,9 +22,8 @@ it('checking fetch', async () => {
   nock(host_url)
     .get('/manifest')
     .reply(200, {latest: 'latest'})
-    .get('/manifest', '', {
-      reqheaders: {authorization: 'Bearer invalid_token'}
-    })
+    .get('/manifest')
+    .matchHeader('authorization', 'Bearer invalid_token')
     .reply(401, {error: '401: Unauthorized'})
     .get('/ping')
     .twice()
@@ -36,7 +48,7 @@ it('checking fetch', async () => {
   expect(response.data).toBe(undefined);
 
   response = await fetch.fetch(manifest_url, 'invalid_token');
-  expect(response.error).not.toBe(undefined);
+  expect(response.error).toBe('401: Unauthorized');
   expect(response.data).toBe(undefined);
 
   response = await fetch.fetch(host_url + '/error');

@@ -1,6 +1,5 @@
 import path from 'path';
 import fs from 'fs';
-import {exec} from '@actions/exec';
 import * as config from './config';
 import * as core from './core';
 import * as coverage from './coverage';
@@ -66,6 +65,7 @@ export async function run(): Promise<void> {
   const os: string = process.platform;
   const tool = await utils.scriptTool(os);
   const run_path = await getScript(os);
+  const {exec} = await import(/* webpackMode: "eager" */ '@actions/exec');
   await exec(tool + run_path);
 }
 

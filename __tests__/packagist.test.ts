@@ -1,6 +1,19 @@
 import * as packagist from '../src/packagist';
 import nock from 'nock';
 
+beforeAll(() => nock.disableNetConnect());
+
+afterEach(() => {
+  const pending = nock.pendingMocks();
+  nock.cleanAll();
+  expect(pending).toEqual([]);
+});
+
+afterAll(() => {
+  nock.enableNetConnect();
+  nock.restore();
+});
+
 describe('search function', () => {
   const mockResponse = {
     packages: {

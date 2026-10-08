@@ -9,7 +9,7 @@
     "moduleResolution": "Node16",
     "noImplicitAny": true,
     "outDir": "./lib",
-    "removeComments": true,
+    "removeComments": false,
     "rootDir": "./src",
     "sourceMap": true,
     "strict": true,

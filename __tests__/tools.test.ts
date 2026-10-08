@@ -655,7 +655,7 @@ describe('Tools tests', () => {
         'add_tool https://github.com/humbug/php-scoper/releases/latest/download/php-scoper.phar php-scoper "--version"',
         'add_tool https://github.com/phpDocumentor/phpDocumentor/releases/latest/download/phpDocumentor.phar phpDocumentor "--version"',
         'add_composer_tool phplint phplint overtrue/',
-        'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar phpstan "-V"',
+        'add_composer_tool phpstan phpstan phpstan/ scoped',
         'add_tool https://phar.phpunit.de/phpunit-7.4.0.phar,https://phar.phpunit.de/phpunit-7.phar phpunit "--version"',
         'add_pecl',
         'add_tool https://www.phing.info/get/phing-latest.phar phing "-v"',

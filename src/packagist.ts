@@ -1,5 +1,5 @@
 import * as cv from 'compare-versions';
-import * as fetch from './fetch';
+import * as fetch from './fetch.js';
 
 type RS = Record<string, string>;
 type RSRS = Record<string, RS>;

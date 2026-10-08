@@ -1,6 +1,6 @@
-import * as utils from './utils';
-import * as extensions from './extensions';
-import * as config from './config';
+import * as utils from './utils.js';
+import * as extensions from './extensions.js';
+import * as config from './config.js';
 
 export async function checkXdebugError(
   extension: string,

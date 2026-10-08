@@ -1,4 +1,4 @@
-import * as utils from './utils';
+import * as utils from './utils.js';
 
 /**
  * Add script to set custom ini values for unix

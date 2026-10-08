@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import * as tools from '../src/tools';
-import {ToolData, ToolInput} from '../src/tools';
+import {jest} from '@jest/globals';
+import fs from 'fs';
+import type {ToolData, ToolInput} from '../src/tools.js';
 
 function getData(data: Partial<ToolData>): ToolData {
   const tool = data.tool || 'tool';
@@ -40,9 +40,9 @@ function unsetComposerAuthEnv(): void {
 /**
  * Mock fetch.ts
  */
-jest.mock('../src/fetch', () => ({
+jest.unstable_mockModule('../src/fetch.js', () => ({
   fetch: jest
-    .fn()
+    .fn<typeof import('../src/fetch.js').fetch>()
     .mockImplementation(
       async (url: string, token?: string): Promise<Record<string, string>> => {
         if (url.includes('deployer')) {
@@ -86,9 +86,9 @@ jest.mock('../src/fetch', () => ({
     )
 }));
 
-jest.mock('../src/packagist', () => ({
+jest.unstable_mockModule('../src/packagist.js', () => ({
   search: jest
-    .fn()
+    .fn<typeof import('../src/packagist.js').search>()
     .mockImplementation(
       async (
         package_name: string,
@@ -101,6 +101,10 @@ jest.mock('../src/packagist', () => ({
       }
     )
 }));
+
+const tools = await import('../src/tools.js');
+
+afterEach(() => jest.restoreAllMocks());
 
 describe('Tools tests', () => {
   it.each`
@@ -527,30 +531,11 @@ describe('Tools tests', () => {
   });
 
   it('checking affected composer version with CRLF ranges', async () => {
-    let affected = false;
-    let fixed = true;
-    await jest.isolateModulesAsync(async () => {
-      jest.doMock('fs', () => ({
-        ...jest.requireActual('fs'),
-        readFileSync: (
-          filePath: fs.PathOrFileDescriptor,
-          options?: unknown
-        ) => {
-          if (String(filePath).includes('composer-gh-auth-no-op')) {
-            return '1.0.0-0 1.10.28\r\n2.0.0-0 2.2.28\r\n2.3.0-0 2.9.8';
-          }
-          return (jest.requireActual('fs') as typeof fs).readFileSync(
-            filePath,
-            options as fs.ObjectEncodingOptions & {flag?: string}
-          );
-        }
-      }));
-      const isolatedTools = jest.requireActual<typeof tools>('../src/tools');
-      affected = isolatedTools.skipGitHubAuthForComposerVersion('2.9.7');
-      fixed = isolatedTools.skipGitHubAuthForComposerVersion('2.9.8');
-    });
-    expect(affected).toBe(true);
-    expect(fixed).toBe(false);
+    jest
+      .spyOn(fs, 'readFileSync')
+      .mockReturnValue('1.0.0-0 1.10.28\r\n2.0.0-0 2.2.28\r\n2.3.0-0 2.9.8');
+    expect(tools.skipGitHubAuthForComposerVersion('2.9.7')).toBe(true);
+    expect(tools.skipGitHubAuthForComposerVersion('2.9.8')).toBe(false);
   });
 
   it.each`
@@ -948,26 +933,14 @@ describe('Tools tests', () => {
       }
     });
 
-    let result: string = '';
-    await jest.isolateModulesAsync(async () => {
-      jest.doMock('fs', () => ({
-        ...jest.requireActual('fs'),
-        readFileSync: (
-          filePath: fs.PathOrFileDescriptor,
-          options?: unknown
-        ) => {
-          if (String(filePath).includes('tools.json')) {
-            return brokenToolsJson;
-          }
-          return (jest.requireActual('fs') as typeof fs).readFileSync(
-            filePath,
-            options as fs.ObjectEncodingOptions & {flag?: string}
-          );
-        }
-      }));
-      const isolatedTools = jest.requireActual<typeof tools>('../src/tools');
-      result = await isolatedTools.addTools('broken-tool', '7.4', 'linux');
+    const readFileSync = fs.readFileSync;
+    jest.spyOn(fs, 'readFileSync').mockImplementation((filePath, options) => {
+      if (String(filePath).includes('tools.json')) {
+        return brokenToolsJson;
+      }
+      return readFileSync(filePath, options);
     });
+    const result = await tools.addTools('broken-tool', '7.4', 'linux');
 
     expect(result).toContain(
       'add_log "$cross" "broken-tool" "broken-tool has no function defined. Please report this issue."'

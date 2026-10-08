@@ -1,4 +1,4 @@
-import * as config from '../src/config';
+import * as config from '../src/config.js';
 
 describe('Config tests', () => {
   it.each`

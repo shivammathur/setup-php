@@ -1,4 +1,4 @@
-import * as fetch from '../src/fetch';
+import * as fetch from '../src/fetch.js';
 import nock from 'nock';
 
 beforeAll(() => nock.disableNetConnect());

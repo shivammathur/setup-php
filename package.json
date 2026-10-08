@@ -3,6 +3,7 @@
   "version": "2.40.0",
   "private": false,
   "description": "Setup PHP for use with GitHub Actions",
+  "type": "module",
   "main": "lib/install.js",
   "types": "lib/install.d.ts",
   "directories": {

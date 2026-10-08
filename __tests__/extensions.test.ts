@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import * as extensions from '../src/extensions';
+import * as extensions from '../src/extensions.js';
 
 describe('Extension tests', () => {
   it.each`

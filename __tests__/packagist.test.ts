@@ -1,4 +1,4 @@
-import * as packagist from '../src/packagist';
+import * as packagist from '../src/packagist.js';
 import nock from 'nock';
 
 beforeAll(() => nock.disableNetConnect());

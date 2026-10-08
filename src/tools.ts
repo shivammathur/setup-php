@@ -1,9 +1,12 @@
+import {fileURLToPath} from 'url';
 import path from 'path';
 import fs from 'fs';
 import * as cv from 'compare-versions';
-import * as fetch from './fetch';
-import * as packagist from './packagist';
-import * as utils from './utils';
+import * as fetch from './fetch.js';
+import * as packagist from './packagist.js';
+import * as utils from './utils.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Valid function names for custom tool handlers
@@ -155,7 +158,7 @@ export function skipGitHubAuthForComposerVersion(version: string): boolean {
   }
   return fs
     .readFileSync(
-      path.join(__dirname, '../src/configs/composer-gh-auth-no-op'),
+      path.join(dirname, '../src/configs/composer-gh-auth-no-op'),
       'utf8'
     )
     .trim()
@@ -672,7 +675,7 @@ export async function getData(
   php_version: string,
   os: string
 ): Promise<ToolData> {
-  const json_file_path = path.join(__dirname, '../src/configs/tools.json');
+  const json_file_path = path.join(dirname, '../src/configs/tools.json');
   const json_file: string = fs.readFileSync(json_file_path, 'utf8');
   const json_objects: Record<string, ToolConfig> = JSON.parse(json_file);
   release = release.replace(/\s+/g, '');

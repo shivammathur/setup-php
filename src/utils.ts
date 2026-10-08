@@ -1,7 +1,10 @@
+import {fileURLToPath} from 'url';
 import fs from 'fs';
 import * as path from 'path';
-import * as core from './core';
-import * as fetch from './fetch';
+import * as core from './core.js';
+import * as fetch from './fetch.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Function to read environment variable and return a string value.
@@ -480,7 +483,7 @@ export async function customPackage(
   const pkg_name: string = pkg.replace(/\d+|(pdo|pecl)[_-]|[_-]db2/, '');
   const script_extension: string = await scriptExtension(os);
   const script: string = path.join(
-    __dirname,
+    dirname,
     '../src/scripts/' + type + '/' + pkg_name + script_extension
   );
   const command: string = await getCommand(os, pkg_name);

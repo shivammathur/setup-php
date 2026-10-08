@@ -1,4 +1,5 @@
-import * as core from '../src/core';
+import {jest} from '@jest/globals';
+import * as core from '../src/core.js';
 
 describe('Core tests', () => {
   const originalEnv = process.env;

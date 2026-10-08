@@ -1,4 +1,4 @@
-import * as coverage from '../src/coverage';
+import * as coverage from '../src/coverage.js';
 
 describe('Config tests', () => {
   it.each`

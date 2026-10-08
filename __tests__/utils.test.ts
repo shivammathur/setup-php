@@ -1,8 +1,13 @@
+import {fileURLToPath} from 'url';
+import {jest} from '@jest/globals';
 import fs from 'fs';
 import os from 'os';
 import * as path from 'path';
-import * as utils from '../src/utils';
-import * as fetchModule from '../src/fetch';
+const fetchMock = jest.fn<typeof import('../src/fetch.js').fetch>();
+jest.unstable_mockModule('../src/fetch.js', () => ({fetch: fetchMock}));
+const utils = await import('../src/utils.js');
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('Utils tests', () => {
   it('checking readEnv', async () => {
@@ -40,9 +45,9 @@ describe('Utils tests', () => {
   });
 
   it('checking parseVersion', async () => {
-    const fetchSpy = jest.spyOn(fetchModule, 'fetch').mockResolvedValue({
+    const fetchSpy = fetchMock.mockResolvedValue({
       data: fs.readFileSync(
-        path.join(__dirname, '../src/configs/php-versions.json'),
+        path.join(dirname, '../src/configs/php-versions.json'),
         'utf8'
       )
     });
@@ -324,8 +329,8 @@ describe('Utils tests', () => {
       "Could not find '.phpenv-version' file."
     );
 
-    const existsSync = jest.spyOn(fs, 'existsSync').mockImplementation();
-    const readFileSync = jest.spyOn(fs, 'readFileSync').mockImplementation();
+    const existsSync = jest.spyOn(fs, 'existsSync').mockReturnValue(false);
+    const readFileSync = jest.spyOn(fs, 'readFileSync').mockReturnValue('');
 
     existsSync.mockReturnValue(true);
     readFileSync.mockReturnValue('8.1');
@@ -391,8 +396,8 @@ describe('Utils tests', () => {
   });
 
   it('readPHPVersion rejects unsupported values from each source', async () => {
-    const existsSync = jest.spyOn(fs, 'existsSync').mockImplementation();
-    const readFileSync = jest.spyOn(fs, 'readFileSync').mockImplementation();
+    const existsSync = jest.spyOn(fs, 'existsSync').mockReturnValue(false);
+    const readFileSync = jest.spyOn(fs, 'readFileSync').mockReturnValue('');
 
     process.env['php-version'] = '$0';
     await expect(utils.readPHPVersion()).rejects.toThrow('php-version input');

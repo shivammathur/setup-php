@@ -1,12 +1,11 @@
-import * as install from '../src/install';
-import * as utils from '../src/utils';
+import {jest} from '@jest/globals';
 
 /**
  * Mock install.ts
  */
-jest.mock('../src/install', () => ({
+jest.unstable_mockModule('../src/install.js', () => ({
   getScript: jest
-    .fn()
+    .fn<typeof import('../src/install.js').getScript>()
     .mockImplementation(async (os: string): Promise<string> => {
       const filename = os + (await utils.scriptExtension(os));
       const version: string = await utils.parseVersion(
@@ -36,13 +35,16 @@ jest.mock('../src/install', () => ({
 /**
  * Mock fetch.ts
  */
-jest.mock('../src/fetch', () => ({
+jest.unstable_mockModule('../src/fetch.js', () => ({
   fetch: jest.fn().mockImplementation(() => {
     return {
       data: '{ "latest": "8.3", "lowest": "8.1", "highest": "8.3", "nightly": "8.4", "5.x": "5.6" }'
     };
   })
 }));
+
+const utils = await import('../src/utils.js');
+const install = await import('../src/install.js');
 
 describe('Install', () => {
   it.each`

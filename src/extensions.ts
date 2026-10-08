@@ -1,4 +1,4 @@
-import * as utils from './utils';
+import * as utils from './utils.js';
 
 /**
  * Install and enable extensions for darwin

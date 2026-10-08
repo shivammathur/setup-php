@@ -199,7 +199,7 @@ setup_cached_versions() {
 
 # Function to setup PHP 5.6 and newer using Homebrew.
 add_php() {
-  local exit_code
+  local exit_code php_alias
   action=$1
   existing_version=$2
   suffix="$(get_php_formula_suffix)"
@@ -212,6 +212,12 @@ add_php() {
     fi
     update_dependencies
     add_brew_tap "$php_tap"
+  fi
+  # Resolve PHP aliases before invoking brew to avoid scanning unrelated installed formulae.
+  php_alias="$tap_dir/$php_tap/Aliases/$php_keg"
+  if [ -L "$php_alias" ]; then
+    php_keg="$(basename "$(readlink "$php_alias")" .rb)"
+    php_formula="shivammathur/php/$php_keg"
   fi
   if [[ "$existing_version" != "false" && -z "$suffix" ]]; then
     if [ "$action" = "upgrade" ]; then

@@ -14,15 +14,15 @@ add_brew_tap() {
   tap=$1
   if ! [ -d "$tap_dir/$tap" ]; then
     if [ "${runner:?}" = "self-hosted" ]; then
-      brew tap "$tap" >/dev/null 2>&1
+      brew tap "$tap" 
     else
-      fetch_brew_tap "$tap" >/dev/null 2>&1
+      fetch_brew_tap "$tap" 
       if ! [ -d "$tap_dir/$tap" ]; then
-        brew tap "$tap" >/dev/null 2>&1
+        brew tap "$tap" 
       fi
     fi
   fi
-  brew trust "$tap" >/dev/null 2>&1
+  brew trust "$tap" 
 }
 
 # Function to get brew prefix.
@@ -82,11 +82,11 @@ terminate_process_tree() {
   local pids pid
   pids=$(get_process_tree "$1")
   for pid in $pids; do
-    kill -TERM "$pid" >/dev/null 2>&1 || true
+    kill -TERM "$pid"  || true
   done
   sleep 2
   for pid in $pids; do
-    kill -KILL "$pid" >/dev/null 2>&1 || true
+    kill -KILL "$pid"  || true
   done
 }
 
@@ -125,9 +125,9 @@ run_with_inactivity_watchdog() {
     last_activity=$(get_file_mtime "$stdout_log")
     current_err_activity=$(get_file_mtime "$stderr_log")
     [ "$current_err_activity" -gt "$last_activity" ] && last_activity="$current_err_activity"
-    while kill -0 "$command_pid" >/dev/null 2>&1; do
+    while kill -0 "$command_pid" ; do
       sleep "$poll_secs"
-      kill -0 "$command_pid" >/dev/null 2>&1 || break
+      kill -0 "$command_pid"  || break
       now=$(date +%s)
       active_timeout_secs="$timeout_secs"
       building_from_source=false
@@ -158,7 +158,7 @@ run_with_inactivity_watchdog() {
   wait "$command_pid" || exit_code=$?
   # Let timeout cleanup finish killing source-build descendants before retrying.
   if [ ! -e "$timeout_file" ]; then
-    kill "$monitor_pid" >/dev/null 2>&1 || true
+    kill "$monitor_pid"  || true
   fi
   wait "$monitor_pid" 2>/dev/null || true
   wait "$stdout_reader_pid" 2>/dev/null || true
@@ -205,7 +205,7 @@ add_brew() {
   brew_prefix="$(get_brew_prefix)"
   if ! [ -d "$brew_prefix"/bin ]; then
     step_log "Setup Brew"
-    get -s "" "/tmp/install.sh" "https://raw.githubusercontent.com/Homebrew/install/main/install.sh" | bash -s >/dev/null 2>&1
+    get -s "" "/tmp/install.sh" "https://raw.githubusercontent.com/Homebrew/install/main/install.sh" | bash -s 
     add_log "${tick:?}" "Brew" "Installed Homebrew"
   fi
   add_brew_bins_to_path "$brew_prefix"

@@ -13,10 +13,10 @@ handle_dependency_extensions() {
   suffix="$(get_php_formula_suffix)"
   if [[ -n "$suffix" ]]; then
     brew_opts=(-sf)
-    patch_abstract_file >/dev/null 2>&1
+    patch_abstract_file 
     for dependency_extension in "${dependency_extensions[@]}"; do
-        safe_brew install --skip-link "${brew_opts[@]}" "$ext_tap/$dependency_extension@$version" >/dev/null 2>&1 &&
-        brew link --overwrite --force "$dependency_extension@$version" >/dev/null 2>&1 &&
+        safe_brew install --skip-link "${brew_opts[@]}" "$ext_tap/$dependency_extension@$version"  &&
+        brew link --overwrite --force "$dependency_extension@$version"  &&
         copy_brew_extensions "$dependency_extension" || return $?
     done
   fi
@@ -33,7 +33,7 @@ disable_extension_helper() {
   sudo sed -Ei '' "/=(.*\/)?\"?$extension(.so)?$/d" "${ini_file:?}"
   sudo rm -rf "$scan_dir"/*"$extension"* /tmp/php"$version"_extensions
   mkdir -p /tmp/extdisabled/"$version"
-  echo '' | sudo tee /tmp/extdisabled/"$version"/"$extension" >/dev/null 2>&1
+  echo '' | sudo tee /tmp/extdisabled/"$version"/"$extension" 
 }
 
 # Function to get extension name from brew formula.
@@ -100,13 +100,13 @@ add_brew_extension() {
       SETUP_PHP_BREW_RETRY_ATTEMPTS=1 install_brew_extension "$formula" "$extension" || {
         update_dependencies && install_brew_extension "$formula" "$extension"
       }
-    ) >/dev/null 2>&1 || {
+    )  || {
       if [ -n "$expected_version" ]; then
         pecl_install "$extension-$expected_version" || pecl_install "$extension"
       else
         pecl_install "$extension"
       fi
-    } >/dev/null 2>&1
+    } 
     add_extension_log "$extension" "Installed and enabled"
   fi
 }
@@ -115,7 +115,7 @@ add_brew_extension() {
 patch_abstract_file() {
     abstract_path="$tap_dir"/"$ext_tap"/Abstract/abstract-php-extension.rb
     if [[ -e "$abstract_path" && ! -e /tmp/abstract_patch ]]; then
-        echo '' | sudo tee /tmp/abstract_patch >/dev/null 2>&1
+        echo '' | sudo tee /tmp/abstract_patch 
         sudo sed -i '' -e "s|php@#{\(.*\)}|php@#{\1}$suffix|g" -e "s|php_version /|\"#{php_version}$suffix\" /|g" "$abstract_path"
     fi
 }
@@ -125,9 +125,9 @@ add_extension_helper() {
   local extension=$1
   prefix=$2
   if [[ "$version" =~ ${old_versions:?} ]] && [ "$extension" = "imagick" ]; then
-    run_script "php5-darwin" "${version/./}" "$extension" >/dev/null 2>&1
+    run_script "php5-darwin" "${version/./}" "$extension" 
   else
-    pecl_install "$extension" >/dev/null 2>&1 &&
+    pecl_install "$extension"  &&
     if [[ "$version" =~ ${old_versions:?} ]]; then echo "$prefix=$ext_dir/$extension.so" >>"$ini_file"; fi
   fi
   add_extension_log "$extension" "Installed and enabled"
@@ -141,8 +141,8 @@ add_devtools() {
 
 # Function to handle request to add PECL.
 add_pecl() {
-  enable_extension xml extension >/dev/null 2>&1
-  configure_pecl >/dev/null 2>&1
+  enable_extension xml extension 
+  configure_pecl 
   pear_version=$(get_tool_version "pecl" "version")
   add_log "${tick:?}" "PECL" "Found PECL $pear_version"
 }
@@ -173,7 +173,7 @@ update_dependencies() {
         git_retry -C "$repo" fetch origin main && git -C "$repo" reset --hard origin/main || return $?
       fi
     done
-    echo '' | sudo tee /tmp/update_dependencies >/dev/null 2>&1
+    echo '' | sudo tee /tmp/update_dependencies 
   fi
   patch_brew
 }
@@ -194,7 +194,7 @@ get_brewed_php() {
 # Function to setup PHP from the cached builds.
 setup_cached_versions() {
   latest="releases/download/php-$version" run_script \
-    "php-darwin" "$version" "${debug:?}" "${ts:?}" "" "${INPUT_EXTENSIONS:-}" >/dev/null 2>&1
+    "php-darwin" "$version" "${debug:?}" "${ts:?}" "" "${INPUT_EXTENSIONS:-}" 
 }
 
 # Function to setup PHP 5.6 and newer using Homebrew.
@@ -262,7 +262,7 @@ add_php_config() {
   if [[ "$ini" = "production" || "$ini" = "development" ]]; then
     sudo cp "$ini_dir"/php.ini-"$ini" "$ini_dir"/php.ini
   elif [ "$ini" = "none" ]; then
-    echo '' | sudo tee "${ini_file[@]}" >/dev/null 2>&1
+    echo '' | sudo tee "${ini_file[@]}" 
   fi
 }
 
@@ -277,7 +277,7 @@ get_scan_dir() {
 
 # Function to handle self-hosted runner setup.
 self_hosted_helper() {
-  sudo mkdir -p /opt/hostedtoolcache >/dev/null 2>&1 || true
+  sudo mkdir -p /opt/hostedtoolcache  || true
 }
 
 # Function to Setup PHP.
@@ -289,10 +289,10 @@ setup_php() {
   existing_version=$([ "$(uname -m)" != "x86_64" ] && get_brewed_php || echo false)
   status="Found"
   if [[ "$version" =~ ${old_versions:?} ]]; then
-    run_script "php5-darwin" "${version/./}" >/dev/null 2>&1
+    run_script "php5-darwin" "${version/./}" 
     status="Installed"
   elif [[ "${existing_version:0:3}" != "$version" || -n "$(get_php_formula_suffix)" ]]; then
-    add_php "install" "$existing_version" >/dev/null 2>&1 || {
+    add_php "install" "$existing_version"  || {
       add_log "${cross:?}" "PHP" "Could not install PHP $version"
       exit 1
     }
@@ -300,7 +300,7 @@ setup_php() {
   elif [[ "${existing_version:0:3}" = "$version" && "${update:?}" = "true" ]]; then
     brew_php_version="$(brew info --json "php@$version" 2>/dev/null | jq -r '.[].versions.stable')"
     if [ "$brew_php_version" != "$existing_version" ]; then
-      add_php "upgrade" "$existing_version" >/dev/null 2>&1 || {
+      add_php "upgrade" "$existing_version"  || {
         add_log "${cross:?}" "PHP" "Could not upgrade PHP $version"
         exit 1
       }

@@ -60,9 +60,9 @@ add_couchbase() {
     fi
     if [[ "$ext" =~ couchbase-[2-3].+ ]]; then
       export COUCHBASE_CONFIGURE_PREFIX_OPTS="${COUCHBASE_CONFIGURE_PREFIX_OPTS:-} SED=sed CFLAGS=-Wno-error=incompatible-pointer-types"
-      add_couchbase_clibs "$ext" >/dev/null 2>&1
+      add_couchbase_clibs "$ext" 
     else
-      add_couchbase_cxxlibs >/dev/null 2>&1
+      add_couchbase_cxxlibs 
       if [[ "$ext" =~ ^couchbase-4\.1\. ]]; then
         export COUCHBASE_CONFIGURE_PREFIX_OPTS="${COUCHBASE_CONFIGURE_PREFIX_OPTS:-} COUCHBASE_CMAKE_EXTRA=-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
       fi
@@ -82,9 +82,9 @@ add_couchbase() {
         install_method=add_extension_from_source
       fi
       if [ "$install_method" = add_extension_from_source ]; then
-        add_extension_from_source couchbase https://pecl.php.net couchbase couchbase "${ext##*-}" extension pecl >/dev/null 2>&1
+        add_extension_from_source couchbase https://pecl.php.net couchbase couchbase "${ext##*-}" extension pecl 
       else
-        "$install_method" "${ext}" >/dev/null 2>&1
+        "$install_method" "${ext}" 
       fi
       add_extension_log "couchbase" "Installed and enabled"
     fi
@@ -103,6 +103,6 @@ add_couchbase() {
     fi
     add_brew_extension couchbase extension
     find "${brew_prefix:?}/lib" "${brew_prefix:?}/opt/couchbase@${version:?}" "${brew_prefix:?}/Cellar/couchbase@${version:?}" \
-      -name 'libcouchbase_php*.dylib' -exec sudo cp {} "${ext_dir:?}" \; >/dev/null 2>&1
+      -name 'libcouchbase_php*.dylib' -exec sudo cp {} "${ext_dir:?}" \; 
   fi
 }

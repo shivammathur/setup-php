@@ -31,7 +31,7 @@ add_symfony() {
   if ! [[ "$symfony_tag" =~ ^[0-9]+(\.[0-9]+)*$ || "$symfony_tag" == 'latest' ]]; then
       add_log "${cross:?}" "symfony-cli" "Version '$symfony_tag' is not valid for symfony-cli"
   else
-    add_symfony_helper "$symfony_tag" >/dev/null 2>&1
+    add_symfony_helper "$symfony_tag" 
     symfony_path="$(command -v symfony)"
     if [[ -n "$symfony_path" ]]; then
       sudo ln -s "$symfony_path" "${tool_path_dir:?}"/symfony-cli

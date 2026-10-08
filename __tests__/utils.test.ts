@@ -230,9 +230,9 @@ describe('Utils tests', () => {
   });
 
   it('checking suppressOutput', async () => {
-    expect(await utils.suppressOutput('win32')).toEqual(' >$null 2>&1');
-    expect(await utils.suppressOutput('linux')).toEqual(' >/dev/null 2>&1');
-    expect(await utils.suppressOutput('darwin')).toEqual(' >/dev/null 2>&1');
+    expect(await utils.suppressOutput('win32')).toEqual(' ');
+    expect(await utils.suppressOutput('linux')).toEqual(' ');
+    expect(await utils.suppressOutput('darwin')).toEqual(' ');
     expect(await utils.suppressOutput('openbsd')).toContain(
       'Platform openbsd is not supported'
     );
@@ -547,7 +547,7 @@ describe.each(['linux', 'darwin', 'win32'])(
       'uses fresh copies without writing through source symlinks',
       async () => {
         const outside = path.join(root, path.basename(helper));
-        const original = 'echo original >/dev/null 2>&1\n';
+        const original = 'echo original \n';
         fs.writeFileSync(outside, original);
         fs.unlinkSync(helper);
         fs.symlinkSync(outside, helper);
@@ -562,9 +562,7 @@ describe.each(['linux', 'darwin', 'win32'])(
             path.join(path.dirname(first), 'tools', path.basename(helper)),
             'utf8'
           )
-        ).toBe(
-          `echo original ${platform === 'win32' ? '2>&1 | Out-Host' : ''}\n`
-        );
+        ).toBe(`echo original ${platform === 'win32' ? '' : ''}\n`);
       }
     );
   }

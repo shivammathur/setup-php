@@ -168,8 +168,12 @@ patch_brew() {
 # Function to update dependencies.
 update_dependencies() {
   if ! [ -e /tmp/update_dependencies ]; then
-    for repo in "$brew_repo" "${core_repo:?}"; do
-      if [ -e "$repo" ]; then
+    local repos=("$brew_repo")
+    if [ -n "${HOMEBREW_NO_INSTALL_FROM_API:-}" ]; then
+      repos+=("${core_repo:?}")
+    fi
+    for repo in "${repos[@]}"; do
+      if [ -d "$repo" ]; then
         git_retry -C "$repo" fetch origin main && git -C "$repo" reset --hard origin/main || return $?
       fi
     done
@@ -341,7 +345,6 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_ENV_HINTS=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
-export HOMEBREW_NO_INSTALL_FROM_API=1
 
 # shellcheck source=.
 . "${scripts:?}"/unix.sh

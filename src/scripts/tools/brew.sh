@@ -225,6 +225,11 @@ configure_brew() {
   tap_dir="$brew_repo"/Library/Taps
   core_repo="$tap_dir"/homebrew/homebrew-core
 
+  if [ -d "$core_repo" ]; then
+    export HOMEBREW_NO_INSTALL_FROM_API=1
+  else
+    unset HOMEBREW_NO_INSTALL_FROM_API
+  fi
   export HOMEBREW_CHANGE_ARCH_TO_ARM=1
   export HOMEBREW_NO_AUTO_UPDATE=1
   export HOMEBREW_NO_ENV_HINTS=1

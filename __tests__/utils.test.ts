@@ -58,6 +58,9 @@ describe('Utils tests', () => {
     expect(await utils.parseVersion('8.7.0')).toBe('8.7');
     expect(await utils.parseVersion('7')).toBe('7.0');
     expect(await utils.parseVersion('7.4')).toBe('7.4');
+    expect(await utils.parseVersion('8.10')).toBe('8.10');
+    expect(await utils.parseVersion('10')).toBe('10.0');
+    expect(await utils.parseVersion('10.0')).toBe('10.0');
     expect(await utils.parseVersion('5.x')).toBe('5.6');
     expect(await utils.parseVersion('pre')).toBe('pre');
     expect(await utils.parseVersion('pre-installed')).toBe('pre');

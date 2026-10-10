@@ -51,6 +51,7 @@ export interface ToolData {
   url: string;
   uri?: string;
   error?: string;
+  fallback?: ToolFallback;
 }
 
 /**
@@ -75,7 +76,18 @@ interface ToolConfig {
   version_parameter?: string;
   version_prefix?: string;
   packagist?: string;
+  fallback?: ToolFallback;
 }
+
+type ToolFallback = Pick<
+  ToolConfig,
+  | 'repository'
+  | 'domain'
+  | 'extension'
+  | 'fetch_latest'
+  | 'version_parameter'
+  | 'version_prefix'
+> & {type: 'phar'};
 
 /**
  * Regex to match a checksum suffix in a tool release - tool:version@sha256:<hash>
@@ -417,7 +429,23 @@ export async function addPackage(data: ToolData): Promise<string> {
   const args = [parts[1], data.release, parts[0] + '/', data.scope]
     .map(a => utils.safeArg(a, data.os))
     .join(' ');
-  return command + args;
+  if (!data.fallback) return command + args;
+  const fallback = await getData(
+    data.release.replace(/\.\*$/, ''),
+    data.php_version,
+    data.os,
+    data.fallback
+  );
+  // A failed version lookup must not prevent a successful Composer install.
+  if (fallback.error) return command + args;
+  return (
+    command +
+    args +
+    ' ' +
+    utils.safeArg(fallback.url, data.os) +
+    ' ' +
+    (fallback.version_parameter || '""')
+  );
 }
 
 /**
@@ -673,7 +701,8 @@ export async function addWPCLI(data: ToolData): Promise<string> {
 export async function getData(
   release: string,
   php_version: string,
-  os: string
+  os: string,
+  overrides: ToolConfig = {}
 ): Promise<ToolData> {
   const json_file_path = path.join(dirname, '../src/configs/tools.json');
   const json_file: string = fs.readFileSync(json_file_path, 'utf8');
@@ -705,6 +734,7 @@ export async function getData(
       config = {tool};
     }
   }
+  config = {...config, ...overrides};
   const github = 'https://github.com';
   const domain = config.domain ?? github;
   const data: ToolData = {
@@ -730,7 +760,8 @@ export async function getData(
     packagist: config.packagist ?? config.repository ?? '',
     type: config.type,
     function: config.function,
-    alias: config.alias
+    alias: config.alias,
+    fallback: config.fallback
   };
   data.checksum = checksum_data.checksum;
   data.error = checksum_data.error;

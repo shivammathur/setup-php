@@ -386,6 +386,56 @@ describe('Tools tests', () => {
   );
 
   it.each`
+    release               | resolved
+    ${'phpstan'}          | ${'latest/download'}
+    ${'phpstan:0.12.68'}  | ${'download/0.12.68'}
+    ${'phpstan:^0.12.68'} | ${'download/0.12.68'}
+    ${'phpstan:0.12'}     | ${'download/1.2.3'}
+    ${'phpstan:0.12.x'}   | ${'download/1.2.3'}
+    ${'phpstan:0.12.*'}   | ${'download/1.2.3'}
+  `(
+    'resolving PHPStan PHAR fallback for $release',
+    async ({release, resolved}) => {
+      unsetComposerAuthEnv();
+      for (const os of ['linux', 'darwin', 'win32']) {
+        const data = await tools.getData(release, '8.0', os);
+        const script = await tools.addPackage(data);
+        expect(script).toContain(
+          'scoped https://github.com/phpstan/phpstan/releases/' +
+            resolved +
+            '/phpstan.phar "-V"'
+        );
+        expect(data.type).toBe('composer');
+        expect(data.release).toContain('phpstan');
+      }
+    }
+  );
+
+  it('keeps Composer available when the fallback version lookup fails', async () => {
+    process.env['GITHUB_TOKEN'] = 'invalid_token';
+    const data = await tools.getData('phpstan:0.12', '8.0', 'linux');
+    expect(await tools.addPackage(data)).toBe(
+      'add_composer_tool phpstan "phpstan:0.12.*" phpstan/ scoped'
+    );
+    unsetComposerAuthEnv();
+  });
+
+  it('uses fallback settings independently of the Composer repository', async () => {
+    const data = await tools.getData('vendor/tool:1.2.3', '8.0', 'linux', {
+      fallback: {
+        type: 'phar',
+        repository: 'releases/tool',
+        domain: 'https://example.com',
+        extension: '.phar',
+        version_prefix: 'v'
+      }
+    });
+    expect(await tools.addPackage(data)).toBe(
+      'add_composer_tool tool tool:1.2.3 vendor/ global https://example.com/releases/tool/v1.2.3/tool.phar ""'
+    );
+  });
+
+  it.each`
     version     | php_version | os          | script
     ${'latest'} | ${'8.0'}    | ${'linux'}  | ${'add_tool https://github.com/phar-io/phive/releases/download/3.2.1/phive-3.2.1.phar phive'}
     ${'1.2.3'}  | ${'8.0'}    | ${'darwin'} | ${'add_tool https://github.com/phar-io/phive/releases/download/1.2.3/phive-1.2.3.phar phive'}

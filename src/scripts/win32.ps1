@@ -20,6 +20,8 @@ Function Step-Log($message) {
 Function Add-Log($mark, $subject, $message) {
   if ($mark -eq $tick) {
     printf "\033[32;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $mark $subject $message
+  } elseif ($mark -eq "!") {
+    printf "\033[33;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $mark $subject $message
   } else {
     printf "\033[31;1m%s \033[0m\033[34;1m%s \033[0m\033[90;1m%s \033[0m\n" $mark $subject $message
     if($env:fail_fast -eq 'true') {

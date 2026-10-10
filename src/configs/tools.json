@@ -155,7 +155,15 @@
   "phpstan": {
     "type": "composer",
     "repository": "phpstan/phpstan",
-    "scope": "scoped"
+    "scope": "scoped",
+    "fallback": {
+      "type": "phar",
+      "repository": "phpstan/phpstan",
+      "extension": ".phar",
+      "domain": "https://github.com",
+      "version_prefix": "",
+      "version_parameter": "-V"
+    }
   },
   "pie": {
     "type": "phar",

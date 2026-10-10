@@ -17,7 +17,15 @@
         "scope": "scoped",
         "type": "composer",
         "version_parameter": "--version",
-        "version_prefix": "v"
+        "version_prefix": "v",
+        "fallback": {
+          "type": "phar",
+          "repository": "user/tool",
+          "domain": "https://github.com",
+          "extension": ".phar",
+          "version_prefix": "v",
+          "version_parameter": "--version"
+        }
       }
     }
   ],
@@ -120,12 +128,47 @@
           "examples": [
             "v"
           ]
+        },
+        "fallback": {
+          "$ref": "#/$defs/pharFallback"
         }
       },
       "required": [
         "type"
       ],
       "additionalProperties": true
+    },
+    "pharFallback": {
+      "type": "object",
+      "title": "The fallback schema",
+      "description": "PHAR installation settings used when Composer installation fails.",
+      "properties": {
+        "type": {
+          "const": "phar"
+        },
+        "repository": {
+          "$ref": "#/$defs/tool/properties/repository"
+        },
+        "domain": {
+          "$ref": "#/$defs/tool/properties/domain"
+        },
+        "extension": {
+          "$ref": "#/$defs/tool/properties/extension"
+        },
+        "fetch_latest": {
+          "$ref": "#/$defs/tool/properties/fetch_latest"
+        },
+        "version_parameter": {
+          "$ref": "#/$defs/tool/properties/version_parameter"
+        },
+        "version_prefix": {
+          "$ref": "#/$defs/tool/properties/version_prefix"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
     }
   }
 }

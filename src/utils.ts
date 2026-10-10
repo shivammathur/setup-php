@@ -91,12 +91,9 @@ export async function parseVersion(version: string): Promise<string> {
       if (!/^\d+(\.\d+){0,2}$/.test(version)) {
         throw new Error(`Invalid PHP version: ${version.slice(0, 20)}`);
       }
-      switch (true) {
-        case version.length > 1:
-          return version.slice(0, 3);
-        default:
-          return version + '.0';
-      }
+      return version.includes('.')
+        ? version.split('.').slice(0, 2).join('.')
+        : version + '.0';
   }
 }
 

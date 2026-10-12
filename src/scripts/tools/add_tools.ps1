@@ -237,6 +237,26 @@ Function Add-ToolsHelper() {
   }
 }
 
+# Function to find the newest stable release containing a tool asset.
+Function Get-LastRelease($url) {
+  $releases_url = $url.Split('/latest/download/')[0]
+  $asset = $url.Split('/')[-1]
+  $page = 1
+  do {
+    $releases = (Get-File -Url "${releases_url}?page=$page&q=prerelease%3Afalse").Content
+    foreach ($match in [regex]::Matches($releases, 'src="([^"]+/releases/expanded_assets/[^"]+)"')) {
+      $assets_url = $match.Groups[1].Value
+      if (-not $assets_url.StartsWith("$releases_url/expanded_assets/")) { continue }
+      $download_path = $assets_url.Substring('https://github.com'.Length).Replace('/expanded_assets/', '/download/') + "/$asset"
+      $assets = (Get-File -Url $assets_url).Content
+      if ($assets.Contains("href=`"$download_path`"")) {
+        return "https://github.com$download_path"
+      }
+    }
+    $page++
+  } while ($releases.Contains('class="next_page"'))
+}
+
 # Function to add tools.
 Function Add-Tool() {
   Param (
@@ -288,15 +308,17 @@ Function Add-Tool() {
       try {
         $status_code = (Invoke-WebRequest -Passthru -Uri $url -OutFile $tool_path).StatusCode
       } catch {
-        if($url -match '.*github.com.*releases.*latest.*') {
+        $status_code = 0
+        if($url -match '^https://github\.com/[^/]+/[^/]+/releases/latest/download/[^/?#]+$') {
           try {
-            $url = $url.replace("releases/latest/download", "releases/download/" + ([regex]::match((Get-File -Url ($url.split('/release')[0] + "/releases")).Content, "([0-9]+\.[0-9]+\.[0-9]+)/" + ($url.Substring($url.LastIndexOf("/") + 1))).Groups[0].Value).split('/')[0])
-            $status_code = (Invoke-WebRequest -Passthru -Uri $url -OutFile $tool_path).StatusCode
+            $release_url = Get-LastRelease $url
+            if ($release_url) {
+              $url = $release_url
+              $status_code = (Invoke-WebRequest -Passthru -Uri $url -OutFile $tool_path).StatusCode
+            }
           } catch {
             $status_code = 0
           }
-        } else {
-          $status_code = 0
         }
       }
       if($status_code -eq 200 -and (Test-Path $tool_path)) {

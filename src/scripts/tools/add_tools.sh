@@ -203,6 +203,27 @@ add_tools_helper() {
   done
 }
 
+# Function to find the newest stable release containing a tool asset.
+get_last_release() {
+  local releases_url="${1%/latest/download/*}"
+  local asset="${1##*/}"
+  local page=1 releases assets_url tag download_path
+  while true; do
+    releases=$(get -s -n "" "$releases_url?page=$page&q=prerelease%3Afalse") || return 1
+    while IFS= read -r assets_url; do
+      [[ "$assets_url" = "$releases_url/expanded_assets/"* ]] || continue
+      tag="${assets_url#"$releases_url/expanded_assets/"}"
+      download_path="${releases_url#https://github.com}/download/$tag/$asset"
+      if get -s -n "" "$assets_url" | grep -Fq "href=\"$download_path\""; then
+        printf 'https://github.com%s\n' "$download_path"
+        return 0
+      fi
+    done <<< "$(printf '%s' "$releases" | grep -Eo 'src="[^"]+/releases/expanded_assets/[^"]+"' | cut -d '"' -f 2)"
+    [[ "$releases" = *'class="next_page"'* ]] || return 1
+    page=$((page + 1))
+  done
+}
+
 # Function to setup a remote tool.
 add_tool() {
   url=$1
@@ -243,9 +264,12 @@ add_tool() {
   else
     [ -f "$tool_path" ] && sudo cp -a "$tool_path" "$tool_path.bak"
     status_code=$(get -v -e "$tool_path" "${url[@]}")
-    if [ "$status_code" != "200" ] && [[ "${url[0]}" =~ .*github.com.*releases.*latest.* ]]; then
-      url[0]="${url[0]//releases\/latest\/download/releases/download/$(get -s -n "" "$(echo "${url[0]}" | cut -d '/' -f '1-5')/releases" | grep -Eo -m 1 "([0-9]+\.[0-9]+\.[0-9]+)/$(echo "${url[0]}" | sed -e "s/.*\///")" | cut -d '/' -f 1)}"
-      status_code=$(get -v -e "$tool_path" "${url[0]}")
+    if [ "$status_code" != "200" ] && [[ "${url[0]}" =~ ^https://github\.com/[^/]+/[^/]+/releases/latest/download/[^/?#]+$ ]]; then
+      local release_url
+      if release_url=$(get_last_release "${url[0]}"); then
+        url[0]="$release_url"
+        status_code=$(get -v -e "$tool_path" "${url[0]}")
+      fi
     fi
     if [ "$status_code" = "200" ]; then
       if [ -n "$checksum" ] && ! verify_checksum "$tool_path" "$checksum"; then

@@ -21,7 +21,11 @@ self_hosted_helper() {
     trap "sudo rm -f /usr/bin/apt-fast 2>/dev/null" exit
   fi
   sudo mkdir -p /opt/hostedtoolcache >/dev/null 2>&1 || true
-  install_packages apt-transport-https ca-certificates curl file make jq unzip autoconf automake gcc g++ gnupg
+  local packages=()
+  mapfile -t packages < <(filter_packages apt-transport-https ca-certificates curl file make jq unzip autoconf automake gcc g++ gnupg)
+  if [ "${#packages[@]}" -gt 0 ]; then
+    install_packages "${packages[@]}"
+  fi
 }
 
 # Function to fix broken packages.
@@ -88,6 +92,21 @@ add_pdo_extension() {
 # Function to check if a package exists
 check_package() {
   apt-cache policy "$1" 2>/dev/null | grep -q 'Candidate'
+}
+
+# Function to filter out installed packages
+filter_packages() {
+  [ "$#" -gt 0 ] || return 0
+  local package architecture status
+  local -A installed=()
+  while IFS=$'\t' read -r package architecture status; do
+    [[ "$status" = [ih]'i ' ]] && status=1 || status=0
+    installed["$package"]=$(( ${installed["$package"]:-1} && status ))
+    installed["$package:$architecture"]=$status
+  done < <(dpkg-query -W -f='${Package}\t${Architecture}\t${db:Status-Abbrev}\n' -- "$@" 2>/dev/null)
+  for package in "$@"; do
+    [ "${installed[$package]:-0}" -eq 1 ] || printf '%s\n' "$package"
+  done
 }
 
 # Helper function to add an extension.

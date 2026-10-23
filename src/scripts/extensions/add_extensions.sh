@@ -172,11 +172,11 @@ get_pecl_version() {
   pecl_rest='https://pecl.php.net/rest/r/'
   response=$(get -s -n "" "$pecl_rest$extension"/allreleases.xml)
   for state in "${states[@]}"; do
-    pecl_version=$(echo "$response" | grep -m 1 -Eio "($major_version\.[0-9]+\.[0-9]+${state}[0-9]+<)" | cut -d '<' -f 1)
-    [ -z "$pecl_version" ] && pecl_version=$(echo "$response" | grep -m 1 -Eio "v>(.*)<\/v>.*$state<" | grep -m 1 -Eo "($major_version\.[0-9]+\.[0-9]+.*)<" | cut -d '<' -f 1)
+    pecl_version=$(echo "$response" | grep -m 1 -Eio "v>($major_version\.[0-9]+(\.[0-9]+)?${state}[0-9]+<)" | cut -d '>' -f 2 | cut -d '<' -f 1)
+    [ -z "$pecl_version" ] && pecl_version=$(echo "$response" | grep -m 1 -Eio "v>(.*)<\/v>.*$state<" | grep -m 1 -Eo "v>($major_version\.[0-9]+(\.[0-9]+)?.*)<" | cut -d '>' -f 2 | cut -d '<' -f 1)
     [ -n "$pecl_version" ] && break;
   done
-  [ -z "$pecl_version" ] && pecl_version=$(echo "$response" | grep -m 1 -Eo "($major_version\.[0-9]+\.[0-9]+)<" | cut -d '<' -f 1)
+  [ -z "$pecl_version" ] && pecl_version=$(echo "$response" | grep -m 1 -Eo "v>($major_version\.[0-9]+(\.[0-9]+)?)<" | cut -d '>' -f 2 | cut -d '<' -f 1)
   echo "$pecl_version"
 }
 

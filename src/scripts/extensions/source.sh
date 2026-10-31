@@ -126,7 +126,7 @@ fetch_extension() {
     run_group "git clone -nv $url/$org/$repo /tmp/$repo-$release" "git clone"
     cd /tmp/"$repo-$release" || exit 1
     git checkout -q "$release"
-    cd "$sub_dir" || exit 1
+    cd "${sub_dir:-.}" || exit 1
     if [ -e .gitmodules ]; then
       jobs="$(grep -c "\[submodule" .gitmodules)"
       run_group "git submodule update --jobs $jobs --init --recursive" "git submodule"

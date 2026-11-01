@@ -7,6 +7,7 @@ describe('Extension tests', () => {
     ${'none'}                                    | ${'7.4'} | ${'Disable-AllShared'}
     ${':intl'}                                   | ${'7.4'} | ${'Disable-Extension intl'}
     ${'ast-beta'}                                | ${'7.4'} | ${'Add-Extension ast beta'}
+    ${'ast-stable'}                              | ${'7.4'} | ${'Add-Extension ast stable'}
     ${'blackfire'}                               | ${'7.3'} | ${'Add-Blackfire blackfire'}
     ${'blackfire-1.31.0'}                        | ${'7.3'} | ${'Add-Blackfire blackfire-1.31.0'}
     ${'grpc-1.2.3'}                              | ${'7.4'} | ${'Add-Extension grpc stable 1.2.3'}

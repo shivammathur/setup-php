@@ -104,6 +104,7 @@ Function Add-Extension {
     [string]
     $extension_version = ''
   )
+  $minimum_stability_requested = $PSBoundParameters.ContainsKey('stability') -and $extension_version -eq ''
   $extension_backup = ''
   $restore_startup_errors = $false
   try {
@@ -115,7 +116,7 @@ Function Add-Extension {
       $extension_info = Get-PhpExtension -Path $php_dir | Where-Object { $_.Name -eq $extension -or $_.Handle -eq $extension }
     }
     # Only suppress startup errors while probing a cached DLL or replacing an installed DLL.
-    if($cached -or ($extension_version -ne '' -and $extension_info.Version -ne $extension_version -and (Test-Path "$ext_dir\php_$extension.dll"))) {
+    if($cached -or (($minimum_stability_requested -or ($extension_version -ne '' -and $extension_info.Version -ne $extension_version)) -and (Test-Path "$ext_dir\php_$extension.dll"))) {
       $startup_errors = Get-PhpIniKey -Key display_startup_errors -Path "$php_dir\php.ini"
       if($startup_errors -notmatch '^(0|off|false|no)$') {
         $restore_startup_errors = $true
@@ -147,7 +148,7 @@ Function Add-Extension {
       Remove-Item "$ext_dir\php_$extension.dll" -Force
       $extension_info = $null
     }
-    if ($null -ne $extension_info -and ($extension_version -eq '' -or $extension_info.Version -eq $extension_version)) {
+    if ($null -ne $extension_info -and ($extension_info.State -eq 'Builtin' -or (-not $minimum_stability_requested -and ($extension_version -eq '' -or $extension_info.Version -eq $extension_version)))) {
       switch ($extension_info.State) {
         'Builtin' {
           Add-Log $tick $extension "Enabled"
@@ -169,8 +170,9 @@ Function Add-Extension {
         if ($version -match '8.[1-4]' -and $stability -eq 'stable') {
           $minimumStability = 'snapshot'
         }
+        $maximumStability = if ($extension_version -eq '') { 'stable' } else { $stability }
 
-        $params = @{ Extension = $extension; MinimumStability = $minimumStability; MaximumStability = $stability; Path = $php_dir; AdditionalFilesPath = $deps_dir; NoDependencies = $true }
+        $params = @{ Extension = $extension; MinimumStability = $minimumStability; MaximumStability = $maximumStability; Path = $php_dir; AdditionalFilesPath = $deps_dir; NoDependencies = $true }
         if ($extension_version -ne '')
         {
           $params["Version"] = $extension_version

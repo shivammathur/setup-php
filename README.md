@@ -174,6 +174,8 @@ PHP extensions can be set up using the `extensions` input. It accepts a `string`
 
 - Extensions with pre-release versions available on `PECL` can be set up by suffixing the extension's name with its state i.e `alpha`, `beta`, `devel` or `snapshot`.
 
+  This sets the minimum stability. The newest release with that stability or a more stable state is selected.
+
 ```yaml
 - name: Setup PHP with pre-release PECL extension
   uses: shivammathur/setup-php@v2

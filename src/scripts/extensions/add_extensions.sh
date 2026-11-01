@@ -165,19 +165,27 @@ add_extension() {
 # Function to get the PECL version of an extension.
 get_pecl_version() {
   local extension=$1
-  states=("stable" "rc" "preview" "beta" "alpha" "snapshot")
-  stability="$(echo "$2" | grep -m 1 -Eio "($(IFS='|' ; echo "${states[*]}"))")"
-  IFS=' ' read -r -a states <<< "$(echo "${states[@]}" | grep -Eo "$stability.*")"
+  local requested=${2:-stable}
+  local states=("stable" "rc" "preview" "beta" "alpha" "devel" "snapshot")
+  local stability major_version response pecl_version pattern
+  response=$(get -s -n "" "https://pecl.php.net/rest/r/$extension/allreleases.xml")
+  if [[ "$requested" =~ ^[0-9] ]]; then
+    # Preserve exact pins and PECL's case-sensitive archive directory names.
+    pecl_version=$(echo "$response" | grep -Fio "<v>$requested</v>" | head -n 1 | cut -d '>' -f 2 | cut -d '<' -f 1)
+    echo "${pecl_version:-$requested}"
+    return
+  fi
+  requested="$(echo "$requested" | tr '[:upper:]' '[:lower:]')"
+  [[ " ${states[*]} " = *" $requested "* ]] || return 0
+  IFS=' ' read -r -a states <<< "$(echo "${states[@]}" | grep -Eo ".*$requested")"
+  stability="$(IFS='|' ; echo "${states[*]}")"
   major_version=${3:-'[0-9]+'}
-  pecl_rest='https://pecl.php.net/rest/r/'
-  response=$(get -s -n "" "$pecl_rest$extension"/allreleases.xml)
-  for state in "${states[@]}"; do
-    pecl_version=$(echo "$response" | grep -m 1 -Eio "v>($major_version\.[0-9]+(\.[0-9]+)?${state}[0-9]+<)" | cut -d '>' -f 2 | cut -d '<' -f 1)
-    [ -z "$pecl_version" ] && pecl_version=$(echo "$response" | grep -m 1 -Eio "v>(.*)<\/v>.*$state<" | grep -m 1 -Eo "v>($major_version\.[0-9]+(\.[0-9]+)?.*)<" | cut -d '>' -f 2 | cut -d '<' -f 1)
-    [ -n "$pecl_version" ] && break;
-  done
-  [ -z "$pecl_version" ] && pecl_version=$(echo "$response" | grep -m 1 -Eo "v>($major_version\.[0-9]+(\.[0-9]+)?)<" | cut -d '>' -f 2 | cut -d '<' -f 1)
-  echo "$pecl_version"
+  pattern="v>($major_version\.[0-9]+(\.[0-9]+)?)[^<]*</v>[[:space:]]*<s>($stability)<"
+  if [[ "$requested" = rc || "$requested" = preview ]]; then
+    pattern="$pattern|v>($major_version\.[0-9]+(\.[0-9]+)?)($stability)[0-9]*<"
+  fi
+  # PECL orders releases by version, so select the first acceptable state.
+  echo "$response" | grep -Eio "$pattern" | head -n 1 | cut -d '>' -f 2 | cut -d '<' -f 1
 }
 
 # Function to install PECL extensions and accept default options
@@ -190,7 +198,10 @@ pecl_install() {
   # Install using the source interface as it allows for patching.
   if [[ $(printf "%s\n%s" "${version:?}" "8.3" | sort -V | head -n1) != "$version" ]]; then
     extension_version=${extension##*-};
-    [ "$extension_version" = "${extension%-*}" ] &&  extension_version=$(get_pecl_version "$extension" "stable")
+    if [ "$extension_version" = "${extension%-*}" ]; then
+      extension_version=$(get_pecl_version "$extension" "stable")
+      [ -n "$extension_version" ] || return 1
+    fi
     add_extension_from_source "${extension%-*}" https://pecl.php.net "${extension%-*}" "${extension%-*}" "$extension_version" "$prefix" pecl
     check_extension "${extension%-*}" && return 0 || return 1;
   else
@@ -217,7 +228,7 @@ add_pecl_extension() {
   local extension=$1
   local pecl_version=$2
   local prefix=$3
-  if [[ $pecl_version =~ .*(alpha|beta|rc|snapshot|preview).* ]]; then
+  if [[ $pecl_version =~ (alpha|beta|rc|snapshot|preview|devel) ]]; then
     pecl_version=$(get_pecl_version "$extension" "$pecl_version")
   fi
   # Cache versioned extensions using suffixless copies in extension_dir.
@@ -258,6 +269,10 @@ add_unstable_extension() {
   local stability=$2
   local prefix=$3
   pecl_version=$(get_pecl_version "$extension" "$stability")
+  if [ -z "$pecl_version" ]; then
+    add_log "${cross:?}" "$extension-$stability" "No release found with minimum stability $stability"
+    return
+  fi
   add_pecl_extension "$extension" "$pecl_version" "$prefix"
 }
 

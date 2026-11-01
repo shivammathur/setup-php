@@ -180,7 +180,7 @@ export async function addExtensionWindows(
         add_script += await utils.joins(
           '\nAdd-Extension',
           ext_name,
-          ext_version.replace('stable', '')
+          ext_version
         );
         break;
       // match extensions for compiling from source

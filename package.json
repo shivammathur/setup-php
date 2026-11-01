@@ -65,10 +65,11 @@
   },
   "overrides": {
     "@babel/core": "^7.29.7",
+    "deepmerge": "https://codeload.github.com/shivammathur/deepmerge/tar.gz/9e04a97afa90b9d50883dd723f7d0fb0d2c16dca",
     "js-yaml": "^4.2.0",
     "test-exclude": "^7.0.1",
-    "glob": "^13.0.6",
-    "minimatch": "^10.2.1"
+    "glob": "^14.0.3",
+    "minimatch": "^11.0.3"
   },
   "bugs": {
     "url": "https://github.com/shivammathur/setup-php/issues"

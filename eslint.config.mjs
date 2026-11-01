@@ -1,11 +1,16 @@
+import {createRequire} from 'node:module';
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
-import {importX} from 'eslint-plugin-import-x';
 import jest from 'eslint-plugin-jest';
 import prettierRecommended from 'eslint-plugin-prettier/recommended';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import globals from 'globals';
 import tsParser from '@typescript-eslint/parser';
 import js from '@eslint/js';
+
+// Until import-x supports minimatch 11, use its CommonJS entry point to avoid
+// the removed makeRe import in no-internal-modules, unused by these presets.
+// https://github.com/un-ts/eslint-plugin-import-x/pull/570
+const {importX} = createRequire(import.meta.url)('eslint-plugin-import-x');
 
 export default [
   js.configs.recommended,

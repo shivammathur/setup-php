@@ -863,20 +863,20 @@ describe('Tools tests', () => {
   });
 
   it.each`
-    tools_csv                                    | os          | script
-    ${'phpunit:9.5.0@sha256:' + 'a'.repeat(64)}  | ${'linux'}  | ${'add_tool https://phar.phpunit.de/phpunit-9.5.0.phar,https://phar.phpunit.de/phpunit-9.phar phpunit "--version" sha256:' + 'a'.repeat(64)}
-    ${'phpunit:9.5.0@sha256:' + 'a'.repeat(64)}  | ${'win32'}  | ${'Add-Tool https://phar.phpunit.de/phpunit-9.5.0.phar,https://phar.phpunit.de/phpunit-9.phar phpunit "--version" sha256:' + 'a'.repeat(64)}
-    ${'composer:2.9.8@sha256:' + 'b'.repeat(64)} | ${'linux'}  | ${'composer 2.9.8 sha256:' + 'b'.repeat(64)}
-    ${'cs2pr:1.2.3@sha256:' + 'd'.repeat(64)}    | ${'linux'}  | ${'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr "-V" sha256:' + 'd'.repeat(64)}
-    ${'deployer:7.5.1@sha256:' + 'e'.repeat(64)}  | ${'linux'}  | ${'add_tool https://github.com/deployphp/deployer/releases/download/v7.5.1/deployer.phar,https://deployer.org/releases/v7.5.1/deployer.phar deployer "-V" sha256:' + 'e'.repeat(64)}
-    ${'phive:0.15.3@sha512:' + 'c'.repeat(128)}  | ${'darwin'} | ${'add_tool https://github.com/phar-io/phive/releases/download/0.15.3/phive-0.15.3.phar phive "status" sha512:' + 'c'.repeat(128)}
-    ${'phinx:1.2.3@sha256:' + 'a'.repeat(64)}    | ${'linux'}  | ${'add_log "$cross" "phinx" "Checksum verification is not supported for phinx"'}
-    ${'pecl:1.2.3@sha256:' + 'a'.repeat(64)}     | ${'linux'}  | ${'add_log "$cross" "pecl" "Checksum verification is not supported for pecl"'}
-    ${'phpunit:9.5.0@sha256:invalid'}            | ${'linux'}  | ${'add_log "$cross" "phpunit" "Invalid sha256 checksum, expected 64 hexadecimal characters"'}
-    ${'composer:2.9.8@SHA256:' + 'b'.repeat(64)} | ${'linux'}  | ${'composer 2.9.8 sha256:' + 'b'.repeat(64)}
-    ${'composer:2.9.8@sha384:' + 'b'.repeat(96)} | ${'linux'}  | ${'add_log "$cross" "composer" "Unsupported checksum algorithm sha384, expected sha256 or sha512"'}
-    ${'composer:2.9.8@md5:' + 'b'.repeat(32)}    | ${'linux'}  | ${'add_log "$cross" "composer" "Unsupported checksum algorithm md5, expected sha256 or sha512"'}
-    ${'composer:2.9.8@sha256' + 'b'.repeat(64)}  | ${'linux'}  | ${'add_log "$cross" "composer" "Invalid checksum syntax, expected @sha256:<hash> or @sha512:<hash>"'}
+    tools_csv                                     | os          | script
+    ${'phpunit:9.5.0@sha256:' + 'a'.repeat(64)}   | ${'linux'}  | ${'add_tool https://phar.phpunit.de/phpunit-9.5.0.phar,https://phar.phpunit.de/phpunit-9.phar phpunit "--version" sha256:' + 'a'.repeat(64)}
+    ${'phpunit:9.5.0@sha256:' + 'a'.repeat(64)}   | ${'win32'}  | ${'Add-Tool https://phar.phpunit.de/phpunit-9.5.0.phar,https://phar.phpunit.de/phpunit-9.phar phpunit "--version" sha256:' + 'a'.repeat(64)}
+    ${'composer:2.9.8@sha256:' + 'b'.repeat(64)}  | ${'linux'}  | ${'composer 2.9.8 sha256:' + 'b'.repeat(64)}
+    ${'cs2pr:1.2.3@sha256:' + 'd'.repeat(64)}     | ${'linux'}  | ${'add_tool https://github.com/staabm/annotate-pull-request-from-checkstyle/releases/download/1.2.3/cs2pr cs2pr "-V" sha256:' + 'd'.repeat(64)}
+    ${'deployer:7.5.12@sha256:' + 'e'.repeat(64)} | ${'linux'}  | ${'add_tool https://github.com/deployphp/deployer/releases/download/v7.5.12/deployer.phar,https://deployer.org/releases/v7.5.12/deployer.phar deployer "-V" sha256:' + 'e'.repeat(64)}
+    ${'phive:0.15.3@sha512:' + 'c'.repeat(128)}   | ${'darwin'} | ${'add_tool https://github.com/phar-io/phive/releases/download/0.15.3/phive-0.15.3.phar phive "status" sha512:' + 'c'.repeat(128)}
+    ${'phinx:1.2.3@sha256:' + 'a'.repeat(64)}     | ${'linux'}  | ${'add_log "$cross" "phinx" "Checksum verification is not supported for phinx"'}
+    ${'pecl:1.2.3@sha256:' + 'a'.repeat(64)}      | ${'linux'}  | ${'add_log "$cross" "pecl" "Checksum verification is not supported for pecl"'}
+    ${'phpunit:9.5.0@sha256:invalid'}             | ${'linux'}  | ${'add_log "$cross" "phpunit" "Invalid sha256 checksum, expected 64 hexadecimal characters"'}
+    ${'composer:2.9.8@SHA256:' + 'b'.repeat(64)}  | ${'linux'}  | ${'composer 2.9.8 sha256:' + 'b'.repeat(64)}
+    ${'composer:2.9.8@sha384:' + 'b'.repeat(96)}  | ${'linux'}  | ${'add_log "$cross" "composer" "Unsupported checksum algorithm sha384, expected sha256 or sha512"'}
+    ${'composer:2.9.8@md5:' + 'b'.repeat(32)}     | ${'linux'}  | ${'add_log "$cross" "composer" "Unsupported checksum algorithm md5, expected sha256 or sha512"'}
+    ${'composer:2.9.8@sha256' + 'b'.repeat(64)}   | ${'linux'}  | ${'add_log "$cross" "composer" "Invalid checksum syntax, expected @sha256:<hash> or @sha512:<hash>"'}
   `(
     'checking addTools with checksum: $tools_csv, $os',
     async ({tools_csv, os, script}) => {

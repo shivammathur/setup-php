@@ -156,14 +156,6 @@ interface GitHubRef {
   };
 }
 
-/**
- * Deployer manifest entry
- */
-interface DeployerManifestEntry {
-  version: string;
-  url: string;
-}
-
 export function skipGitHubAuthForComposerVersion(version: string): boolean {
   if (!/^\d+\.\d+\.\d+(?:-[\w-]+)?$/.test(version)) {
     return false;
@@ -545,29 +537,17 @@ export async function addComposer(data: ToolData): Promise<string> {
  * @param data
  */
 export async function addDeployer(data: ToolData): Promise<string> {
-  if (data.version === 'latest') {
-    data.url = data.domain + '/deployer.phar';
-  } else {
-    const manifest = await fetch.fetch('https://deployer.org/manifest.json');
-    const version_data: Record<string, DeployerManifestEntry> = JSON.parse(
-      manifest.data
-    );
-    const version_key: string | undefined = Object.keys(version_data).find(
-      (key: string) => {
-        return version_data[key].version === data.version;
-      }
-    );
-    if (version_key) {
-      data.url = version_data[version_key].url;
-    } else {
-      return await utils.addLog(
-        '$cross',
-        'deployer',
-        'Version missing in deployer manifest',
-        data.os
-      );
-    }
-  }
+  const github_url = await getUrl({
+    ...data,
+    domain: data.github,
+    prefix: 'releases',
+    verb: 'download'
+  });
+  const source_url =
+    data.version === 'latest'
+      ? `${data.domain}/deployer.phar`
+      : `${data.domain}/releases/v${data.version}/deployer.phar`;
+  data.url = `${github_url},${source_url}`;
   return await addArchive(data);
 }
 

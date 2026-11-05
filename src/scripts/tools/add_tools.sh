@@ -171,6 +171,12 @@ add_tools_helper() {
     extensions+=(mbstring)
   elif [ "$tool" = "phive" ]; then
     extensions+=(curl mbstring xml)
+  elif [ "$tool" = "phpstan" ]; then
+    if (pie_install phpstan_turbo "$(get_tool_version phpstan --version)" false); then
+      add_extension_log phpstan_turbo "Installed and enabled"
+    else
+      add_log "${cross:?}" phpstan_turbo "Could not install phpstan_turbo"
+    fi
   elif [[ "$tool" =~ phpc(bf|s) ]]; then
     extensions+=(tokenizer simplexml xmlwriter)
   elif [[ "$tool" =~ phpc(bf|s) ]]; then

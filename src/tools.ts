@@ -280,7 +280,7 @@ export async function getVersion(
   const composer_regex = /^composer:(stable|preview|snapshot|[12])$/;
   const constraint_regex = /[><=^~]+.*/;
   const major_minor_regex = /^\d+(\.\d+)?$/;
-  data.version = version.replace(/v?(\d)/, '$1').replace(/\.x/, '');
+  data.version = version.replace(/v?(\d)/, '$1').replace(/\.[x*]$/, '');
   switch (true) {
     case composer_regex.test(data.release):
     case semver_regex.test(data.version):

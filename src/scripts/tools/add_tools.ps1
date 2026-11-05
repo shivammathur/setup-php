@@ -211,6 +211,9 @@ Function Add-ToolsHelper() {
     $extensions += @('mbstring')
   } elseif($tool -eq "phive") {
     $extensions += @('curl', 'mbstring', 'xml')
+  } elseif($tool -eq "phpstan") {
+    $phpstan_version = Get-ToolVersion phpstan '--version'
+    Add-PieExtension phpstan_turbo $phpstan_version
   } elseif($tool -match "phpc(df|s)") {
     $extensions += @('tokenizer', 'xmlwriter', 'simplexml')
   } elseif($tool -match "php-cs-fixer") {

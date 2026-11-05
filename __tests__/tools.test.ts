@@ -389,27 +389,28 @@ describe('Tools tests', () => {
     ${'phpstan:0.12'}     | ${'download/1.2.3'}
     ${'phpstan:0.12.x'}   | ${'download/1.2.3'}
     ${'phpstan:0.12.*'}   | ${'download/1.2.3'}
-  `(
-    'resolving PHPStan PHAR fallback for $release',
-    async ({release, resolved}) => {
-      unsetComposerAuthEnv();
-      for (const os of ['linux', 'darwin', 'win32']) {
-        const data = await tools.getData(release, '8.0', os);
-        const script = await tools.addPackage(data);
-        expect(script).toContain(
-          'scoped https://github.com/phpstan/phpstan/releases/' +
-            resolved +
-            '/phpstan.phar "-V"'
-        );
-        expect(data.type).toBe('composer');
-        expect(data.release).toContain('phpstan');
-      }
+  `('resolving PHPStan PHAR for $release', async ({release, resolved}) => {
+    unsetComposerAuthEnv();
+    for (const os of ['linux', 'darwin', 'win32']) {
+      const data = await tools.getData(release, '8.0', os);
+      const script = await tools.addArchive(data);
+      expect(script).toContain(
+        'https://github.com/phpstan/phpstan/releases/' +
+          resolved +
+          '/phpstan.phar phpstan "-V"'
+      );
+      expect(data.type).toBe('phar');
+      expect(data.release).toContain('phpstan');
     }
-  );
+  });
 
   it('keeps Composer available when the fallback version lookup fails', async () => {
     process.env['GITHUB_TOKEN'] = 'invalid_token';
-    const data = await tools.getData('phpstan:0.12', '8.0', 'linux');
+    const data = await tools.getData('phpstan:0.12', '8.0', 'linux', {
+      type: 'composer',
+      scope: 'scoped',
+      fallback: {type: 'phar'}
+    });
     expect(await tools.addPackage(data)).toBe(
       'add_composer_tool phpstan "phpstan:0.12.*" phpstan/ scoped'
     );
@@ -688,7 +689,7 @@ describe('Tools tests', () => {
         'add_tool https://github.com/humbug/php-scoper/releases/latest/download/php-scoper.phar php-scoper "--version"',
         'add_tool https://github.com/phpDocumentor/phpDocumentor/releases/latest/download/phpDocumentor.phar phpDocumentor "--version"',
         'add_composer_tool phplint phplint overtrue/',
-        'add_composer_tool phpstan phpstan phpstan/ scoped',
+        'add_tool https://github.com/phpstan/phpstan/releases/latest/download/phpstan.phar phpstan "-V"',
         'add_tool https://phar.phpunit.de/phpunit-7.4.0.phar,https://phar.phpunit.de/phpunit-7.phar phpunit "--version"',
         'add_pecl',
         'add_tool https://www.phing.info/get/phing-latest.phar phing "-v"',

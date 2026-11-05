@@ -85,6 +85,75 @@ Function Add-ExtensionFromGithub {
   }
 }
 
+# Function to install a resolved binary using the existing extension configuration.
+Function Add-PieBinary {
+  Param ($release)
+  $ErrorActionPreference = 'Stop'
+  $extension = $release.extension
+  $download_dir = Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString())
+  New-Item -ItemType Directory -Path $download_dir -Force >$null
+  try {
+    $archive = Join-Path $download_dir $release.name
+    Get-File -Url $release.url -OutFile $archive
+    if ($release.digest -and $release.digest -ne "sha256:$((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant())") {
+      throw "Checksum verification failed for $extension"
+    }
+    $extract_dir = Join-Path $download_dir 'extension'
+    New-Item -ItemType Directory -Path $extract_dir -Force >$null
+    if ($archive.EndsWith('.dll')) {
+      Copy-Item $archive -Destination "$extract_dir\php_$extension.dll"
+    } elseif ($archive.EndsWith('.zip')) {
+      Expand-Archive -Path $archive -DestinationPath $extract_dir -Force
+    } else {
+      & tar -xzf $archive -C $extract_dir
+      if ($LASTEXITCODE -ne 0) { throw "Could not extract $extension" }
+    }
+    $dlls = @(Get-ChildItem $extract_dir -Recurse -File -Filter '*.dll')
+    $binary = @($dlls | Where-Object { $_.Name -eq "php_$extension.dll" -or $_.Name -like "php_$extension-*.dll" })
+    if ($binary.Count -ne 1) { throw "Could not find the prebuilt DLL for $extension" }
+    $dlls | Where-Object { $_.FullName -ne $binary[0].FullName } | Copy-Item -Destination $php_dir -Force
+    Copy-Item $binary[0].FullName -Destination "$ext_dir\php_$extension.dll" -Force
+    $pdb = [System.IO.Path]::ChangeExtension($binary[0].FullName, '.pdb')
+    if (Test-Path $pdb) { Copy-Item $pdb -Destination "$ext_dir\php_$extension.pdb" -Force }
+    $extras_dir = Join-Path $php_dir "extras\$extension"
+    New-Item -ItemType Directory -Path $extras_dir -Force >$null
+    Copy-Item "$extract_dir\*" -Destination $extras_dir -Recurse -Force
+    Enable-ExtensionDependencies $extension
+    Enable-PhpExtension -Extension $extension -Path $php_dir
+    & "$php_dir\php.exe" -r 'exit(extension_loaded($argv[1]) ? 0 : 1);' -- $extension >$null 2>&1
+    if ($LASTEXITCODE -ne 0) { throw "Could not load $extension after installing the prebuilt release" }
+  } finally {
+    Remove-Item $download_dir -Recurse -Force -ErrorAction SilentlyContinue
+  }
+}
+
+# Function to install a mapped extension or vendor/package[:constraint].
+Function Add-PieExtension {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [string]
+    $extension,
+    [Parameter(Position = 1, Mandatory = $true)]
+    [ValidateNotNull()]
+    [string]
+    $package,
+    [Parameter(Position = 2, Mandatory = $false)]
+    [Alias('AllowSourceBuild')]
+    [bool]
+    $allow_source = $false
+  )
+  $metadata = & php "$src\scripts\extensions\release.php" $extension $package 'none' "vs$($installed.VCVersion)"
+  if ($LASTEXITCODE -ne 0) { throw "Could not resolve $extension" }
+  $release = $metadata | ConvertFrom-Json
+  if ($release.kind -ne 'binary') {
+    if ($allow_source) { throw "No compatible binary for $extension $($release.version); source builds are not supported on Windows" }
+    throw "No compatible binary for $extension $($release.version); source builds are disabled"
+  }
+  Add-PieBinary $release
+  Add-Log $tick $extension 'Installed and enabled'
+}
+
 # Function to add PHP extensions.
 Function Add-Extension {
   Param (

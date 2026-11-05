@@ -188,6 +188,73 @@ get_pecl_version() {
   echo "$response" | grep -Eio "$pattern" | head -n 1 | cut -d '>' -f 2 | cut -d '<' -f 1
 }
 
+# Install a resolved binary using the existing extension configuration.
+pie_install_binary() (
+  local metadata=$1 prefix=$2 extension archive binary digest
+  local download_dir
+  extension=$(echo "$metadata" | jq -r .extension)
+  download_dir=$(mktemp -d) || return 1
+  trap 'sudo rm -rf "$download_dir"' EXIT
+  archive="$download_dir/$(echo "$metadata" | jq -r .name)"
+  [ "$(get -v -n "$archive" "$(echo "$metadata" | jq -r .url)")" = 200 ] || return 1
+  digest=$(echo "$metadata" | jq -r '.digest // empty')
+  if [ -n "$digest" ]; then
+    verify_checksum "$archive" "$digest" || return 1
+  fi
+  if [[ "$archive" = *.so ]]; then
+    binary="$archive"
+  else
+    if [[ "$archive" = *.zip ]]; then
+      unzip -qo "$archive" -d "$download_dir" || return 1
+    else
+      tar -xzf "$archive" -C "$download_dir" || return 1
+    fi
+    binary=$(find "$download_dir" -type f -name "$extension.so" -print)
+  fi
+  [ -f "$binary" ] || return 1
+  sudo rm -f "${ext_dir:?}/$extension.so"
+  sudo cp "$binary" "$ext_dir/$extension.so" || return 1
+  sudo rm -f /tmp/php"${version:?}"_extensions
+  enable_extension "$extension" "${prefix:-$(echo "$metadata" | jq -r .prefix)}"
+  check_extension "$extension"
+)
+
+# Resolve a mapped extension or package[:version]; return 2 when source is required but disabled.
+pie_install() {
+  local extension=$1 package=$2 allow_source=${3:-false} prefix=${4:-}
+  local metadata libc source_url reference repository origin organization build_path
+  libc=bsdlibc
+  if [ "$(uname -s)" = Linux ]; then
+    libc=glibc
+    ldd --version 2>&1 | grep -qi musl && libc=musl
+  fi
+  metadata=$(php "${src:?}/scripts/extensions/release.php" "$extension" "$package" "$libc") || return 1
+  if [ "$(echo "$metadata" | jq -r .kind)" = binary ]; then
+    pie_install_binary "$metadata" "$prefix"
+    return $?
+  fi
+  [ "$allow_source" = true ] || return 2
+  source_url=$(echo "$metadata" | jq -r '.source.url // empty')
+  reference=$(echo "$metadata" | jq -r '.source.reference // empty')
+  [[ "$(echo "$metadata" | jq -r '.source.type // empty')" = git && "$source_url" =~ ^https://[a-zA-Z0-9._~:/-]+$ && "$reference" =~ ^[a-fA-F0-9]{7,64}$ ]] || return 1
+  source_url=${source_url%.git}
+  repository=${source_url##*/}
+  organization=${source_url#https://}
+  origin="https://${organization%%/*}"
+  organization=${organization#*/}
+  organization=${organization%/*}
+  extension=$(echo "$metadata" | jq -r .extension)
+  prefix=${prefix:-$(echo "$metadata" | jq -r .prefix)}
+  build_path=$(echo "$metadata" | jq -r .buildPath)
+  if [ -n "$build_path" ] && [ -z "$(parse_args "$extension" PATH)" ]; then
+    [[ "$build_path" != /* && ! "$build_path" =~ (^|/)\.\.(/|$) ]] || return 1
+    local "${extension}_PATH=$build_path"
+  fi
+  add_extension_from_source "$extension" "$origin" "$organization" "$repository" "$reference" "$prefix"
+  sudo rm -f /tmp/php"${version:?}"_extensions
+  check_extension "$extension"
+}
+
 # Function to install PECL extensions and accept default options
 pecl_install() {
   local extension=$1

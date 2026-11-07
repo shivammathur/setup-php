@@ -85,6 +85,67 @@ Function Add-ExtensionFromGithub {
   }
 }
 
+# Function to install a PIE package or mapped version. Windows uses prebuilt DLLs.
+Function Add-PieExtension {
+  Param (
+    [Parameter(Position = 0, Mandatory = $true)]
+    [ValidateNotNull()]
+    [string]
+    $extension,
+    [Parameter(Position = 1, Mandatory = $false)]
+    [string]
+    $package = '',
+    [Parameter(Position = 2, Mandatory = $false)]
+    [Alias('AllowSourceBuild')]
+    [bool]
+    $allow_source = $false
+  )
+  $requested = ($package -split ':', 2)[-1]
+  if ($package -notmatch '/') {
+    $mapping = Get-Content "$src\configs\pie-extensions.json" -Raw | ConvertFrom-Json
+    $package = $mapping.$extension
+    if (-not $package) { throw "No PIE package mapping for $extension" }
+    if ($requested -in @('', 'latest', 'stable')) { $requested = '' } else { $package += ":$requested" }
+  } elseif ($package -notmatch ':') {
+    $requested = ''
+  }
+  & "$php_dir\php.exe" -r 'exit(extension_loaded($argv[1]) && ($argv[2] === "" || phpversion($argv[1]) === $argv[2]) ? 0 : 1);' -- $extension "$requested" >$null 2>&1
+  if ($LASTEXITCODE -eq 0) {
+    Add-Log $tick $extension 'Enabled'
+    return
+  }
+  $pie_args = @('install', $package, '--no-interaction', '--skip-enable-extension', '--no-build-tools-check', '--no-system-dependencies-check', "--with-php-path=$php_dir\php.exe")
+  if (-not $allow_source) {
+    # Skip CPU detection when compilation is disabled.
+    $pie_args += @('--suppress-download-url-method=composer-default', '--suppress-download-url-method=pre-packaged-source', '--make-parallel-jobs=1')
+  }
+  New-Item -ItemType Directory -Path $composer_home -Force >$null
+  Set-ComposerAuth
+  $pie_log = Join-Path ([System.IO.Path]::GetTempPath()) "pie-$extension.log"
+  $pie_path = Join-Path $bin_dir 'pie'
+  if ([version]$installed.MajorMinorVersion -lt [version]'8.1') {
+    $pie_path = Join-Path $bin_dir 'pie-cli.exe'
+    if (-not (Test-Path $pie_path -PathType Leaf)) {
+      Get-File -Url https://github.com/php/pie/releases/latest/download/pie-Windows-X64.exe -OutFile $pie_path
+    }
+    & $pie_path @pie_args >$pie_log 2>&1
+  } else {
+    if (-not (Test-Path $pie_path -PathType Leaf)) {
+      Add-Tool https://github.com/php/pie/releases/latest/download/pie.phar pie '-V' >$null 2>&1
+    }
+    & "$php_dir\php.exe" $pie_path @pie_args >$pie_log 2>&1
+  }
+  if ($LASTEXITCODE -ne 0) {
+    Get-Content $pie_log | ForEach-Object { Write-Host $_ }
+    throw "Could not install $package using PIE (exit code $LASTEXITCODE)"
+  }
+  Enable-ExtensionDependencies $extension
+  Enable-PhpExtension -Extension $extension -Path $php_dir
+  & "$php_dir\php.exe" -r 'exit(extension_loaded($argv[1]) ? 0 : 1);' -- $extension >$null 2>&1
+  if ($LASTEXITCODE -ne 0) { throw "Could not load $extension after installing $package using PIE" }
+  Add-Log $tick $extension 'Installed and enabled'
+}
+
 # Function to add PHP extensions.
 Function Add-Extension {
   Param (

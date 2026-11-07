@@ -188,6 +188,54 @@ get_pecl_version() {
   echo "$response" | grep -Eio "$pattern" | head -n 1 | cut -d '>' -f 2 | cut -d '<' -f 1
 }
 
+# Install a PIE package or mapped version: extension, package, allow_source=false, prefix.
+pie_install() {
+  local extension=$1 package=${2:-} allow_source=${3:-false}
+  local prefix=${4:-$(get_extension_prefix "$extension")} requested pie_path php_config asset arch
+  requested=${package##*:}
+  if [[ "$package" != */* ]]; then
+    package=$(jq -er --arg extension "$extension" '.[$extension]' "${src:?}/configs/pie-extensions.json") || return 1
+    case "$requested" in ''|latest|stable) requested= ;; *) package="$package:$requested" ;; esac
+  elif [[ "$package" != *:* ]]; then
+    requested=
+  fi
+  if php -d display_errors=0 -r 'exit(extension_loaded($argv[1]) && ($argv[2] === "" || phpversion($argv[1]) === $argv[2]) ? 0 : 1);' -- "$extension" "$requested"; then
+    return 0
+  fi
+  local pie_args=(install "$package" --no-interaction --skip-enable-extension --no-build-tools-check --no-system-dependencies-check)
+  php_config=$(command -v php-config) || return 1
+  pie_args+=("--with-php-config=$php_config")
+  if [ "$allow_source" != true ]; then
+    # Skip CPU detection when compilation is disabled.
+    pie_args+=(--suppress-download-url-method=composer-default --suppress-download-url-method=pre-packaged-source --make-parallel-jobs=1)
+  fi
+  if php -r 'exit(PHP_VERSION_ID >= 80100 ? 0 : 1);'; then
+    if ! command -v pie >/dev/null 2>&1; then
+      add_tool https://github.com/php/pie/releases/latest/download/pie.phar pie '-V' >/dev/null 2>&1 || return 1
+    fi
+    pie_path=$(command -v pie) || return 1
+  else
+    arch=$(uname -m)
+    case "$arch" in x86_64|amd64) arch=X64 ;; arm64|aarch64) arch=ARM64 ;; *) return 1 ;; esac
+    asset="pie-$(uname -s)-$arch"
+    [ "$(uname -s)" != Darwin ] || asset="pie-macOS-$arch"
+    pie_path="${tool_path_dir:?}/pie-cli"
+    if [ ! -x "$pie_path" ]; then
+      [ "$(get -v -e "$pie_path" "https://github.com/php/pie/releases/latest/download/$asset")" = 200 ] || return 1
+    fi
+  fi
+  mkdir -p "${composer_home:?}"
+  set_composer_auth
+  sudo -E "$pie_path" "${pie_args[@]}" >"/tmp/pie-$extension.log" 2>&1 || {
+    local status=$?
+    cat "/tmp/pie-$extension.log" >&2
+    return "$status"
+  }
+  sudo rm -f /tmp/php"${version:?}"_extensions
+  enable_extension "$extension" "$prefix" || return 1
+  check_extension "$extension"
+}
+
 # Function to install PECL extensions and accept default options
 pecl_install() {
   local extension=$1

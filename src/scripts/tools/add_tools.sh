@@ -279,8 +279,12 @@ add_tool() {
         sudo cp -a "$tool_path" "$cache_path"
       fi
     fi
-    if [ "$status_code" != "200" ] && [ -f "$tool_path.bak" ]; then
-      sudo mv "$tool_path.bak" "$tool_path"
+    if [ "$status_code" != "200" ]; then
+      if [ -f "$tool_path.bak" ]; then
+        sudo mv "$tool_path.bak" "$tool_path"
+      else
+        sudo rm -f "$tool_path"
+      fi
     fi
     sudo rm -f "$tool_path.bak"
   fi

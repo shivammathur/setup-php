@@ -30,16 +30,12 @@ self_hosted_helper() {
 
 # Function to fix broken packages.
 fix_broken_packages() {
-  sudo apt --fix-broken install >/dev/null 2>&1
+  sudo apt --fix-broken install -o Dpkg::Options::=--force-confnew >/dev/null 2>&1
 }
 
 # Function to install a package
 install_packages() {
   packages=("$@")
-  if ! [ -e /etc/dpkg/dpkg.cfg.d/force-confnew ]; then
-    echo "force-confnew" | sudo tee /etc/dpkg/dpkg.cfg.d/force-confnew >/dev/null 2>&1
-    trap "sudo rm -f /etc/dpkg/dpkg.cfg.d/force-confnew 2>/dev/null" exit
-  fi
   $apt_install "${packages[@]}" >/dev/null 2>&1 || (update_lists && fix_broken_packages && $apt_install "${packages[@]}" >/dev/null 2>&1)
 }
 
@@ -357,7 +353,7 @@ version=${1:-'8.5'}
 ini=${2:-'production'}
 src=${0%/*}/..
 debconf_fix="DEBIAN_FRONTEND=noninteractive"
-apt_install="sudo $debconf_fix apt-fast install -y --no-install-recommends"
+apt_install="sudo $debconf_fix apt-fast install -y --no-install-recommends -o Dpkg::Options::=--force-confnew"
 scripts="$src"/scripts
 
 add_sudo >/dev/null 2>&1

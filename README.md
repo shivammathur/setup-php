@@ -22,20 +22,34 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
 
 ## Contents
 
-- [OS/Platform Support](#cloud-osplatform-support)
+- [Contents](#contents)
+- [:cloud: OS/Platform Support](#cloud-osplatform-support)
   - [GitHub-Hosted Runners](#github-hosted-runners)
   - [Self-Hosted Runners](#self-hosted-runners)
-- [PHP Support](#tada-php-support)
-- [PHP Extension Support](#heavy_plus_sign-php-extension-support)
-- [Tools Support](#wrench-tools-support)
-- [Coverage Support](#signal_strength-coverage-support)
+- [:tada: PHP Support](#tada-php-support)
+- [:heavy\_plus\_sign: PHP Extension Support](#heavy_plus_sign-php-extension-support)
+- [:wrench: Tools Support](#wrench-tools-support)
+- [:signal\_strength: Coverage Support](#signal_strength-coverage-support)
   - [Xdebug](#xdebug)
   - [PCOV](#pcov)
   - [Disable Coverage](#disable-coverage)
-- [Usage](#memo-usage)
+- [:memo: Usage](#memo-usage)
   - [Inputs](#inputs)
+    - [`php-version` (optional)](#php-version-optional)
+    - [`php-version-file` (optional)](#php-version-file-optional)
+    - [`extensions` (optional)](#extensions-optional)
+    - [`ini-file` (optional)](#ini-file-optional)
+    - [`ini-values` (optional)](#ini-values-optional)
+    - [`coverage` (optional)](#coverage-optional)
+    - [`tools` (optional)](#tools-optional)
+    - [`github-token` (optional)](#github-token-optional)
   - [Outputs](#outputs)
+    - [`php-version`](#php-version)
   - [Flags](#flags)
+    - [`fail-fast` (optional)](#fail-fast-optional)
+    - [`phpts` (optional)](#phpts-optional)
+    - [`update` (optional)](#update-optional)
+    - [`verbose` (optional)](#verbose-optional)
   - [Basic Setup](#basic-setup)
   - [Matrix Setup](#matrix-setup)
   - [Nightly Build Setup](#nightly-build-setup)
@@ -54,13 +68,18 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Manual Composer Authentication](#manual-composer-authentication)
   - [Inline PHP Scripts](#inline-php-scripts)
   - [Problem Matchers](#problem-matchers)
+    - [PHP](#php)
+    - [PHPUnit](#phpunit)
+    - [PHPStan](#phpstan)
+    - [Psalm](#psalm)
+    - [Tools with checkstyle support](#tools-with-checkstyle-support)
   - [Examples](#examples)
-- [Versioning](#bookmark-versioning)
-- [License](#scroll-license)
-- [Contributions](#1-contributions)
-- [Support This Project](#sparkling_heart-support-this-project)
-- [Dependencies](#package-dependencies)
-- [Further Reading](#bookmark_tabs-further-reading)
+- [:bookmark: Versioning](#bookmark-versioning)
+- [:scroll: License](#scroll-license)
+- [:+1: Contributions](#1-contributions)
+- [:sparkling\_heart: Support This Project](#sparkling_heart-support-this-project)
+- [:package: Dependencies](#package-dependencies)
+- [:bookmark\_tabs: Further Reading](#bookmark_tabs-further-reading)
 
 ## :cloud: OS/Platform Support
 
@@ -241,7 +260,7 @@ This disables all core and third-party shared extensions and thus, can break som
 
 These tools can be set up globally using the `tools` input. It accepts a string in csv-format.
 
-[`backward-compatibility-check`], [`behat`], [`blackfire`], [`blackfire-player`], [`box`], [`castor`], [`churn`], [`codeception`], [`composer`], [`composer-dependency-analyser`], [`composer-normalize`], [`composer-prefetcher`], [`composer-require-checker`], [`composer-unused`], [`cpx`], [`cs2pr`], [`deployer`], [`ecs`], [`flex`], [`grpc_php_plugin`], [`infection`], [`laravel-cloud`] or [`cloud-cli`], [`mago`], [`name-collision-detector`], [`parallel-lint`], [`pecl`], [`phan`], [`phing`], [`phinx`], [`phive`], [`php-config`], [`php-cs-fixer`], [`php-scoper`], [`phpcbf`], [`phpcpd`], [`phpcs`], [`phpdoc`] or [`phpDocumentor`], [`phpize`], [`phplint`], [`phpmd`], [`phpspec`], [`phpstan`], [`phpunit`], [`phpunit-bridge`], [`phpunit-polyfills`], [`pie`], [`pint`], [`prestissimo`], [`protoc`], [`psalm`], [`rector`], [`symfony`] or [`symfony-cli`], [`vapor`] or [`vapor-cli`], [`wp`] or [`wp-cli`]
+[`backward-compatibility-check`], [`behat`], [`blackfire`], [`blackfire-player`], [`box`], [`castor`], [`churn`], [`codeception`], [`composer`], [`composer-dependency-analyser`], [`composer-normalize`], [`composer-prefetcher`], [`composer-require-checker`], [`composer-unused`], [`cpx`], [`cs2pr`], [`deployer`], [`ecs`], [`flex`], [`grpc_php_plugin`], [`infection`], [`laravel-cloud`] or [`cloud-cli`], [`mago`], [`name-collision-detector`], [`parallel-lint`], [`pecl`], [`phan`], [`phing`], [`phinx`], [`phive`], [`php-config`], [`php-cs-fixer`], [`php-scoper`], [`phpcbf`], [`phpcpd`], [`phpcs`], [`phpdoc`] or [`phpDocumentor`], [`phpize`], [`phplint`], [`phpmd`], [`phpspec`], [`phpstan`], [`phpunit`], [`phpunit-bridge`], [`phpunit-polyfills`], [`pie`], [`pint`], [`prestissimo`], [`protoc`], [`psalm`], [`rector`], [`symfony`] or [`symfony-cli`], [`upsun`] or [`upsun-cli`], [`vapor`] or [`vapor-cli`], [`wp`] or [`wp-cli`]
 
 ```yaml
 - name: Setup PHP with tools
@@ -1164,6 +1183,8 @@ Many users and organizations support setup-php via [GitHub Sponsors](https://git
 [`rector`]:                   https://getrector.org/
 [`symfony`]:                  https://symfony.com/download
 [`symfony-cli`]:              https://symfony.com/download
+[`upsun`]:                    https://docs.upsun.com/administration/cli.html
+[`upsun-cli`]:                https://docs.upsun.com/administration/cli.html
 [`vapor`]:                    https://docs.vapor.build/
 [`vapor-cli`]:                https://docs.vapor.build/
 [`wp`]:                       https://wp-cli.org/

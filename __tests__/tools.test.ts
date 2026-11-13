@@ -669,7 +669,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'blackfire, blackfire-player, box, churn, cloud-cli, cpx, cs2pr, flex, grpc_php_plugin, mago, name-collision-detector, parallel-lint, php-cs-fixer, php-scoper, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, phpunit-polyfills, pint, php-config, phpize, protoc, symfony, vapor, wp, pie',
+      'blackfire, blackfire-player, box, churn, cloud-cli, cpx, cs2pr, flex, grpc_php_plugin, mago, name-collision-detector, parallel-lint, php-cs-fixer, php-scoper, phpDocumentor, phplint, phpstan, phpunit, pecl, phing, phinx, phinx:1.2.3, phive, phpunit-bridge, phpunit-polyfills, pint, php-config, phpize, protoc, symfony, upsun, vapor, wp, pie',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://artifacts.setup-php.com/composer/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_blackfire',
@@ -702,6 +702,7 @@ describe('Tools tests', () => {
         'add_devtools phpize',
         'add_protoc latest',
         'add_symfony latest',
+        'add_upsun latest',
         'add_composer_tool vapor-cli vapor-cli laravel/ scoped',
         'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"',
         'add_tool https://github.com/php/pie/releases/latest/download/pie.phar pie "-V"'
@@ -716,7 +717,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'backward-compatibility-check, behat, blackfire, blackfire-player, churn, composer-dependency-analyser, composer-normalize, composer-require-checker, composer-unused, cpx:2.0.0, cs2pr:1.2.3, ecs, flex, grpc_php_plugin:1.2.3, infection, laravel-cloud, mago:0.26.1, name-collision-detector, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, rector, symfony-cli, vapor-cli, wp-cli, pie',
+      'backward-compatibility-check, behat, blackfire, blackfire-player, churn, composer-dependency-analyser, composer-normalize, composer-require-checker, composer-unused, cpx:2.0.0, cs2pr:1.2.3, ecs, flex, grpc_php_plugin:1.2.3, infection, laravel-cloud, mago:0.26.1, name-collision-detector, phan, phan:1.2.3, phing:1.2.3, phinx, phive:1.2.3, php-config, phpcbf, phpcpd, phpcs, phpdoc, phpize, phpmd, phpspec, phpunit-bridge:5.6, phpunit-polyfills:1.0.1, protoc:v1.2.3, psalm, rector, symfony-cli, upsun-cli:5.16.0, vapor-cli, wp-cli, pie',
       [
         'add_tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://artifacts.setup-php.com/composer/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'add_composer_tool behat behat behat/ scoped',
@@ -755,6 +756,7 @@ describe('Tools tests', () => {
         'add_composer_tool rector rector rector/ scoped',
         'add_composer_tool backward-compatibility-check backward-compatibility-check roave/ scoped',
         'add_symfony latest',
+        'add_upsun 5.16.0',
         'add_composer_tool vapor-cli vapor-cli laravel/ scoped',
         'add_tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"',
         'add_composer_tool easy-coding-standard easy-coding-standard symplify/ scoped',
@@ -770,7 +772,7 @@ describe('Tools tests', () => {
 
   it.each([
     [
-      'blackfire, blackfire-player:1.2.3, cs2pr, churn, deployer, does_not_exist, flex, mago, name-collision-detector, phinx, phive:0.13.2, php-config, phpize, phpmd, simple-phpunit, symfony, wp, pie',
+      'blackfire, blackfire-player:1.2.3, cs2pr, churn, deployer, does_not_exist, flex, mago, name-collision-detector, phinx, phive:0.13.2, php-config, phpize, phpmd, simple-phpunit, symfony, upsun-cli, wp, pie',
       [
         'Add-Tool https://github.com/shivammathur/composer-cache/releases/latest/download/composer-7.4-stable.phar,https://artifacts.setup-php.com/composer/composer-7.4-stable.phar,https://dl.cloudsmith.io/public/shivammathur/composer-cache/raw/files/composer-7.4-stable.phar,https://getcomposer.org/composer-stable.phar composer',
         'Add-Blackfire',
@@ -789,6 +791,7 @@ describe('Tools tests', () => {
         'Add-Tool https://github.com/phpmd/phpmd/releases/latest/download/phpmd.phar phpmd "--version"',
         'Add-ComposerTool phpunit-bridge phpunit-bridge symfony/ global',
         'Add-Symfony',
+        'Add-Upsun latest',
         'Add-Tool https://github.com/wp-cli/builds/blob/gh-pages/phar/wp-cli.phar?raw=true wp-cli "--version"',
         'Add-Tool https://github.com/php/pie/releases/latest/download/pie.phar pie "-V"'
       ]

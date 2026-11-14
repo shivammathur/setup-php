@@ -439,7 +439,7 @@ if($version -eq 'pre') {
 }
 if ($null -eq $installed -or -not("$($installed.Version).".StartsWith(($version -replace '^(\d+(\.\d+)*).*', '$1.'))) -or $ts -ne $installed.ThreadSafe) {
   if ($version -lt '7.0' -and ($null -eq (Get-Module -ListAvailable -Name VcRedist))) {
-    Install-PSPackage VcRedist VcRedist-main\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/main.zip" Get-VcList >$null 2>&1
+    Install-PSPackage VcRedist VcRedist-4.1.527\VcRedist\VcRedist "$github/aaronparker/VcRedist/archive/v4.1.527.zip" Get-VcList >$null 2>&1
   }
   try {
     if ($version -match $nightly_versions) {

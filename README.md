@@ -1067,13 +1067,6 @@ These companies generously provide setup-php their products and services to aid 
   <a target="_blank" href="https://www.macstadium.com/company/opensource#gh-dark-mode-only">
     <img src="https://setup-php.com/sponsors/macstadium-white.png" alt="Mac Stadium" width="200" height="80">
   </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a target="_blank" href="https://m.do.co/c/f1a8ee1277b0#gh-light-mode-only">
-    <img src="https://setup-php.com/sponsors/digitalocean.svg" alt="Digitalocean" width="100" height="100">
-  </a>
-  <a target="_blank" href="https://m.do.co/c/f1a8ee1277b0#gh-dark-mode-only">
-    <img src="https://setup-php.com/sponsors/digitalocean-white.svg" alt="Digitalocean" width="100" height="100">
-  </a>
 </p>
 
 Many users and organizations support setup-php via [GitHub Sponsors](https://github.com/sponsors/shivammathur).

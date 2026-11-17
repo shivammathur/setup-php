@@ -65,10 +65,10 @@ check_builds_cache_runner() {
   local pid=$PPID executable
   while [[ "$pid" =~ ^[0-9]+$ && "$pid" -gt 1 ]]; do
     executable="$(readlink -f "/proc/$pid/exe")" || return 1
-    if [[ "$executable" = */bin/Runner.Worker ]]; then
+    if [[ "$executable" = */bin/Runner.Worker || "$executable" = */bin/Runner.Worker.exe ]]; then
       jq -e --arg name "${RUNNER_NAME:-}" \
-        '.AgentName == $name and (.AgentName | test("^(blacksmith|depot)-"))' \
-        "${executable%/bin/Runner.Worker}/.runner" >/dev/null 2>&1
+        '(.AgentName // .agentName) | . == $name and test("^(blacksmith|depot|nsc-runner)-")' \
+        "${executable%/bin/*}/.runner" >/dev/null 2>&1
       return $?
     fi
     pid="$(awk '$1 == "PPid:" {print $2}' "/proc/$pid/status")" || return 1
@@ -93,7 +93,7 @@ read_env() {
   if [[ $_runner = "self-hosted" && "${use_builds_cache:-false}" = "true" ]]; then
     runner=github
     if [[ "${ID:-}" = "ubuntu" && -z "$ACT" && -z "$CONTAINER" &&
-          ( -n "${BLACKSMITH_VM_ID:-}" || "${RUNNER_NAME:-}" =~ ^(blacksmith|depot)- ) ]] && check_builds_cache_runner; then
+          ( -n "${BLACKSMITH_VM_ID:-}" || "${RUNNER_NAME:-}" =~ ^(blacksmith|depot|nsc-runner)- ) ]] && check_builds_cache_runner; then
       _runner=github
       builds_cache_warning=true
     fi

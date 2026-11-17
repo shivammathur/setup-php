@@ -1047,26 +1047,17 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 These companies generously provide setup-php their products and services to aid in the development of this project.
 
 <p>
-  <a target="_blank" href="https://www.jetbrains.com/?from=setup-php#gh-light-mode-only">
-    <img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="140" height="100">
-  </a>
-  <a target="_blank" href="https://www.jetbrains.com/?from=setup-php#gh-dark-mode-only">
-    <img src="https://setup-php.com/sponsors/jetbrains-white.svg" alt="JetBrains" width="140" height="100">
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a target="_blank" href="https://www.cloudflare.com/lp/project-alexandria/#gh-light-mode-only">
-    <img src="https://setup-php.com/sponsors/cloudflare.svg" alt="Cloudflare" width="240" height="80">
-  </a>
-  <a target="_blank" href="https://www.cloudflare.com/lp/project-alexandria/#gh-dark-mode-only">
-    <img src="https://setup-php.com/sponsors/cloudflare-white.svg" alt="Cloudflare" width="240" height="80">
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a target="_blank" href="https://www.macstadium.com/company/opensource#gh-light-mode-only">
-    <img src="https://setup-php.com/sponsors/macstadium.png" alt="Mac Stadium" width="200" height="80">
-  </a>
-  <a target="_blank" href="https://www.macstadium.com/company/opensource#gh-dark-mode-only">
-    <img src="https://setup-php.com/sponsors/macstadium-white.png" alt="Mac Stadium" width="200" height="80">
-  </a>
+  <a target="_blank" href="https://www.jetbrains.com/?from=setup-php#gh-light-mode-only"><img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="140"></a>
+  <a target="_blank" href="https://www.jetbrains.com/?from=setup-php#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/jetbrains-white.svg" alt="JetBrains" width="140"></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a target="_blank" href="https://www.cloudflare.com/lp/project-alexandria/#gh-light-mode-only"><img src="https://setup-php.com/sponsors/cloudflare.svg" alt="Cloudflare" width="240"></a>
+  <a target="_blank" href="https://www.cloudflare.com/lp/project-alexandria/#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/cloudflare-white.svg" alt="Cloudflare" width="240"></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a target="_blank" href="https://www.macstadium.com/company/opensource#gh-light-mode-only"><img src="https://setup-php.com/sponsors/macstadium.png" alt="Mac Stadium" width="200"></a>
+  <a target="_blank" href="https://www.macstadium.com/company/opensource#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/macstadium-white.png" alt="Mac Stadium" width="200"></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a target="_blank" href="https://namespace.so/#gh-light-mode-only"><img src="https://setup-php.com/sponsors/namespace.svg?v=2" alt="Namespace" width="140"></a>
+  <a target="_blank" href="https://namespace.so/#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/namespace-white.svg?v=2" alt="Namespace" width="140"></a>
 </p>
 
 Many users and organizations support setup-php via [GitHub Sponsors](https://github.com/sponsors/shivammathur).

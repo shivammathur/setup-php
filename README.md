@@ -1046,7 +1046,7 @@ Examples of using `setup-php` with various PHP frameworks and packages.
 
 These companies generously provide setup-php their products and services to aid in the development of this project.
 
-<p>
+<p align="center">
   <a target="_blank" href="https://www.jetbrains.com/?from=setup-php#gh-light-mode-only"><img src="https://setup-php.com/sponsors/jetbrains.svg" alt="JetBrains" width="140"></a>
   <a target="_blank" href="https://www.jetbrains.com/?from=setup-php#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/jetbrains-white.svg" alt="JetBrains" width="140"></a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -1055,9 +1055,14 @@ These companies generously provide setup-php their products and services to aid 
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a target="_blank" href="https://www.macstadium.com/company/opensource#gh-light-mode-only"><img src="https://setup-php.com/sponsors/macstadium.png" alt="Mac Stadium" width="200"></a>
   <a target="_blank" href="https://www.macstadium.com/company/opensource#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/macstadium-white.png" alt="Mac Stadium" width="200"></a>
+</p>
+
+<p align="center">
+  <a target="_blank" href="https://namespace.so/#gh-light-mode-only"><img src="https://setup-php.com/sponsors/namespace.svg?v=2" alt="Namespace" width="180" align="middle"></a>
+  <a target="_blank" href="https://namespace.so/#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/namespace-white.svg?v=2" alt="Namespace" width="180" align="middle"></a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a target="_blank" href="https://namespace.so/#gh-light-mode-only"><img src="https://setup-php.com/sponsors/namespace.svg?v=2" alt="Namespace" width="140"></a>
-  <a target="_blank" href="https://namespace.so/#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/namespace-white.svg?v=2" alt="Namespace" width="140"></a>
+  <a target="_blank" href="https://www.blacksmith.sh/#gh-light-mode-only"><img src="https://setup-php.com/sponsors/blacksmith.svg?v=2" alt="Blacksmith" width="180" align="middle"></a>
+  <a target="_blank" href="https://www.blacksmith.sh/#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/blacksmith-white.svg?v=2" alt="Blacksmith" width="180" align="middle"></a>
 </p>
 
 Many users and organizations support setup-php via [GitHub Sponsors](https://github.com/sponsors/shivammathur).

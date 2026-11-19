@@ -114,8 +114,7 @@ Both `GitHub-hosted` and `self-hosted` runners are supported by `setup-php` on t
 
 On all supported OS/Platforms, the following PHP versions can be set up as per the runner.
 
-- PHP 5.3 to PHP 8.7 on GitHub-hosted runners, except for macOS ARM64 runners.
-- PHP 5.6 to PHP 8.7 on GitHub-hosted macOS ARM64 runners.
+- PHP 5.3 to PHP 8.7 on supported GitHub-hosted runners, including macOS ARM64 runners.
 - PHP 5.6 to PHP 8.7 on self-hosted runners.
 
 | PHP Version | Stability | Release Support       | Runner Support                 |

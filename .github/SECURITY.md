@@ -14,6 +14,7 @@ This security policy only applies to the latest patch releases of the following 
 | 8.3     | :white_check_mark: |
 | 8.4     | :white_check_mark: |
 | 8.5     | :white_check_mark: |
+| 8.6     | :white_check_mark: |
 
 ## Reporting a Vulnerability
 

@@ -51,8 +51,10 @@ describe('Utils tests', () => {
         'utf8'
       )
     });
-    expect(await utils.parseVersion('latest')).toBe('8.5');
-    expect(await utils.parseVersion('nightly')).toBe('8.6');
+    expect(await utils.parseVersion('latest')).toBe('8.6');
+    expect(await utils.parseVersion('highest')).toBe('8.6');
+    expect(await utils.parseVersion('8.x')).toBe('8.6');
+    expect(await utils.parseVersion('nightly')).toBe('8.7');
     expect(await utils.parseVersion('master')).toBe('8.7');
     expect(await utils.parseVersion('8.7')).toBe('8.7');
     expect(await utils.parseVersion('8.7.0')).toBe('8.7');

@@ -134,12 +134,12 @@ On all supported OS/Platforms, the following PHP versions can be set up as per t
 | `8.3`       | `Stable`  | `Security fixes only` | `GitHub-hosted`, `self-hosted` |
 | `8.4`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.5`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
-| `8.6`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
+| `8.6`       | `Stable`  | `Active`              | `GitHub-hosted`, `self-hosted` |
 | `8.7`       | `Nightly` | `In development`      | `GitHub-hosted`, `self-hosted` |
 
 
 > [!Note]
-> - Specifying `8.7` or `master` in `php-version` input installs a nightly build of `PHP 8.7.0-dev` from the master branch of PHP. Specifying `8.6` or `nightly` installs a nightly build of `PHP 8.6.0-dev` from the PHP-8.6 branch. See [nightly build setup](#nightly-build-setup) for more information.
+> - Specifying `8.6` in the `php-version` input selects the PHP 8.6 stable series. Specifying `8.7`, `nightly`, or `master` installs a nightly build of PHP 8.7 from the master branch of PHP. See [nightly build setup](#nightly-build-setup) for more information.
 > - To use JIT on `PHP 8.0` and above, refer to the [JIT configuration](#jit-configuration) section.
 
 ## :heavy_plus_sign: PHP Extension Support
@@ -435,7 +435,7 @@ Disable coverage for these reasons:
 - Accepts a `string`. For example `'8.5'`.
 - Accepts `lowest` to set up the lowest supported PHP version.
 - Accepts `highest` or `latest` to set up the latest stable PHP version.
-- Accepts `nightly` to set up a nightly build of the next PHP release (`8.6`).
+- Accepts `nightly` to set up a nightly build of the next PHP release (`8.7`).
 - Accepts `master` to set up a nightly build from the master branch of PHP (`8.7`).
 - Accepts `pre-installed` to set up the highest pre-installed PHP version. You can combine this with `update: true` to update the pre-installed PHP version.
 - Accepts the format `d.x`, where `d` is the major version. For example `5.x`, `7.x` and `8.x`.
@@ -593,10 +593,10 @@ jobs:
 
 ### Nightly Build Setup
 
-> Set up a nightly build of `PHP 8.6` or `PHP 8.7`.
+> Set up a nightly build of `PHP 8.7`.
 
-- These PHP versions are currently in active development and might contain bugs and breaking changes.
-- Some user space extensions might not support these versions currently.
+- PHP 8.7 is in active development and might contain bugs and breaking changes.
+- Some extensions might not support PHP 8.7 yet.
 
 ```yaml
 steps:
@@ -692,7 +692,7 @@ jobs:
 
 > Set up PHP on multiple architectures on Ubuntu GitHub Runners.
 
-- `PHP 5.6` to `PHP 8.5` are supported by `setup-php` on multiple architecture on `Ubuntu` and `Debian`.
+- `PHP 5.6` to `PHP 8.6` are supported by `setup-php` on multiple architectures on `Ubuntu` and `Debian`.
 - For this, you can use `shivammathur/node` images as containers. These have compatible `Nodejs` and `PHP` installed for `setup-php`.
 
 ```yaml

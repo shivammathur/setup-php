@@ -51,6 +51,32 @@ Function Get-Oci8DLL() {
   return $null
 }
 
+# Function to restore OCI DLLs missing from a cached PHP build.
+Function Add-BundledOci() {
+  $bundleVersion = $installed.FullVersion
+  # PHP 8.2.34 is the last Windows PHP 8.2 release containing the OCI DLLs.
+  if($version -eq '8.2' -and [version]$installed.Version -gt [version]'8.2.34') {
+    $bundleVersion = '8.2.34'
+  }
+  $threadSafety = if($ts) { '' } else { '-nts' }
+  $compiler = if($installed.VCVersion -ge 16) { 'vs' } elseif($version -eq '7.4') { 'vc' } else { 'VC' }
+  $asset = "php-$bundleVersion$threadSafety-Win32-$compiler$($installed.VCVersion)-$arch.zip"
+  $bundleDir = Join-Path ([IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString())
+  New-Item -ItemType Directory -Path $bundleDir > $null
+  try {
+    Get-File -Url "$php_windows/releases/$asset" -FallbackUrl "$php_windows/releases/archives/$asset" -OutFile "$bundleDir\php.zip"
+    Expand-Archive -Path "$bundleDir\php.zip" -DestinationPath $bundleDir -Force
+    Get-ChildItem "$bundleDir\ext\php_*oci*.dll" | ForEach-Object {
+      $dll = Get-PhpExtension -Path $_.FullName
+      if($dll.PhpVersion -eq $version -and $dll.Architecture -eq $arch -and $dll.ThreadSafe -eq $ts) {
+        Copy-Item $_.FullName $ext_dir -Force
+      }
+    }
+  } finally {
+    Remove-Item $bundleDir -Recurse -Force
+  }
+}
+
 # Function to install oci8 and pdo_oci.
 Function Add-Oci() {
   Param (
@@ -63,7 +89,10 @@ Function Add-Oci() {
   try {
     $status = 'Enabled'
     Add-InstantClient
-    if($version -lt '8.4') {
+    if($version -lt '8.3') {
+      if(-not(Get-ChildItem "$ext_dir\php_$extension*.dll")) {
+        Add-BundledOci
+      }
       if($version -lt '5.6' -and $extension -eq 'oci8') {
         Add-Content -Value "`r`nextension=php_oci8.dll" -Path $php_dir\php.ini
       } else {

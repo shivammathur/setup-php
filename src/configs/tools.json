@@ -288,6 +288,14 @@
     "version_prefix": "v",
     "version_parameter": "-V"
   },
+  "upsun-cli": {
+    "alias": "upsun",
+    "type": "custom-package",
+    "repository": "upsun/cli",
+    "domain": "https://github.com",
+    "version_prefix": "v",
+    "version_parameter": "--version"
+  },
   "blackfire-player": {
     "type": "custom-function",
     "domain": "https://get.blackfire.io",

@@ -31,7 +31,7 @@ add_cubrid_helper() {
     set_cubrid_repo
     set_cubrid_branch
     patch_phpize
-    read -r "${ext}_PREFIX_CONFIGURE_OPTS" <<< "CFLAGS=-Wno-implicit-function-declaration"
+    read -r "${ext}_CONFIGURE_PREFIX_OPTS" <<< "SED=sed CMAKE_POLICY_VERSION_MINIMUM=3.5 CFLAGS=-std=gnu17"
     read -r "${ext}_CONFIGURE_OPTS" <<< "--with-php-config=$(command -v php-config)"
     add_extension_from_source "$ext" https://github.com CUBRID "$cubrid_repo" "$cubrid_branch" extension
     restore_phpize

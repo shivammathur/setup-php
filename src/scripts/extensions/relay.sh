@@ -35,12 +35,16 @@ get_openssl_suffix() {
 # Change library paths in relay binary.
 change_library_paths() {
   if [ "$os" = "Darwin" ]; then
-    otool -L "${ext_dir:?}"/relay.so | grep -q 'ssl.3.' && openssl_version='3' || openssl_version='1.1'
+    dylibs="$(otool -L "${ext_dir:?}"/relay.so | grep -Eo '.*\.dylib' | cut -f1 -d ' ')"
+    openssl_version="$(echo "$dylibs" | sed -nE 's|.*libssl\.([0-9.]+)\.dylib$|\1|p' | head -n 1)"
+    if [ -z "$openssl_version" ]; then
+      openssl_version="$(echo "$dylibs" | sed -nE 's|.*/openssl@([0-9.]+)/lib/libssl\.dylib$|\1|p' | head -n 1)"
+    fi
+    openssl_version="${openssl_version:-1.1}"
     [ -e "${brew_prefix:?}"/opt/openssl@"$openssl_version" ] || {
       safe_brew install --skip-link openssl@"$openssl_version" &&
       brew link --overwrite --force openssl@"$openssl_version"
     }
-    dylibs="$(otool -L "${ext_dir:?}"/relay.so | grep -Eo '.*\.dylib' | cut -f1 -d ' ')"
     install_name_tool -change "$(echo "${dylibs}" | grep -E "libzstd.*dylib" | xargs)" "$brew_prefix"/opt/zstd/lib/libzstd.dylib "$ext_dir"/relay.so
     install_name_tool -change "$(echo "${dylibs}" | grep -E "liblz4.*dylib" | xargs)" "$brew_prefix"/opt/lz4/lib/liblz4.dylib "$ext_dir"/relay.so
     install_name_tool -change "$(echo "${dylibs}" | grep -E "libssl.*dylib" | xargs)" "$brew_prefix"/opt/openssl@"$openssl_version"/lib/libssl.dylib "$ext_dir"/relay.so
@@ -130,7 +134,9 @@ add_relay_helper() {
   fi
   if [ -e /tmp/relay.tar.gz ] && file /tmp/relay.tar.gz | grep -q 'gzip'; then
     sudo tar --strip-components=1 -xzf /tmp/relay.tar.gz -C "${ext_dir:?}"
-    sudo mv "${ext_dir:?}"/relay-pkg.so "${ext_dir:?}"/relay.so
+    if [ -e "${ext_dir:?}"/relay-pkg.so ]; then
+      sudo mv "${ext_dir:?}"/relay-pkg.so "${ext_dir:?}"/relay.so
+    fi
   fi
 }
 

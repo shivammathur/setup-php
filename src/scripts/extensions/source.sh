@@ -122,6 +122,10 @@ patch_extension() {
 fetch_extension() {
   local extension=$1
   local fetch=$2
+  local curl_opts=("${curl_opts[@]}" --retry 2)
+  if curl --help all 2>/dev/null | grep -- '--retry-all-errors' >/dev/null; then
+    curl_opts+=(--retry-all-errors)
+  fi
   if [ "$fetch" = "clone" ]; then
     run_group "git clone -nv $url/$org/$repo /tmp/$repo-$release" "git clone"
     cd /tmp/"$repo-$release" || exit 1
@@ -132,15 +136,17 @@ fetch_extension() {
       run_group "git submodule update --jobs $jobs --init --recursive" "git submodule"
     fi
   elif [ "$fetch" = "get" ]; then
-    get -q -n /tmp/"$extension".tar.gz "$url/$org/$repo/archive/$release.tar.gz"
-    tar -xzf /tmp/"$extension".tar.gz -C /tmp
+    get -q -n /tmp/"$extension".tar.gz "$url/$org/$repo/archive/$release.tar.gz" || return 1
+    tar -tzf /tmp/"$extension".tar.gz >/dev/null 2>&1 || return 1
+    tar -xzf /tmp/"$extension".tar.gz -C /tmp || return 1
     cd /tmp/"$repo"-"$release"/"$sub_dir" || exit
   elif [ "$fetch" = "pecl" ]; then
     source="pecl"
     pecl_name=${extension/http/pecl_http}
     capital_pecl_name=$(echo "$pecl_name" | tr '[:lower:]' '[:upper:]')
-    get -q -n /tmp/"$pecl_name".tgz https://pecl.php.net/get/"$pecl_name"-"$release".tgz https://pecl.php.net/get/"$capital_pecl_name"-"$release".tgz
-    tar -xzf /tmp/"$pecl_name".tgz -C /tmp
+    get -q -n /tmp/"$pecl_name".tgz https://pecl.php.net/get/"$pecl_name"-"$release".tgz https://pecl.php.net/get/"$capital_pecl_name"-"$release".tgz || return 1
+    tar -tzf /tmp/"$pecl_name".tgz >/dev/null 2>&1 || return 1
+    tar -xzf /tmp/"$pecl_name".tgz -C /tmp || return 1
     cd /tmp/"$pecl_name"-"$release" 2>/dev/null || cd /tmp/"$capital_pecl_name"-"$release" 2>/dev/null || exit
   fi
 }
@@ -165,7 +171,7 @@ add_extension_from_source() {
   (
     add_devtools phpize >/dev/null 2>&1
     disable_extension_helper "$extension"
-    fetch_extension "$extension" "$fetch"
+    fetch_extension "$extension" "$fetch" || exit 1
     if ! [ "$(find . -maxdepth 1 -name '*.m4' -exec grep -H 'PHP_NEW_EXTENSION' {} \; | wc -l)" != "0" ]; then
       add_log "${cross:?}" "$source" "$source does not have a PHP extension"
     else

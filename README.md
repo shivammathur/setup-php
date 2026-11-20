@@ -1058,8 +1058,7 @@ These companies generously provide setup-php their products and services to aid 
 </p>
 
 <p align="center">
-  <a target="_blank" href="https://namespace.so/#gh-light-mode-only"><img src="https://setup-php.com/sponsors/namespace.svg?v=2" alt="Namespace" width="180" align="middle"></a>
-  <a target="_blank" href="https://namespace.so/#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/namespace-white.svg?v=2" alt="Namespace" width="180" align="middle"></a>
+  <a target="_blank" href="https://namespace.so/github-actions/?utm_source=oss&utm_campaign=setup-php"><img src="https://namespace.so/oss/badge.svg" alt="CI powered by Namespace" height="32" align="middle"></a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a target="_blank" href="https://www.blacksmith.sh/#gh-light-mode-only"><img src="https://setup-php.com/sponsors/blacksmith.svg?v=2" alt="Blacksmith" width="180" align="middle"></a>
   <a target="_blank" href="https://www.blacksmith.sh/#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/blacksmith-white.svg?v=2" alt="Blacksmith" width="180" align="middle"></a>

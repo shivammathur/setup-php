@@ -17,6 +17,9 @@
   <a href="https://twitter.com/setup_php" title="setup-php twitter"><img alt="setup-php twitter" src="https://img.shields.io/badge/twitter-follow-1DA1F2?logo=twitter&logoColor=1DA1F2&labelColor=555555"></a>
   <a href="https://status.setup-php.com" title="setup-php status"><img alt="setup-php status" src="https://img.shields.io/badge/status-subscribe-28A745?logo=statuspage&logoColor=28A745&labelColor=555555"></a>
 </p>
+<p align="center">
+  <a target="_blank" href="https://namespace.so/github-actions/?utm_source=oss&utm_campaign=setup-php"><img src="https://namespace.so/oss/badge.svg" alt="CI powered by Namespace" height="32" align="middle"></a>
+</p>
 
 Setup PHP with required extensions, php.ini configuration, code-coverage support, and various tools like composer in [GitHub Actions](https://github.com/features/actions "GitHub Actions"). This action gives you a cross-platform interface to set up the PHP environment you need to test your application. Refer to the [Usage](#memo-usage "How to use this") section and [examples](#examples "Examples of use") to see how to use this.
 
@@ -1058,8 +1061,8 @@ These companies generously provide setup-php their products and services to aid 
 </p>
 
 <p align="center">
-  <a target="_blank" href="https://namespace.so/#gh-light-mode-only"><img src="https://setup-php.com/sponsors/namespace.svg?v=2" alt="Namespace" width="180" align="middle"></a>
-  <a target="_blank" href="https://namespace.so/#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/namespace-white.svg?v=2" alt="Namespace" width="180" align="middle"></a>
+  <a target="_blank" href="https://namespace.so/github-actions/?utm_source=oss&utm_campaign=setup-php#gh-light-mode-only"><img src="https://setup-php.com/sponsors/namespace.svg?v=2" alt="Namespace" width="180" align="middle"></a>
+  <a target="_blank" href="https://namespace.so/github-actions/?utm_source=oss&utm_campaign=setup-php#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/namespace-white.svg?v=2" alt="Namespace" width="180" align="middle"></a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a target="_blank" href="https://www.blacksmith.sh/#gh-light-mode-only"><img src="https://setup-php.com/sponsors/blacksmith.svg?v=2" alt="Blacksmith" width="180" align="middle"></a>
   <a target="_blank" href="https://www.blacksmith.sh/#gh-dark-mode-only"><img src="https://setup-php.com/sponsors/blacksmith-white.svg?v=2" alt="Blacksmith" width="180" align="middle"></a>

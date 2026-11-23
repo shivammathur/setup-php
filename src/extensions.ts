@@ -31,14 +31,14 @@ export async function addExtensionDarwin(
       case /.+-.+\/.+@.+/.test(extension):
         add_script += await utils.parseExtensionSource(extension, ext_prefix);
         return;
-      // match 7.4relay...8.5relay
+      // match 7.4relay...8.6relay
       // match 5.3blackfire...8.5blackfire
       // match 5.3blackfire-(semver)...8.5blackfire-(semver)
       // match couchbase, event, geos, ibm_db2, pdo_ibm, pdo_oci, oci8, http, pecl_http
       // match 5.3ioncube...8.5ioncube
       // match 7.0phalcon3...7.3phalcon3, 7.2phalcon4...7.4phalcon4, and 7.4phalcon5...8.4phalcon5
       // match 7.0zephir_parser...8.5zephir_parser
-      case /^(7\.4|8\.[0-5])relay(-v?\d+\.\d+\.\d+|-nightly)?$/.test(
+      case /^(7\.4|8\.[0-6])relay(-v?\d+\.\d+\.\d+|-nightly)?$/.test(
         version_extension
       ):
       case /^(5\.[3-6]|7\.[0-4]|8\.[0-5])blackfire(-\d+\.\d+\.\d+)?$/.test(
@@ -277,7 +277,7 @@ export async function addExtensionLinux(
       case /.+-.+\/.+@.+/.test(extension):
         add_script += await utils.parseExtensionSource(extension, ext_prefix);
         return;
-      // match 7.4relay...8.5relay
+      // match 7.4relay...8.6relay
       // match 5.3blackfire...8.5blackfire
       // match 5.3blackfire-(semver)...8.5blackfire-(semver)
       // match 5.3pdo_cubrid...7.2php_cubrid, 5.3cubrid...7.4cubrid
@@ -285,7 +285,7 @@ export async function addExtensionLinux(
       // match 5.3ioncube...8.5ioncube
       // match 7.0phalcon3...7.3phalcon3, 7.2phalcon4...7.4phalcon4, 7.4phalcon5...8.4phalcon5
       // match 7.0zephir_parser...8.5zephir_parser
-      case /^(7\.4|8\.[0-5])relay(-v?\d+\.\d+\.\d+|-nightly)?$/.test(
+      case /^(7\.4|8\.[0-6])relay(-v?\d+\.\d+\.\d+|-nightly)?$/.test(
         version_extension
       ):
       case /^(5\.[3-6]|7\.[0-4]|8\.[0-5])blackfire(-\d+\.\d+\.\d+)?$/.test(

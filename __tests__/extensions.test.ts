@@ -72,6 +72,7 @@ describe('Extension tests', () => {
     ${'phalcon3'}                                | ${'7.3'} | ${'add_phalcon phalcon3'}
     ${'relay'}                                   | ${'7.4'} | ${'add_relay relay'}
     ${'relay-v1.2.3'}                            | ${'7.4'} | ${'add_relay relay-v1.2.3'}
+    ${'relay-nightly'}                           | ${'8.6'} | ${'add_relay relay-nightly'}
     ${'sqlite'}                                  | ${'7.4'} | ${'add_extension sqlite3'}
     ${'sqlsrv-1.2.3-beta1'}                      | ${'7.4'} | ${'add_pecl_extension sqlsrv 1.2.3beta1 extension'}
     ${'Xdebug'}                                  | ${'7.4'} | ${'add_extension xdebug'}
@@ -107,6 +108,7 @@ describe('Extension tests', () => {
     ${'pdo_oci'}                                 | ${'7.3'} | ${'add_oci pdo_oci'}
     ${'pecl_http'}                               | ${'7.3'} | ${'add_http'}
     ${'relay-1.2.3'}                             | ${'7.4'} | ${'add_relay relay-1.2.3'}
+    ${'relay-nightly'}                           | ${'8.6'} | ${'add_relay relay-nightly'}
     ${'sqlite'}                                  | ${'7.2'} | ${'add_extension sqlite3'}
     ${'xdebug2'}                                 | ${'7.4'} | ${'add_brew_extension xdebug2 zend_extension 2.9.8'}
     ${'zephir_parser-v1.2.3'}                    | ${'7.2'} | ${'add_zephir_parser zephir_parser-v1.2.3'}

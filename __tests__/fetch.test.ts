@@ -21,6 +21,10 @@ it('checking fetch', async () => {
 
   nock(host_url)
     .get('/manifest')
+    .matchHeader(
+      'user-agent',
+      `setup-php (${process.platform}; ${process.arch}; +https://setup-php.com)`
+    )
     .reply(200, {latest: 'latest'})
     .get('/manifest')
     .matchHeader('authorization', 'Bearer invalid_token')

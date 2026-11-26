@@ -1,7 +1,7 @@
 # Variables
 export tick="✓"
 export cross="✗"
-export curl_opts=(-sL -A "setup-php (+https://github.com/shivammathur/setup-php)")
+export curl_opts=(-sL)
 export old_versions="5.[3-5]"
 export jit_versions="8.[0-9]"
 export php_builder_versions="8.[3-9]"

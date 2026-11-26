@@ -16,7 +16,7 @@ export async function fetch(
   redirect_count = 5
 ): Promise<Record<string, string>> {
   const headers: Record<string, string> = {
-    'User-Agent': `Mozilla/5.0 (${process.platform} ${process.arch}) setup-php`
+    'User-Agent': `setup-php (${process.platform}; ${process.arch}; +https://setup-php.com)`
   };
   if (auth_token) {
     headers['Authorization'] = 'Bearer ' + auth_token;

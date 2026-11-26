@@ -304,9 +304,10 @@ Function Add-Tool() {
   } else {
     $backup_path = "$tool_path.bak"
     if (Test-Path $tool_path) { Copy-Item $tool_path -Destination $backup_path -Force }
+    $user_agent = "setup-php ($env:RUNNER_OS; $env:RUNNER_ARCH; +https://setup-php.com)"
     foreach ($url in $urls){
       try {
-        $status_code = (Invoke-WebRequest -Passthru -Uri $url -OutFile $tool_path).StatusCode
+        $status_code = (Invoke-WebRequest -Passthru -Uri $url -UserAgent $user_agent -OutFile $tool_path).StatusCode
       } catch {
         $status_code = 0
         if($url -match '^https://github\.com/[^/]+/[^/]+/releases/latest/download/[^/?#]+$') {
@@ -314,7 +315,7 @@ Function Add-Tool() {
             $release_url = Get-LastRelease $url
             if ($release_url) {
               $url = $release_url
-              $status_code = (Invoke-WebRequest -Passthru -Uri $url -OutFile $tool_path).StatusCode
+              $status_code = (Invoke-WebRequest -Passthru -Uri $url -UserAgent $user_agent -OutFile $tool_path).StatusCode
             }
           } catch {
             $status_code = 0

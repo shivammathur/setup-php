@@ -224,6 +224,12 @@ get_last_release() {
   done
 }
 
+# Download a tool with the setup-php user agent.
+download_tool() {
+  local curl_opts=("${curl_opts[@]}" -A "setup-php ($RUNNER_OS; $RUNNER_ARCH; +https://setup-php.com)")
+  get -v -e "$@"
+}
+
 # Function to setup a remote tool.
 add_tool() {
   url=$1
@@ -266,12 +272,12 @@ add_tool() {
     # Tools are single files, so let servers gzip them in transit when curl can decode it.
     local curl_opts=("${curl_opts[@]}")
     curl -V | grep -qw libz && curl_opts+=(--compressed)
-    status_code=$(get -v -e "$tool_path" "${url[@]}")
+    status_code=$(download_tool "$tool_path" "${url[@]}")
     if [ "$status_code" != "200" ] && [[ "${url[0]}" =~ ^https://github\.com/[^/]+/[^/]+/releases/latest/download/[^/?#]+$ ]]; then
       local release_url
       if release_url=$(get_last_release "${url[0]}"); then
         url[0]="$release_url"
-        status_code=$(get -v -e "$tool_path" "${url[0]}")
+        status_code=$(download_tool "$tool_path" "${url[0]}")
       fi
     fi
     if [ "$status_code" = "200" ]; then

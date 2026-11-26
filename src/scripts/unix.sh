@@ -77,6 +77,16 @@ check_builds_cache_runner() {
   return 1
 }
 
+# Function to configure environment for ASAN builds.
+configure_asan() {
+  use_builds_cache=false
+  update=true
+  add_env ASAN_OPTIONS "${ASAN_OPTIONS:-detect_leaks=0}"
+  add_env UBSAN_OPTIONS "${UBSAN_OPTIONS:-halt_on_error=1}"
+  add_env ZEND_DONT_UNLOAD_MODULES "${ZEND_DONT_UNLOAD_MODULES:-1}"
+  add_env USE_ZEND_ALLOC "${USE_ZEND_ALLOC:-0}"
+}
+
 # Function to read env inputs.
 read_env() {
   if [[ "${SETUP_PHP_TRACE:-0}" =~ ^[12]$ ]]; then
@@ -86,7 +96,7 @@ read_env() {
   use_builds_cache="${use_builds_cache:-${use_package_cache:-}}"
   [ "${debug:-${DEBUG:-false}}" = "true" ] && debug=debug && update=true || debug=release
   [[ "${phpts:-${PHPTS:-nts}}" = "ts" || "${phpts:-${PHPTS:-nts}}" = "zts" ]] && ts=zts && update=true || ts=nts
-  [[ "${asan:-${ASAN:-false}}" = "true" ]] && asan=asan && use_builds_cache=false && update=true || asan=
+  [[ "${asan:-${ASAN:-false}}" = "true" ]] && asan=asan && configure_asan || asan=
   fail_fast="${fail_fast:-${FAIL_FAST:-false}}"
   [[ ( -z "$ImageOS" && -z "$ImageVersion" ) ||
      ( -n "$RUNNER_ENVIRONMENT" && "$RUNNER_ENVIRONMENT" = "self-hosted" ) ||

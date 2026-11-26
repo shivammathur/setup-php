@@ -83,11 +83,11 @@ read_env() {
     set -x
   fi
   update="${update:-${UPDATE:-false}}"
+  use_builds_cache="${use_builds_cache:-${use_package_cache:-}}"
   [ "${debug:-${DEBUG:-false}}" = "true" ] && debug=debug && update=true || debug=release
   [[ "${phpts:-${PHPTS:-nts}}" = "ts" || "${phpts:-${PHPTS:-nts}}" = "zts" ]] && ts=zts && update=true || ts=nts
-  [[ "${asan:-${ASAN:-false}}" = "true" ]] && asan=asan && update=true || asan=
+  [[ "${asan:-${ASAN:-false}}" = "true" ]] && asan=asan && use_builds_cache=false && update=true || asan=
   fail_fast="${fail_fast:-${FAIL_FAST:-false}}"
-  use_builds_cache="${use_builds_cache:-${use_package_cache:-}}"
   [[ ( -z "$ImageOS" && -z "$ImageVersion" ) ||
      ( -n "$RUNNER_ENVIRONMENT" && "$RUNNER_ENVIRONMENT" = "self-hosted" ) ||
      -n "$ACT" || -n "$CONTAINER" ]] && _runner=self-hosted || _runner=github
@@ -97,6 +97,7 @@ read_env() {
     if [[ "${ID:-}" = "ubuntu" && -z "$ACT" && -z "$CONTAINER" &&
           ( -n "${BLACKSMITH_VM_ID:-}" || "${RUNNER_NAME:-}" =~ ^(blacksmith|depot|nsc-runner)- ) ]] && check_builds_cache_runner; then
       _runner=github
+      # shellcheck disable=SC2034
       builds_cache_warning=true
     fi
   fi

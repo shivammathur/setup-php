@@ -44,6 +44,7 @@ Setup PHP with required extensions, php.ini configuration, code-coverage support
   - [Nightly Build Setup](#nightly-build-setup)
   - [Debug Build Setup](#debug-build-setup)
   - [Thread Safe Setup](#thread-safe-setup)
+  - [ASAN Build Setup](#asan-build-setup)
   - [Force Update Setup](#force-update-setup)
   - [Verbose Setup](#verbose-setup)
   - [Multi-Arch Setup](#multi-arch-setup)
@@ -531,6 +532,13 @@ On GitHub Actions you can assign the `setup-php` step an `id`, you can use the s
 - By default, it is set to `nts`.
 - See [thread safe setup](#thread-safe-setup) for more info.
 
+#### `asan` (optional)
+
+- Specify to set up PHP with AddressSanitizer (ASAN) for memory error detection.
+- Accepts `true` or `false`.
+- Only available for PHP 8.0 and above on Linux runners.
+- See [ASAN build setup](#asan-build-setup) for more info.
+
 #### `update` (optional)
 
 - Specify to update PHP on the runner to the latest patch version.
@@ -651,6 +659,44 @@ jobs:
       env:
         phpts: ts # specify ts or nts
 ```
+
+### ASAN Build Setup
+
+> Set up PHP with AddressSanitizer (ASAN) for memory error detection.
+
+- ASAN builds include both `AddressSanitizer` and `UndefinedBehaviorSanitizer (UBSan)`.
+- Only available for PHP 8.0 and above on Linux based runners.
+- Useful for detecting memory errors such as buffer overflows, use-after-free, and memory leaks.
+
+```yaml
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    name: Setup PHP with ASAN
+    steps:
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.5'
+      env:
+        asan: true
+```
+
+You can combine ASAN with other options:
+
+```yaml
+- name: Setup PHP with ASAN and thread safety
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '8.5'
+  env:
+    asan: true
+    phpts: ts
+```
+
+> [!NOTE]
+> - ASAN builds have a performance overhead due to the instrumentation, so they are recommended for testing and debugging only.
+> - You can configure ASAN behavior using the `ASAN_OPTIONS` environment variable in your test steps.
 
 ### Force Update Setup
 

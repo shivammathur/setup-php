@@ -694,9 +694,19 @@ You can combine ASAN with other options:
     phpts: ts
 ```
 
+With `asan: true`, subsequent steps in the same job inherit `ASAN_OPTIONS=detect_leaks=0`, `UBSAN_OPTIONS=halt_on_error=1`, `ZEND_DONT_UNLOAD_MODULES=1`, and `USE_ZEND_ALLOC=0` by default.
+
+Set a variable in the setup step's `env` to override its default for the rest of the job. To enable leak checks for a single test step, set `ASAN_OPTIONS` on that step.
+
+```yaml
+- name: Run PHPUnit with leak detection
+  run: vendor/bin/phpunit
+  env:
+    ASAN_OPTIONS: detect_leaks=1
+```
+
 > [!NOTE]
 > - ASAN builds have a performance overhead due to the instrumentation, so they are recommended for testing and debugging only.
-> - You can configure ASAN behavior using the `ASAN_OPTIONS` environment variable in your test steps.
 
 ### Force Update Setup
 

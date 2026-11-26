@@ -263,6 +263,9 @@ add_tool() {
     fi
   else
     [ -f "$tool_path" ] && sudo cp -a "$tool_path" "$tool_path.bak"
+    # Tools are single files, so let servers gzip them in transit when curl can decode it.
+    local curl_opts=("${curl_opts[@]}")
+    curl -V | grep -qw libz && curl_opts+=(--compressed)
     status_code=$(get -v -e "$tool_path" "${url[@]}")
     if [ "$status_code" != "200" ] && [[ "${url[0]}" =~ ^https://github\.com/[^/]+/[^/]+/releases/latest/download/[^/?#]+$ ]]; then
       local release_url

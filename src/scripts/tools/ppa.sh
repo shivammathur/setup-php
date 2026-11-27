@@ -40,7 +40,7 @@ update_lists_helper() {
   list=$1
   command -v sudo >/dev/null && SUDO=sudo
   if [[ -n "$list" ]]; then
-    ${SUDO} apt-get update -o Dir::Etc::sourcelist="$list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
+    ${SUDO} apt-get update -o Dir::Etc::sourcelist="$list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0" -o APT::Update::Error-Mode=any
   else
     ${SUDO} apt-get update
   fi
@@ -70,7 +70,7 @@ update_lists() {
     list="$list_file"
   fi
   if [ ! -e "$status_file" ]; then
-    update_lists_helper "$list" >/dev/null 2>&1
+    update_lists_helper "$list" >/dev/null 2>&1 || return 1
     echo '' | tee "$status_file" >/dev/null 2>&1
   fi
 }
@@ -177,14 +177,18 @@ add_key() {
   package_dist=$3
   key_source=$4
   key_file=$5
-  key_urls=("$key_source")
-  if [[ "$key_source" =~ launchpadcontent.net|debian.org ]]; then
-    fingerprint="$("${ID}"_fingerprint "$ppa" "$ppa_url" "$package_dist")"
+  local source=${key_source:-$ppa}
+  local key_urls=() fingerprint=${key_fingerprints[$source]:-} sks_params
+  [ "$key_source" = "$ppa_url" ] || key_urls+=("$key_source")
+  key_urls+=("${key_mirrors[$source]:-$ppa_sp/keys/$ppa.gpg}")
+  if [ ! -e "$key_source" ] && ! get -q -n "$key_file" "${key_urls[@]}"; then
+    if [[ "$key_source" =~ launchpadcontent\.net|debian\.org ]]; then
+      fingerprint="$("${ID}"_fingerprint "$ppa" "$ppa_url" "$package_dist")" || return 1
+    fi
+    [[ "$fingerprint" =~ ^[[:xdigit:]]{40}$ ]] || return 1
     sks_params="op=get&options=mr&exact=on&search=0x$fingerprint"
-    key_urls=("${sks[@]/%/\/pks\/lookup\?"$sks_params"}")
+    get -q -n "$key_file" "${sks[@]/%/\/pks\/lookup\?"$sks_params"}" || return 1
   fi
-  key_urls+=("$ppa_sp/keys/$ppa.gpg")
-  [ ! -e "$key_source" ] && get -q -n "$key_file" "${key_urls[@]}"
   if [[ "$(file "$key_file")" =~ .*('Public-Key (old)'|'Secret-Key') ]]; then
     sudo gpg --batch --yes --dearmor "$key_file" >/dev/null 2>&1 && sudo mv "$key_file".gpg "$key_file"
   fi
@@ -292,10 +296,15 @@ add_list() {
     status_token="${ppa_url}|${package_dist}|${branches}"
   fi
   [ -e "$key_source" ] && key_file=$key_source || key_file="$key_dir"/"${ppa/\//-}"-keyring.gpg
-  add_key "$ppa" "$ppa_url" "$package_dist" "$key_source" "$key_file"
-  write_list "$list_format" "$ppa" "$ppa_url" "$package_dist" "$branches" "$key_file"
+  add_key "$ppa" "$ppa_url" "$package_dist" "$key_source" "$key_file" || return 1
+  write_list "$list_format" "$ppa" "$ppa_url" "$package_dist" "$branches" "$key_file" || return 1
   list_path="$list_dir"/"${ppa%%/*}"-"$ID"-"${ppa#*/}"-"$package_dist"."$list_extension"
-  update_lists "$ppa" "$list_path" "$status_token"
+  # A staged source must pass a signed APT update before replacing the installed file.
+  if [ -n "${6:-}" ] && ! cmp -s "$list_path" "$6/${list_path##*/}"; then
+    update_lists_helper "$list_path" >/dev/null && sudo install -m 644 "$list_path" "$6/" || return 1
+  else
+    update_lists "$ppa" "$list_path" "$status_token" || return 1
+  fi
   . /etc/os-release
   return 0;
 }
@@ -343,39 +352,43 @@ add_ppa_sp_mirror() {
   add_list sp/"$ppa_name" "$ppa_sp/$ppa/ubuntu" "$ppa_sp/$ppa/ubuntu/key.gpg"
 }
 
-add_sury_list() {
-  ppa=${1:-ondrej/php}
-  [ "${debug:?}" = "debug" ] && add_list "$ppa" "$sury"/"${ppa##*/}"/ "$sury"/"${ppa##*/}"/apt.gpg "$VERSION_CODENAME" "main/debug"
-  add_list "$ppa" "$sury"/"${ppa##*/}"/ "$sury"/"${ppa##*/}"/apt.gpg
-}
+add_sury_list() (
+  local repo=${1:-ondrej/php} mirrors=${2:-}
+  local archive=${repo##*/}
+  local url="$sury/$archive/"
+  if [ -n "$mirrors" ]; then
+    local dest="$list_dir" key="$key_dir/debsuryorg-archive-keyring.gpg"
+    local -a curl_opts=("${curl_opts[@]}" --connect-timeout 5 --max-time 15)
+    [ -s "$key" ] || key="$key_dir/sury-$archive-keyring.gpg"
+    [ -s "$key" ] || add_key "sury/$archive" "$url" "$VERSION_CODENAME" "${url}apt.gpg" "$key" || return 1
+    sources_format="$(get_sources_format)"
+    list_dir="$(mktemp -d)" || return 1
+    trap 'rm -rf "$list_dir"' EXIT
+    add_list "${3:-$repo}" "mirror+file:$mirrors" "$key" "$VERSION_CODENAME" main "$dest"
+  else
+    [ "${debug:?}" = "debug" ] && add_list "$repo" "$url" "${url}apt.gpg" "$VERSION_CODENAME" "main/debug"
+    if ! add_list "$repo" "$url" "${url}apt.gpg"; then
+      [ -n "$check_lists_file" ] && update_lists "$repo" "$check_lists_file" "$url|$VERSION_CODENAME|main"
+    fi
+  fi
+)
 
 # Function to add a PPA.
-add_ppa() {
+add_ppa() (
   set_base_version
-  ppa=${1:-ondrej/php}
-  if [[ "$ID" = "ubuntu" || "$ID_LIKE" =~ ubuntu ]] && [[ "$ppa" =~ "ondrej/" ]]; then
-    if [ "$VERSION_ID" = "26.04" ]; then
-      add_sury_list
-    else
-      if is_ubuntu_ppa_up "$ppa" ; then
-        [ "${runner:?}" = "self-hosted" ] && find "$list_dir" -type f -name 'sp*' -exec grep -qF "${sp/https:\/\/}" {} \; -delete
-        [ "${debug:?}" = "debug" ] && add_list "$ppa" "$lpc_ppa/$ppa/ubuntu" "$lpc_ppa/$ppa/ubuntu" "$VERSION_CODENAME" "main/debug"
-        add_list "$ppa"
-      elif [ "$ppa" = "ondrej/php" ]; then
-        add_ppa_sp_mirror "$ppa"
-      else
-        add_log "${cross:?}" "$ppa" "PPA $ppa is not available"
-      fi
-    fi
-  elif [[ "$ID" = "debian" || "$ID_LIKE" =~ debian ]] && [[ "$ppa" =~ "ondrej/" ]]; then
-    add_sury_list
+  local repo=${1:-$php_ppa} url
+  if [[ "$repo" = "$php_ppa" && "$ID $ID_LIKE" = *ubuntu* ]]; then
+    sudo install -C -m 644 "${src:?}/configs/sury-mirrors" "$sury_mirrors" || return 1
+    add_sury_list "$repo" "$sury_mirrors" setup-php/sury || return 1
+    for url in "${php_repo_urls[@]}"; do
+      remove_list "$repo" "$url"
+    done
+  elif [[ "$repo" = ondrej/* ]]; then
+    add_sury_list "$repo"
   else
-    add_list "$ppa"
+    add_list "$repo"
   fi
-  exit_code="$?"
-  . /etc/os-release
-  return $exit_code
-}
+)
 
 # Function to update a PPA.
 update_ppa() {
@@ -414,8 +427,16 @@ lpc_ppa='https://ppa.launchpadcontent.net'
 key_dir='/usr/share/keyrings'
 dist_info_dir='/usr/share/distro-info'
 sury='https://packages.sury.org'
+sury_mirrors='/etc/apt/setup-php-sury-mirrors.txt'
 ppa_sp='https://ppa.setup-php.com'
-sp='https://setup-php.com'
+declare -A key_mirrors=(["$sury/php/apt.gpg"]="$ppa_sp/keys/sury/php.gpg")
+declare -A key_fingerprints=(["$sury/php/apt.gpg"]=15058500A0235D97F5D10063B188E2B695BD4743)
+php_ppa='ondrej/php'
+php_repo_urls=(
+  "$sury/php" "$ppa_sp/sury"
+  "$lpc_ppa/$php_ppa/ubuntu" "$lp_ppa/$php_ppa/ubuntu"
+  "$ppa_sp/$php_ppa/ubuntu" "${setup_php:-https://setup-php.com}/$php_ppa/ubuntu"
+)
 sks=(
   'https://keyserver.ubuntu.com'
   'https://pgp.mit.edu'

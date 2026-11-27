@@ -104,7 +104,7 @@ filter_packages() {
 add_extension_helper() {
   local extension=$1
   packages=(php"$version"-"$extension")
-  add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
+  add_ppa >/dev/null 2>&1
   [ "${debug:?}" = "debug" ] && check_package php"$version"-"$extension"-dbgsym && packages+=(php"$version"-"$extension"-dbgsym)
   (check_package "${packages[0]}" && install_packages "${packages[@]}") || pecl_install "$extension"
   add_extension_log "$extension" "Installed and enabled"
@@ -221,7 +221,7 @@ get_php_packages() {
 
 # Function to install packaged PHP
 add_packaged_php() {
-  add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
+  add_ppa >/dev/null 2>&1
   IFS=' ' read -r -a packages <<<"$(get_php_packages)"
   install_packages "${packages[@]}"
 }
@@ -241,7 +241,9 @@ update_php() {
 # Function to install PHP.
 add_php() {
   if [ "${runner:?}" = "self-hosted" ] || [ "${use_builds_cache:-true}" = "false" ]; then
-    if [[ "$version" =~ ${php_builder_versions:?} || "$ts" = "zts" || -n "${asan:-}" ]]; then
+    # Sury's Ubuntu archive does not publish the PHP CLI debug symbols.
+    if [[ "$version" =~ ${php_builder_versions:?} || "$ts" = "zts" || -n "${asan:-}" ||
+          ( "$debug" = "debug" && "$ID $ID_LIKE" == *ubuntu* ) ]]; then
         setup_php_builder
     else
       add_packaged_php
@@ -366,4 +368,8 @@ set_apt_install >/dev/null 2>&1
 . "${scripts:?}"/extensions/add_extensions.sh
 read_env
 self_hosted_setup
+if [[ "$ID $ID_LIKE" = *ubuntu* ]] && ! add_ppa; then
+  add_log "$cross" "Sury" "Could not configure the PHP package repository"
+  exit 1
+fi
 setup_php

@@ -75,7 +75,7 @@ add_http_latest() {
     if [ "$os" = "Linux" ]; then
       add_http_dependencies
       package="php$version-http"
-      add_ppa ondrej/php >/dev/null 2>&1 || update_ppa ondrej/php
+      add_ppa >/dev/null 2>&1
       (check_package "$package" && install_packages "$package") || add_http_helper "$(get_http_version)" "$os"
     else
       if ! [[ "${version:?}" =~ ${old_versions:?} ]]; then
